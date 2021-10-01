@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="CDR.DataHolder.API.Infrastructure.IdPermanence.AesEncryptor">
+    <Position X="3.5" Y="0.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAACAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IdPermanence\AesEncryptor.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CDR.DataHolder.API.Infrastructure.IdPermanence.IdPermanenceModel">
+    <Position X="0.5" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgiAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <FileName>IdPermanence\IdPermanenceModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CDR.DataHolder.API.Infrastructure.IdPermanence.IdPermanenceManager">
+    <Position X="0.5" Y="4.5" Width="5.25" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAEAAAAAAAA=</HashCode>
+      <FileName>IdPermanence\IdPermanenceManager.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="CDR.DataHolder.API.Infrastructure.IdPermanence.CompressionExtensions">
+    <Position X="7.5" Y="0.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IdPermanence\CompressionExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="CDR.DataHolder.API.Infrastructure.IdPermanence.IIdPermanenceManager">
+    <Position X="0.5" Y="2.75" Width="5.25" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IdPermanence\IIdPermanenceManager.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

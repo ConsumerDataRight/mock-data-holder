@@ -1,0 +1,86 @@
+@model UserAuthViewModel
+
+@{ var data = new
+	{
+		dataHolderName = "Mock Data Holder"
+	}; }
+
+@if (Model.ShowOtp)
+{
+	@section scripts {
+		<script src="~/js/login.js"></script>
+	}
+}
+
+<form asp-route="Login">
+	<input type="hidden" asp-for="ReturnUrl" />
+
+	@if (string.IsNullOrEmpty(Model.CustomerId))
+	{
+		<div class="pb-4 text-center">
+			<h6 class="pb-3">@string.Format("Connect to {0}", data.dataHolderName)</h6>
+			<p class="">Please provide your Customer ID to<br />connect @Model.ClientName to<br />@data.dataHolderName</p>
+		</div>
+		<partial name="_ValidationSummary" />
+		<div class="page-form pb-3">
+			<div class="form-group">
+				<label asp-for="CustomerId">Customer ID <span class="badge badge-info badge-pill">?</span></label>
+				<input class="form-control" placeholder="Your Customer ID" asp-for="CustomerId" autofocus />
+				<small class="text-muted form-text"><i>Forgot your customer ID?<br>Go to the @data.dataHolderName website to retrieve it</i></small>
+			</div>
+		</div>
+		<div class="page-buttons flex justify-content-center">
+			<div class="row">
+				<div class="col p-0 pr-1">
+					<button class="btn btn-outline-primary btn-block" name="button" value="@UserAuthViewModel.ButtonActions.Cancel">Cancel</button>
+				</div>
+				<div class="col p-0 pl-1">
+					<button class="btn btn-primary btn-block" name="button" value="@UserAuthViewModel.ButtonActions.Page2">Continue</button>
+				</div>
+			</div>
+		</div> }
+	else
+	{
+		<input type="hidden" asp-for="CustomerId" />
+		<input type="hidden" asp-for="ValidOtp" />
+		<div class="pb-4 text-center">
+			<h6 class="pb-3">One Time Password</h6>
+		</div>
+		<div className="page-content">
+			<p class="text-secondary">One Time Passwords are used to share CDR data. You will never be asked to provide you real password to provide CDR data.</p>
+			<p class="text-secondary">A One Time Password has been sent to your mobile *******190 to securely connect to @data.dataHolderName. <b>Please enter this below.</b></p>
+			<div class="alert alert-secondary text-center" role="alert">
+				This code will expire in <b id="countdown-timer">10:00</b>
+			</div>
+		</div>
+		<div class="page-form pb-3">
+			<div class="form-group">
+				<label asp-for="Otp">One Time Password</label>
+				<input class="form-control" placeholder="Enter 6 digit One Time Password" asp-for="Otp" autofocus />
+				<small class="text-muted form-text"><i>Didn't get the code? Go to the @data.dataHolderName website to update your contact details.</i></small>
+			</div>
+		</div>
+		<div class="page-buttons flex justify-content-center">
+			<div class="row">
+				<div class="col p-0 pr-1">
+					<button class="btn btn-outline-primary btn-block" name="button" value="@UserAuthViewModel.ButtonActions.Page1">Cancel</button>
+				</div>
+				<div class="col p-0 pl-1">
+					<button class="btn btn-primary btn-block" name="button" value="@UserAuthViewModel.ButtonActions.Authenticate">Continue</button>
+				</div>
+			</div>
+		</div>}
+</form>
+
+<div id="otpToast" class="fade toast bg-warning" role="alert" aria-live="assertive" data-autohide="false">
+	@*aria-atomic="true">*@
+	<div class="toast-header">
+		<strong class="mr-auto">@data.dataHolderName</strong>
+		<button type="button" class="close ml-2 mb-1" data-dismiss="toast">
+			<span aria-hidden="true">x</span>
+		</button>
+	</div>
+	<div class="toast-body">
+		Your One Time Password is <b>@Model.ValidOtp</b>, for your @data.dataHolderName login to share your data. If you did not initiate this transaction, call 10 10 1010.
+	</div>
+</div>

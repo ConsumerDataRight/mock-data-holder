@@ -1,0 +1,26 @@
+﻿@model AccountModel
+
+<li class="list-group-item border-left-0 border-right-0">
+	@if (!Model.IsSelected)
+	{
+<div class="custom-control custom-checkbox">
+
+	<input class="custom-control-input"
+		   type="checkbox"
+		   name="SelectedAccountIds"
+		   id="ids_@Model.Id"
+		   value="@Model.Id"
+		   disabled="@(!Model.IsValid)" />
+	<label class="custom-control-label" for="ids_@Model.Id">
+		<h6 class="m-0"><i class="fa fa-car"></i> @Model.Name <small>@(!string.IsNullOrEmpty(Model.Type) ? string.Format("({0})", Model.Type) : string.Empty)</small> </h6>
+		<p class="m-0">@Model.MaskedName</p>
+	</label>
+
+</div>}
+else
+{
+<label>
+	<h6 class="m-0"><span class="badge badge-warning">&nbsp;</span> @Model.Name <small>@(!string.IsNullOrEmpty(Model.Type) ? string.Format("({0})", Model.Type) : string.Empty)</small> </h6>
+	<p class="m-0">@Model.MaskedName</p>
+</label>}
+</li>

@@ -1,0 +1,28 @@
+@using System.Diagnostics
+
+@{ var version = FileVersionInfo.GetVersionInfo(typeof(IdentityServer4.Hosting.IdentityServerMiddleware).Assembly.Location).ProductVersion.Split('+').First(); }
+@{ var data = new
+	{
+		dataHolderName = "Mock Data Holder"
+	}; }
+
+<div class="pb-4 text-center">
+	@*<img src="~/logo.png" class="rounded-circle pb-2" />*@
+	<h6 class="pb-3">@string.Format("Welcome to {0} Identity Server", data.dataHolderName)</h6>
+</div>
+<div className="page-data">
+	<p class="text-center">Some important links to get started</p>
+	<div class="alert alert-secondary" role="alert">
+		<ul>
+			<li>
+				<a href="~/.well-known/openid-configuration">Discovery Document</a> - Where you can find metadata and links to all the endpoints, key material, etc.
+			</li>
+			@*<li>
+					<a href="~/diagnostics">Diagnostics</a> - See the claims for your current session.
+				</li>
+				<li>
+					<a href="~/grants">Grants</a> - Manage your stored grants.
+				</li>*@
+		</ul>
+	</div>
+</div>

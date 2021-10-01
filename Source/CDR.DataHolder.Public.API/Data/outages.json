@@ -1,0 +1,28 @@
+{
+    "data": {
+        "outages": [
+            {
+                "outageTime": "2021-06-30T23:00:00.000Z",
+                "duration": "PT3H30M",
+                "isPartial": false,
+                "explanation": "Scheduled maintenance"
+            },
+            {
+                "outageTime": "2021-07-22T19:30:00.000Z",
+                "duration": "PT1H",
+                "isPartial": false,
+                "explanation": "System Upgrade"
+            },
+            {
+                "outageTime": "2021-08-30T23:00:00.000Z",
+                "duration": "PT2H15M",
+                "isPartial": true,
+                "explanation": "Server Patching"
+            }
+        ]
+    },
+    "links": {
+        "self": "https://localhost:8000/cds-au/v1/discovery/outages"
+    },
+    "meta": {}
+}

@@ -1,0 +1,218 @@
+{
+    "Routes": [
+                
+        // Authorise
+        {
+            "DownstreamPathTemplate": "/connect/authorize",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8001
+                }
+            ],
+            "UpstreamPathTemplate": "/connect/authorise",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        },
+
+        // Health check
+        {
+            "DownstreamPathTemplate": "/health/status",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8001
+                }
+            ],
+            "UpstreamPathTemplate": "/health/status",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        },
+
+        // Register
+        {
+            "DownstreamPathTemplate": "/connect/register",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8001
+                }
+            ],
+            "UpstreamPathTemplate": "/connect/register",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        },
+
+        // GET, PUT, DELETE Registration
+        {
+            "DownstreamPathTemplate": "/connect/register/{clientId}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8001
+                }
+            ],
+            "UpstreamPathTemplate": "/connect/register/{clientId}",
+            "UpstreamHttpMethod": [ "GET", "PUT", "DELETE" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        },
+
+        // Get Token
+        {
+            "DownstreamPathTemplate": "/connect/token",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8001
+                }
+            ],
+            "UpstreamPathTemplate": "/connect/token",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        },
+
+        // Get UserInfo
+        {
+            "DownstreamPathTemplate": "/connect/userinfo",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8001
+                }
+            ],
+            "UpstreamPathTemplate": "/connect/userinfo",
+            "UpstreamHttpMethod": [ "GET", "POST" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        },
+
+        // Token Revocation
+        {
+            "DownstreamPathTemplate": "/connect/revocation",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8001
+                }
+            ],
+            "UpstreamPathTemplate": "/connect/revocation",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        },
+
+        // Revoke CDR Arrangement
+        {
+            "DownstreamPathTemplate": "/connect/arrangements/revoke",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8001
+                }
+            ],
+            "UpstreamPathTemplate": "/connect/arrangements/revoke",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        },
+
+        // Get Introspection
+        {
+            "DownstreamPathTemplate": "/connect/introspect",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8001
+                }
+            ],
+            "UpstreamPathTemplate": "/connect/introspect",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        },
+
+        // PAR
+        {
+            "DownstreamPathTemplate": "/connect/par",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8001
+                }
+            ],
+            "UpstreamPathTemplate": "/connect/par",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        },
+
+        // Get Customer
+        {
+            "DownstreamPathTemplate": "/cds-au/v1/common/customer",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8003
+                }
+            ],
+            "UpstreamPathTemplate": "/cds-au/v1/common/customer",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        },
+
+        // Get Accounts
+        {
+            "DownstreamPathTemplate": "/cds-au/v1/{industry}/accounts",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8003
+                }
+            ],
+            "UpstreamPathTemplate": "/cds-au/v1/{industry}/accounts",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        },
+
+        // Get Transactions
+        {
+            "DownstreamPathTemplate": "/cds-au/v1/{industry}/accounts/{accountId}/transactions",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8003
+                }
+            ],
+            "UpstreamPathTemplate": "/cds-au/v1/{industry}/accounts/{accountId}/transactions",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        },
+
+        // Get Metrics
+        {
+            "DownstreamPathTemplate": "/cds-au/v1/admin/metrics",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 8004
+                }
+            ],
+            "UpstreamPathTemplate": "/cds-au/v1/admin/metrics",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        }
+
+    ],
+    "GlobalConfiguration": {
+        "BaseUrl": "https://localhost:8002"
+    }
+}

@@ -1,0 +1,335 @@
+{
+	"info": {
+		"_postman_id": "f1d22a39-e21b-4332-b993-f9e871c1f06a",
+		"name": "Mock Data Holder",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Public API - Get Status",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "1",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8000/cds-au/v1/discovery/status",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"cds-au",
+						"v1",
+						"discovery",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Public API - Get Outages",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "1",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8000/cds-au/v1/discovery/outages",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"cds-au",
+						"v1",
+						"discovery",
+						"outages"
+					],
+					"query": [
+						{
+							"key": "x-v",
+							"value": "1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "InfoSec - Get OIDC Config",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8001/.well-known/openid-configuration",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						".well-known",
+						"openid-configuration"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "InfoSec - Get OIDC JWKS",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8001/.well-known/openid-configuration/jwks",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						".well-known",
+						"openid-configuration",
+						"jwks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Resource API - Get Common Customer - Person",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.globals.set(\"x-fapi-auth-date\", new Date().toUTCString());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0RUUxQThEQi0xM0FGLTQ0RDctQjU0Qi1FOTRERkYzREY1NDgiLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjIsInNjb3BlIjoiY29tbW9uOmN1c3RvbWVyLmJhc2ljOnJlYWQifQ.IzeDU4YhWJD2fn2sFk0FL4pqR4Oxd4o8FNIhU7YgKIA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "1",
+						"type": "text"
+					},
+					{
+						"key": "x-fapi-auth-date",
+						"value": "{{x-fapi-auth-date}}",
+						"type": "text"
+					},
+					{
+						"key": "x-fapi-interaction-id",
+						"value": "123",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8002/cds-au/v1/common/customer",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8002",
+					"path": [
+						"cds-au",
+						"v1",
+						"common",
+						"customer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Resource API - Get Common Customer - Person - Middle Names",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.globals.set(\"x-fapi-auth-date\", new Date().toUTCString());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0NzA1RUJBNy1EQUFFLTREQ0EtQTFGOS0xMkFBNzg1QTcwMkYiLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjIsInNjb3BlIjoiY29tbW9uOmN1c3RvbWVyLmJhc2ljOnJlYWQifQ.iU19891jixwGuN1__fxqtCNci1PBvuNB5FR984N4yEc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "1",
+						"type": "text"
+					},
+					{
+						"key": "x-fapi-auth-date",
+						"value": "{{x-fapi-auth-date}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8002/cds-au/v1/common/customer",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8002",
+					"path": [
+						"cds-au",
+						"v1",
+						"common",
+						"customer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Resource API - Get Common Customer - Person - Occupation Code",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.globals.set(\"x-fapi-auth-date\", new Date().toUTCString());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJCRkI2ODlGQi03NzQ1LTQ1QjktQkJBQS1CMjFFMDAwNzI0NDciLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjIsInNjb3BlIjoiY29tbW9uOmN1c3RvbWVyLmJhc2ljOnJlYWQifQ.7BIIANmTX0sjkd6Du7Y_zve0M9clvKpASMfO9MNmTfA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "1",
+						"type": "text"
+					},
+					{
+						"key": "x-fapi-auth-date",
+						"value": "{{x-fapi-auth-date}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8002/cds-au/v1/common/customer",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8002",
+					"path": [
+						"cds-au",
+						"v1",
+						"common",
+						"customer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Resource API - Get Common Customer - Organisation",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.globals.set(\"x-fapi-auth-date\", new Date().toUTCString());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2RURBRjMyMi1BNjg1LTQxQzAtQTNCNi1BRUE4QTIzNUMzNEUiLCJuYW1lIjoiQnVzaW5lc3MgMiIsImlhdCI6MTUxNjIzOTAyMiwic2NvcGUiOiJjb21tb246Y3VzdG9tZXIuYmFzaWM6cmVhZCJ9.oi2ECposZv2vla9GmEdOCPvdWiha4INhcj2ca0AZXgA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "1",
+						"type": "text"
+					},
+					{
+						"key": "x-fapi-auth-date",
+						"value": "{{x-fapi-auth-date}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:8002/cds-au/v1/common/customer",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8002",
+					"path": [
+						"cds-au",
+						"v1",
+						"common",
+						"customer"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,55 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+    # Any update here needs to be done for
+    # - `pull_request` see below
+      - '*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/pull_request_template.md'
+      - '.github/stale.yml'
+      - 'LICENSE'
+      - 'Postman/**'
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+    # Any update here needs to be done for
+    # - `push`see before
+      - '*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/pull_request_template.md'
+      - '.github/stale.yml'
+      - 'LICENSE'
+      - 'Postman/**'
+    
+env:
+  buildConfiguration: 'Release'
+  buildRuntime: 'win-x64'
+  runEnvironment: 'Pipeline'
+  
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    
+    - name: Restore dependencies
+      run: dotnet restore ${{ github.workspace }}\Source\DataHolder.sln
+      
+    - name: Build
+      run: dotnet build ${{ github.workspace }}\Source\DataHolder.sln --configuration ${{ env.buildConfiguration }}
+      
+    - name: Unit Tests
+      run: |
+        dotnet test ${{ github.workspace }}\Source\CDR.DataHolder.API.Infrastructure.UnitTests\bin\Release\net5.0\CDR.DataHolder.API.Infrastructure.UnitTests.dll
+        dotnet test ${{ github.workspace }}\Source\CDR.DataHolder.IdentityServer.UnitTests\bin\Release\net5.0\CDR.DataHolder.IdentityServer.UnitTests.dll
+        dotnet test ${{ github.workspace }}\Source\CDR.DataHolder.Resource.API.UnitTests\bin\Release\net5.0\CDR.DataHolder.Resource.API.UnitTests.dll

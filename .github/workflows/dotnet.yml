@@ -54,10 +54,10 @@ jobs:
       run: ls ${{ github.workspace }}
 
     - name: Restore dependencies
-      run: dotnet restore ${{ github.workspace }}\Source\DataHolder.sln
+      run: dotnet restore ${{ github.workspace }}\mock-data-holder\Source\DataHolder.sln
       
     - name: Build
-      run: dotnet build ${{ github.workspace }}\Source\DataHolder.sln --configuration ${{ env.buildConfiguration }}
+      run: dotnet build ${{ github.workspace }}\mock-data-holder\Source\DataHolder.sln --configuration ${{ env.buildConfiguration }}
       
     - name: Unit Tests
       run: |

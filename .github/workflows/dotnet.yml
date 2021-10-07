@@ -96,7 +96,12 @@ jobs:
     - name: Delete Unit Test DB
       run: |
         cd ${{ github.workspace }}\cdr
-        del /Q mdh.db
+        dir
+
+        cd ${{ github.workspace }}\cdr
+        Remove-Item -Path ${{ github.workspace }}\cdr\mdh.db -Force
+
+        dir
       shell: powershell
 
     - name: Integration Tests

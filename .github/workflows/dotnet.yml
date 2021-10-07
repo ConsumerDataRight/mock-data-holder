@@ -49,9 +49,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
-    
-    - name: Output folder/files
-      run: ls ${{ github.workspace }}
 
     - name: Restore dependencies
       run: dotnet restore ${{ github.workspace }}\mock-data-holder\Source\DataHolder.sln
@@ -59,6 +56,31 @@ jobs:
     - name: Build
       run: dotnet build ${{ github.workspace }}\mock-data-holder\Source\DataHolder.sln --configuration ${{ env.buildConfiguration }}
       
+    - name: Create CDR folder
+      run: |
+        echo ${{ github.workspace }}
+        
+        Write-Host "Creating the temporary CDR directory which holds the logs and database file..."
+        New-Item -ItemType Directory -Path ${{ github.workspace }}\cdr -Force
+      shell: powershell
+
+    - name: Set AEST timezone
+      run: |
+        cd ${{ github.workspace }}
+        tzutil /s "AUS Eastern Standard Time"
+      shell: powershell
+
+    - name: Install certificates
+      run: |
+        $PlainPassword = "#M0ckCDRCA#"
+        $SecurePassword = $PlainPassword | ConvertTo-SecureString -AsPlainText -Force     
+        Import-PfxCertificate -Password $SecurePassword -FilePath "mock-data-holder/CertificateManagement/mtls/ca.pfx" -CertStoreLocation Cert:\LocalMachine\Root
+
+        $PlainPassword = "#M0ckDataHolder#"
+        $SecurePassword = $PlainPassword | ConvertTo-SecureString -AsPlainText -Force      
+        Import-PfxCertificate -Password $SecurePassword -FilePath "mock-data-holder/CertificateManagement/tls/mock-data-holder.pfx" -CertStoreLocation Cert:\LocalMachine\Root
+      shell: powershell
+
     - name: Unit Tests
       run: |
         dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.API.Infrastructure.UnitTests\bin\Release\net5.0\CDR.DataHolder.API.Infrastructure.UnitTests.dll

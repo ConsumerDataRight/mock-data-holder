@@ -36,11 +36,14 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+      with:
+        path: ./mock-data-holder
 
     - uses: actions/checkout@v2
       with:
         repository: ConsumerDataRight/mock-register
-        ref: github.ref
+        ref: ${{ github.ref }}
+        path: ./mock-register
     
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
@@ -58,6 +61,6 @@ jobs:
       
     - name: Unit Tests
       run: |
-        dotnet test ${{ github.workspace }}\Source\CDR.DataHolder.API.Infrastructure.UnitTests\bin\Release\net5.0\CDR.DataHolder.API.Infrastructure.UnitTests.dll
-        dotnet test ${{ github.workspace }}\Source\CDR.DataHolder.IdentityServer.UnitTests\bin\Release\net5.0\CDR.DataHolder.IdentityServer.UnitTests.dll
-        dotnet test ${{ github.workspace }}\Source\CDR.DataHolder.Resource.API.UnitTests\bin\Release\net5.0\CDR.DataHolder.Resource.API.UnitTests.dll
+        dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.API.Infrastructure.UnitTests\bin\Release\net5.0\CDR.DataHolder.API.Infrastructure.UnitTests.dll
+        dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IdentityServer.UnitTests\bin\Release\net5.0\CDR.DataHolder.IdentityServer.UnitTests.dll
+        dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Resource.API.UnitTests\bin\Release\net5.0\CDR.DataHolder.Resource.API.UnitTests.dll

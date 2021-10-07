@@ -126,19 +126,19 @@ jobs:
         Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.IdentityServer.${{ env.runEnvironment }}"
         
         Write-Host "Running the data holder..."
-        cd ${{ github.workspace }}\mock-register\Source\CDR.DataHolder.Manage.API
+        cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Manage.API
         Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.Manage.API.${{ env.runEnvironment }}"
 
-        cd ${{ github.workspace }}\mock-register\Source\CDR.DataHolder.Resource.API
+        cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Resource.API
         Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.Resource.API.${{ env.runEnvironment }}"
 
-        cd ${{ github.workspace }}\mock-register\Source\CDR.DataHolder.Public.API
+        cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Public.API
         Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.Public.API.${{ env.runEnvironment }}"
 
-        cd ${{ github.workspace }}\mock-register\Source\CDR.DataHolder.IdentityServer
+        cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IdentityServer
         Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.IdentityServer.${{ env.runEnvironment }}"
 
-        cd ${{ github.workspace }}\mock-register\Source\CDR.DataHolder.API.Gateway.mTLS
+        cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.API.Gateway.mTLS
         Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.API.Gateway.mTLS.${{ env.runEnvironment }}"
 
         Write-Host "Sleeping for 30 seconds to allow solutions to startup..."

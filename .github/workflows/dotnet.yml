@@ -36,12 +36,20 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+
+    - uses: actions/checkout@v2
+      with:
+        repository: ConsumerDataRight/mock-register
+        ref: github.ref
     
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
     
+    - name: Output folder/files
+      run: ls ${{ github.workspace }}
+
     - name: Restore dependencies
       run: dotnet restore ${{ github.workspace }}\Source\DataHolder.sln
       

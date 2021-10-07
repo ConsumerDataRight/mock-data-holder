@@ -61,14 +61,6 @@ jobs:
       run: |
         dotnet build ${{ github.workspace }}\mock-data-holder\Source\DataHolder.sln --configuration ${{ env.buildConfiguration }}
         dotnet build ${{ github.workspace }}\mock-register\Source\Register.sln --configuration ${{ env.buildConfiguration }}
-      
-    - name: Publish DH
-      run: |
-        dotnet publish ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Resource.API --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-        dotnet publish ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Manage.API --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-        dotnet publish ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Public.API --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-        dotnet publish ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.API.Gateway.mTLS --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-        dotnet publish ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IdentityServer --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true
 
     - name: Create CDR folder
       run: |
@@ -100,3 +92,63 @@ jobs:
         dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.API.Infrastructure.UnitTests\bin\Release\net5.0\CDR.DataHolder.API.Infrastructure.UnitTests.dll
         dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IdentityServer.UnitTests\bin\Release\net5.0\CDR.DataHolder.IdentityServer.UnitTests.dll
         ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Resource.API.UnitTests\bin\Release\net5.0\CDR.DataHolder.Resource.API.UnitTests.dll
+
+    - name: Delete Unit Test DB
+      run: |
+        cd ${{ github.workspace }}\cdr
+        del /Q mdh.db
+      shell: powershell
+
+    - name: Integration Tests
+      run: |
+        echo ${{ github.workspace }}
+        
+        Write-Host "Running the register..."
+        cd ${{ github.workspace }}\mock-register\Source\CDR.Register.API.Gateway.TLS
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.API.Gateway.TLS.${{ env.runEnvironment }}"
+        
+        cd ${{ github.workspace }}\mock-register\Source\CDR.Register.API.Gateway.mTLS
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.API.Gateway.mTLS.${{ env.runEnvironment }}"
+        
+        cd ${{ github.workspace }}\mock-register\Source\CDR.Register.Admin.API
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Admin.API.${{ env.runEnvironment }}"
+        
+        cd ${{ github.workspace }}\mock-register\Source\CDR.Register.Discovery.API
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Discovery.API.${{ env.runEnvironment }}"
+        
+        cd ${{ github.workspace }}\mock-register\Source\CDR.Register.SSA.API
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.SSA.API.${{ env.runEnvironment }}"
+        
+        cd ${{ github.workspace }}\mock-register\Source\CDR.Register.Status.API
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Status.API.${{ env.runEnvironment }}"
+        
+        cd ${{ github.workspace }}\mock-register\Source\CDR.Register.IdentityServer
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.IdentityServer.${{ env.runEnvironment }}"
+        
+        Write-Host "Running the data holder..."
+        cd ${{ github.workspace }}\mock-register\Source\CDR.DataHolder.Manage.API
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.Manage.API.${{ env.runEnvironment }}"
+
+        cd ${{ github.workspace }}\mock-register\Source\CDR.DataHolder.Resource.API
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.Resource.API.${{ env.runEnvironment }}"
+
+        cd ${{ github.workspace }}\mock-register\Source\CDR.DataHolder.Public.API
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.Public.API.${{ env.runEnvironment }}"
+
+        cd ${{ github.workspace }}\mock-register\Source\CDR.DataHolder.IdentityServer
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.IdentityServer.${{ env.runEnvironment }}"
+
+        cd ${{ github.workspace }}\mock-register\Source\CDR.DataHolder.API.Gateway.mTLS
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.API.Gateway.mTLS.${{ env.runEnvironment }}"
+
+        Write-Host "Sleeping for 30 seconds to allow solutions to startup..."
+        Start-Sleep -s 30
+
+        Write-Host "Listing contents of ${{ github.workspace }}\cdr directory..."
+        cd ${{ github.workspace }}\cdr
+        dir
+
+        Write-Host "Running the integration tests..."
+        cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests
+        ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\bin\Release\net5.0\CDR.DataHolder.IntegrationTests.dll --settings ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\integration.${{ env.runEnvironment }}.runsettings
+      shell: powershell

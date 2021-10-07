@@ -56,6 +56,14 @@ jobs:
     - name: Build
       run: dotnet build ${{ github.workspace }}\mock-data-holder\Source\DataHolder.sln --configuration ${{ env.buildConfiguration }}
       
+    - name: Publish DH
+      run: |
+        dotnet publish ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Resource.API --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
+        dotnet publish ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Manage.API --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
+        dotnet publish ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Public.API --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
+        dotnet publish ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.API.Gateway.mTLS --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
+        dotnet publish ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IdentityServer --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true
+
     - name: Create CDR folder
       run: |
         echo ${{ github.workspace }}

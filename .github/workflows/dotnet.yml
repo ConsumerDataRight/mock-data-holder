@@ -97,4 +97,4 @@ jobs:
       run: |
         dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.API.Infrastructure.UnitTests\bin\Release\net5.0\CDR.DataHolder.API.Infrastructure.UnitTests.dll
         dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IdentityServer.UnitTests\bin\Release\net5.0\CDR.DataHolder.IdentityServer.UnitTests.dll
-        dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Resource.API.UnitTests\bin\Release\net5.0\CDR.DataHolder.Resource.API.UnitTests.dll
+        ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Resource.API.UnitTests\bin\Release\net5.0\CDR.DataHolder.Resource.API.UnitTests.dll

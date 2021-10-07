@@ -35,11 +35,13 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout Data Holder
+      uses: actions/checkout@v2
       with:
         path: ./mock-data-holder
 
-    - uses: actions/checkout@v2
+    - name: Checkout Register
+      uses: actions/checkout@v2
       with:
         repository: ConsumerDataRight/mock-register
         ref: ${{ github.ref }}

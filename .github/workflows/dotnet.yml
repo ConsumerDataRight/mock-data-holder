@@ -96,12 +96,7 @@ jobs:
     - name: Delete Unit Test DB
       run: |
         cd ${{ github.workspace }}\cdr
-        dir
-
-        cd ${{ github.workspace }}\cdr
         Remove-Item -Path ${{ github.workspace }}\cdr\mdh.db -Force
-
-        dir
       shell: powershell
 
     - name: Integration Tests
@@ -155,5 +150,5 @@ jobs:
 
         Write-Host "Running the integration tests..."
         cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests
-        ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\bin\Release\net5.0\CDR.DataHolder.IntegrationTests.dll --settings ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\integration.${{ env.runEnvironment }}.runsettings
+        ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\bin\Release\net5.0\CDR.DataHolder.IntegrationTests.dll --settings ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\integration.runsettings
       shell: powershell

@@ -142,7 +142,7 @@ jobs:
         Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.IdentityServer.${{ env.runEnvironment }}"
         
         Write-Host "Sleeping for 15 seconds to allow solutions to startup..."
-        Start-Sleep -s 15
+        Start-Sleep -s 60
 
         Write-Host "Running the data holder..."
         cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Manage.API
@@ -161,7 +161,7 @@ jobs:
         Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.API.Gateway.mTLS.${{ env.runEnvironment }}"
 
         Write-Host "Sleeping for 15 seconds to allow solutions to startup..."
-        Start-Sleep -s 15
+        Start-Sleep -s 60
 
         Write-Host "Listing contents of ${{ github.workspace }}\cdr directory..."
         Get-ChildItem ${{ github.workspace }}\cdr

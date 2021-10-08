@@ -146,7 +146,7 @@ jobs:
         Start-Sleep -s 30
 
         Write-Host "Listing contents of ${{ github.workspace }}\cdr directory..."
-        ls ${{ github.workspace }}\cdr
+        Get-ChildItem ${{ github.workspace }}\cdr
 
         Write-Host "Running the integration tests..."
         cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests

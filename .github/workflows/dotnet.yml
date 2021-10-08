@@ -121,47 +121,47 @@ jobs:
         
         Write-Host "Running the register..."
         cd ${{ github.workspace }}\mock-register\Source\CDR.Register.API.Gateway.TLS
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.API.Gateway.TLS.${{ env.runEnvironment }}"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.API.Gateway.TLS.${{ env.runEnvironment }} --no-build --no-restore"
         
         cd ${{ github.workspace }}\mock-register\Source\CDR.Register.API.Gateway.mTLS
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.API.Gateway.mTLS.${{ env.runEnvironment }}"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.API.Gateway.mTLS.${{ env.runEnvironment }} --no-build --no-restore"
         
         cd ${{ github.workspace }}\mock-register\Source\CDR.Register.Admin.API
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Admin.API.${{ env.runEnvironment }}"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Admin.API.${{ env.runEnvironment }} --no-build --no-restore"
         
         cd ${{ github.workspace }}\mock-register\Source\CDR.Register.Discovery.API
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Discovery.API.${{ env.runEnvironment }}"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Discovery.API.${{ env.runEnvironment }} --no-build --no-restore"
         
         cd ${{ github.workspace }}\mock-register\Source\CDR.Register.SSA.API
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.SSA.API.${{ env.runEnvironment }}"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.SSA.API.${{ env.runEnvironment }} --no-build --no-restore"
         
         cd ${{ github.workspace }}\mock-register\Source\CDR.Register.Status.API
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Status.API.${{ env.runEnvironment }}"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Status.API.${{ env.runEnvironment }} --no-build --no-restore"
         
         cd ${{ github.workspace }}\mock-register\Source\CDR.Register.IdentityServer
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.IdentityServer.${{ env.runEnvironment }}"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.IdentityServer.${{ env.runEnvironment }} --no-build --no-restore"
         
         Write-Host "Sleeping for 15 seconds to allow solutions to startup..."
         Start-Sleep -s 60
 
         Write-Host "Running the data holder..."
         cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Manage.API
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.Manage.API.${{ env.runEnvironment }}"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --no-build --no-restore" # --launch-profile CDR.DataHolder.Manage.API.${{ env.runEnvironment }}"
 
         cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Resource.API
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.Resource.API.${{ env.runEnvironment }}"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --no-build --no-restore" # --launch-profile CDR.DataHolder.Resource.API.${{ env.runEnvironment }}"
 
         cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Public.API
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.Public.API.${{ env.runEnvironment }}"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --no-build --no-restore" # --launch-profile CDR.DataHolder.Public.API.${{ env.runEnvironment }}"
 
         cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IdentityServer
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.IdentityServer.${{ env.runEnvironment }}"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --no-build --no-restore" # --launch-profile CDR.DataHolder.IdentityServer.${{ env.runEnvironment }}"
 
         cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.API.Gateway.mTLS
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.API.Gateway.mTLS.${{ env.runEnvironment }}"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --no-build --no-restore" # --launch-profile CDR.DataHolder.API.Gateway.mTLS.${{ env.runEnvironment }}"
 
         Write-Host "Sleeping for 15 seconds to allow solutions to startup..."
-        Start-Sleep -s 60
+        Start-Sleep -s 120
 
         Write-Host "Listing contents of ${{ github.workspace }}\cdr directory..."
         Get-ChildItem ${{ github.workspace }}\cdr

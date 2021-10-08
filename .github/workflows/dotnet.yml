@@ -89,9 +89,16 @@ jobs:
 
     - name: Unit Tests
       run: |
-        dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.API.Infrastructure.UnitTests\bin\Release\net5.0\CDR.DataHolder.API.Infrastructure.UnitTests.dll
-        dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IdentityServer.UnitTests\bin\Release\net5.0\CDR.DataHolder.IdentityServer.UnitTests.dll
-        ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Resource.API.UnitTests\bin\Release\net5.0\CDR.DataHolder.Resource.API.UnitTests.dll
+        dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.API.Infrastructure.UnitTests\bin\Release\net5.0\CDR.DataHolder.API.Infrastructure.UnitTests.dll -r ${{ github.workspace }}\cdr\test-results\unit-tests
+        dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IdentityServer.UnitTests\bin\Release\net5.0\CDR.DataHolder.IdentityServer.UnitTests.dll -r ${{ github.workspace }}\cdr\test-results\unit-tests
+        ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Resource.API.UnitTests\bin\Release\net5.0\CDR.DataHolder.Resource.API.UnitTests.dll -r ${{ github.workspace }}\cdr\test-results\unit-tests
+
+    - name: Archive unit test artifacts
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: unit-test-artifacts
+        path: ${{ github.workspace }}\cdr
 
     - name: Delete Unit Test DB
       run: |
@@ -164,10 +171,10 @@ jobs:
 
         Write-Host "Running the integration tests..."
         cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests
-        ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\bin\Release\net5.0\CDR.DataHolder.IntegrationTests.dll --settings ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\integration.runsettings
+        ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\bin\Release\net5.0\CDR.DataHolder.IntegrationTests.dll --settings ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\integration.runsettings -r ${{ github.workspace }}\cdr\test-results\integration-tests
       shell: powershell
 
-    - name: Archive test artifacts
+    - name: Archive integration test artifacts
       uses: actions/upload-artifact@v2
       if: always()
       with:

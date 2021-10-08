@@ -101,30 +101,16 @@ jobs:
 
     - name: Integration Tests
       run: |
-        $ErrorView = 'NormalView'
         echo ${{ github.workspace }}
 
         Write-Host "Fix appsettings.Pipeline.json file paths for MDH..."
-        ((Get-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.API.Gateway.TLS\appsettings.${{ env.runEnvironment }}.json -Raw) -replace 'mock-register', 'mock-data-holder') | 
-        Set-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.API.Gateway.TLS\appsettings.${{ env.runEnvironment }}.json
-        
-        ((Get-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.API.Gateway.mTLS\appsettings.${{ env.runEnvironment }}.json -Raw) -replace 'mock-register', 'mock-data-holder') | 
-        Set-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.API.Gateway.mTLS\appsettings.${{ env.runEnvironment }}.json
-        
-        ((Get-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.Admin.API\appsettings.${{ env.runEnvironment }}.json -Raw) -replace 'mock-register', 'mock-data-holder') | 
-        Set-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.Admin.API\appsettings.${{ env.runEnvironment }}.json
-        
-        ((Get-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.Discovery.API\appsettings.${{ env.runEnvironment }}.json -Raw) -replace 'mock-register', 'mock-data-holder') | 
-        Set-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.Discovery.API\appsettings.${{ env.runEnvironment }}.json
-        
-        ((Get-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.SSA.API\appsettings.${{ env.runEnvironment }}.json -Raw) -replace 'mock-register', 'mock-data-holder') | 
-        Set-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.SSA.API\appsettings.${{ env.runEnvironment }}.json
-        
-        ((Get-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.Status.API\appsettings.${{ env.runEnvironment }}.json -Raw) -replace 'mock-register', 'mock-data-holder') | 
-        Set-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.Status.API\appsettings.${{ env.runEnvironment }}.json
-        
-        ((Get-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.IdentityServer\appsettings.${{ env.runEnvironment }}.json -Raw) -replace 'mock-register', 'mock-data-holder') | 
-        Set-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.IdentityServer\appsettings.${{ env.runEnvironment }}.json
+        ((Get-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.API.Gateway.TLS\appsettings.${{ env.runEnvironment }}.json -Raw) -replace 'mock-register', 'mock-data-holder') | Set-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.API.Gateway.TLS\appsettings.${{ env.runEnvironment }}.json
+        ((Get-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.API.Gateway.mTLS\appsettings.${{ env.runEnvironment }}.json -Raw) -replace 'mock-register', 'mock-data-holder') | Set-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.API.Gateway.mTLS\appsettings.${{ env.runEnvironment }}.json
+        ((Get-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.Admin.API\appsettings.${{ env.runEnvironment }}.json -Raw) -replace 'mock-register', 'mock-data-holder') | Set-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.Admin.API\appsettings.${{ env.runEnvironment }}.json
+        ((Get-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.Discovery.API\appsettings.${{ env.runEnvironment }}.json -Raw) -replace 'mock-register', 'mock-data-holder') | Set-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.Discovery.API\appsettings.${{ env.runEnvironment }}.json
+        ((Get-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.SSA.API\appsettings.${{ env.runEnvironment }}.json -Raw) -replace 'mock-register', 'mock-data-holder') | Set-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.SSA.API\appsettings.${{ env.runEnvironment }}.json
+        ((Get-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.Status.API\appsettings.${{ env.runEnvironment }}.json -Raw) -replace 'mock-register', 'mock-data-holder') | Set-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.Status.API\appsettings.${{ env.runEnvironment }}.json
+        ((Get-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.IdentityServer\appsettings.${{ env.runEnvironment }}.json -Raw) -replace 'mock-register', 'mock-data-holder') | Set-Content -Path ${{ github.workspace }}\mock-register\Source\CDR.Register.IdentityServer\appsettings.${{ env.runEnvironment }}.json
         
         Write-Host "Running the register..."
         cd ${{ github.workspace }}\mock-register\Source\CDR.Register.API.Gateway.TLS

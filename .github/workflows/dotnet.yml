@@ -29,7 +29,7 @@ env:
   buildConfiguration: 'Release'
   buildRuntime: 'win-x64'
   runEnvironment: 'Pipeline'
-  ASPNETCORE_ENVIRONMENT: ${{ env.runEnvironment }}
+  ASPNETCORE_ENVIRONMENT: 'Pipeline'
   
 jobs:
   build-and-test:

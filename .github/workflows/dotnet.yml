@@ -168,7 +168,7 @@ jobs:
       shell: powershell
 
     - name: Archive test artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: integration-test-artifacts
-          path: ${{ github.workspace }}\cdr
+      uses: actions/upload-artifact@v2
+      with:
+        name: integration-test-artifacts
+        path: ${{ github.workspace }}\cdr

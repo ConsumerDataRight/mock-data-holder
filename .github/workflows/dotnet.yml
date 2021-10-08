@@ -134,6 +134,9 @@ jobs:
         cd ${{ github.workspace }}\mock-register\Source\CDR.Register.IdentityServer
         Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.IdentityServer.${{ env.runEnvironment }}"
         
+        Write-Host "Sleeping for 15 seconds to allow solutions to startup..."
+        Start-Sleep -s 15
+
         Write-Host "Running the data holder..."
         cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Manage.API
         Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.Manage.API.${{ env.runEnvironment }}"
@@ -150,13 +153,22 @@ jobs:
         cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.API.Gateway.mTLS
         Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.DataHolder.API.Gateway.mTLS.${{ env.runEnvironment }}"
 
-        Write-Host "Sleeping for 30 seconds to allow solutions to startup..."
-        Start-Sleep -s 30
+        Write-Host "Sleeping for 15 seconds to allow solutions to startup..."
+        Start-Sleep -s 15
 
         Write-Host "Listing contents of ${{ github.workspace }}\cdr directory..."
         Get-ChildItem ${{ github.workspace }}\cdr
+
+        Write-Host "Listing contents of ${{ github.workspace }}\cdr\Logs directory..."
+        Get-ChildItem ${{ github.workspace }}\cdr\Logs
 
         Write-Host "Running the integration tests..."
         cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests
         ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\bin\Release\net5.0\CDR.DataHolder.IntegrationTests.dll --settings ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\integration.runsettings
       shell: powershell
+
+    - name: Archive test artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: integration-test-artifacts
+          path: ${{ github.workspace }}\cdr

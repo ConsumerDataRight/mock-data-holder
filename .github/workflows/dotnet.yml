@@ -89,9 +89,9 @@ jobs:
 
     - name: Unit Tests
       run: |
-        dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.API.Infrastructure.UnitTests\bin\Release\net5.0\CDR.DataHolder.API.Infrastructure.UnitTests.dll --logger "trx;logfilename=api-infrastructure.trx" --results-directory ${{ github.workspace }}\cdr\test-results\unit-tests
-        dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IdentityServer.UnitTests\bin\Release\net5.0\CDR.DataHolder.IdentityServer.UnitTests.dll --logger "trx;logfilename=identity-server.trx" --results-directory ${{ github.workspace }}\cdr\test-results\unit-tests
-        ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Resource.API.UnitTests\bin\Release\net5.0\CDR.DataHolder.Resource.API.UnitTests.dll --logger "trx;logfilename=resource-api.trx" --results-directory ${{ github.workspace }}\cdr\test-results\unit-tests
+        dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.API.Infrastructure.UnitTests\bin\Release\net5.0\CDR.DataHolder.API.Infrastructure.UnitTests.dll --logger "trx;verbosity=detailed;logfilename=api-infrastructure.trx" --results-directory ${{ github.workspace }}\cdr\test-results\unit-tests
+        dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IdentityServer.UnitTests\bin\Release\net5.0\CDR.DataHolder.IdentityServer.UnitTests.dll --logger "trx;verbosity=detailed;logfilename=identity-server.trx" --results-directory ${{ github.workspace }}\cdr\test-results\unit-tests
+        ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.Resource.API.UnitTests\bin\Release\net5.0\CDR.DataHolder.Resource.API.UnitTests.dll --logger "trx;verbosity=detailed;logfilename=resource-api.trx" --results-directory ${{ github.workspace }}\cdr\test-results\unit-tests
 
     - name: Archive unit test artifacts
       uses: actions/upload-artifact@v2
@@ -171,7 +171,7 @@ jobs:
 
         Write-Host "Running the integration tests..."
         cd ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests
-        ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\bin\Release\net5.0\CDR.DataHolder.IntegrationTests.dll --settings ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\integration.runsettings --logger "trx;logfilename=mdh-integration.trx" --results-directory ${{ github.workspace }}\cdr\test-results\integration-tests
+        ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\bin\Release\net5.0\CDR.DataHolder.IntegrationTests.dll --settings ${{ github.workspace }}\mock-data-holder\Source\CDR.DataHolder.IntegrationTests\integration.runsettings --logger "trx;verbosity=detailed;logfilename=mdh-integration.trx" --results-directory ${{ github.workspace }}\cdr\test-results\integration-tests
       shell: powershell
 
     - name: Archive integration test artifacts

@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Instructions for certificates needed in Postman when using the Mock Data Holder Postman collection. 
+
 ## [0.1.0] - 2021-10-01
 
 ### Added

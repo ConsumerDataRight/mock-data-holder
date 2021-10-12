@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- GitHub Actions Workflow for Build, Unit Test, and Integration Test project. 
+- GitHub Issue config with supporting links to CDR related information. 
+- GitHub Dependabot config. 
+
+### Changed
+- Instructions for certificates needed in Postman when using the Mock Data Holder Postman collection. 
+- Minor changes to pipeline appsettings files to support GitHub Actions.
+
 ## [0.1.0] - 2021-10-01
 
 ### Added

@@ -36,10 +36,7 @@ jobs:
     runs-on: windows-latest
     
     ## NOTE: This workflow needs to also checkout the Mock Register for testing.
-    ##  If you are running this action on a fork, ensure you fork the ConsumerDataRight/mock-register repo as well.
-    ##  Also make sure you have a branch of the same name within your fork of the mock-register repo.
-    ##  The below steps assume that all repos can be checked out under the same repo owner and branch as the one triggering this action.
-    ##  TODO: Not sure this will work in a PR, have a think about how we should handle that case.
+    ##  This workflow will checkout the ConsumerDataRight/mock-register project
 
     steps:
     - name: Checkout Data Holder
@@ -47,11 +44,20 @@ jobs:
       with:
         path: ./mock-data-holder
 
-    - name: Checkout Register
+    - name: Checkout Register (Main Branch)
       uses: actions/checkout@v2
+      if: ${{ github.ref == 'refs/heads/main' }}
       with:
-        repository: ${{ github.repository_owner }}/mock-register
-        ref: ${{ github.ref }}
+        repository: ConsumerDataRight/mock-register
+        ref: main
+        path: ./mock-register
+
+    - name: Checkout Register (Develop Branch)
+      uses: actions/checkout@v2
+      if: ${{ github.ref != 'refs/heads/main' }}
+      with:
+        repository: ConsumerDataRight/mock-register
+        ref: develop
         path: ./mock-register
     
     - name: Setup .NET

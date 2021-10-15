@@ -14,7 +14,7 @@ This repository contains a mock implementation of a Mock Data Holder and is offe
 
 ## Mock Data Holder - Alignment
 The Mock Data Holder aligns to [v1.11.0](https://consumerdatastandardsaustralia.github.io/standards/includes/releasenotes/releasenotes.1.11.0.html#v1-11-0-release-notes) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards).
-The Mock Data Holder passed v3.2 of the [Conformance Test Suite for Data Holders](https://www.cdr.gov.au/for-providers/conformance-test-suite-data-holders).
+The Mock Data Holder passed v3.2 of the [Conformance Test Suite for Data Holders](https://www.cdr.gov.au/for-providers/conformance-test-suite-data-holders). Testing against FAPI 0.6 is currently in progress.
 
 ## Getting Started
 The Mock Data Holder was built using the [Mock Register](https://github.com/ConsumerDataRight/mock-register) and the [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient). You can swap out any of the Mock Data Holder, Mock Data Register and Mock Data Recipient solutions with a solution of your own.
@@ -149,10 +149,6 @@ The Mock Data Holder contains the following components:
 - Resource API
   - Hosted at `https://localhost:8003`
   - Currently includes the `Get Customer`, `Get Accounts` and `Get Transactions` endpoints.
-  - Accessed via the mTLS Gateway.
-- Admin API
-  - Hosted at `https://localhost:8004`
-  - Contains the `Get Metrics` endpoint.  *To be implemented*
   - Accessed via the mTLS Gateway.
 - Manage API
   - Hosted at `https://localhost:8005`

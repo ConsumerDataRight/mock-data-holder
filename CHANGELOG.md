@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Instructions for certificates needed in Postman when using the Mock Data Holder Postman collection. 
 - Minor changes to pipeline appsettings files to support GitHub Actions.
+- Updates to GetMetrics and FAPI notes in ReadMe
 
 ## [0.1.0] - 2021-10-01
 

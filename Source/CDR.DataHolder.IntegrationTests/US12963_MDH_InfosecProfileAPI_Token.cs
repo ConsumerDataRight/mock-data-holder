@@ -203,7 +203,8 @@ namespace CDR.DataHolder.IntegrationTests
         [Theory]
         [InlineData(SOFTWAREPRODUCT_ID, HttpStatusCode.OK)]
         [InlineData("foo", HttpStatusCode.BadRequest)]
-        [InlineData(null, HttpStatusCode.BadRequest)]
+        // [InlineData(null, HttpStatusCode.BadRequest)]
+        [InlineData(DataHolder_Token_API.OMIT, HttpStatusCode.BadRequest)]
         public async Task AC03_Post_WithInvalidRequest_ClientId_ShouldRespondWith_400BadRequest_InvalidClientErrorResponse(string clientId, HttpStatusCode expectedStatusCode)
         {
             // Arrange
@@ -750,7 +751,7 @@ namespace CDR.DataHolder.IntegrationTests
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
-        // [InlineData(3)] // TODO - Fix for this failure has been deferred. Disabling test so build pipeline passes
+        [InlineData(3)]
         public async Task ACX02_UseRefreshTokenMultipleTimes_ShouldRespondWith_AccessTokenRefreshToken(int usageAttempts)
         {
             // Arrange - Get authcode, 
@@ -784,7 +785,7 @@ namespace CDR.DataHolder.IntegrationTests
                     refreshTokenResponse.Should().NotBeNull();
                     refreshTokenResponse?.AccessToken.Should().NotBeNull();
                     refreshTokenResponse?.RefreshToken.Should().NotBeNull();
-                    refreshTokenResponse?.RefreshToken.Should().Be(refreshToken); // does refresh token change?
+                    refreshTokenResponse?.RefreshToken.Should().NotBe(refreshToken); // a new refresh token is returned 
 
                     refreshToken = refreshTokenResponse?.RefreshToken;
                 }

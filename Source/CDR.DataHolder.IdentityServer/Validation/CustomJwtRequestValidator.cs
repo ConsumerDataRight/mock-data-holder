@@ -114,6 +114,15 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 Logger.LogError("JWT payload must not contain request or request_uri");
                 return fail;
             }
+            
+            // Validate the alg
+            //E.g. fapi1-advanced-final-ensure-signed-client-assertion-with-RS256-fails, fapi1-advanced-final-ensure-signed-request-object-with-RS256-fails
+			var expectedAlgs = new string[] { Algorithms.Signing.PS256, Algorithms.Signing.ES256, }; // Maybe get it from the config of the Client?
+			if (jwtSecurityToken.Header?.Alg == null || !expectedAlgs.Contains(jwtSecurityToken.Header?.Alg))
+			{
+				Logger.LogError("Invalid Alg header");
+                return fail;
+			}
 
             var payload = await ProcessPayloadAsync(jwtSecurityToken);
 
@@ -172,6 +181,38 @@ namespace CDR.DataHolder.IdentityServer.Validation
 
                 RequireSignedTokens = true,
                 RequireExpirationTime = true,
+                 ValidateLifetime = true,
+                LifetimeValidator = (DateTime? notBefore, DateTime? expires, SecurityToken securityToken, TokenValidationParameters validationParameters) =>
+                {         
+                    // TODO: Perform default lifetime validations
+                       
+                    //e.g. fapi1-advanced-final-ensure-request-object-without-exp-fails
+                    //fapi1-advanced-final-ensure-request-object-without-nbf-fails                
+                    //fapi1-advanced-final-ensure-request-object-with-exp-over-60-fails: https://openid.net/specs/openid-connect-core-1_0.html#rfc.section.6.1
+                    //fapi1-advanced-final-ensure-request-object-with-nbf-over-60-fails
+
+                    if(expires.HasValue){                       
+                       var isValidExpiry = expires.Value.Subtract(DateTime.UtcNow) <= TimeSpan.FromMinutes(60);                        
+                       if (!isValidExpiry)
+                       {                                                   
+                            return false;
+                       }
+                    }
+
+                    // Note: CTS does not send the nbf but fapi requires it. (fapi1-advanced-final-ensure-request-object-without-nbf-fails)
+                    // For now, only validate if the request has nbf
+                    if (notBefore == null)
+                    {
+                        return true;
+                    }
+                    var isValidNbf = DateTime.UtcNow.Subtract(notBefore.Value) <= TimeSpan.FromMinutes(60);
+                    if (!isValidNbf)
+                    {
+                        return isValidNbf;
+                    }
+                                        
+                    return true;
+                }
             };
 
             var handler = new JwtSecurityTokenHandler();

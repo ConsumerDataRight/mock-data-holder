@@ -277,7 +277,7 @@ namespace CDR.DataHolder.IntegrationTests
             "error=invalid_request_uri&error_description=The request uri has expired"
         )]
         // Call Authorisaton endpoint, with requestUri issued by PAR endpoint, but after requestUri has expired (90 seconds), should redirect to DH callback URI
-        public async Task AC03_Post_AuthorisationEndpoint_WithRequestUri_After90Seconds_ShouldRespondWith_302Found_CallbackURI(HttpStatusCode expectedStatusCode, string expectedRedirectPath, string? expectedRedirectQuery = null)
+        public async Task AC03_Post_AuthorisationEndpoint_WithRequestUri_After90Seconds_ShouldRespondWith_302Found_CallbackURI(HttpStatusCode expectedStatusCode, string expectedRedirectPath, string? expectedRedirectFragment = null)
         {
             static HttpClient CreateHttpClient()
             {
@@ -319,10 +319,10 @@ namespace CDR.DataHolder.IntegrationTests
                 redirectPath.Should().Be(expectedRedirectPath);
 
                 // Check redirect query
-                if (expectedRedirectQuery != null)
+                if (expectedRedirectFragment != null)
                 {
-                    var redirectQuery = HttpUtility.UrlDecode(authResponse?.Headers?.Location?.Query.TrimStart('?'));
-                    redirectQuery.Should().StartWith(HttpUtility.UrlDecode(expectedRedirectQuery));
+                    var redirectFragment = HttpUtility.UrlDecode(authResponse?.Headers?.Location?.Fragment.TrimStart('#'));
+                    redirectFragment.Should().StartWith(HttpUtility.UrlDecode(expectedRedirectFragment));
                 }
             }
         }

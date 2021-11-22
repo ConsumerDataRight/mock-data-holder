@@ -12,6 +12,8 @@ using CDR.DataHolder.IntegrationTests.Fixtures;
 
 namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 {
+// TODO MJS 2021-10-21 - Not used in pipeline, remove
+/*
 #if DEBUG
     public class DataHolder_Token_UnitTests : IClassFixture<DataHolder_Token_UnitTests.Fixture>
     {
@@ -100,6 +102,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
         }
     }
 #endif
+*/
 
     public class DataHolder_Token_Response
     {

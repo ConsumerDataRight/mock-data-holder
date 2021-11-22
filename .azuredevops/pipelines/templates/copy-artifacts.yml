@@ -1,0 +1,17 @@
+# Copy artifacts
+parameters:
+- name: name 
+  type: string
+
+steps:
+  - task: PowerShell@2
+    displayName: Copy artifacts to ${{parameters.name}} 
+    condition: always()    
+    inputs:
+      targetType: "inline"
+      script: |
+        md "$(Build.SourcesDirectory)\Publish\${{parameters.name}}"
+        copy-item D:\a\mock-register\mock-register\cdr\*  "$(Build.SourcesDirectory)\Publish\${{parameters.name}}" -recurse -force
+        copy-item D:\a\mock-data-holder\mock-data-holder\cdr\*  "$(Build.SourcesDirectory)\Publish\${{parameters.name}}" -recurse -force
+
+# copy-item D:\a\1\s\cdr\*  "$(Build.SourcesDirectory)\Publish\${{parameters.name}}" -recurse -force

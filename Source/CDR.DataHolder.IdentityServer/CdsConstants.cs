@@ -568,7 +568,6 @@ namespace CDR.DataHolder.IdentityServer
             public const string Issuer = "iss";
         }
 
-        // Custom: Different from the original src
         public static class AuthorizeResponse
         {
             public const string Scope = "scope";
@@ -579,8 +578,10 @@ namespace CDR.DataHolder.IdentityServer
             public const string RefreshToken = "refresh_token";
             public const string IdentityToken = "id_token";
             public const string State = "state";
-            public const string Error = "code";
-            public const string ErrorDescription = "title";
+
+            // Standard OIDC error fields
+            public const string Error = "error";
+            public const string ErrorDescription = "error_description";
             public const string ErrorDetail = "detail";
         }
 

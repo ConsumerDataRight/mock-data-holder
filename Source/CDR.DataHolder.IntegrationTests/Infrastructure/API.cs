@@ -162,6 +162,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure
                         AllowAutoRedirect = AllowAutoRedirect,
                         // UseCookies = false
                     };
+                    clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
 
                     // Set cookies
                     if (Cookies != null)
@@ -180,7 +181,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure
                     // Attach client certificate
                     if (CertificateFilename != null)
                     {
-                        clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
                         clientHandler.ClientCertificates.Add(new X509Certificate2(
                             CertificateFilename,
                             CertificatePassword,

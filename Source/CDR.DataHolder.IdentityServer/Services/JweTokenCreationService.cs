@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -55,7 +56,10 @@ namespace CDR.DataHolder.IdentityServer.Services
                 var tokenSigned = await _jwtTokenCreationService.CreateTokenAsync(token);
                 _logger.LogDebug("Encrypting Id Token with Alg {Alg}, Enc {Enc}", clientEncryptionAlg, clientEncryptionEnc);
 
-                return JWT.Encode(tokenSigned, rsaEncryption, GetJweAlgorithm(clientEncryptionAlg), GetJweEncryption(clientEncryptionEnc));
+                // Encode the token and add the kid
+                // Additional info: FAPIValidateEncryptedIdTokenHasKid (OIDCC-10.1)
+                return JWT.Encode(tokenSigned, rsaEncryption, GetJweAlgorithm(clientEncryptionAlg), GetJweEncryption(clientEncryptionEnc),
+                    extraHeaders:new Dictionary<string,object>() {{"kid", clientJwk.Kid }});
             }
             catch (Exception ex)
             {

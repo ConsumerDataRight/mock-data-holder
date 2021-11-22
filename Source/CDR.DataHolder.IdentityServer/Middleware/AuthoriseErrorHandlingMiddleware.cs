@@ -141,8 +141,9 @@ namespace CDR.DataHolder.IdentityServer.Middleware
                                 errorDetailsQueryValue = string.IsNullOrWhiteSpace(responseError.Detail)
                                     ? string.Empty
                                     : $"&{AuthorizeError.ErrorDescription}={Uri.EscapeDataString(responseError.Detail)}";
-
-                                errorLocation = $"{redirectUri}?{AuthorizeError.Error}={Uri.EscapeDataString(responseError.Code)}{errorDescriptonQueryValue}{errorDetailsQueryValue}{stateQueryValue}";
+                                // Authorisation errors are returned using # query fragments
+                                // Additional info: Check fapi1-advanced-final-ensure-response-mode-query scenario
+                                errorLocation = $"{redirectUri}#{AuthorizeError.Error}={Uri.EscapeDataString(responseError.Code)}{errorDescriptonQueryValue}{errorDetailsQueryValue}{stateQueryValue}";
                             }
                             else
                             {
@@ -150,8 +151,9 @@ namespace CDR.DataHolder.IdentityServer.Middleware
                                 ? string.Empty
                                 : $"&{AuthorizeResponse.ErrorDescription}={Uri.EscapeDataString(responseError.Title)}";
 
-                                // OIDC 3.1.2.6 defines parameters to return, including acceptable error codes
-                                errorLocation = $"{redirectUri}?{AuthorizeResponse.Error}={Uri.EscapeDataString(responseError.Code)}{errorDescriptonQueryValue}{errorDetailsQueryValue}{stateQueryValue}";
+                                // Authorisation errors are returned using # query fragments
+                                // Additional info: Check fapi1-advanced-final-ensure-response-mode-query scenario; OIDC 3.1.2.6 defines parameters to return, including acceptable error codes
+                                errorLocation = $"{redirectUri}#{AuthorizeResponse.Error}={Uri.EscapeDataString(responseError.Code)}{errorDescriptonQueryValue}{errorDetailsQueryValue}{stateQueryValue}";
                             }
 
                             context.Response.Headers.Add("location", errorLocation);
@@ -175,6 +177,11 @@ namespace CDR.DataHolder.IdentityServer.Middleware
                     return Error.InvalidScope("The request scope is valid, unknown, or malformed.");
                 case AuthorizeErrorCodes.UnsupportedResponseType:                    
                     return Error.InvalidRequest("Unsupported response_type value");
+                case AuthorizeErrorCodes.InvalidRequestObject:                    
+                    // Authorisation invalid request object should be returned without error code changes
+                    //(e.g. fapi1-advanced-final-ensure-request-object-without-nonce-fails (OIDCC-3.1.2.6  OIDCC-3.3.2.6);
+                    // fapi1-advanced-final-ensure-request-object-without-exp-fails (OIDCC-3.1.2.6  RFC6749-4.2.2.1)
+                    return Error.InvalidRequestObject(errorDetail.ErrorDescription);                
                 default:
                     break;
 			}
@@ -193,9 +200,10 @@ namespace CDR.DataHolder.IdentityServer.Middleware
                 case AuthorizeErrorCodeDescription.MissingOpenIdScope:
                     return Error.MissingOpenIdScope("OpenID Connect requests MUST contain the openid scope value.");
                 case AuthorizeErrorCodeDescription.InvalidJWTRequest:
-                    return Error.InvalidClient("Signature is not valid.");
+                    return Error.InvalidRequest("Signature is not valid.");
                 case AuthorizeErrorCodeDescription.InvalidGrantType:
-                    return Error.InvalidField("The token type is not supported");
+                    // e.g. fapi1-advanced-final-ensure-response-type-code-fails
+                    return Error.InvalidRequest("The token type is not supported");
                     
                 default:
 					break;
@@ -220,7 +228,7 @@ namespace CDR.DataHolder.IdentityServer.Middleware
                 var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(par.Data);
                 redirLocation = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == AuthorizeRequest.RedirectUri)?.Value;
             }
-            redirLocation += @"?error=invalid_request_uri&error_description=The request uri has expired";
+            redirLocation += @"#error=invalid_request_uri&error_description=The request uri has expired";
             context.Response.StatusCode = 302;
             context.Response.Headers.Add("location", redirLocation);
             _logger.LogDebug("Created and returned 400 error response for an Authorize Request: {error}", error);
@@ -233,9 +241,9 @@ namespace CDR.DataHolder.IdentityServer.Middleware
             string redirLocation = locUri.GetLeftPart(UriPartial.Path);
 
             if (string.Equals(idSvrErr, AuthorizeErrorCodes.InvalidRequestObject))
-                redirLocation += @"?error=invalid_request";
+                redirLocation += @"#error=invalid_request";
             else
-                redirLocation += @"?error=invalid_request_object&error_description=Request JWT is not valid&state=";
+                redirLocation += @"#error=invalid_request_object&error_description=Request JWT is not valid&state=";
 
             context.Response.Headers.Add("location", redirLocation);
             _logger.LogDebug("Created and returned 400 error response for an Authorize Request: {error}", error);

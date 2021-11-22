@@ -1,0 +1,161 @@
+resources:
+  repositories:
+  - repository: MockRegister
+    type: git
+    name: sb-mock-register
+    ref: develop    
+
+trigger:
+  - develop 
+
+pool:
+  vmImage: windows-2019
+
+steps:
+
+# Checkout repositories
+- checkout: MockRegister
+- checkout: self
+
+# Restore projects
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: '**/*.csproj'
+
+# Build projects in release mode
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: 'build'
+    arguments: '--configuration Release'
+    projects: '**/*.csproj'
+
+# Set timezone to AEST
+- task: CmdLine@2
+  displayName: Set AEST timezone
+  inputs:
+    script: |
+      cd $(Build.SourcesDirectory)
+      tzutil /s "AUS Eastern Standard Time"
+
+# Install certificates
+- task: PowerShell@2
+  displayName: Install certificates
+  inputs:
+    targetType: 'inline'
+    script: |
+      $PlainPassword = "#M0ckCDRCA#" 
+      $SecurePassword = $PlainPassword | ConvertTo-SecureString -AsPlainText -Force     
+      Import-PfxCertificate -Password $SecurePassword -FilePath "sb-mock-data-holder/CertificateManagement/mtls/ca.pfx" -CertStoreLocation Cert:\LocalMachine\Root
+
+      $PlainPassword = "#M0ckDataHolder#" 
+      $SecurePassword = $PlainPassword | ConvertTo-SecureString -AsPlainText -Force      
+      Import-PfxCertificate -Password $SecurePassword -FilePath "sb-mock-data-holder/CertificateManagement/tls/mock-data-holder.pfx" -CertStoreLocation Cert:\LocalMachine\Root
+
+# Create CDR folder for unit tests
+- task: CmdLine@2
+  displayName: Create CDR folder
+  inputs:
+    script: |
+      mkdir D:\\a\\mock-data-holder\\mock-data-holder\\cdr      
+
+# Run unit tests
+- task: VSTest@2
+  displayName: Unit Tests
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\*DataHolder*UnitTests*.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+      !**/ref/**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+
+# Delete unit test DB
+- task: CmdLine@2
+  displayName: Delete unit test db file
+  inputs:
+    script: |
+      cd D:\\a\\mock-data-holder\\mock-data-holder\\cdr
+      del /Q mdh.db
+
+# Run Register APIs
+- task: CmdLine@2
+  displayName: Run Register projects
+  inputs:
+    script: |     
+      cd $(Build.SourcesDirectory)\sb-mock-register\Source
+      cd CDR.Register.IdentityServer
+      start /B dotnet run CDR.Register.IdentityServer.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.Register.IdentityServer.Pipeline
+
+      cd $(Build.SourcesDirectory)\sb-mock-register\Source
+      cd CDR.Register.SSA.API
+      start /B dotnet run CDR.Register.SSA.API.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.Register.SSA.API.Pipeline
+
+      cd $(Build.SourcesDirectory)\sb-mock-register\Source
+      cd CDR.Register.Admin.API
+      start /B dotnet run CDR.Register.Admin.API.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.Register.Admin.API.Pipeline
+
+      cd $(Build.SourcesDirectory)\sb-mock-register\Source
+      cd CDR.Register.API.Gateway.TLS
+      start /B dotnet run CDR.Register.API.Gateway.TLS.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.Register.API.Gateway.TLS.Pipeline
+
+      cd $(Build.SourcesDirectory)\sb-mock-register\Source
+      cd CDR.Register.API.Gateway.mTLS
+      start /B dotnet run CDR.Register.API.Gateway.mTLS.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.Register.API.Gateway.mTLS.Pipeline
+      
+      cd $(Build.SourcesDirectory)
+
+# Run DataHolder APIs
+- task: CmdLine@2
+  displayName: Run DH projects
+  inputs:
+    script: |
+      echo Starting CDR.DataHolder.API.Gateway.mTLS
+      cd $(Build.SourcesDirectory)\sb-mock-data-holder\Source\CDR.DataHolder.API.Gateway.mTLS
+      start /B dotnet run CDR.DataHolder.API.Gateway.mTLS.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.DataHolder.API.Gateway.mTLS.Pipeline
+
+      echo Starting CDR.DataHolder.IdentityServer
+      cd $(Build.SourcesDirectory)\sb-mock-data-holder\Source\CDR.DataHolder.IdentityServer
+      start /B dotnet run CDR.DataHolder.IdentityServer.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.DataHolder.IdentityServer.Pipeline
+
+      echo Starting CDR.DataHolder.Resource.API
+      cd $(Build.SourcesDirectory)\sb-mock-data-holder\Source\CDR.DataHolder.Resource.API
+      start /B dotnet run CDR.DataHolder.Resource.API.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.DataHolder.Resource.API.Pipeline
+
+      echo Starting CDR.DataHolder.Manage.API
+      cd $(Build.SourcesDirectory)\sb-mock-data-holder\Source\CDR.DataHolder.Manage.API
+      start /B dotnet run CDR.DataHolder.Manage.API.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.DataHolder.Manage.API.Pipeline
+
+      echo Starting CDR.DataHolder.Public.API
+      cd $(Build.SourcesDirectory)\sb-mock-data-holder\Source\CDR.DataHolder.Public.API
+      start /B dotnet run CDR.DataHolder.Public.API.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.DataHolder.Public.API.Pipeline
+
+      cd $(Build.SourcesDirectory)      
+
+# Run integration tests
+- task: VSTest@2
+  displayName: Integration Tests
+  inputs:    
+    runSettingsFile: $(Build.SourcesDirectory)\sb-mock-data-holder\Source\CDR.DataHolder.IntegrationTests\integration.runsettings
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\*DataHolder*IntegrationTests*.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+      !**/ref/**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+
+# Stop APIs and copy artifacts for integration tests
+- template: templates/stop-apis.yml
+- template: templates/copy-artifacts.yml
+  parameters:
+    name: Integration Tests
+
+# Publish artifacts
+- publish: $(Build.SourcesDirectory)\Publish
+  displayName: Publish artifacts
+  condition: always()
+  artifact: Mock-Data-Holder Build $(Build.BuildNumber)    

@@ -61,7 +61,7 @@ namespace CDR.DataHolder.IntegrationTests
             SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS, // Unsuccessful request should redirect back to DR
             "error=invalid_request&error_description=Unsupported response_type value&state="
         )]
-        public async Task AC02_Get_WithInvalidResponseType_ShouldRespondWith_302Redirect_ErrorResponse(string responseType, HttpStatusCode expectedStatusCode, string expectedRedirectPath, string? expectedRedirectQuery = null)
+        public async Task AC02_Get_WithInvalidResponseType_ShouldRespondWith_302Redirect_ErrorResponse(string responseType, HttpStatusCode expectedStatusCode, string expectedRedirectPath, string? expectedRedirectFragment = null)
         {
             // Arrange
             Arrange();
@@ -80,11 +80,11 @@ namespace CDR.DataHolder.IntegrationTests
                 var redirectPath = response?.Headers?.Location?.GetLeftPart(UriPartial.Path);
                 redirectPath.Should().Be(expectedRedirectPath);
 
-                // Check redirect query
-                if (expectedRedirectQuery != null)
+                // Check redirect fragment
+                if (expectedRedirectFragment != null)
                 {
-                    var redirectQuery = HttpUtility.UrlDecode(response?.Headers?.Location?.Query.TrimStart('?'));
-                    redirectQuery.Should().StartWith(HttpUtility.UrlDecode(expectedRedirectQuery));
+                    var redirectFragment = HttpUtility.UrlDecode(response?.Headers?.Location?.Fragment.TrimStart('#'));
+                    redirectFragment.Should().StartWith(HttpUtility.UrlDecode(expectedRedirectFragment));
                 }
             }
         }
@@ -169,7 +169,7 @@ namespace CDR.DataHolder.IntegrationTests
             SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS, // Unsuccessful request should redirect back to DR
             "error=invalid_scope&error_description=The request scope is valid, unknown, or malformed.&state="
         )]
-        public async Task AC04_Get_WithInvalidScope_ShouldRespondWith_302Redirect_ErrorResponse(string scope, HttpStatusCode expectedStatusCode, string expectedRedirectPath, string? expectedRedirectQuery = null)
+        public async Task AC04_Get_WithInvalidScope_ShouldRespondWith_302Redirect_ErrorResponse(string scope, HttpStatusCode expectedStatusCode, string expectedRedirectPath, string? expectedRedirectFragment = null)
         {
             // Arrange
             Arrange();
@@ -189,11 +189,11 @@ namespace CDR.DataHolder.IntegrationTests
                 var redirectPath = response?.Headers?.Location?.GetLeftPart(UriPartial.Path);
                 redirectPath.Should().Be(expectedRedirectPath);
 
-                // Check redirect query
-                if (expectedRedirectQuery != null)
+                // Check redirect fragment
+                if (expectedRedirectFragment != null)
                 {
-                    var redirectQuery = HttpUtility.UrlDecode(response?.Headers?.Location?.Query.TrimStart('?'));
-                    redirectQuery.Should().StartWith(HttpUtility.UrlDecode(expectedRedirectQuery));
+                    var redirectFragment = HttpUtility.UrlDecode(response?.Headers?.Location?.Fragment.TrimStart('#'));
+                    redirectFragment.Should().StartWith(HttpUtility.UrlDecode(expectedRedirectFragment));
                 }
             }
         }
@@ -208,7 +208,7 @@ namespace CDR.DataHolder.IntegrationTests
             string scope, 
             HttpStatusCode expectedStatusCode,
             string expectedRedirectPath, 
-            string? expectedRedirectQuery = null)
+            string? expectedRedirectFragment = null)
             // string? expectedParameterName = null)
         {
             // Arrange
@@ -244,11 +244,11 @@ namespace CDR.DataHolder.IntegrationTests
                 var redirectPath = response?.Headers?.Location?.GetLeftPart(UriPartial.Path);
                 redirectPath.Should().Be(expectedRedirectPath);
 
-                // Check redirect query
-                if (expectedRedirectQuery != null)
+                // Check redirect fragment
+                if (expectedRedirectFragment != null)
                 {
-                    var redirectQuery = HttpUtility.UrlDecode(response?.Headers?.Location?.Query.TrimStart('?'));
-                    redirectQuery.Should().StartWith(HttpUtility.UrlDecode(expectedRedirectQuery));
+                    var redirectFragment = HttpUtility.UrlDecode(response?.Headers?.Location?.Fragment.TrimStart('#'));
+                    redirectFragment.Should().StartWith(HttpUtility.UrlDecode(expectedRedirectFragment));
                 }
             }
         }
@@ -259,7 +259,7 @@ namespace CDR.DataHolder.IntegrationTests
         [InlineData(SOFTWAREPRODUCT_ID_INVALID, HttpStatusCode.Redirect,
             SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS, // Unsuccessful request should redirect back to DR
             "error=invalid_request&error_description=Invalid client ID.&state=")]
-        public async Task AC06_Get_WithInvalidClientID_ShouldRespondWith_302Redirect_ErrorResponse(string clientId, HttpStatusCode expectedStatusCode, string expectedRedirectPath, string? expectedRedirectQuery = null)
+        public async Task AC06_Get_WithInvalidClientID_ShouldRespondWith_302Redirect_ErrorResponse(string clientId, HttpStatusCode expectedStatusCode, string expectedRedirectPath, string? expectedRedirectFragment = null)
         {
             // Arrange
             Arrange();
@@ -294,11 +294,11 @@ namespace CDR.DataHolder.IntegrationTests
                 var redirectPath = response?.Headers?.Location?.GetLeftPart(UriPartial.Path);
                 redirectPath.Should().Be(expectedRedirectPath);
 
-                // Check redirect query
-                if (expectedRedirectQuery != null)
+                // Check redirect fragment
+                if (expectedRedirectFragment != null)
                 {
-                    var redirectQuery = HttpUtility.UrlDecode(response?.Headers?.Location?.Query.TrimStart('?'));
-                    redirectQuery.Should().StartWith(HttpUtility.UrlDecode(expectedRedirectQuery));
+                    var redirectFragment = HttpUtility.UrlDecode(response?.Headers?.Location?.Fragment.TrimStart('#'));
+                    redirectFragment.Should().StartWith(HttpUtility.UrlDecode(expectedRedirectFragment));
                 }
             }
         }
@@ -349,7 +349,8 @@ namespace CDR.DataHolder.IntegrationTests
             INVALID_CERTIFICATE_PASSWORD,
             HttpStatusCode.Redirect,
             SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS, // Unsuccessful request should redirect back to DR
-            "error=invalid_client&error_description=Signature is not valid.&state="
+            // "error=invalid_client&error_description=Signature is not valid.&state="
+            "error=invalid_request_object&error_description=Invalid JWT request&state="
         )]
         // AC says "JWT is not signed" and "JWT not valid", but presumably it means JWT not signed by valid key (ie this AC is about DifferentHolderOfKey)
         public async Task AC08_Get_WithUnsignedRequestBody_ShouldRespondWith_302Redirect_ErrorResponse(
@@ -357,7 +358,7 @@ namespace CDR.DataHolder.IntegrationTests
             string jwt_certificatePassword, 
             HttpStatusCode expectedStatusCode, 
             string expectedRedirectPath, 
-            string? expectedRedirectQuery = null)
+            string? expectedRedirectFragment = null)
         {
             // Arrange
             Arrange();
@@ -381,10 +382,10 @@ namespace CDR.DataHolder.IntegrationTests
                 redirectPath.Should().Be(expectedRedirectPath);
 
                 // Check redirect query
-                if (expectedRedirectQuery != null)
+                if (expectedRedirectFragment != null)
                 {
-                    var redirectQuery = HttpUtility.UrlDecode(response?.Headers?.Location?.Query.TrimStart('?'));
-                    redirectQuery.Should().StartWith(HttpUtility.UrlDecode(expectedRedirectQuery));
+                    var redirectFragment = HttpUtility.UrlDecode(response?.Headers?.Location?.Fragment.TrimStart('#'));
+                    redirectFragment.Should().StartWith(HttpUtility.UrlDecode(expectedRedirectFragment));
                 }
             }
         }

@@ -13,6 +13,8 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 {
     public class DataHolder_Token_API
     {
+        public const string OMIT = "***OMIT**";
+
         public class Response
         {
             [JsonProperty("token_type")]
@@ -74,7 +76,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 formFields.Add(new KeyValuePair<string?, string?>("grant_type", grantType));
             }
 
-            if (clientId != null)
+            if (clientId != null && clientId != OMIT)
             {
                 formFields.Add(new KeyValuePair<string?, string?>("client_id", clientId.ToLower()));
             }
@@ -94,11 +96,20 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 {
                     var clientAssertion = new PrivateKeyJwt2
                     {
+
                         CertificateFilename = jwkCertificateFilename,
                         CertificatePassword = jwkCertificatePassword,
-                        // Issuer = BaseTest.SOFTWAREPRODUCT_ID.ToLower(),
-                        // Issuer = clientId?.ToLower(),
-                        Issuer = (clientId ?? BaseTest.SOFTWAREPRODUCT_ID).ToLower(),
+
+                        // Issuer = (clientId ?? BaseTest.SOFTWAREPRODUCT_ID).ToLower(),
+
+                        // Allow for clientId to be deliberately omitted from the JWT
+                        Issuer = clientId == OMIT ?
+                             "" : // Omit
+                             (clientId ?? BaseTest.SOFTWAREPRODUCT_ID).ToLower(), 
+
+                        // Don't check for issuer if we are deliberately omitting clientId
+                        RequireIssuer = clientId != OMIT,  
+
                         Audience = URL
                     }.Generate();
 

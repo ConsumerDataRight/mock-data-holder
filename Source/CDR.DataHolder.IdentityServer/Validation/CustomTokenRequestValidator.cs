@@ -32,9 +32,11 @@ namespace CDR.DataHolder.IdentityServer.Validation
 			var requestedScopes = requestedScope != null ? requestedScope?.Split(' ') : new string[] { };
 
 			// Validate redirect_uri. If the scope is only for registration functionalities, the redirect uri is not required.
+			// Also, redirect_uri not required for refresh token grant
 			bool isCdrRegistration = requestedScope == "cdr:registration";
+			bool isRefreshTokenGrant = validatedTokenRequest.RefreshToken != null;
 			var redirectUri = validatedTokenRequest.Raw.Get(OidcConstants.TokenRequest.RedirectUri);
-			if (!isCdrRegistration)
+			if (!isCdrRegistration && !isRefreshTokenGrant)
 			{
 				if (redirectUri.IsMissing())
 				{
@@ -50,7 +52,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
 			}
 
 			// Validate scopes when requesting new token from a refresh token.
-			if (!string.IsNullOrEmpty(requestedScope) && validatedTokenRequest.RefreshToken != null)
+			if (!string.IsNullOrEmpty(requestedScope) && isRefreshTokenGrant)
             {
 				var existingScopes = validatedTokenRequest.RefreshToken.Scopes;
 

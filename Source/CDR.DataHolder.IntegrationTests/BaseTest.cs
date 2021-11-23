@@ -611,7 +611,7 @@ namespace CDR.DataHolder.IntegrationTests
         // }
 
         public static async Task<DataHolder_Token_API.Response> GetToken(TokenType tokenType,
-            int tokenLifetime = 14400,
+            int tokenLifetime = 3600,
             int sharingDuration = 7776000)
         {
             // Perform authorise and consent flow and get authCode

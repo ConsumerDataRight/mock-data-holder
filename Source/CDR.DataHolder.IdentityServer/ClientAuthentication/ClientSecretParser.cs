@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 using CDR.DataHolder.IdentityServer.Models;
@@ -78,10 +79,21 @@ namespace CDR.DataHolder.IdentityServer.ClientAuthentication
                 var form = await context.Request.ReadFormAsync();
                 if (form != null)
                 {
+                    var clientAssertionJwt = form[OidcConstants.TokenRequest.ClientAssertion].FirstOrDefault();
+                    var clientId = form[OidcConstants.TokenRequest.ClientId].FirstOrDefault();
+                    // If there is not client id in the params, get it from the sub claim in client assertion
+                    // FAPI test 02 - fapi1-advanced-final - doesn't have the client id in the params.
+                    if (string.IsNullOrEmpty(clientId) && !string.IsNullOrEmpty(clientAssertionJwt))
+                    {
+                        var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(clientAssertionJwt);
+                        var subClaim = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == "sub")?.Value;
+                        clientId = subClaim;
+                    }
+
                     request.ClientDetails.ClientAssertionType = form[OidcConstants.TokenRequest.ClientAssertionType].FirstOrDefault();
-                    request.ClientDetails.ClientAssertion = form[OidcConstants.TokenRequest.ClientAssertion].FirstOrDefault();
-                    request.ClientDetails.ClientId = form[OidcConstants.TokenRequest.ClientId].FirstOrDefault();
-                    request.MtlsCredential.ClientId = form[OidcConstants.TokenRequest.ClientId].FirstOrDefault();
+                    request.ClientDetails.ClientAssertion = clientAssertionJwt;
+                    request.ClientDetails.ClientId = clientId;
+                    request.MtlsCredential.ClientId = clientId;
 
                     parseExtra?.Invoke(form, request);
                 }

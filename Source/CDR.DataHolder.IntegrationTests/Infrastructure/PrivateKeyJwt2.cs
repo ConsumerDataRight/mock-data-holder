@@ -9,6 +9,7 @@ namespace CDR.DataHolder.IntegrationTests
 {
     class PrivateKeyJwt2
     {
+        public bool RequireIssuer { get; init; } = true;
         public string CertificateFilename { get; set; }
         public string CertificatePassword { get; set; }
         public string Issuer { get; set; }
@@ -23,7 +24,7 @@ namespace CDR.DataHolder.IntegrationTests
                 new Claim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer)
             };
 
-            return Generate(claims,  DateTime.UtcNow.AddMinutes(10));
+            return Generate(claims, DateTime.UtcNow.AddMinutes(10));
         }
 
         private string Generate(IEnumerable<Claim> claims, DateTime expires)
@@ -32,9 +33,12 @@ namespace CDR.DataHolder.IntegrationTests
 
             var x509SigningCredentials = new X509SigningCredentials(certificate, SecurityAlgorithms.RsaSsaPssSha256);
 
-            if (string.IsNullOrEmpty(Issuer))
+            if (RequireIssuer)
             {
-                throw new ArgumentException("issuer must be provided");
+                if (string.IsNullOrEmpty(Issuer))
+                {
+                    throw new ArgumentException("issuer must be provided");
+                }
             }
 
             if (string.IsNullOrEmpty(Audience))

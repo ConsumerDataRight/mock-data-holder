@@ -26,9 +26,9 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 
 
         /// <summary>
-        /// Lifetime (in seconds) of the access token
+        /// Lifetime (in seconds) of the access token. It has to be less than 60 mins
         /// </summary>
-        public int TokenLifetime { get; init; } = 14400;
+        public int TokenLifetime { get; init; } = 3600;
 
         /// <summary>
         /// Lifetime (in seconds) of the CDR arrangement.

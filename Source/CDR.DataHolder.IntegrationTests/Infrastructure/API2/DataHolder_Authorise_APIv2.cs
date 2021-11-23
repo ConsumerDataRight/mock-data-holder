@@ -13,6 +13,8 @@ using CDR.DataHolder.IntegrationTests.Fixtures;
 
 namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 {
+// TODO MJS 2021-10-21 - Not used in pipeline, remove
+/*
 #if DEBUG
     public class DataHolder_Authorise_APIv2_UnitTests : BaseTest, IClassFixture<DataHolder_Authorise_APIv2_UnitTests.Fixture>
     {
@@ -134,6 +136,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
         }
     }
 #endif
+*/
 
     public class EDataHolder_Authorise_IncorrectCustomerId : Exception { }
     public class EDataHolder_Authorise_IncorrectOneTimePassword : Exception { }
@@ -166,7 +169,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
         /// <summary>
         /// Lifetime (in seconds) of the access token
         /// </summary>
-        public int TokenLifetime { get; init; } = 14400;
+        public int TokenLifetime { get; init; } = 3600;
 
         /// <summary>
         /// Lifetime (in seconds) of the CDR arrangement.

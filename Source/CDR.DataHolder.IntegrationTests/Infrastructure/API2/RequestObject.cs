@@ -20,7 +20,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 { "iss", BaseTest.SOFTWAREPRODUCT_ID.ToLower() },
                 // { "sub", BaseTest.SOFTWAREPRODUCT_ID.ToLower() },
                 { "iat", iat },
-                { "exp", iat + 14400 },
+                { "exp", iat + 3600 },
                 { "jti", Guid.NewGuid().ToString().Replace("-", string.Empty) },
                 { "response_type", "code id_token"},
                 // { "response_mode", "form_post" },

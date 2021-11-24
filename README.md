@@ -1,6 +1,6 @@
 ![Consumer Data Right Logo](https://raw.githubusercontent.com/ConsumerDataRight/mock-data-holder/main/cdr-logo.png) 
 
-[![Consumer Data Standards 1.11.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.11.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards/includes/releasenotes/releasenotes.1.11.0.html#v1-11-0-release-notes)
+[![Consumer Data Standards 1.11.1](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.11.1-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards/includes/releasenotes/releasenotes.1.11.1.html#v1-11-1-release-notes)
 [![Conformance Test Suite 3.2](https://img.shields.io/badge/Conformance%20Test%20Suite-v3.2-darkblue.svg)](https://www.cdr.gov.au/for-providers/conformance-test-suite-data-holders)
 [![made-with-dotnet](https://img.shields.io/badge/Made%20with-.NET-1f425Ff.svg)](https://dotnet.microsoft.com/)
 [![made-with-csharp](https://img.shields.io/badge/Made%20with-C%23-1f425Ff.svg)](https://docs.microsoft.com/en-us/dotnet/csharp/)
@@ -13,8 +13,9 @@ This project includes source code, documentation and instructions for a Consumer
 This repository contains a mock implementation of a Mock Data Holder and is offered to help the community in the development and testing of their CDR solutions.
 
 ## Mock Data Holder - Alignment
-The Mock Data Holder aligns to [v1.11.0](https://consumerdatastandardsaustralia.github.io/standards/includes/releasenotes/releasenotes.1.11.0.html#v1-11-0-release-notes) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards).
-The Mock Data Holder passed v3.2 of the [Conformance Test Suite for Data Holders](https://www.cdr.gov.au/for-providers/conformance-test-suite-data-holders). Testing against FAPI 0.6 is currently in progress.
+The Mock Data Holder aligns to [v1.11.1](https://consumerdatastandardsaustralia.github.io/standards/includes/releasenotes/releasenotes.1.11.1.html#v1-11-1-release-notes) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards).
+The Mock Data Holder passed v3.2 of the [Conformance Test Suite for Data Holders](https://www.cdr.gov.au/for-providers/conformance-test-suite-data-holders). 
+The Mock Data Holder was tested against [FAPI 0.6](https://openid.net/specs/openid-financial-api-part-1-ID2.html) using the consumerdataright_au profile.
 
 ## Getting Started
 The Mock Data Holder was built using the [Mock Register](https://github.com/ConsumerDataRight/mock-register) and the [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient). You can swap out any of the Mock Data Holder, Mock Data Register and Mock Data Recipient solutions with a solution of your own.
@@ -50,7 +51,7 @@ docker pull consumerdataright/mock-data-holder
 #### Run the Mock Data Holder container
 
 ```
-docker run -d -h mock-cdr-data-holder -p 8000:8000 -p 8001:8001 -p 8002:8002 -p 8005:8005 --name mock-cdr-data-holder consumerdataright/mock-data-holder
+docker run -d -h mock-data-holder -p 8000:8000 -p 8001:8001 -p 8002:8002 -p 8005:8005 --name mock-data-holder consumerdataright/mock-data-holder
 ```
 
 #### Try it out

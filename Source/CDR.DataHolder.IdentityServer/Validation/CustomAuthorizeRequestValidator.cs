@@ -10,6 +10,7 @@ using CDR.DataHolder.IdentityServer.Helpers;
 using CDR.DataHolder.IdentityServer.Logging;
 using CDR.DataHolder.IdentityServer.Models;
 using IdentityModel;
+using IdentityServer4.Configuration;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
@@ -28,6 +29,8 @@ namespace CDR.DataHolder.IdentityServer.Validation
         private readonly IConfigurationSettings _configurationSettings;
         private readonly IStatusRepository _statusRepository;
 
+        private readonly IdentityServerOptions _options;
+
         private CustomAuthorizeRequestValidationContext _requestContext;
         private ValidatedAuthorizeRequest _validatedAuthoriseRequest;
         private HttpRequest _httpRequest;
@@ -42,7 +45,8 @@ namespace CDR.DataHolder.IdentityServer.Validation
             IHttpContextAccessor httpContextAccessor,
             IEventService eventService,
             IConfigurationSettings configurationSettings, 
-            IStatusRepository statusRepository)
+            IStatusRepository statusRepository,
+            IdentityServerOptions options)
         {
             _logger = logger;
             _customJwtRequestValidator = customJwtRequestValidator;
@@ -50,6 +54,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             _httpContextAccessor = httpContextAccessor;
             _configurationSettings = configurationSettings;            
             _statusRepository = statusRepository;
+            _options = options;
         }
 
         public async Task ValidateAsync(CustomAuthorizeRequestValidationContext context)
@@ -70,11 +75,16 @@ namespace CDR.DataHolder.IdentityServer.Validation
             var jwtRequestResult = await ReadJwtRequestAsync(_validatedAuthoriseRequest);
             if (jwtRequestResult.IsError)
             {
-                await SetFailedResult(ValidationCheck.RequestParamInvalid);
+                await SetFailedResult(ValidationCheck.RequestParamInvalid, "invalid_request_object");
                 return false;
             }
 
             if (!ValidClientId())
+            {
+                return await SetFailedResult(ValidationCheck.ClientIdInvalid);
+            }
+
+            if (!ValidNonceInRequest())
             {
                 return await SetFailedResult(ValidationCheck.ClientIdInvalid);
             }
@@ -100,6 +110,11 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 return await SetFailedResult(claimsError.Value);
             }
 
+            if (!ValidateRedirectUri())
+            {
+                return await SetFailedResult(ValidationCheck.AuthorizeRequestInvalidRedirectUri);
+            }
+            
             return true;
         }
 
@@ -155,6 +170,51 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 return false;
             }           
             
+            return true;
+        }
+
+        ///
+        /// Validate nonce in request
+        /// fapi1-advanced-final-ensure-request-object-without-nonce-fails
+        ///This test should end with the authorization server showing an error message that the request 
+        ///or request object is invalid 
+           /// invalid_request error (due to the missing nonce). 
+           /// nonce is required for all flows that return an id_token from the authorization endpoint, 
+            ///see https://openid.net/specs/openid-connect-core-1_0.html#HybridIDToken 
+            ///and https://bitbucket.org/openid/connect/issues/972/nonce-requirement-in-hybrid-auth-request*/
+        ///
+        private bool ValidNonceInRequest()
+        {
+            // TODO: nonce is only required for flows which returns an id_token
+
+            // State should be from the request object not the query params
+            var isState = _validatedAuthoriseRequest.RequestObjectValues.Any(x => x.Key == "state");
+            if(!isState){
+                _validatedAuthoriseRequest.State = string.Empty;
+            }
+
+            if (!_validatedAuthoriseRequest.RequestObjectValues.Any(x => x.Key == "nonce"))
+            {
+                _logger.LogError("nonce is missing from request object");
+                return false;
+            }           
+            
+            return true;
+        }
+
+        // Validate the redirect uri inside the request object. redirect_uri must be present, and a valid uri
+        // Additional Info: fapi1-advanced-final-ensure-request-object-without-redirect-uri-fails
+        private bool ValidateRedirectUri(){
+            var redirectUri =_validatedAuthoriseRequest.RequestObjectValues.FirstOrDefault(x => x.Key == OidcConstants.TokenRequest.RedirectUri).Value;
+            if (redirectUri.IsMissingOrTooLong(_options.InputLengthRestrictions.RedirectUri))
+            {
+                return false;
+            }
+            if (!Uri.TryCreate(redirectUri, UriKind.Absolute, out _))
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -325,7 +385,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             return true;
         }
 
-        private async Task<bool> SetFailedResult(ValidationCheck validationCheck)
+        private async Task<bool> SetFailedResult(ValidationCheck validationCheck, string error = AuthorizeErrorCodes.InvalidRequest)
         {
             await _eventService.RaiseAsync(new RequestValidationFailureEvent(validationCheck));
 
@@ -333,7 +393,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             _requestContext.Result = new AuthorizeRequestValidationResult(_requestContext.Result.ValidatedRequest)
             {
                 IsError = true,
-                Error = AuthorizeErrorCodes.InvalidRequest,
+                Error = error,
                 ErrorDescription = validationCheck.GetDescription(),
             };
             return false;

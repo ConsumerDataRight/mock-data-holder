@@ -109,15 +109,18 @@ namespace CDR.DataHolder.IdentityServer.Services
 
                 accessTokenString = await TokenService.CreateSecurityTokenAsync(oldAccessToken);
             }
-
-            var handle = await RefreshTokenService.UpdateRefreshTokenAsync(request.ValidatedRequest.RefreshTokenHandle, request.ValidatedRequest.RefreshToken, request.ValidatedRequest.Client);
-
+            
+            /////////////////////////
+            //New refresh token created
+            /////////////////////////
+            string refreshToken = await CreateRefreshTokenAsync(request);
+            
             var response = new IdentityServer4.ResponseHandling.TokenResponse
             {
                 IdentityToken = await CreateIdTokenFromRefreshTokenRequestAsync(request.ValidatedRequest, accessTokenString),
                 AccessToken = accessTokenString,
                 AccessTokenLifetime = request.ValidatedRequest.AccessTokenLifetime,
-                RefreshToken = handle,
+                RefreshToken = refreshToken,
                 Custom = request.CustomResponse,
                 Scope = scopes.ToSpaceSeparatedString(),
             };
@@ -125,7 +128,7 @@ namespace CDR.DataHolder.IdentityServer.Services
             //////////////////////////
             // cdr arrangement id
             /////////////////////////
-            var arrangementId = await CreateOrGetArrangementPersistedGrant(request.ValidatedRequest, handle);
+            var arrangementId = await CreateOrGetArrangementPersistedGrant(request.ValidatedRequest, refreshToken);
             if (response.Custom == null)
             {
                 response.Custom = new Dictionary<string, object>()
@@ -139,6 +142,27 @@ namespace CDR.DataHolder.IdentityServer.Services
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Creates and returns new refresh token
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        private async Task<string> CreateRefreshTokenAsync(TokenRequestValidationResult request)
+        {
+            var tokenRequest = new TokenCreationRequest
+            {
+                Subject = request.ValidatedRequest.Subject,
+                ValidatedResources = request.ValidatedRequest.ValidatedResources,
+                ValidatedRequest = request.ValidatedRequest,
+            };
+
+            var at = await TokenService.CreateAccessTokenAsync(tokenRequest);
+            var accessToken = await TokenService.CreateSecurityTokenAsync(at);
+
+            var refreshToken = await RefreshTokenService.CreateRefreshTokenAsync(tokenRequest.Subject, at, request.ValidatedRequest.Client);
+            return refreshToken;
         }
 
         protected override async Task<IdentityServer4.ResponseHandling.TokenResponse> ProcessAuthorizationCodeRequestAsync(TokenRequestValidationResult request)

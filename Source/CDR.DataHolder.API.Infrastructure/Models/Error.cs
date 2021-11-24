@@ -152,6 +152,11 @@ namespace CDR.DataHolder.API.Infrastructure.Models
             return new Error("invalid_request", string.Empty, description);
         }
 
+        public static Error InvalidRequestObject(string description)
+        {
+            return new Error("invalid_request_object", string.Empty, description);
+        }
+
         public static Error InvalidScope(string description)
         {
             return new Error("invalid_scope", string.Empty, description);

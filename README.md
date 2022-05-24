@@ -169,4 +169,4 @@ This project has adopted the **Contributor Covenant**.  For more information see
 [Terms of Use](./TERMS_OF_USE.md)
 
 # Notes
-The Mock Data Holder is provided as a development tool only.  It conforms to the Consumer Data Standards and Register Design.
+The Mock Data Holder is provided as a development tool only.  It conforms to the Consumer Data Standards Design.

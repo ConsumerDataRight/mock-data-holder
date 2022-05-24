@@ -26,6 +26,6 @@ Consult the [CertificateManagement](https://github.com/ConsumerDataRight/mock-re
 
 Endpoints that are not protected by mTLS are protected by TLS.  The server certificate used for TLS communication can be provisioned by the CDR CA, or alternatively participants can used a trusted third party CA.
 
-For the Mock Data Holder, a self-signed TLS certificate is used.  The self-signed certificate will not use the Mock CDR CA, like the mTLS certificates do.
+For the Mock Data Holder, a self-signed TLS certificate is used.  The self-signed certificate will be issued by the Mock CDR CA, like the mTLS certificates are.
 
 The TLS certificate for the Mock Data Holder is available at `tls\mock-data-holder.pfx` and has the password of `#M0ckDataHolder#`.

@@ -25,7 +25,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             _logger = logger;
             _clientDetailsValidator = clientDetailsValidator;
 
-            CascadeMode = CascadeMode.StopOnFirstFailure;
+            CascadeMode = CascadeMode.Stop;
 
             RuleFor(x => x.MtlsCredential)
                 .NotNull()
@@ -53,7 +53,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
         private Action<ClientTokenRequest> RaiseTokenRequestValidationFailureEvent(ValidationCheck check, string message)
             => _ =>
             {
-                _logger.LogError(message);
+                _logger.LogError("{message}", message);
                 _eventService.RaiseAsync(new TokenRequestValidationFailureEvent(check, message)).GetAwaiter().GetResult();
             };
     }

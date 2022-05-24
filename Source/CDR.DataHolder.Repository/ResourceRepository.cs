@@ -52,42 +52,42 @@ namespace CDR.DataHolder.Repository
 			return _mapper.Map<Customer>(customer);
 		}
 
-		public async Task<Page<Account[]>> GetAllAccounts(AccountFilter accountFilter, int page, int pageSize)
+		public async Task<Page<Account[]>> GetAllAccounts(AccountFilter filter, int page, int pageSize)
 		{
 			var result = new Page<Account[]>()
 			{
-				Data = new Account[] { },
+				Data = Array.Empty<Account>(),
 				CurrentPage = page,
 				PageSize = pageSize,
 			};
 
 			// We always return accounts for the individual. We don't have a concept of joint or shared accounts at the moment
 			// So, if asked from accounts which rent owned, just return empty result.
-			if (accountFilter.IsOwned.HasValue && !accountFilter.IsOwned.Value)
+			if (filter.IsOwned.HasValue && !filter.IsOwned.Value)
 			{
 				return result;
 			}
 
 			// If none of the account ids are allowed, return empty list
-			if (accountFilter.AllowedAccountIds == null || !accountFilter.AllowedAccountIds.Any())
+			if (filter.AllowedAccountIds == null || !filter.AllowedAccountIds.Any())
 			{
 				return result;
 			}
 
 			IQueryable<Entities.Account> accountsQuery = _dataHolderDatabaseContext.Accounts.AsNoTracking()
 				.Include(account => account.Customer)
-				.Where(account => 
-					accountFilter.AllowedAccountIds.Contains(account.AccountId)	
-					&& account.Customer.CustomerId == accountFilter.CustomerId);
+				.Where(account =>
+					filter.AllowedAccountIds.Contains(account.AccountId)	
+					&& account.Customer.CustomerId == filter.CustomerId);
 
 			// Apply filters.
-			if (!string.IsNullOrEmpty(accountFilter.OpenStatus))
+			if (!string.IsNullOrEmpty(filter.OpenStatus))
 			{
-				accountsQuery = accountsQuery.Where(account => account.OpenStatus == accountFilter.OpenStatus);
+				accountsQuery = accountsQuery.Where(account => account.OpenStatus == filter.OpenStatus);
 			}
-			if (!string.IsNullOrEmpty(accountFilter.ProductCategory))
+			if (!string.IsNullOrEmpty(filter.ProductCategory))
 			{
-				accountsQuery = accountsQuery.Where(account => account.ProductCategory == accountFilter.ProductCategory);
+				accountsQuery = accountsQuery.Where(account => account.ProductCategory == filter.ProductCategory);
 			}
 
 			var totalRecords = await accountsQuery.CountAsync();
@@ -137,7 +137,7 @@ namespace CDR.DataHolder.Repository
 
 			var result = new Page<AccountTransaction[]>()
 			{
-				Data = new AccountTransaction[] { },
+				Data = Array.Empty<AccountTransaction>(),
 				CurrentPage = page,
 				PageSize = pageSize,
 			};

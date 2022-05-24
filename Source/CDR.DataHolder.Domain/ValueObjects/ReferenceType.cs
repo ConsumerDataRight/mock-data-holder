@@ -24,7 +24,6 @@ namespace CDR.DataHolder.Domain.ValueObjects
 
 		public static ID GetIdByCode(IDictionary<ID, CODE> values, string code)
 		{
-			// TODO: check empty, null, wrong, correct
 			var reference = GetValueByCode(values, code);
 			return reference.Key;
 		}

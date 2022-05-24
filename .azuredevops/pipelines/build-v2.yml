@@ -1,0 +1,176 @@
+# Build pipeline v2 (Containerised)
+
+resources:
+  repositories:
+  - repository: MockRegister
+    type: git
+    name: sb-mock-register
+    ref: develop    
+
+trigger:
+  - develop
+  
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+# Checkout repositories
+- checkout: MockRegister
+- checkout: self
+
+# Build mock-register
+- task: Docker@2
+  displayName: Build mock-register image
+  inputs:
+    command: build 
+    Dockerfile: $(Build.SourcesDirectory)/sb-mock-register/Source/Dockerfile
+    buildContext: $(Build.SourcesDirectory)/sb-mock-register/Source
+    repository: mock-register
+    tags: latest
+
+# Build mock-data-holder
+- task: Docker@2
+  displayName: Build mock-data-holder image
+  inputs:
+    command: build 
+    Dockerfile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/Dockerfile
+    buildContext: $(Build.SourcesDirectory)/sb-mock-data-holder/Source
+    repository: mock-data-holder
+    tags: latest
+
+# Build mock-data-holder-unit-tests
+- task: Docker@2
+  displayName: Build mock-data-holder-unit-tests image
+  inputs:
+    command: build 
+    Dockerfile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/Dockerfile.unit-tests
+    buildContext: $(Build.SourcesDirectory)/sb-mock-data-holder/Source
+    repository: mock-data-holder-unit-tests
+    tags: latest
+
+# Build mock-data-holder-integration-tests
+- task: Docker@2
+  displayName: Build mock-data-holder-integration-tests image
+  inputs:
+    command: build 
+    Dockerfile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/Dockerfile.integration-tests
+    buildContext: $(Build.SourcesDirectory)/sb-mock-data-holder/Source
+    repository: mock-data-holder-integration-tests
+    tags: latest
+
+# List docker images
+- task: Docker@2
+  displayName: List Docker images
+  condition: always() 
+  inputs:
+    command: images
+
+# Run unit tests
+- task: DockerCompose@0
+  displayName: Unit Tests - Up
+  inputs:
+    action: Run a Docker Compose command
+    dockerComposeFile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/docker-compose.UnitTests.yml     
+    dockerComposeCommand: up --abort-on-container-exit --exit-code-from mock-data-holder-unit-tests
+
+# Remove unit tests
+- task: DockerCompose@0
+  displayName: Unit Tests - Down
+  condition: always()
+  inputs:
+    action: Run a Docker Compose command
+    dockerComposeFile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/docker-compose.UnitTests.yml     
+    dockerComposeCommand: down
+
+# Run integration tests
+- task: DockerCompose@0
+  displayName: Integration Tests - Up
+  condition: always()
+  inputs:
+    action: Run a Docker Compose command
+    dockerComposeFile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/docker-compose.IntegrationTests.yml     
+    dockerComposeCommand: up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
+
+# Remove integration tests
+- task: DockerCompose@0
+  displayName: Integration Tests - Down
+  condition: always()
+  inputs:
+    action: Run a Docker Compose command
+    dockerComposeFile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/docker-compose.IntegrationTests.yml     
+    dockerComposeCommand: down
+
+# Save docker image to TAR so it can be published
+- task: Docker@2
+  displayName: Save MockDataHolder image to TAR
+  inputs:
+    repository: mock-data-holder
+    command: save
+    arguments: --output $(build.artifactstagingdirectory)/mock-data-holder.image.tar mock-data-holder
+    addPipelineData: false
+
+# Publish docker image
+- task: PublishPipelineArtifact@1
+  displayName: Publish container images
+  inputs:
+    path: $(build.artifactstagingdirectory)
+    artifact: Container Images
+
+# Publish mock-register logs
+- publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-register/tmp
+  displayName: Publish MockRegister logs
+  condition: always()
+  artifact: Mock-Register - Logs
+
+# Publish mock-data-holder logs
+- publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder/tmp
+  displayName: Publish MockDataHolder logs
+  condition: always()
+  artifact: Mock-Data-Holder - Logs
+
+# Publish mock-data-holder unit tests results
+- publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-unit-tests/testresults
+  displayName: Publish unit tests
+  condition: always()
+  artifact: Mock-Data-Holder - Unit tests
+
+# Publish mock-data-holder integration tests results
+- publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-integration-tests/testresults
+  displayName: Publish integration tests
+  condition: always()
+  artifact: Mock-Data-Holder - Integration tests
+
+# TODO - MJS - Run formatter over TRX to produce formatted report suitable for attaching to Devops US & publish as artifact
+
+- task: UseDotNet@2
+  displayName: 'Use .NET 6 sdk'
+  condition: always()
+  inputs:
+    packageType: sdk
+    version: '6.0.x'
+    performMultiLevelLookup: true
+
+- task: CmdLine@2
+  displayName: 'Install dotnet-ef'
+  condition: always()
+  inputs:
+    script: 'dotnet tool install --global dotnet-ef'
+    
+- task: CmdLine@2
+  displayName: 'Check dotnet-ef version'
+  condition: always()
+  inputs:
+    script: 'dotnet-ef'
+
+- script: |
+    cd $(Build.SourcesDirectory)/sb-mock-data-holder/Source/CDR.DataHolder.Repository 
+    dotnet ef migrations bundle --context DataHolderDatabaseContext --verbose --self-contained
+    ls
+  displayName: 'Run EF Migrations bundle'
+  condition: always()
+
+- publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/CDR.DataHolder.Repository/efbundle
+  displayName: Publish EF Migration bundle
+  condition: always()
+  artifact: Database Migration Scripts

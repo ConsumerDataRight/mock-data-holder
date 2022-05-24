@@ -6,6 +6,7 @@ using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using static CDR.DataHolder.IdentityServer.CdsConstants;
 
@@ -13,8 +14,14 @@ namespace CDR.DataHolder.IdentityServer.Stores
 {
     public class DynamicClientStore : ClientStore
     {
-        public DynamicClientStore(ILogger<ClientStore> logger, ConfigurationDbContext configurationDbContext):base(logger, configurationDbContext)
+        private readonly IConfiguration _configuration;
+
+        public DynamicClientStore(
+            ILogger<ClientStore> logger, 
+            IConfiguration configuration,
+            ConfigurationDbContext configurationDbContext) :base(logger, configurationDbContext)
         {
+            _configuration = configuration;
         }
 
         public async Task<Client> FindClientBySoftwareProductIdAsync(string softwareProductId)
@@ -32,7 +39,7 @@ namespace CDR.DataHolder.IdentityServer.Stores
 
             if (client == null)
             {
-                _logger.LogError($"Software Product Id {softwareProductId} was not found.");
+                _logger.LogError("Software Product Id {softwareProductId} was not found.", softwareProductId);
                 return null;
             }
 
@@ -68,7 +75,7 @@ namespace CDR.DataHolder.IdentityServer.Stores
 
         public async Task<bool> StoreClientAsync(Client client)
         {
-            var clientEntity = ConvertIdentityServerModelToEntityHelper.ConvertModelClientToEntityClient(client);
+            var clientEntity = ConvertIdentityServerModelToEntityHelper.ConvertModelClientToEntityClient(client, _configuration);
             clientEntity.ClientSecrets.Add(new IdentityServer4.EntityFramework.Entities.ClientSecret()
             {
                 Type = SecretTypes.JsonWebKey,

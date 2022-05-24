@@ -62,7 +62,7 @@ namespace CDR.DataHolder.IdentityServer.Stores
 					}
 					catch (Exception ex)
 					{
-						_logger.LogError(ex, $"Failed to get JWKs from JwksUri endpoint {clientSecret.Value}");
+						_logger.LogError(ex, "Failed to get JWKs from JwksUri endpoint {jwksUri}", clientSecret.Value);
 					}
 				}
 				else
@@ -81,7 +81,7 @@ namespace CDR.DataHolder.IdentityServer.Stores
 			{
 				Type = SecretTypes.JsonWebKey,
 				Value = JsonConvert.SerializeObject(jsonWebKey),
-				Description = SecretDescription.Encyption //TODO: Check if the connect description or custom??
+				Description = SecretDescription.Encyption
 			};
 		}
 
@@ -96,11 +96,15 @@ namespace CDR.DataHolder.IdentityServer.Stores
 			var clientHandler = new HttpClientHandler();
 			clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
 
-			_logger.LogInformation($"Retrieving JWKS from: {jwksEndpoint}");
+			_logger.LogInformation("Retrieving JWKS from: {jwksEndpoint}", jwksEndpoint);
 
 			var jwksClient = new HttpClient(clientHandler);
 			var jwksResponse = await jwksClient.GetAsync(jwksEndpoint);
-			return new JsonWebKeySet(await jwksResponse.Content.ReadAsStringAsync());
+			var jwks = await jwksResponse.Content.ReadAsStringAsync();
+
+			_logger.LogDebug("JWKS: {jwks}", jwks);
+
+			return new JsonWebKeySet(jwks);
 		}
 	}
 }

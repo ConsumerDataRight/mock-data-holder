@@ -1,13 +1,13 @@
 {
-    "data": {
-        "status": "OK",
-        "explanation": "",
-        "detectionTime": "",
-        "expectedResolutionTime": "",
-        "updateTime": ""
-    },
-    "links": {
-        "self": "https://localhost:8000/cds-au/v1/discovery/status"
-    },
-    "meta": {}
+  "data": {
+    "status": "OK",
+    "explanation": "",
+    "detectionTime": "",
+    "expectedResolutionTime": "",
+    "updateTime": ""
+  },
+  "links": {
+    "self": "https://#{domain}/cds-au/v1/discovery/status"
+  },
+  "meta": {}
 }

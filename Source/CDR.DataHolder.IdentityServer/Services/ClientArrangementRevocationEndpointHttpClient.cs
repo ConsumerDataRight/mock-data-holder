@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using CDR.DataHolder.IdentityServer.Models;
 using Microsoft.Extensions.Logging;
 
 namespace CDR.DataHolder.IdentityServer.Interfaces
@@ -21,7 +22,7 @@ namespace CDR.DataHolder.IdentityServer.Interfaces
             _client = client;
         }
 
-        public async Task<HttpStatusCode?> PostToArrangementRevocationEndPoint(Dictionary<string, string> formValues, string bearerTokenJwt, Uri arrangementRevocationUri)
+        public async Task<(HttpStatusCode? Status, string Detail)> PostToArrangementRevocationEndPoint(Dictionary<string, string> formValues, string bearerTokenJwt, Uri arrangementRevocationUri)
         {
             if (!string.IsNullOrWhiteSpace(bearerTokenJwt))
             {
@@ -40,7 +41,7 @@ namespace CDR.DataHolder.IdentityServer.Interfaces
                     httpResponseMessage.StatusCode,
                     responseContent);
 
-                return httpResponseMessage.StatusCode;
+                return (httpResponseMessage.StatusCode, responseContent);
             }
             catch (HttpRequestException ex)
             {
@@ -50,7 +51,7 @@ namespace CDR.DataHolder.IdentityServer.Interfaces
                     arrangementRevocationUri,
                     bearerTokenJwt,
                     string.Join(Environment.NewLine, formValues));
-                return null;
+                return (null, "");
             }
             catch (Exception ex)
             {

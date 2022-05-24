@@ -7,7 +7,7 @@ namespace CDR.DataHolder.IdentityServer.Models
         [JsonPropertyName("error")]
         public string Error { get; set; }
 
-        [JsonPropertyName("description")]
+        [JsonPropertyName("error_description")]
         public string Description { get; set; }
     }
 }

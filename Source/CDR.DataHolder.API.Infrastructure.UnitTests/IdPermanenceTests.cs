@@ -323,7 +323,7 @@ namespace CDR.DataHolder.API.Infrastructure.UnitTests
             var softwareProductId = Guid.NewGuid().ToString();
             var customerId = Guid.NewGuid().ToString();
             var accountId = "1122334455";
-            var privateKey = Guid.NewGuid().ToString();            
+            var privateKey = Guid.NewGuid().ToString();
             var idParameters = new IdPermanenceParameters
             {
                 SoftwareProductId = softwareProductId,
@@ -394,7 +394,7 @@ namespace CDR.DataHolder.API.Infrastructure.UnitTests
         public void IdPermanenceManager_SubClaim_EncryptDecrypt_Success()
         {
             // Arrange.
-            var softwareProductId = "C6327F87-687A-4369-99A4-EAACD3BB8210";
+            var softwareProductId = "c6327f87-687a-4369-99a4-eaacd3bb8210";
             var sectorIdentifierUri = "https://datarecipient/uris";
             var customerId = Guid.NewGuid().ToString();
             var privateKey = "90733A75F19347118B3BE0030AB590A8";

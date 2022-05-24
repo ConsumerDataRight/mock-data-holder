@@ -1,13 +1,23 @@
+@using Microsoft.Extensions.Configuration
+@using CDR.DataHolder.IdentityServer.Extensions
+@inject IConfiguration _config
 @model ConsentViewModel
 
 @{
 	bool hasSelectedAcconts = Model.SelectedAccountIds != null && Model.SelectedAccountIds.Any();
-	DateTime consentExpiryDate = DateTime.Now.Add(Model.ConsentLifeTimeSpan);
-	int consentExpiryInMonths = (consentExpiryDate.Month - DateTime.Now.Month) + 12 * (consentExpiryDate.Year - DateTime.Now.Year);
+
+	// Consent days calculations
+	double consentDays = Math.Round(Model.ConsentLifeTimeSpan.TotalDays);
+	if (consentDays > 365)
+	{
+		consentDays = 365;
+	}
+	DateTime consentExpiryDate = DateTime.Now.AddDays(consentDays);
+	bool isConsentOnceOff = Model.ConsentLifeTimeSpan <= TimeSpan.FromDays(1);
 }
 
 <form asp-route="Index" class="pb-3">
-	<input type="hidden" asp-for="ReturnUrl" />
+	<input type="hidden" name="ReturnUrl" value="@_config.EnsurePath(Model.ReturnUrl)" />
 	@if (Model.SelectedAccountIds != null && Model.SelectedAccountIds.Any())
 	{
 		@for (int i = 0; i < Model.SelectedAccountIds.Count(); i++)
@@ -46,12 +56,12 @@
 		</div>
 	}
 	<div class="page-buttons flex justify-content-center pb-3">
-		<div class="row">
-			<div class="col p-0 pr-1">
-				<button class="btn btn-outline-primary btn-block" name="button" value="@ConsentViewModel.ActionTypes.Cancel">Cancel</button>
-			</div>
+		<div class="row flex-row-reverse">
 			<div class="col p-0 pl-1">
 				<button type="submit" class="btn btn-primary btn-block" name="button" value="@ConsentViewModel.ActionTypes.Page2">Continue</button>
+			</div>
+			<div class="col p-0 pr-1">
+				<button class="btn btn-outline-primary btn-block" name="button" value="@ConsentViewModel.ActionTypes.Cancel">Cancel</button>
 			</div>
 		</div>
 	</div>
@@ -73,7 +83,7 @@
 			</ul>
 		</div>
 		<div className="page-content text-secondary">
-			<p><b>Data requested</b></p>
+			<p><strong>Data requested</strong></p>
 			<div class="alert alert-secondary">
 				<h6>Transaction details</h6>
 				<ul>
@@ -91,10 +101,21 @@
 					<li>Scheduled payments</li>
 				</ul>
 			</div>
-			<h6>Sharing period</h6>
-			<p>@string.Format("{0:d MMMM yyyy} - {1:d MMMM yyyy}", DateTime.Now, consentExpiryDate)</p>
-			<h6>How long your data will be shared</h6>
-			<p>Your data will be shared on an on-going basis for the next @consentExpiryInMonths months.</p>
+
+			@if (isConsentOnceOff)
+			{
+				<h6>Sharing period</h6>
+				<p>Once</p>
+				<h6>How long your data will be shared</h6>
+				<p>Your data will be shared once.</p>
+			}
+			else
+			{
+				<h6>Sharing period</h6>
+				<p>@string.Format("{0:dd-MMM-yyyy} - {1:dd-MMM-yyyy}", DateTime.Now, consentExpiryDate)</p>
+				<h6>How long your data will be shared</h6>
+				<p>Your data will be shared on an on-going basis for the next @(consentDays == 365 ? "12 months" : consentDays + " day(s)")</p>
+			}
 			<hr />
 			<h6>Where to manage this arrangement</h6>
 			<p>You can review and manage this arrangement on the Data Sharing dashboard by going to Settings &gt; Data Sharing on the @Model.ClientName website or app.</p>
@@ -103,12 +124,12 @@
 		</div>
 
 		<div class="page-buttons flex justify-content-center pb-3">
-			<div class="row">
+			<div class="row flex-row-reverse">
+				<div class="col p-0 pl-1">
+					<button class="btn btn-primary btn-block" name="button" value="@ConsentViewModel.ActionTypes.Consent">I Confirm</button>
+				</div>
 				<div class="col p-0 pr-1">
 					<button class="btn btn-outline-primary btn-block" name="button" value="@ConsentViewModel.ActionTypes.Page1">Cancel</button>
-				</div>
-				<div class="col p-0 pl-1">
-					<button type="submit" class="btn btn-primary btn-block" name="button" value="@ConsentViewModel.ActionTypes.Consent">I Confirm</button>
 				</div>
 			</div>
 		</div>

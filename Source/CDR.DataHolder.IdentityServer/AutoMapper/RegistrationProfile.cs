@@ -23,7 +23,7 @@ namespace CDR.DataHolder.IdentityServer.AutoMapper
             CreateMap<SoftwareStatement, ClientRegistrationResponse>()
                 .ForMember(x => x.ClientIdIssuedAt, x => x.MapFrom(_ => DateTime.UtcNow.ToEpoch()));
 
-            CreateMap<ClientRegistrationResponse, DataReceipientClient>()
+            CreateMap<ClientRegistrationResponse, DataRecipientClient>()
                 .ForMember(x => x.AllowedScopes, x => x.MapFrom(r => r.Scope.Split(" ", StringSplitOptions.None)))
                 .AfterMap((src, dest) =>
                  {
@@ -42,9 +42,9 @@ namespace CDR.DataHolder.IdentityServer.AutoMapper
                 .ForMember(x => x.Description, x => x.MapFrom(r => r.ClientDescription))
                 .ForMember(x => x.ClientSecrets, x => x.MapFrom(r => r));
 
-            CreateMap<Client, DataReceipientClient>();
+            CreateMap<Client, DataRecipientClient>();
 
-            CreateMap<DataReceipientClient, ClientRegistrationResponse>()
+            CreateMap<DataRecipientClient, ClientRegistrationResponse>()
                 .ForMember(d => d.ApplicationType, src => src.MapFrom(s => "web"))
                 .ForMember(d => d.ClientDescription, src => src.MapFrom(s => s.Description))
                 .ForMember(d => d.ClientId, src => src.MapFrom(s => s.ClientId))
@@ -93,73 +93,54 @@ namespace CDR.DataHolder.IdentityServer.AutoMapper
                 {
                     var claims = new List<ClientClaim>();
 
-                    if (response.ClientIdIssuedAt > 0)
-                    {
-                        claims.Add(new ClientClaim(ClientMetadata.ClientIdIssuedAt, response.ClientIdIssuedAt.ToString()));
-                    }
-
-                    if (response.ApplicationType.IsPresent())
-                    {
-                        claims.Add(new ClientClaim(ClientMetadata.ApplicationType, response.ApplicationType));
-                    }
-
                     claims.Add(new ClientClaim(ClientMetadata.SoftwareId, response.SoftwareId));
                     claims.Add(new ClientClaim(ClientMetadata.SoftwareStatement, response.SoftwareStatementJwt));
                     claims.Add(new ClientClaim(ClientMetadata.LogoUri, response.LogoUri));
-
-                    if (response.PolicyUri.IsPresent())
-                    {
-                        claims.Add(new ClientClaim(ClientMetadata.PolicyUri, response.PolicyUri));
-                    }
-
-                    if (response.TosUri.IsPresent())
-                    {
-                        claims.Add(new ClientClaim(ClientMetadata.TosUri, response.TosUri));
-                    }
-
                     claims.Add(new ClientClaim(ClientMetadata.JwksUri, response.JwksUri));
                     claims.Add(new ClientClaim(ClientMetadata.TokenEndpointAuthenticationMethod, response.TokenEndpointAuthMethod));
                     claims.Add(new ClientClaim(ClientMetadata.TokenEndpointAuthenticationSigningAlgorithm, response.TokenEndpointAuthSigningAlg));
                     claims.Add(new ClientClaim(ClientMetadata.IdentityTokenEncryptedResponseAlgorithm, response.IdTokenEncryptedResponseAlg));
                     claims.Add(new ClientClaim(ClientMetadata.IdentityTokenEncryptedResponseEncryption, response.IdTokenEncryptedResponseEnc));
                     claims.Add(new ClientClaim(ClientMetadata.IdentityTokenSignedResponseAlgorithm, response.IdTokenSignedResponseAlg));
-
-                    if (response.RequestObjectSigningAlg.IsPresent())
-                    {
-                        claims.Add(new ClientClaim(ClientMetadata.RequestObjectSigningAlgorithm, response.RequestObjectSigningAlg));
-                    }
-
-                    if (response.LegalEntityId.IsPresent())
-                    {
-                        claims.Add(new ClientClaim(ClientMetadata.LegalEntityId, response.LegalEntityId));
-                    }
-
-                    if (response.LegalEntityName.IsPresent())
-                    {
-                        claims.Add(new ClientClaim(ClientMetadata.LegalEntityName, response.LegalEntityName));
-                    }
-
-                    if (response.RecipientBaseUri.IsPresent())
-                    {
-                        claims.Add(new ClientClaim(ClientMetadata.RecipientBaseUri, response.RecipientBaseUri));
-                    }
-
                     claims.Add(new ClientClaim(ClientMetadata.OrgId, response.OrgId));
                     claims.Add(new ClientClaim(ClientMetadata.OrgName, response.OrgName));
                     claims.Add(new ClientClaim(ClientMetadata.RevocationUri, response.RevocationUri));
 
-                    if (response.SectorIdentifierUri.IsPresent())
-                    {
-                        claims.Add(new ClientClaim(ClientMetadata.SectorIdentifierUri, response.SectorIdentifierUri));
-                    }
-                    else
-                    {
-                        // Use the hostname of the 'redirect_uris' if SectorIdentifierUri is not present.
-                        claims.Add(new ClientClaim(ClientMetadata.SectorIdentifierUri, new Uri(response.RedirectUris.First()).Host));
-                    }
+                    TryAddClaim(claims, ClientMetadata.ClientIdIssuedAt, response.ClientIdIssuedAt);
+                    TryAddClaim(claims, ClientMetadata.ApplicationType, response.ApplicationType);
+                    TryAddClaim(claims, ClientMetadata.PolicyUri, response.PolicyUri);
+                    TryAddClaim(claims, ClientMetadata.TosUri, response.TosUri);
+                    TryAddClaim(claims, ClientMetadata.RequestObjectSigningAlgorithm, response.RequestObjectSigningAlg);
+                    TryAddClaim(claims, ClientMetadata.LegalEntityId, response.LegalEntityId);
+                    TryAddClaim(claims, ClientMetadata.LegalEntityName, response.LegalEntityName);
+                    TryAddClaim(claims, ClientMetadata.RecipientBaseUri, response.RecipientBaseUri);
+
+                    // Use the hostname of the 'redirect_uris' if SectorIdentifierUri is not present.
+                    TryAddClaim(claims, ClientMetadata.SectorIdentifierUri, response.SectorIdentifierUri, new Uri(response.RedirectUris.First()).Host);
 
                     return claims;
                 });
+        }
+
+        private static void TryAddClaim(List<ClientClaim> claims, string name, long value)
+        {
+            if (value > 0)
+            {
+                claims.Add(new ClientClaim(name, value.ToString()));
+            }
+        }
+
+        private static void TryAddClaim(List<ClientClaim> claims, string name, string value, string defaultValue = null)
+        {
+            if (value.IsPresent())
+            {
+                claims.Add(new ClientClaim(name, value));
+            }
+
+            if (defaultValue != null)
+            {
+                claims.Add(new ClientClaim(name, defaultValue));
+            }
         }
     }
 

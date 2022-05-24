@@ -1,14 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-
+    <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
+    <Version>0.3.0</Version>
+    <FileVersion>0.3.0</FileVersion>
+    <AssemblyVersion>0.3.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="AuthoriseTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="appsettings.json" />
+    <None Remove="Certificates\es256-invalid-public.pem" />
+    <None Remove="Certificates\es256-private.pfx" />
     <None Remove="Certificates\invalid_cert.cer" />
+    <None Remove="Certificates\ps256-invalid-public.pem" />
+    <None Remove="Certificates\ps256-private.pfx" />
+    <None Remove="Certificates\ps256-public.pem" />
     <None Remove="Certificates\server.cer" />
     <None Remove="Certificates\server.pfx" />
     <None Remove="Certificates\ssa.pem" />
@@ -19,7 +30,19 @@
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Certificates\invalid_cert.cer">
+    <Content Include="Certificates\es256-invalid-public.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Certificates\es256-private.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Certificates\ps256-invalid-public.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Certificates\ps256-private.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Certificates\ps256-public.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Certificates\server.cer">

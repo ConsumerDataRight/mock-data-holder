@@ -27,39 +27,4 @@ namespace CDR.DataHolder.IntegrationTests.Fixtures
             await base.DisposeAsync();
         }
     }
-
-    // public class RegisterSoftwareProductFixture : IAsyncLifetime
-    // {
-    //     JWKS_Endpoint? jwks_endpoint;
-
-    //     public DataHolder_AccessToken_Cache DataHolder_AccessToken_Cache { get; } = new();
-
-    //     public async Task InitializeAsync()
-    //     {
-    //         // Patch Register
-    //         TestSetup.Register_PatchRedirectUri();
-    //         TestSetup.Register_PatchJwksUri();
-
-    //         // Purge IdentityServer
-    //         TestSetup.DataHolder_PurgeIdentityServer();
-
-    //         // Stand-up JWKS endpoint
-    //         jwks_endpoint = new JWKS_Endpoint(
-    //             BaseTest.SOFTWAREPRODUCT_JWKS_URI_FOR_INTEGRATION_TESTS,
-    //             BaseTest.JWT_CERTIFICATE_FILENAME,
-    //             BaseTest.JWT_CERTIFICATE_PASSWORD);
-    //         jwks_endpoint.Start();
-
-    //         // Register software product
-    //         await TestSetup.DataHolder_RegisterSoftwareProduct();
-    //     }
-
-    //     public async Task DisposeAsync()
-    //     {
-    //         if (jwks_endpoint != null)
-    //             await jwks_endpoint.DisposeAsync();
-
-    //         // return Task.CompletedTask;
-    //     }
-    // }  
 }

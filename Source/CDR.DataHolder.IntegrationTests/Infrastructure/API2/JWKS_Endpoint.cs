@@ -17,14 +17,14 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
         /// </summary>
         public JWKS_Endpoint(string url, string certificateFilename, string certificatePassword)
         {
-            this.Url = url;
-            this.CertificateFilename = certificateFilename;
-            this.CertificatePassword = certificatePassword;
+            Url = url;
+            CertificateFilename = certificateFilename;
+            CertificatePassword = certificatePassword;
         }
 
         public string Url { get; init; }
-        private string Url_LeftPart => new Uri(Url).GetLeftPart(UriPartial.Authority);
         private string Url_PathAndQuery => new Uri(Url).PathAndQuery;
+        private int Url_Port => new Uri(Url).Port;
         public string CertificateFilename { get; init; }
         public string CertificatePassword { get; init; }
 
@@ -33,9 +33,11 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
         public void Start()
         {
             host = new WebHostBuilder()
-               .UseKestrel()
+                .UseKestrel(opts =>
+                {
+                    opts.ListenAnyIP(Url_Port, opts => opts.UseHttps());  // This will use the default developer certificate.  Use "dotnet dev-certs https" to install if necessary
+                })
                .UseStartup<JWKSCallback_Startup>(_ => new JWKSCallback_Startup(this))
-               .UseUrls(Url_LeftPart)
                .Build();
 
             host.RunAsync();
@@ -54,7 +56,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
         {
             if (!disposed)
             {
-                // Console.WriteLine($"{nameof(JWKS_Endpoint)} - DisposeAsync");
                 await Stop();
                 disposed = true;
             }
@@ -79,8 +80,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 {
                     endpoints.MapGet(Endpoint.Url_PathAndQuery, async context =>
                     {
-                        // Console.WriteLine($"{nameof(JWKS_Endpoint)} - {context.Request.Path}");
-
                         // Build JWKS and return
                         var jwks = JWKSBuilder.Build(Endpoint.CertificateFilename, Endpoint.CertificatePassword);
                         await context.Response.WriteAsJsonAsync<JWKSBuilder.JWKS>(jwks);

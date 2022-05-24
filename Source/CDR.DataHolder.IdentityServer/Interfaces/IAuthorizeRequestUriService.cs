@@ -8,6 +8,6 @@ namespace CDR.DataHolder.IdentityServer.Interfaces
 {
     public interface IAuthorizeRequestUriService
     {
-        Task<IEndpointResult> ProcessAsync(string request_uri_key, string client_id, NameValueCollection nameValueCollection);
+        Task<IEndpointResult> ProcessAsync(string requestUriKey, string clientId, NameValueCollection parameters);
     }
 }

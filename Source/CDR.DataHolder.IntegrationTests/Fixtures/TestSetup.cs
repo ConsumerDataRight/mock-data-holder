@@ -1,9 +1,9 @@
+using CDR.DataHolder.IntegrationTests.Extensions;
+using CDR.DataHolder.IntegrationTests.Infrastructure.API2;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using CDR.DataHolder.IntegrationTests.Extensions;
-using CDR.DataHolder.IntegrationTests.Infrastructure.API2;
-using Microsoft.Data.Sqlite;
 
 #nullable enable
 
@@ -23,15 +23,17 @@ namespace CDR.DataHolder.IntegrationTests.Fixtures
             string softwareProductId = BaseTest.SOFTWAREPRODUCT_ID,
             string redirectURI = BaseTest.SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS)
         {
-            using var connection = new SqliteConnection(BaseTest.REGISTER_CONNECTIONSTRING);
+            redirectURI = BaseTest.SubstituteConstant(redirectURI);
+
+            using var connection = new SqlConnection(BaseTest.REGISTER_CONNECTIONSTRING);
             connection.Open();
 
-            using var updateCommand = new SqliteCommand("update softwareproduct set redirecturis = @uri where lower(softwareproductid) = @id", connection);
+            using var updateCommand = new SqlCommand("update softwareproduct set redirecturis = @uri where lower(softwareproductid) = @id", connection);
             updateCommand.Parameters.AddWithValue("@uri", redirectURI);
             updateCommand.Parameters.AddWithValue("@id", softwareProductId.ToLower());
             updateCommand.ExecuteNonQuery();
 
-            using var selectCommand = new SqliteCommand($"select redirecturis from softwareproduct where lower(softwareproductid) = @id", connection);
+            using var selectCommand = new SqlCommand($"select redirecturis from softwareproduct where lower(softwareproductid) = @id", connection);
             selectCommand.Parameters.AddWithValue("@id", softwareProductId.ToLower());
             if (selectCommand.ExecuteScalarString() != redirectURI)
             {
@@ -48,15 +50,17 @@ namespace CDR.DataHolder.IntegrationTests.Fixtures
             string softwareProductId = BaseTest.SOFTWAREPRODUCT_ID,
             string jwksURI = BaseTest.SOFTWAREPRODUCT_JWKS_URI_FOR_INTEGRATION_TESTS)
         {
-            using var connection = new SqliteConnection(BaseTest.REGISTER_CONNECTIONSTRING);
+            jwksURI = BaseTest.SubstituteConstant(jwksURI);
+
+            using var connection = new SqlConnection(BaseTest.REGISTER_CONNECTIONSTRING);
             connection.Open();
 
-            using var updateCommand = new SqliteCommand("update softwareproduct set jwksuri = @uri where lower(softwareproductid) = @id", connection);
+            using var updateCommand = new SqlCommand("update softwareproduct set jwksuri = @uri where lower(softwareproductid) = @id", connection);
             updateCommand.Parameters.AddWithValue("@uri", jwksURI);
             updateCommand.Parameters.AddWithValue("@id", softwareProductId.ToLower());
             updateCommand.ExecuteNonQuery();
 
-            using var selectCommand = new SqliteCommand($"select jwksuri from softwareproduct where lower(softwareproductid) = @id", connection);
+            using var selectCommand = new SqlCommand($"select jwksuri from softwareproduct where lower(softwareproductid) = @id", connection);
             selectCommand.Parameters.AddWithValue("@id", softwareProductId.ToLower());
             if (selectCommand.ExecuteScalarString() != jwksURI)
             {
@@ -70,16 +74,16 @@ namespace CDR.DataHolder.IntegrationTests.Fixtures
         /// <param name="onlyPersistedGrants">Only clear the persisted grants table</param>
         static public void DataHolder_PurgeIdentityServer(bool onlyPersistedGrants = false)
         {
-            using var connection = new SqliteConnection(BaseTest.IDENTITYSERVER_CONNECTIONSTRING);
+            using var connection = new SqlConnection(BaseTest.IDENTITYSERVER_CONNECTIONSTRING);
 
             void Purge(string table)
             {
                 // Delete all rows
-                using var deleteCommand = new SqliteCommand($"delete from {table}", connection);
+                using var deleteCommand = new SqlCommand($"delete from {table}", connection);
                 deleteCommand.ExecuteNonQuery();
 
                 // Check all rows deleted
-                using var selectCommand = new SqliteCommand($"select count(*) from {table}", connection);
+                using var selectCommand = new SqlCommand($"select count(*) from {table}", connection);
                 var count = selectCommand.ExecuteScalarInt32();
                 if (count != 0)
                 {
@@ -123,14 +127,14 @@ namespace CDR.DataHolder.IntegrationTests.Fixtures
             string brandId = BaseTest.BRANDID,
             string softwareProductId = BaseTest.SOFTWAREPRODUCT_ID,
             string jwtCertificateFilename = BaseTest.JWT_CERTIFICATE_FILENAME,
-            string jwtCertificatePassword = BaseTest.JWT_CERTIFICATE_PASSWORD)        
+            string jwtCertificatePassword = BaseTest.JWT_CERTIFICATE_PASSWORD)
         {
             // Get SSA from Register
-            var ssa = await Register_SSA_API.GetSSA(brandId, softwareProductId, "2", jwtCertificateFilename, jwtCertificatePassword);
+            var ssa = await Register_SSA_API.GetSSA(brandId, softwareProductId, "3", jwtCertificateFilename, jwtCertificatePassword);
 
             // Register software product with DataHolder
-            var registrationRequest = DataHolder_Register_API.CreateRegistrationRequest(ssa, 
-                jwtCertificateFilename: jwtCertificateFilename, 
+            var registrationRequest = DataHolder_Register_API.CreateRegistrationRequest(ssa,
+                jwtCertificateFilename: jwtCertificateFilename,
                 jwtCertificatePassword: jwtCertificatePassword);
 
             // var response = await US15221_US12969_US15586_MDH_InfosecProfileAPI_Registration_Base.RegisterSoftwareProduct(registrationRequest);

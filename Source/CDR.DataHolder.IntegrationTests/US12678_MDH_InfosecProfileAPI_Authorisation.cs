@@ -55,7 +55,7 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        [InlineData("code id_token", HttpStatusCode.Redirect, "https://localhost:8001/account/login")]
+        [InlineData("code id_token", HttpStatusCode.Redirect, "<MDH_HOST>:8001/account/login")]
         [InlineData("foo",
             HttpStatusCode.Redirect,
             SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS, // Unsuccessful request should redirect back to DR
@@ -63,6 +63,8 @@ namespace CDR.DataHolder.IntegrationTests
         )]
         public async Task AC02_Get_WithInvalidResponseType_ShouldRespondWith_302Redirect_ErrorResponse(string responseType, HttpStatusCode expectedStatusCode, string expectedRedirectPath, string? expectedRedirectFragment = null)
         {
+            expectedRedirectPath = BaseTest.SubstituteConstant(expectedRedirectPath);
+
             // Arrange
             Arrange();
             var AuthorisationURL = new AuthoriseURLBuilder { ResponseType = responseType }.URL;
@@ -89,47 +91,14 @@ namespace CDR.DataHolder.IntegrationTests
             }
         }
 
-        /* AC Changed 2021/09/08
         [Theory]
-        [InlineData(null, HttpStatusCode.Redirect, "https://localhost:8001/account/login")]
-        [InlineData("foo", HttpStatusCode.Redirect,
-            SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS, // Unsuccessful request should redirect back to DR
-            "error=invalid_request_object&error_description=Request JWT is not valid&state="
-        )]
-        public async Task AC03_Get_WithInvalidRequestBody_ShouldRespondWith_302Redirect_ErrorResponse(string requestBody, HttpStatusCode expectedStatusCode, string expectedRedirectPath, string? expectedRedirectQuery = null)
-        {
-            // Arrange
-            Arrange();
-            var AuthorisationURL = new AuthoriseURLBuilder { Request = requestBody }.URL;
-            var request = new HttpRequestMessage(HttpMethod.Get, AuthorisationURL);
-
-            var response = await CreateHttpClient().SendAsync(request);
-
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                response.StatusCode.Should().Be(expectedStatusCode);              
-
-                // Check redirect path
-                var redirectPath = response?.Headers?.Location?.GetLeftPart(UriPartial.Path);
-                redirectPath.Should().Be(expectedRedirectPath);
-
-                // Check redirect query
-                if (expectedRedirectQuery != null)
-                {
-                    var redirectQuery = HttpUtility.UrlDecode(response?.Headers?.Location?.Query.TrimStart('?'));
-                    redirectQuery.Should().StartWith(HttpUtility.UrlDecode(expectedRedirectQuery));
-                }
-            }
-        }
-        */
-
-        [Theory]
-        [InlineData(null, HttpStatusCode.Redirect, "https://localhost:8001/account/login")]
+        [InlineData(null, HttpStatusCode.Redirect, "<MDH_HOST>:8001/account/login")]
         [InlineData("foo", HttpStatusCode.BadRequest)]
         public async Task AC03_Get_WithInvalidRequestBody_ShouldRespondWith_400BadRequest_ErrorResponse(string requestBody, HttpStatusCode expectedStatusCode, string? expectedRedirectPath = null)
         {
+            if (expectedRedirectPath != null)
+                expectedRedirectPath = BaseTest.SubstituteConstant(expectedRedirectPath);
+
             // Arrange
             Arrange();
             var AuthorisationURL = new AuthoriseURLBuilder { Request = requestBody }.URL;
@@ -154,23 +123,19 @@ namespace CDR.DataHolder.IntegrationTests
                 // Assert - Check error response
                 if (response?.StatusCode == HttpStatusCode.BadRequest)
                 {
-                    // AC03 updated, should be no response content
-                    // var expectedContent = @"{""error"":""invalid_request""}";
-                    // await Assert_HasContent_Json(expectedContent, response.Content);
                 }
             }
         }
 
         [Theory]
-        [InlineData(SCOPE, HttpStatusCode.Redirect,
-            "https://localhost:8001/account/login")] // Successful request should redirect to the DH login URI
-        [InlineData(SCOPE + " admin:metadata:update",
+        [InlineData(SCOPE, HttpStatusCode.Redirect, "<MDH_HOST>:8001/account/login")] // Successful request should redirect to the DH login URI 
+        [InlineData(SCOPE + " admin:metadata:update", // Additional unsupported scope should be ignored
             HttpStatusCode.Redirect,
-            SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS, // Unsuccessful request should redirect back to DR
-            "error=invalid_scope&error_description=The request scope is valid, unknown, or malformed.&state="
-        )]
-        public async Task AC04_Get_WithInvalidScope_ShouldRespondWith_302Redirect_ErrorResponse(string scope, HttpStatusCode expectedStatusCode, string expectedRedirectPath, string? expectedRedirectFragment = null)
+            "<MDH_HOST>:8001/account/login")]
+        public async Task AC04_Get_WithInvalidScope_ShouldRespondWith_200OK_Response(string scope, HttpStatusCode expectedStatusCode, string expectedRedirectPath, string? expectedRedirectFragment = null)
         {
+            expectedRedirectPath = BaseTest.SubstituteConstant(expectedRedirectPath);
+
             // Arrange
             Arrange();
             var AuthorisationURL = new AuthoriseURLBuilder { Scope = scope }.URL;
@@ -199,18 +164,18 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        [InlineData(SCOPE, HttpStatusCode.Redirect, "https://localhost:8001/account/login")]
+        [InlineData(SCOPE, HttpStatusCode.Redirect, "<MDH_HOST>:8001/account/login")]
         [InlineData(SCOPE_WITHOUT_OPENID, HttpStatusCode.Redirect,
             SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS, // Unsuccessful request should redirect back to DR
             "error=invalid_request&error_description=OpenID Connect requests MUST contain the openid scope value.&state=")]
-            // "openid")]
         public async Task AC05_Get_WithScopeMissingOpenId_ShouldRespondWith_302Redirect_ErrorResponse(
-            string scope, 
+            string scope,
             HttpStatusCode expectedStatusCode,
-            string expectedRedirectPath, 
+            string expectedRedirectPath,
             string? expectedRedirectFragment = null)
-            // string? expectedParameterName = null)
         {
+            expectedRedirectPath = BaseTest.SubstituteConstant(expectedRedirectPath);
+
             // Arrange
             Arrange();
             var AuthorisationURL = new AuthoriseURLBuilder { Scope = scope }.URL;
@@ -223,22 +188,6 @@ namespace CDR.DataHolder.IntegrationTests
             {
                 // Assert - Check status code
                 response.StatusCode.Should().Be(expectedStatusCode);
-
-                // // Assert - Check error response
-                // if (response.StatusCode == HttpStatusCode.BadRequest)
-                // {
-                //     var expectedContent = $@"{{
-                //         ""errors"": [
-                //             {{
-                //             ""code"": ""urn:au-cds:error:cds-all:Field/Missing"",
-                //             ""title"": ""Missing required field"",
-                //             ""detail"": ""The {expectedParameterName} is missing"",
-                //             ""meta"": {{}}
-                //             }}
-                //         ]
-                //     }}";
-                //     await Assert_HasContent_Json(expectedContent, response.Content);
-                // }
 
                 // Check redirect path
                 var redirectPath = response?.Headers?.Location?.GetLeftPart(UriPartial.Path);
@@ -254,13 +203,14 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        [InlineData(SOFTWAREPRODUCT_ID, HttpStatusCode.Redirect, "https://localhost:8001/account/login")]
-        // [InlineData(SOFTWAREPRODUCT_ID_INVALID, HttpStatusCode.BadRequest)]
+        [InlineData(SOFTWAREPRODUCT_ID, HttpStatusCode.Redirect, "<MDH_HOST>:8001/account/login")]
         [InlineData(SOFTWAREPRODUCT_ID_INVALID, HttpStatusCode.Redirect,
             SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS, // Unsuccessful request should redirect back to DR
             "error=invalid_request&error_description=Invalid client ID.&state=")]
         public async Task AC06_Get_WithInvalidClientID_ShouldRespondWith_302Redirect_ErrorResponse(string clientId, HttpStatusCode expectedStatusCode, string expectedRedirectPath, string? expectedRedirectFragment = null)
         {
+            expectedRedirectPath = BaseTest.SubstituteConstant(expectedRedirectPath);
+
             // Arrange
             Arrange();
             var AuthorisationURL = new AuthoriseURLBuilder { ClientId = clientId.ToLower() }.URL;
@@ -273,22 +223,6 @@ namespace CDR.DataHolder.IntegrationTests
             {
                 // Assert - Check status code
                 response.StatusCode.Should().Be(expectedStatusCode);
-
-                // // Assert - Check error response
-                // if (response.StatusCode == HttpStatusCode.BadRequest)
-                // {
-                //     var expectedContent = @"{
-                //         ""errors"": [
-                //             {
-                //             ""code"": ""urn:au-cds:error:cds-all:Field/Invalid"",
-                //             ""title"": ""Invalid field"",
-                //             ""detail"": ""The client ID is invalid"",
-                //             ""meta"": {}
-                //             }
-                //         ]
-                //         }";
-                //     await Assert_HasContent_Json(expectedContent, response.Content);
-                // }
 
                 // Check redirect path
                 var redirectPath = response?.Headers?.Location?.GetLeftPart(UriPartial.Path);
@@ -308,6 +242,8 @@ namespace CDR.DataHolder.IntegrationTests
         [InlineData("https://localhost:9001/foo", HttpStatusCode.BadRequest)]
         public async Task AC07_Get_WithInvalidRedirectURI_ShouldRespondWith_400BadRequest_ErrorResponse(string redirectUri, HttpStatusCode expectedStatusCode)
         {
+            redirectUri = BaseTest.SubstituteConstant(redirectUri);
+
             // Arrange
             Arrange();
             var AuthorisationURL = new AuthoriseURLBuilder { RedirectURI = redirectUri.ToLower() }.URL;
@@ -324,16 +260,6 @@ namespace CDR.DataHolder.IntegrationTests
                 // Assert - Check error response
                 if (response.StatusCode == HttpStatusCode.BadRequest)
                 {
-                    // var expectedContent = @"{
-                    //     ""errors"": [
-                    //         {
-                    //         ""code"": ""urn:au-cds:error:cds-all:Field/Invalid"",
-                    //         ""title"": ""Invalid field"",
-                    //         ""detail"": ""The redirect uri is invalid"",
-                    //         ""meta"": {}
-                    //         }
-                    //     ]
-                    // }";
                     var expectedContent = @"{
                         ""error"": ""invalid_request""
                     }";
@@ -343,23 +269,25 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        [InlineData(JWT_CERTIFICATE_FILENAME, JWT_CERTIFICATE_PASSWORD, HttpStatusCode.Redirect, "https://localhost:8001/account/login")]
+        [InlineData(JWT_CERTIFICATE_FILENAME, JWT_CERTIFICATE_PASSWORD, HttpStatusCode.Redirect, "<MDH_HOST>:8001/account/login")]
         [InlineData(
             INVALID_CERTIFICATE_FILENAME,
             INVALID_CERTIFICATE_PASSWORD,
             HttpStatusCode.Redirect,
             SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS, // Unsuccessful request should redirect back to DR
-            // "error=invalid_client&error_description=Signature is not valid.&state="
+                                                                         // "error=invalid_client&error_description=Signature is not valid.&state="
             "error=invalid_request_object&error_description=Invalid JWT request&state="
         )]
         // AC says "JWT is not signed" and "JWT not valid", but presumably it means JWT not signed by valid key (ie this AC is about DifferentHolderOfKey)
         public async Task AC08_Get_WithUnsignedRequestBody_ShouldRespondWith_302Redirect_ErrorResponse(
-            string jwt_certificateFilename, 
-            string jwt_certificatePassword, 
-            HttpStatusCode expectedStatusCode, 
-            string expectedRedirectPath, 
+            string jwt_certificateFilename,
+            string jwt_certificatePassword,
+            HttpStatusCode expectedStatusCode,
+            string expectedRedirectPath,
             string? expectedRedirectFragment = null)
         {
+            expectedRedirectPath = BaseTest.SubstituteConstant(expectedRedirectPath);
+
             // Arrange
             Arrange();
             var AuthorisationURL = new AuthoriseURLBuilder
@@ -391,7 +319,7 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Fact]
-        public void AC09_UI_WithInvalidCustomerId_UIShouldShow_IncorrectCustomerIdMessage()
+        public async Task AC09_UI_WithInvalidCustomerId_UIShouldShow_IncorrectCustomerIdMessage()
         {
             // Arrange
             Func<Task> act = async () =>
@@ -405,11 +333,11 @@ namespace CDR.DataHolder.IntegrationTests
             };
 
             // Act/Assert
-            act.Should().Throw<EDataHolder_Authorise_IncorrectCustomerId>();
+            await act.Should().ThrowAsync<EDataHolder_Authorise_IncorrectCustomerId>();
         }
 
         [Fact]
-        public void AC10_UI_WithInvalidOTP_UIShouldShow_IncorrectPasswordMessage()
+        public async Task AC10_UI_WithInvalidOTP_UIShouldShow_IncorrectPasswordMessage()
         {
             // Arrange
             Func<Task> act = async () =>
@@ -423,7 +351,7 @@ namespace CDR.DataHolder.IntegrationTests
             };
 
             // Act/Assert
-            act.Should().Throw<EDataHolder_Authorise_IncorrectOneTimePassword>();
+            await act.Should().ThrowAsync<EDataHolder_Authorise_IncorrectOneTimePassword>();
         }
     }
 }

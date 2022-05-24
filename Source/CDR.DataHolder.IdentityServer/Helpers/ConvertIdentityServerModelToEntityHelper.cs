@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
+using CDR.DataHolder.IdentityServer.Extensions;
 using IdentityServer4.EntityFramework.Entities;
+using Microsoft.Extensions.Configuration;
 using Is4Models = IdentityServer4.Models;
 
 namespace CDR.DataHolder.IdentityServer.Helpers
 {
     public static class ConvertIdentityServerModelToEntityHelper
     {
-        public static Client ConvertModelClientToEntityClient(Is4Models.Client modelClient)
+        public static Client ConvertModelClientToEntityClient(Is4Models.Client modelClient, IConfiguration configuration)
         {
             var clientCorsOrigin = new List<ClientCorsOrigin>();
             foreach (var item in modelClient.AllowedCorsOrigins)
@@ -108,7 +110,7 @@ namespace CDR.DataHolder.IdentityServer.Helpers
                 RefreshTokenUsage = (int)modelClient.RefreshTokenUsage,
                 RequireClientSecret = modelClient.RequireClientSecret,
                 RequireConsent = modelClient.RequireConsent,
-                RequirePkce = false, // Set RequirePkce to false as we haven't implement the PKCE flow in the mock solution.
+                RequirePkce = configuration.FapiComplianceLevel() >= CdsConstants.FapiComplianceLevel.Fapi1Phase2,
                 SlidingRefreshTokenLifetime = modelClient.SlidingRefreshTokenLifetime,
                 UpdateAccessTokenClaimsOnRefresh = modelClient.UpdateAccessTokenClaimsOnRefresh,
                 UserCodeType = modelClient.UserCodeType,

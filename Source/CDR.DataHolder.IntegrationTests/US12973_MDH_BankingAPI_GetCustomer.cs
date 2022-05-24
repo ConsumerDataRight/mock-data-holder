@@ -45,7 +45,7 @@ namespace CDR.DataHolder.IntegrationTests
             ));
 
             // Get expected response 
-            using var dbContext = new DataHolderDatabaseContext(new DbContextOptionsBuilder<DataHolderDatabaseContext>().UseSqlite(DATAHOLDER_CONNECTIONSTRING).Options);
+            using var dbContext = new DataHolderDatabaseContext(new DbContextOptionsBuilder<DataHolderDatabaseContext>().UseSqlServer(DATAHOLDER_CONNECTIONSTRING).Options);
             var expectedResponse = new
             {
                 data = dbContext.Customers.AsNoTracking()
@@ -55,7 +55,7 @@ namespace CDR.DataHolder.IntegrationTests
                     .Select(customer => new
                     {
                         customerUType = customer.CustomerUType,
-                        person = customer.CustomerUType.ToUpper() == "PERSON" ? new
+                        person = customer.CustomerUType.ToLower() == "person" ? new
                         {
                             lastUpdateTime = customer.Person.LastUpdateTime,
                             firstName = customer.Person.FirstName,
@@ -68,7 +68,7 @@ namespace CDR.DataHolder.IntegrationTests
                             occupationCode = customer.Person.OccupationCode,
                             occupationCodeVersion = customer.Person.OccupationCodeVersion,
                         } : null,
-                        organisation = customer.CustomerUType.ToUpper() == "ORGANISATION" ? new
+                        organisation = customer.CustomerUType.ToLower() == "organisation" ? new
                         {
                             lastUpdateTime = customer.Organisation.LastUpdateTime,
                             agentFirstName = customer.Organisation.AgentFirstName,
@@ -101,7 +101,6 @@ namespace CDR.DataHolder.IntegrationTests
                 new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
-                    // DateTimeZoneHandling = DateTimeZoneHandling.Utc,
                     Formatting = Formatting.Indented
                 });
         }
@@ -112,7 +111,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC01_ShouldRespondWith_200OK_Customers(TokenType tokenType)
         {
             // Arrange
-            // var accessToken = await GetAccessToken(tokenType);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(tokenType);
 
             var expectedResponse = GetExpectedResponse(accessToken);
@@ -156,7 +154,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC02_Get_WithoutScopeBasicRead_ShouldRespondWith_403Forbidden(string scope, HttpStatusCode expectedStatusCode)
         {
             // Arrange 
-            // var accessToken = await GetAccessToken(TokenType.JANE_WILSON, scope);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON, scope);
 
             // Act
@@ -200,7 +197,6 @@ namespace CDR.DataHolder.IntegrationTests
         private async Task Test_AC03_AC03b_AC03c(string XV, HttpStatusCode expectedStatusCode, string expectedErrorResponse)
         {
             // Arrange
-            // var accessToken = await GetAccessToken(TokenType.JANE_WILSON);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON);
 
             // Act
@@ -297,7 +293,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC04_Get_WithMissingXFAPIAUTHDATE_ShouldRespondWith_400BadRequest_HeaderMissingErrorResponse(string XFapiAuthDate, HttpStatusCode expectedHttpStatusCode)
         {
             // Arrange
-            // var accessToken = await GetAccessToken(TokenType.JANE_WILSON);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON);
 
             XFapiAuthDate = GetDate(XFapiAuthDate);
@@ -349,7 +344,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC05_Get_WithInvalidXFAPIAUTHDATE_ShouldRespondWith_400BadRequest_HeaderInvalidErrorResponse(string XFapiAuthDate, HttpStatusCode expectedHttpStatusCode)
         {
             // Arrange
-            // var accessToken = await GetAccessToken(TokenType.JANE_WILSON);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON);
             XFapiAuthDate = GetDate(XFapiAuthDate);
 
@@ -397,7 +391,6 @@ namespace CDR.DataHolder.IntegrationTests
         private async Task Test_AC06_AC07(TokenType tokenType, HttpStatusCode expectedStatusCode, string expectedWWWAuthenticateResponse)
         {
             // Arrange
-            // var accessToken = await GetAccessToken(tokenType);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(tokenType);
 
             // Act
@@ -446,10 +439,7 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        //[InlineData(false, HttpStatusCode.OK)]
-        // [InlineData(true, HttpStatusCode.Unauthorized)]
         [InlineData(HttpStatusCode.Unauthorized)]
-        // public async Task AC08_Get_WithExpiredAccessToken_ShouldRespondWith_401Unauthorized_WWWAuthenticateHeader(bool expired, HttpStatusCode expectedStatusCode)
         public async Task AC08_Get_WithExpiredAccessToken_ShouldRespondWith_401Unauthorized_WWWAuthenticateHeader(HttpStatusCode expectedStatusCode)
         {
             // Arrange
@@ -500,7 +490,6 @@ namespace CDR.DataHolder.IntegrationTests
             try
             {
                 // Arrange
-                // var accessToken = await GetAccessToken(TokenType.JANE_WILSON);
                 var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON);
 
                 // Act
@@ -543,62 +532,6 @@ namespace CDR.DataHolder.IntegrationTests
             }
         }
 
-        /* 25/08/2021 - Removed this test, G-D says no longer required, see comments on US12973
-        [Theory]
-        [InlineData("ACTIVE", "Active", HttpStatusCode.OK)]
-        [InlineData("INACTIVE", "Inactive", HttpStatusCode.Forbidden)]
-        [InlineData("REMOVED", "Removed", HttpStatusCode.Forbidden)]
-        public async Task AC10_Get_WithADRBrandNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, string statusDescription, HttpStatusCode expectedStatusCode)
-        {
-            var saveStatus = GetStatus(Table.BRAND, BRANDID);
-            SetStatus(Table.BRAND, BRANDID, status);
-            try
-            {
-                // Arrange
-                // var accessToken = await GetAccessToken(TokenType.JANE_WILSON);
-                var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON);
-
-                // Act
-                var api = new Infrastructure.API
-                {
-                    CertificateFilename = CERTIFICATE_FILENAME,
-                    CertificatePassword = CERTIFICATE_PASSWORD,
-                    HttpMethod = HttpMethod.Get,
-                    URL = $"{DH_MTLS_GATEWAY_URL}/cds-au/v1/common/customer",
-                    XV = "1",
-                    XFapiAuthDate = DateTime.Now.ToUniversalTime().ToString("r"),
-                    AccessToken = accessToken
-                };
-                var response = await api.SendAsync();
-
-                // Assert
-                using (new AssertionScope())
-                {
-                    // Assert - Check status code
-                    response.StatusCode.Should().Be(expectedStatusCode);
-
-                    // Assert - Check error response
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        var expectedContent = $@"{{
-                            ""errors"": [{{
-                                ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
-                                ""title"": ""ADR Status Is Not Active"",
-                                ""detail"": ""Brand status is { statusDescription }"",
-                                ""meta"": {{}}
-                            }}]
-                        }}";
-                        await Assert_HasContent_Json(expectedContent, response.Content);
-                    }
-                }
-            }
-            finally
-            {
-                SetStatus(Table.BRAND, BRANDID, saveStatus);
-            }
-        }
-        */
-
         [Theory]
         [InlineData("ACTIVE", "Active", HttpStatusCode.OK)]
         [InlineData("INACTIVE", "Inactive", HttpStatusCode.Forbidden)]
@@ -612,7 +545,6 @@ namespace CDR.DataHolder.IntegrationTests
             try
             {
                 // Arrange
-                // var accessToken = await GetAccessToken(TokenType.JANE_WILSON);
                 var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON);
 
                 // Act
@@ -661,7 +593,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC12_Get_WithDifferentHolderOfKey_ShouldRespondWith_401Unauthorized(string certificateFilename, string certificatePassword, HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            // var accessToken = await GetAccessToken(TokenType.JANE_WILSON);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON);
 
             // Act
@@ -686,7 +617,6 @@ namespace CDR.DataHolder.IntegrationTests
                 // Assert - Check error response
                 if (expectedStatusCode != HttpStatusCode.OK)
                 {
-                    // var expectedResponse = @"{""error"":""invalid_token""}";
                     var expectedResponse = @"{
                         ""errors"": [
                             {

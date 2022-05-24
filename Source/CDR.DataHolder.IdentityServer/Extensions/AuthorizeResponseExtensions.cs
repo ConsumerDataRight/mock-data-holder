@@ -1,4 +1,5 @@
-﻿using System.Collections.Specialized;
+﻿using System;
+using System.Collections.Specialized;
 using CDR.DataHolder.API.Infrastructure.Extensions;
 using IdentityServer4.ResponseHandling;
 
@@ -10,54 +11,36 @@ namespace CDR.DataHolder.IdentityServer.Extensions
         {
             var collection = new NameValueCollection();
 
+            Add(collection, "state", response.State);
+            Add(collection, "session_state", response.SessionState);
+
             if (response.IsError)
             {
-                if (response.Error.IsPresent())
-                {
-                    collection.Add("error", response.Error);
-                }
-
-                if (response.ErrorDescription.IsPresent())
-                {
-                    collection.Add("error_description", response.ErrorDescription);
-                }
-            }
-            else
-            {
-                if (response.Code.IsPresent())
-                {
-                    collection.Add("code", response.Code);
-                }
-
-                if (response.IdentityToken.IsPresent())
-                {
-                    collection.Add("id_token", response.IdentityToken);
-                }
-
-                if (response.AccessToken.IsPresent())
-                {
-                    collection.Add("access_token", response.AccessToken);
-                    collection.Add("token_type", "Bearer");
-                    collection.Add("expires_in", response.AccessTokenLifetime.ToString());
-                }
-
-                if (response.Scope.IsPresent())
-                {
-                    collection.Add("scope", response.Scope);
-                }
+                Add(collection, "error", response.Error);
+                Add(collection, "error_description", response.ErrorDescription);
+                return collection;
             }
 
-            if (response.State.IsPresent())
-            {
-                collection.Add("state", response.State);
-            }
+            Add(collection, "code", response.Code);
+            Add(collection, "id_token", response.IdentityToken);
+            Add(collection, "scope", response.Scope);
 
-            if (response.SessionState.IsPresent())
+            if (response.AccessToken.IsPresent())
             {
-                collection.Add("session_state", response.SessionState);
+                collection.Add("access_token", response.AccessToken);
+                collection.Add("token_type", "Bearer");
+                collection.Add("expires_in", response.AccessTokenLifetime.ToString());
             }
 
             return collection;
+        }
+
+        private static void Add(NameValueCollection collection, string name, string value)
+        {
+            if (value.IsPresent())
+            {
+                collection.Add(name, value);
+            }
         }
     }
 }

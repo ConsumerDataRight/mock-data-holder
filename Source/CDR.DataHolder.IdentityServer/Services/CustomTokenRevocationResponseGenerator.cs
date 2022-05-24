@@ -1,59 +1,36 @@
-﻿using System;
-using System.Threading.Tasks;
-using CDR.DataHolder.IdentityServer.Services.Interfaces;
+﻿using CDR.DataHolder.API.Infrastructure.Extensions;
+using CDR.DataHolder.IdentityServer.Interfaces;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Threading.Tasks;
 
 namespace CDR.DataHolder.IdentityServer.Services
 {
     public class CustomTokenRevocationResponseGenerator : ITokenRevocationResponseGenerator
     {
-        protected readonly IHttpContextAccessor HttpContextAccessor;
-
-        /// <summary>
-        /// Gets the reference token store.
-        /// </summary>
-        /// <value>
-        /// The reference token store.
-        /// </value>
-        protected readonly IReferenceTokenStore ReferenceTokenStore;
-
-        /// <summary>
-        /// Gets the refresh token store.
-        /// </summary>
-        /// <value>
-        /// The refresh token store.
-        /// </value>
-        protected readonly IRefreshTokenStore RefreshTokenStore;
-
-        /// <summary>
-        /// Gets the logger.
-        /// </summary>
-        /// <value>
-        /// The logger.
-        /// </value>
-        protected readonly ILogger Logger;
+        private readonly IRevokedTokenStore _revokedTokenStore;
+        private readonly IRefreshTokenStore _refreshTokenStore;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CustomTokenRevocationResponseGenerator" /> class.
         /// </summary>
-        /// <param name="referenceTokenStore">The reference token store.</param>
+        /// <param name="revokedTokenStore">The revoked token store.</param>
         /// <param name="refreshTokenStore">The refresh token store.</param>
         /// <param name="logger">The logger.</param>
-        /// <param name="httpContextAccessor">IHttpContextAccessor.</param>
         public CustomTokenRevocationResponseGenerator(
-            IReferenceTokenStore referenceTokenStore,
+            IRevokedTokenStore revokedTokenStore,
             IRefreshTokenStore refreshTokenStore,
-            ILogger<CustomTokenRevocationResponseGenerator> logger,
-            IHttpContextAccessor httpContextAccessor)
+            ILogger<CustomTokenRevocationResponseGenerator> logger)
         {
-            ReferenceTokenStore = referenceTokenStore;
-            RefreshTokenStore = refreshTokenStore;
-            Logger = logger;
-            HttpContextAccessor = httpContextAccessor;
+            _revokedTokenStore = revokedTokenStore;
+            _refreshTokenStore = refreshTokenStore;
+            _logger = logger;
         }
 
         /// <summary>
@@ -71,27 +48,24 @@ namespace CDR.DataHolder.IdentityServer.Services
         /// </summary>
         protected virtual async Task<TokenRevocationResponse> RevokeToken(TokenRevocationRequestValidationResult validationResult)
         {
-            Logger.LogInformation($"Revoking token {validationResult.Token}...");
+            _logger.LogInformation("Revoking token {token}...", validationResult.Token);
 
             // Attempt to find a matching token in the refresh token store.
-            var rt = await RefreshTokenStore.GetRefreshTokenAsync(validationResult.Token);
+            var rt = await _refreshTokenStore.GetRefreshTokenAsync(validationResult.Token);
 
             // Refresh token was found.
             if (rt != null)
             {
-                Logger.LogDebug("Matching refresh_token was found.");
+                _logger.LogDebug("Matching refresh_token was found.");
 
                 if (rt.ClientId.Equals(validationResult.Client.ClientId, StringComparison.OrdinalIgnoreCase))
                 {
-                    Logger.LogDebug("Refresh token revoked");
-                    await RefreshTokenStore.RemoveRefreshTokenAsync(validationResult.Token);
-
-                    // TODO: This is a SHOULD in the standards.
-                    //await ReferenceTokenStore.RemoveReferenceTokensAsync(token.SubjectId, token.ClientId);
+                    _logger.LogDebug("Refresh token revoked");
+                    await _refreshTokenStore.RemoveRefreshTokenAsync(validationResult.Token);
                 }
                 else
                 {
-                    Logger.LogWarning("Client {clientId} denied from revoking a refresh token belonging to Client {tokenClientId}", validationResult.Client.ClientId, rt.ClientId);
+                    _logger.LogWarning("Client {clientId} denied from revoking a refresh token belonging to Client {tokenClientId}", validationResult.Client.ClientId, rt.ClientId);
                 }
 
                 return new TokenRevocationResponse()
@@ -111,7 +85,35 @@ namespace CDR.DataHolder.IdentityServer.Services
             // In a production system we would use reference tokens in order to support revocation.
             //
 
-            await ReferenceTokenStore.RemoveReferenceTokenAsync(validationResult.Token);
+            try
+            {
+                // Only revoke the access token if the current client owns the access token.
+                var securityToken = new JwtSecurityTokenHandler().ReadJwtToken(validationResult.Token);
+                if (securityToken != null)
+                {
+                    var clientIdFromAccessToken = securityToken.Claims.GetClaimValue("client_id");
+                    var clientIdFromRequest = validationResult.Client.ClientId;
+
+                    _logger.LogDebug("Incoming client id: {clientId}", clientIdFromRequest);
+                    _logger.LogDebug("Access token client id: {clientId}", clientIdFromAccessToken);
+
+                    if (clientIdFromRequest.Equals(clientIdFromAccessToken))
+                    {
+                        _logger.LogDebug("Revoking access token: {token}", validationResult.Token);
+                        await _revokedTokenStore.Add(validationResult.Token);
+
+                        return new TokenRevocationResponse()
+                        {
+                            Success = true,
+                            TokenType = CdsConstants.TokenTypes.AccessToken
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred reading the access token: {token}", validationResult.Token);
+            }
 
             return new TokenRevocationResponse()
             {

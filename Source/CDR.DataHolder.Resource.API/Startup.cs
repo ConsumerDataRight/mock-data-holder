@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http;
 using CDR.DataHolder.API.Infrastructure.Authorisation;
 using CDR.DataHolder.API.Infrastructure.Authorization;
+using CDR.DataHolder.API.Infrastructure.Filters;
 using CDR.DataHolder.API.Infrastructure.IdPermanence;
 using CDR.DataHolder.API.Infrastructure.Middleware;
 using CDR.DataHolder.API.Infrastructure.Models;
@@ -28,6 +25,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
+using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
 
 namespace CDR.DataHolder.Resource.API
 {
@@ -77,16 +78,17 @@ namespace CDR.DataHolder.Resource.API
 
             // This is to manage the EF database context through the web API DI.
             // If this is to be done inside the repository project itself, we need to manage the context life-cycle explicitly.
-            services.AddDbContext<DataHolderDatabaseContext>(options =>
-                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<DataHolderDatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Default)));
 
             // Enable authentication and authorisation
             AddAuthenticationAuthorization(services, Configuration);
 
             services.AddAutoMapper(typeof(Startup), typeof(DataHolderDatabaseContext));
+
+            services.AddScoped<LogActionEntryAttribute>();
         }
 
-        private void AddAuthenticationAuthorization(IServiceCollection services, IConfiguration configuration)
+        private static void AddAuthenticationAuthorization(IServiceCollection services, IConfiguration configuration)
         {
             var identityServerUrl = configuration.GetValue<string>("IdentityServerUrl");
             var identityServerIssuer = configuration.GetValue<string>("IdentityServerIssuerUri");
@@ -180,6 +182,8 @@ namespace CDR.DataHolder.Resource.API
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSerilogRequestLogging();
 
             // ExceptionHandlingMiddleware must be first in the line, so it will catch all unhandled exceptions.
             app.UseMiddleware<ResourceAuthoriseErrorHandlingMiddleware>();

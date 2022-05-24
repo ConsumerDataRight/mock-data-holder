@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace CDR.DataHolder.API.Infrastructure.Middleware
 {
 
-	public class ModelStateErrorMiddleware
+	public static class ModelStateErrorMiddleware
     {
         public static IActionResult ExecuteResult(ActionContext context)
         {
@@ -23,18 +23,6 @@ namespace CDR.DataHolder.API.Infrastructure.Middleware
                     foreach (var modelStateError in modelStateEntry.Value.Errors)
                     {
                         responseErrorList.Errors.Add(Error.InvalidField($"The {modelStateEntry.Key} field is not valid"));
-
-                        //try
-                        //{
-                        //    var error = JsonConvert.DeserializeObject<Error>(modelStateError.ErrorMessage);
-                        //    error.Detail = string.Format(error.Detail, modelStateEntry.Key);
-                        //    responseErrorList.Errors.Add(error);
-                        //}
-                        //catch
-                        //{
-                        //    // This is for default and unhandled model errors.
-                        //    responseErrorList.Errors.Add(Error.InvalidField($"The {modelStateEntry.Key} field is not valid"));
-                        //}
                     }
                 }
             }

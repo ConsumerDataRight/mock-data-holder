@@ -1,9 +1,13 @@
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
+EXPOSE 8001
 EXPOSE 8002
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+# Default ASPNETCORE_ENVIRONMENT to Release
+ENV ASPNETCORE_ENVIRONMENT=Release 
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 
 COPY . ./
@@ -54,6 +58,7 @@ RUN sudo cp ./gateway-mtls/Certificates/ca.crt /usr/local/share/ca-certificates/
 
 RUN sudo update-ca-certificates
 
-ENV ASPNETCORE_URLS=https://+:7000;https://+:7001
+# ENV ASPNETCORE_URLS=https://+:7000;https://+:7001
+ENV ASPNETCORE_URLS=https://+:8001;https://+:8002
 
 ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf"]

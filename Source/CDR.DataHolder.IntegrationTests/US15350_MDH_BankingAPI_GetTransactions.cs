@@ -26,34 +26,11 @@ namespace CDR.DataHolder.IntegrationTests
             Fixture = fixture;
         }
 
-        // [Theory]
-        // [InlineData("2021-05-25T09:04:00.000Z", "2021-05-25T09:04:00.000")]
-        // async Task Debug(string date1, string date2)
-        // {
-        //     var _date1 = DateTime.Parse(date1);
-        //     var _date2 = DateTime.Parse(date2);
-
-        //     using var dbContext = new DataHolderDatabaseContext(new DbContextOptionsBuilder<DataHolderDatabaseContext>().UseSqlite(SQLITECONNECTIONSTRING).Options);
-
-        //     var transactions = dbContext.Transactions.AsNoTracking()
-        //         .Select(transaction => new
-        //         {
-        //             transactionId = transaction.TransactionId,
-        //             postingDateTime = transaction.PostingDateTime,
-        //             valueDateTime = transaction.ValueDateTime,
-        //             executionDateTime = transaction.ExecutionDateTime,
-        //         })
-        //         .Where(transaction => transaction.transactionId == "TRN001")
-        //         .ToList();
-        // }
-
         private const string SCOPE_WITHOUT_TRANSACTIONSREAD = "openid common:customer.basic:read bank:accounts.basic:read";
 
         private const string FOO_GUID = "F0000000-F000-F000-F000-F00000000000";
 
         // Note: These default dates are based on the current seed-data.json file to select a valid data set.
-        // private static string DEFAULT_EFFECTIVENEWESTTIME => OffsetDate("2021-06-01T00:00:00Z");
-        // private static string DEFAULT_EFFECTIVEOLDESTTIME => OffsetDate("2021-03-01T00:00:00Z");
         private static string DEFAULT_EFFECTIVENEWESTTIME => "2021-06-01T00:00:00Z";
         private static string DEFAULT_EFFECTIVEOLDESTTIME => "2021-03-01T00:00:00Z";
 
@@ -74,8 +51,10 @@ namespace CDR.DataHolder.IntegrationTests
             var effectiveOldestTime = oldestTime;
             if (effectiveOldestTime == null) { effectiveOldestTime = DEFAULT_EFFECTIVEOLDESTTIME; }
 
-            using var dbContext = new DataHolderDatabaseContext(new DbContextOptionsBuilder<DataHolderDatabaseContext>().UseSqlite(DATAHOLDER_CONNECTIONSTRING).Options);
+            using var dbContext = new DataHolderDatabaseContext(new DbContextOptionsBuilder<DataHolderDatabaseContext>().UseSqlServer(DATAHOLDER_CONNECTIONSTRING).Options);
 
+            // NB: This has to compare decrypted Id's as AES Encryption now uses a Random IV,
+            //     using encrypted ID's in the response and expected content WILL NEVER MATCH
             var transactions = dbContext.Transactions.AsNoTracking()
                 .Include(transaction => transaction.Account)
                 .Where(transaction => transaction.AccountId == accountId && transaction.Account.CustomerId == new Guid(customerId))
@@ -102,10 +81,6 @@ namespace CDR.DataHolder.IntegrationTests
                 })
                 .ToList();
 
-            // #if DEBUG
-            //             WriteJsonToFile(@"c:\cdr\transactions.json", transactions.ToJson());
-            // #endif                
-
             // Filter
             transactions = transactions
                 .Where(transaction => (transaction.postingDateTime ?? transaction.executionDateTime) >= DateTime.Parse(effectiveOldestTime).ToUniversalTime())
@@ -117,11 +92,6 @@ namespace CDR.DataHolder.IntegrationTests
                     transaction.reference.Contains(text, StringComparison.InvariantCultureIgnoreCase))
                 .ToList();
 
-            // #if DEBUG
-            //             WriteJsonToFile(@"c:\cdr\transactions2.json", transactions.ToJson());
-            // #endif                
-
-
             var totalRecords = transactions.Count;
 
             // Paging
@@ -130,11 +100,6 @@ namespace CDR.DataHolder.IntegrationTests
                 .Skip((effectivePage - 1) * effectivePageSize)
                 .Take(effectivePageSize)
                 .ToList();
-
-            // #if DEBUG
-            //             WriteJsonToFile(@"c:\cdr\transactions3.json", transactions.ToJson());
-            // #endif                
-
 
             var totalPages = (int)Math.Ceiling((double)totalRecords / effectivePageSize);
 
@@ -163,7 +128,6 @@ namespace CDR.DataHolder.IntegrationTests
                 JsonConvert.SerializeObject(expectedResponse, new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
-                    // DateTimeZoneHandling = DateTimeZoneHandling.Utc,
                     Formatting = Formatting.Indented
                 }),
 
@@ -180,7 +144,6 @@ namespace CDR.DataHolder.IntegrationTests
 
             if (oldestTime != null)
             {
-                // query.Add("oldest-time", oldestTime);
                 query.Add("oldest-time", isLink ? oldestTime.Replace(":", "%3A") : oldestTime);
             }
 
@@ -254,13 +217,12 @@ namespace CDR.DataHolder.IntegrationTests
             int? expectedRecordCount = null
         )
         {
-            // if (oldestTime != null) { oldestTime = OffsetDate(oldestTime); }
-            // if (newestTime != null) { newestTime = OffsetDate(newestTime); }
-
             var accessToken = tokenExpired ?
                 BaseTest.EXPIRED_CONSUMER_ACCESS_TOKEN :
                 await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(tokenType, tokenScope);
 
+            string custId = string.Empty;
+            string softwareProdId = string.Empty;
             string encryptedAccountId;
             if (accessToken == null || accessToken == "" || accessToken == "foo")
             {
@@ -268,9 +230,19 @@ namespace CDR.DataHolder.IntegrationTests
             }
             else
             {
-                ExtractClaimsFromToken(accessToken, out var customerId, out var softwareProductId);
-
-                encryptedAccountId = IdPermanenceEncrypt(accountId, customerId, softwareProductId);
+                if (tokenExpired)
+                {
+                    ExtractClaimsFromToken(accessToken, out var customerId, out var softwareProductId, false);
+                    custId = customerId;
+                    softwareProdId = softwareProductId;
+                }
+                else
+                {
+                    ExtractClaimsFromToken(accessToken, out var customerId, out var softwareProductId, true);
+                    custId = customerId;
+                    softwareProdId = softwareProductId;
+                }
+                encryptedAccountId = IdPermanenceEncrypt(accountId, custId, softwareProdId);
             }
 
             // Arrange
@@ -295,13 +267,6 @@ namespace CDR.DataHolder.IntegrationTests
                 AccessToken = accessToken
             };
             var response = await api.SendAsync();
-
-            // #if DEBUG
-            //             WriteJsonToFile(@"c:\cdr\transactions_actual.json", await response.Content.ReadAsStringAsync());
-            // #endif
-            // #if RELEASE
-            //             WriteJsonToFile(@"D:\a\1\s\CDR\transactions_actual.json", await response.Content.ReadAsStringAsync());
-            // #endif
 
             // Assert
             using (new AssertionScope())
@@ -336,13 +301,6 @@ namespace CDR.DataHolder.IntegrationTests
                         baseUrl, url,
                         oldestTime, newestTime, minAmount, maxAmount, text,
                         queryPage, queryPageSize);
-
-                    // #if DEBUG
-                    //                     WriteJsonToFile(@"c:\cdr\transactions_expected.json", expectedResponse);
-                    // #endif
-                    // #if RELEASE
-                    //                     WriteJsonToFile(@"D:\a\1\s\CDR\transactions_expected.json", expectedResponse);
-                    // #endif
 
                     // Assert - Check json
                     await Assert_HasContent_Json(expectedResponse, response.Content);
@@ -389,6 +347,9 @@ namespace CDR.DataHolder.IntegrationTests
         [Theory]
         [InlineData("2021-05-25T00:00:00.000Z", 2)]
         [InlineData("2021-05-26T00:00:00.000Z", 0)]
+        // NB: If the appsettings.ENV.json > SeedData > OffsetDates = true - then the reference date of 2021-05-01 for the data seeded into the database will be moved to now
+        //     SO THE ABOVE TEST DATES MUST ALSO BE MOVED as per the OffsetDates as set in 010 Repository > ...\Repository\Infrastructure\Extensions.cs
+        //     else this test will FAIL.
         public async Task AC05_Get_WithOldestTime_ShouldRespondWith_200OK_FilteredRecords(string oldestTime, int expectedRecordCount)
         {
             await Test(ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON, oldestTime: oldestTime, expectedRecordCount: expectedRecordCount);
@@ -397,6 +358,9 @@ namespace CDR.DataHolder.IntegrationTests
         [Theory]
         [InlineData("2021-03-01T00:00:00.000Z", 0)]
         [InlineData("2021-03-02T00:00:00.000Z", 2)]
+        // NB: If the appsettings.ENV.json > SeedData > OffsetDates = true - then the reference date of 2021-05-01 for the data seeded into the database will be moved to now
+        //     SO THE ABOVE TEST DATES MUST ALSO BE MOVED as per the OffsetDates as set in 010 Repository > ...\Repository\Infrastructure\Extensions.cs
+        //     else this test will FAIL.
         public async Task AC05b_Get_WithNewestTime_ShouldRespondWith_200OK_FilteredRecords(string newestTime, int expectedRecordCount)
         {
             await Test(ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON, newestTime: newestTime, expectedRecordCount: expectedRecordCount);
@@ -433,6 +397,8 @@ namespace CDR.DataHolder.IntegrationTests
         [Theory]
         [InlineData("IOU", 2)]
         [InlineData("iou", 2)]
+        // NB: If the appsettings.ENV.json > SeedData > OffsetDates = true - then the reference date of 2021-05-01 for the data seeded into the database will be moved to now
+        //     THIS TEST WILL FAIL.
         public async Task AC10_Get_WithText_ShouldRespondWith_200OK_FilteredRecords(string text, int expectedRecordCount)
         {
             await Test(ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON, text: text, expectedRecordCount: expectedRecordCount,
@@ -499,43 +465,6 @@ namespace CDR.DataHolder.IntegrationTests
             );
         }
 
-        /*
-        private static string OffsetDate(string dateString)
-        {
-            if (dateString == "foo") { return dateString; }
-
-            DateTime dateTime = DateTime.Parse(dateString);
-
-            DateTime? offsetDate = OffsetDate(dateTime);
-
-            return offsetDate == null ? "" : offsetDate.Value.ToString("yyyy-MM-ddThh:mm:ssZ");
-        }        
-
-        private static DateTime? OffsetDate(DateTime? dateTime)
-        {
-            if (dateTime == null)
-            {
-                return null;
-            }
-
-            if (SEEDDATA_OFFSETDATES)
-            {
-                var dataBaseline = new DateTime(2021, 05, 01);
-                var utcNow = DateTime.UtcNow;
-
-                // var nowDate = new DateTime(utcNow.Year, utcNow.Month, utcNow.Day, utcNow.Hour, utcNow.Minute, 0, DateTimeKind.Utc);
-                // var utcNowMidnight = new DateTime(utcNow.Year, utcNow.Month, utcNow.Day, 0, 0, 0, DateTimeKind.Utc);
-
-                var offset = dateTime.Value - dataBaseline;
-                DateTime offsetDateTime = utcNow.Add(offset);
-
-                return offsetDateTime;
-            }
-
-            return dateTime;
-        }
-        */
-
         [Theory]
         [InlineData("2021-04-01T00:00:00.000Z", HttpStatusCode.OK)]
         [InlineData("foo", HttpStatusCode.BadRequest)]
@@ -558,8 +487,6 @@ namespace CDR.DataHolder.IntegrationTests
         [Theory]
         [InlineData(SCOPE, HttpStatusCode.OK)]
         [InlineData(SCOPE_WITHOUT_TRANSACTIONSREAD, HttpStatusCode.Forbidden)]
-        //[InlineData("", HttpStatusCode.Forbidden)]
-        //[InlineData(null, HttpStatusCode.Forbidden)]
         public async Task AC16_Get_WithoutBankTransactionsReadScope_ShouldRespondWith_403Forbidden(string scope, HttpStatusCode expectedStatusCode)
         {
             await Test(ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON,
@@ -587,7 +514,6 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        //[InlineData(false, HttpStatusCode.OK)]
         [InlineData(true, HttpStatusCode.Unauthorized, @"Bearer error=""invalid_token"", error_description=""The token expired at ")]
         public async Task AC18_Get_WithExpiredAccessToken_ShouldRespondWith_401Unauthorised(bool expired, HttpStatusCode expectedStatusCode, string? expectedWWWAuthenticate = null)
         {
@@ -598,15 +524,6 @@ namespace CDR.DataHolder.IntegrationTests
                 expectedWWWAuthenticateStartsWith: true
             );
         }
-
-        // AC19 is missing in US
-        // [Fact]
-        // public void AC19()
-        // {
-        // #if DEBUG
-        //    throw new NotImplementedException();
-        // #endif            
-        // }
 
         [Theory]
         [InlineData(TokenType.JANE_WILSON, HttpStatusCode.OK)]
@@ -649,35 +566,6 @@ namespace CDR.DataHolder.IntegrationTests
             }
         }
 
-        /* 25/08/2021 - Removed this test, G-D says no longer required, see comments on US15350
-        [Theory]
-        [InlineData("ACTIVE", "Active", HttpStatusCode.OK)]
-        [InlineData("INACTIVE", "Inactive", HttpStatusCode.Forbidden)]
-        [InlineData("REMOVED", "Removed", HttpStatusCode.Forbidden)]
-        public async Task AC22_Get_WithADRBrandNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, string statusDescription, HttpStatusCode expectedStatusCode)
-        {
-            var saveStatus = GetStatus(Table.BRAND, BRANDID);
-            SetStatus(Table.BRAND, BRANDID, status);
-            try
-            {
-                await Test(ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON,
-                    expectedStatusCode: expectedStatusCode,
-                    expectedErrorResponse: $@"{{
-                        ""errors"": [{{
-                            ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
-                            ""title"": ""ADR Status Is Not Active"",
-                            ""detail"": ""Brand status is { statusDescription }"",
-                            ""meta"": {{}}
-                        }}]
-                    }}");
-            }
-            finally
-            {
-                SetStatus(Table.BRAND, BRANDID, saveStatus);
-            }
-        }
-        */
-
         [Theory]
         [InlineData("ACTIVE", "Active", HttpStatusCode.OK)]
         [InlineData("INACTIVE", "Inactive", HttpStatusCode.Forbidden)]
@@ -708,7 +596,6 @@ namespace CDR.DataHolder.IntegrationTests
         [Theory]
         [InlineData("1", HttpStatusCode.OK)]
         [InlineData("2", HttpStatusCode.NotAcceptable)]
-        // [InlineData("99999999999999999999999999999999999999999999999999", HttpStatusCode.NotAcceptable)] // MJS - Can't test here because the XV Attribute on the controller fails during the conversion, so check in AC25
         public async Task AC24_WithXV2_ShouldRespondWith_406NotAcceptable(string XV, HttpStatusCode expectedStatusCode)
         {
             await Test(ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON,
@@ -729,7 +616,6 @@ namespace CDR.DataHolder.IntegrationTests
         [InlineData("1", HttpStatusCode.OK)]
         [InlineData("foo", HttpStatusCode.BadRequest)]
         [InlineData("-1", HttpStatusCode.BadRequest)]
-        // [InlineData("99999999999999999999999999999999999999999999999999", HttpStatusCode.BadRequest)] // MJS - The XV attribute on the controller fails to convert and returns it's own error instead of the expected error
         public async Task AC25_WithInvalidXV_ShouldRespondWith_400BadRequest(string XV, HttpStatusCode expectedStatusCode)
         {
             await Test(ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON,
@@ -767,7 +653,6 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        // [InlineData("DateTime.Now.RFC1123", HttpStatusCode.OK)]
         [InlineData(null, HttpStatusCode.BadRequest)]  // omit xfapiauthdate
         public async Task AC27_Get_WithMissingXFAPIAUTHDATE_ShouldRespondWith_400BadRequest(string XFapiAuthDate, HttpStatusCode expectedStatusCode)
         {
@@ -787,7 +672,6 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        // [InlineData("DateTime.Now.RFC1123", HttpStatusCode.OK)]
         [InlineData("DateTime.UtcNow", HttpStatusCode.BadRequest)]
         [InlineData("foo", HttpStatusCode.BadRequest)]
         public async Task AC28_Get_WithInvalidXFAPIAUTHDATE_ShouldRespondWith_400BadRequest(string XFapiAuthDate, HttpStatusCode expectedStatusCode)
@@ -822,7 +706,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC30_Get_WithDifferentHolderOfKey_ShouldRespondWith_401Unauthorized(string certificateFilename, string certificatePassword, HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            // var accessToken = await GetAccessToken(TokenType.JANE_WILSON);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON);
 
             ExtractClaimsFromToken(accessToken, out var customerId, out var softwareProductId);
@@ -850,7 +733,6 @@ namespace CDR.DataHolder.IntegrationTests
                 // Assert - Check error response
                 if (expectedStatusCode != HttpStatusCode.OK)
                 {
-                    // var expectedResponse = @"{""error"":""invalid_token""}";
                     var expectedResponse = @"{
                         ""errors"": [
                             {
@@ -893,12 +775,6 @@ namespace CDR.DataHolder.IntegrationTests
                 var response = await api.SendAsync();
 
                 return response;
-
-                // if (response.StatusCode != HttpStatusCode.OK) throw new Exception("Error getting transactions");
-
-                // var json = await response.Content.ReadAsStringAsync();
-                // var transactionsResponse = JsonConvert.DeserializeObject<Response>(json);
-                // return transactionsResponse;
             }
 
             // Arrange - Get authcode
@@ -911,7 +787,6 @@ namespace CDR.DataHolder.IntegrationTests
 
             // Act - Get token
             var tokenResponse = await DataHolder_Token_API.GetResponse(authCode);
-            // ExtractClaimsFromToken(tokenResponse?.AccessToken, out var customerId, out var softwareProductId);
 
             // Act - Get transactions for account
             var response = await GetTransactions(tokenResponse?.AccessToken, accountToRetrieve);

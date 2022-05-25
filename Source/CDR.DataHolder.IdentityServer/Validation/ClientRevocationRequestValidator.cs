@@ -27,7 +27,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             _clientDetailsValidator = clientDetailsValidator;
             _mtlsCredentialValidator = mtlsCredentialValidator;
 
-            CascadeMode = CascadeMode.StopOnFirstFailure;
+            CascadeMode = CascadeMode.Stop;
 
             RuleFor(x => x.Token)
                 .NotEmpty()
@@ -42,10 +42,10 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 .NotNull()
                 .WithMessage(MissingMtlsCredentials)
                 .SetValidator(_mtlsCredentialValidator)
-                .DependentRules(CliendDetailsValidation);
+                .DependentRules(ClientDetailsValidation);
         }
 
-        private void CliendDetailsValidation()
+        private void ClientDetailsValidation()
         {
             RuleFor(x => x.ClientDetails)
                 .NotNull()
@@ -59,7 +59,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
         private Action<ClientRevocationRequest> RaiseRevocationRequestValidationFailureEvent(ValidationCheck check, string message)
             => _ =>
             {
-                _logger.LogError(message);
+                _logger.LogError("{message}", message);
                 _eventService.RaiseAsync(new RevocationRequestValidationFailureEvent(check)).GetAwaiter().GetResult();
             };
     }

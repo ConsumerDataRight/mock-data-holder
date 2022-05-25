@@ -3,35 +3,35 @@ using System.Linq;
 
 namespace CDR.DataHolder.Domain.ValueObjects
 {
-	public class AccountProductCategory : ReferenceType<AccountProductCategoryEnum, string>
+	public class AccountProductCategory : ReferenceType<ProductCategory, string>
 	{
-		public AccountProductCategoryEnum Id { get; set; }
+		public ProductCategory Id { get; set; }
 		public string Code { get; set; }
 
-		public static IDictionary<AccountProductCategoryEnum, string> Values
+		public static IDictionary<ProductCategory, string> Values
 		{
 			get
 			{
-				return new Dictionary<AccountProductCategoryEnum, string>
+				return new Dictionary<ProductCategory, string>
 				{
-					{AccountProductCategoryEnum.BusinessLoans, "BUSINESS_LOANS" },
-					{AccountProductCategoryEnum.CredAndChrgCards, "CRED_AND_CHRG_CARDS" },
-					{AccountProductCategoryEnum.Leases, "LEASES" },
-					{AccountProductCategoryEnum.MarginLoans, "MARGIN_LOANS" },
-					{AccountProductCategoryEnum.Overdrafts, "OVERDRAFTS" },
-					{AccountProductCategoryEnum.PersLoans, "PERS_LOANS" },
-					{AccountProductCategoryEnum.RegulatedTrustAccounts, "REGULATED_TRUST_ACCOUNTS" },
-					{AccountProductCategoryEnum.ResidentialMortgages, "RESIDENTIAL_MORTGAGES" },
-					{AccountProductCategoryEnum.TermDeposits, "TERM_DEPOSITS" },
-					{AccountProductCategoryEnum.TradeFinance, "TRADE_FINANCE" },
-					{AccountProductCategoryEnum.TransAndSavingsAccounts, "TRANS_AND_SAVINGS_ACCOUNTS" },
-					{AccountProductCategoryEnum.TravelCards, "TRAVEL_CARDS" },
+					{ProductCategory.BusinessLoans, "BUSINESS_LOANS" },
+					{ProductCategory.CredAndChrgCards, "CRED_AND_CHRG_CARDS" },
+					{ProductCategory.Leases, "LEASES" },
+					{ProductCategory.MarginLoans, "MARGIN_LOANS" },
+					{ProductCategory.Overdrafts, "OVERDRAFTS" },
+					{ProductCategory.PersLoans, "PERS_LOANS" },
+					{ProductCategory.RegulatedTrustAccounts, "REGULATED_TRUST_ACCOUNTS" },
+					{ProductCategory.ResidentialMortgages, "RESIDENTIAL_MORTGAGES" },
+					{ProductCategory.TermDeposits, "TERM_DEPOSITS" },
+					{ProductCategory.TradeFinance, "TRADE_FINANCE" },
+					{ProductCategory.TransAndSavingsAccounts, "TRANS_AND_SAVINGS_ACCOUNTS" },
+					{ProductCategory.TravelCards, "TRAVEL_CARDS" },
 				};
 			}
 		}
 	}
 
-	public enum AccountProductCategoryEnum
+	public enum ProductCategory
 	{
 		Unknown = 0,
 		BusinessLoans = 1,

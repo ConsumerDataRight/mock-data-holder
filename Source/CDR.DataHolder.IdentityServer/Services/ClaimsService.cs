@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 
 using System.Security.Claims;
+using CDR.DataHolder.IdentityServer.Extensions;
 using IdentityModel;
 using IdentityServer4.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using static CDR.DataHolder.IdentityServer.CdsConstants;
 
@@ -10,9 +12,16 @@ namespace CDR.DataHolder.IdentityServer.Services
 {
     public class ClaimsService : DefaultClaimsService
     {
-        public ClaimsService(IProfileService profile, ILogger<DefaultClaimsService> logger)
+
+        private readonly IConfiguration _configuration;
+
+        public ClaimsService(
+            IProfileService profile, 
+            IConfiguration configuration,
+            ILogger<DefaultClaimsService> logger)
             : base(profile, logger)
         {
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -30,10 +39,13 @@ namespace CDR.DataHolder.IdentityServer.Services
                 claims.Add(acr);
             }
 
-            var sharingExpiresAt = subject.FindFirst(StandardClaims.SharingDurationExpiresAt);
-            if (sharingExpiresAt != null)
+            if (_configuration.FapiComplianceLevel() <= FapiComplianceLevel.Fapi1Phase1)
             {
-                claims.Add(sharingExpiresAt);
+                var sharingExpiresAt = subject.FindFirst(StandardClaims.SharingDurationExpiresAt);
+                if (sharingExpiresAt != null)
+                {
+                    claims.Add(sharingExpiresAt);
+                }
             }
 
             var cdrArrangementId = subject.FindFirst(StandardClaims.CDRArrangementId);

@@ -23,22 +23,31 @@ namespace CDR.DataHolder.IdentityServer.UnitTests
         [Fact]
         public async Task Create_Registration_Token_Success()
         {
-            //Arrange
+            // Arrange
             var softwareProductId = "9381dad2-6b68-4879-b496-c1319d7dfbc9";
+            var certificatesPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates");
+            var ssaPath = Path.Combine(certificatesPath, "ssa.pfx");
+            var ssaPublicPath = Path.Combine(certificatesPath, "ssa.pem");
+            var ps256PublicPath = Path.Combine(certificatesPath, "ps256-public.pem");
+            var ps256Path = Path.Combine(certificatesPath, "ps256-private.pfx");
+            var es256Path = Path.Combine(certificatesPath, "es256-private.pfx");
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ssa.pfx");
             var inMemorySettings = new Dictionary<string, string> {
-                                {"SigningCertificate:Path", path},
-                                {"SigningCertificate:Password", "#M0ckRegister#"}
-                            };
+                {"SigningCertificatePublic:Path", ssaPublicPath},
+                {"SigningCertificate:Path", ssaPath},
+                {"SigningCertificate:Password", "#M0ckRegister#"},
+                {"PS256SigningCertificatePublic:Path", ps256PublicPath},
+                {"PS256SigningCertificate:Path", ps256Path},
+                {"PS256SigningCertificate:Password", "#M0ckDataHolder#"},
+                {"ES256SigningCertificate:Path", es256Path},
+                {"ES256SigningCertificate:Password", "#M0ckDataHolder#"}
+            };
             IConfiguration configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
             var securityService = new SecurityService(configuration);
 
             //Create jwt token
-            var keys = await securityService.GetActiveSecurityKeys(SecurityAlgorithms.RsaSsaPssSha256);
-
             var strHeader = @"
             {
                ""alg"":""PS256"",
@@ -87,27 +96,17 @@ namespace CDR.DataHolder.IdentityServer.UnitTests
 
             var token = $"{plaintext}.{signature}";
 
-            path = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ssa.pem");
-            inMemorySettings = new Dictionary<string, string> {
-                            {
-                                "SigningCertificatePublic:Path", path}
-                            };
-            configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(inMemorySettings)
-                .Build();
-
             //Validate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();
+
             //Read token
-            var parsedJwt = tokenHandler.ReadToken(token) as JwtSecurityToken;
+            tokenHandler.ReadToken(token);
 
             //Create the certificate which has only public key
-            var cert = new X509Certificate2(configuration["SigningCertificatePublic:Path"], SecurityAlgorithms.RsaSsaPssSha256);
+            var cert = new X509Certificate2(configuration["PS256SigningCertificatePublic:Path"], SecurityAlgorithms.RsaSsaPssSha256);
 
             //Get credentials from certificate
             var certificateSecurityKey = new X509SecurityKey(cert);
-
-            var kid = certificateSecurityKey.KeyId;
 
             //Set token validation parameters
             var validationParameters = new TokenValidationParameters()
@@ -120,9 +119,8 @@ namespace CDR.DataHolder.IdentityServer.UnitTests
                 ValidateLifetime = false
             };
 
-            SecurityToken validatedToken;
             //Act
-            var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
+            tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
             //Assert
             Assert.True(validatedToken != null);

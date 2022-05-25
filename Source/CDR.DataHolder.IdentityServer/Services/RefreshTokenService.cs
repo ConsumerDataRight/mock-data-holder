@@ -35,8 +35,7 @@ namespace CDR.DataHolder.IdentityServer.Services
 
             var now = Clock.UtcNow;
             var epochNow = now.ToUnixTimeSeconds();
-            _ = int.TryParse(subject.Claims.FirstOrDefault(c => c.Type == StandardClaims.SharingDurationExpiresAt)?.Value, out int sharingExpiresAt);
-
+            _ = int.TryParse(subject.Claims.FirstOrDefault(c => c.Type == StandardClaims.Expiry)?.Value, out int sharingExpiresAt);
             long lifetime = sharingExpiresAt > epochNow ? sharingExpiresAt - epochNow : 0;
 
             var refreshToken = new RefreshToken

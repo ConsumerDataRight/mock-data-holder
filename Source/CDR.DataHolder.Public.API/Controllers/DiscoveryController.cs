@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CDR.DataHolder.API.Infrastructure.Filters;
+using CDR.DataHolder.Resource.API.Infrastructure.Filters;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Serilog.Context;
+using System.Threading.Tasks;
 
 namespace CDR.DataHolder.Public.API.Controllers
 {
@@ -11,39 +12,32 @@ namespace CDR.DataHolder.Public.API.Controllers
 	[Route("cds-au")]
     public class DiscoveryController : ControllerBase
     {
-        private readonly ILogger<DiscoveryController> _logger;
+        private readonly IConfiguration _configuration;
 
-        public DiscoveryController(ILogger<DiscoveryController> logger)
+        public DiscoveryController(
+            IConfiguration configuration)
         {
-            _logger = logger;
+            _configuration = configuration;
         }
 
         [HttpGet("v1/discovery/status")]
+        [CheckXV(1, 1)]
         [ApiVersion("1")]
-        [HttpGet]
-        public async Task GetStatus()
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
+        public async Task<IActionResult> GetStatus()
         {
-            _logger.LogInformation($"Request received to {nameof(DiscoveryController)}.{nameof(GetStatus)}");
-            // var json = await System.IO.File.ReadAllTextAsync("data/status.json");
-            var json = await System.IO.File.ReadAllTextAsync("Data/status.json");
-
-            // Return the raw JSON response.
-            Response.ContentType = "application/json";
-            await Response.BodyWriter.WriteAsync(System.Text.UTF8Encoding.UTF8.GetBytes(json));
+            var json = (await System.IO.File.ReadAllTextAsync("Data/status.json")).Replace("#{domain}", _configuration.GetValue<string>("Domain"));
+            return Content(json, "application/json");
         }
 
         [HttpGet("v1/discovery/outages")]
+        [CheckXV(1, 1)]
         [ApiVersion("1")]
-        [HttpGet]
-        public async Task GetOutages()
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
+        public async Task<IActionResult> GetOutages()
         {
-            _logger.LogInformation($"Request received to {nameof(DiscoveryController)}.{nameof(GetOutages)}");
-            // var json = await System.IO.File.ReadAllTextAsync("data/outages.json");
-            var json = await System.IO.File.ReadAllTextAsync("Data/outages.json");
-
-            // Return the raw JSON response.
-            Response.ContentType = "application/json";
-            await Response.BodyWriter.WriteAsync(System.Text.UTF8Encoding.UTF8.GetBytes(json));
+            var json = (await System.IO.File.ReadAllTextAsync("Data/outages.json")).Replace("#{domain}", _configuration.GetValue<string>("Domain"));
+            return Content(json, "application/json");
         }
     }
 }

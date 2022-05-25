@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CDR.DataHolder.IdentityServer.Configuration;
+using CDR.DataHolder.IdentityServer.Extensions;
 using IdentityServer4.Configuration;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
@@ -82,13 +83,11 @@ namespace CDR.DataHolder.IdentityServer.Services
                 CdsConstants.StandardClaims.ACR3Value,
             };
 
-            discovery[CdsConstants.Discovery.ClaimsSupported] = new[]
+            var claimSupported = new List<string>() 
             {
                 "name",
                 "given_name",
                 "family_name",
-                "refresh_token_expires_at",
-                "sharing_expires_at",
                 "sharing_duration",
                 "iss",
                 "sub",
@@ -101,10 +100,24 @@ namespace CDR.DataHolder.IdentityServer.Services
                 "updated_at"
             };
 
+            if (_configuration.FapiComplianceLevel() <= CdsConstants.FapiComplianceLevel.Fapi1Phase1)
+            {
+                claimSupported.Add("refresh_token_expires_at");
+                claimSupported.Add("sharing_expires_at");
+            }
+
+            discovery[CdsConstants.Discovery.ClaimsSupported] = claimSupported.ToArray();
+
             discovery[CdsConstants.Discovery.SubjectTypesSupported] = new string[] { CdsConstants.SubjectTypes.Pairwise };
 
-            // Cds does not supporte Pkce.
-            discovery.Remove(CdsConstants.Discovery.CodeChallengeMethodsSupported);
+            // Pkce with S256.
+            discovery[CdsConstants.Discovery.CodeChallengeMethodsSupported] = CdsConstants.SupportedCodeChallengeMethods;
+
+            // Require PAR.
+            if (_configuration.FapiComplianceLevel() >= CdsConstants.FapiComplianceLevel.Fapi1Phase2)
+            {
+                discovery[CdsConstants.Discovery.RequirePushedAuthorizedRequests] = true;
+            }
 
             // Scopes supported
             discovery[CdsConstants.Discovery.ScopesSupported] = _configuration["ScopesSupported"].Split(',').ToList();
@@ -124,7 +137,7 @@ namespace CDR.DataHolder.IdentityServer.Services
                 CdsConstants.Discovery.AuthorizationEndpoint);
         }
 
-        private Dictionary<string, object> ArrangeDiscoveryDocument(Dictionary<string, object> discovery, string key1, string key2)
+        private static Dictionary<string, object> ArrangeDiscoveryDocument(Dictionary<string, object> discovery, string key1, string key2)
         {
             var discoveryList = discovery.ToList();
             var key1Item = discoveryList.Find(x => x.Key == key1);

@@ -19,6 +19,8 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
     {
         public DataRecipientConsentCallback(string redirectUrl = BaseTest.SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS) 
         {
+            redirectUrl = BaseTest.SubstituteConstant(redirectUrl);
+
             this.RedirectUrl = redirectUrl;
 
             this.Request = new CallbackRequest
@@ -157,11 +159,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
                 callbackResponse?.received.Should().Be(true);
                 callbackResponse?.body.Should().Be(POSTEDCONTENT);
-
-                // var response = await httpClient.GetAsync(callback.RedirectUrl);
-                // var callbackResponse = await callback.WaitForCallback(10);
-                // response.StatusCode.Should().Be(HttpStatusCode.OK);
-                // callbackResponse?.received.Should().Be(true);
             }
             finally
             {

@@ -12,8 +12,8 @@ namespace CDR.DataHolder.IdentityServer.Services
 
         Task<bool> RemoveClientById(string clientId);
 
-        Task<bool> RegisterClient(DataReceipientClient client);
+        Task<bool> RegisterClient(DataRecipientClient client);
 
-        Task<bool> UpdateClient(DataReceipientClient client);
+        Task<bool> UpdateClient(DataRecipientClient client);
     }
 }

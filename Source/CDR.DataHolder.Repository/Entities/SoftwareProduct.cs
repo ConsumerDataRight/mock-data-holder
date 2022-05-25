@@ -17,7 +17,7 @@ namespace CDR.DataHolder.Repository.Entities
         public string SoftwareProductName { get; set; }
 
         [MaxLength(1000)]
-        public string SoftwareProductDesc { get; set; }
+        public string SoftwareProductDescription { get; set; }
 
         [MaxLength(1000)]
         public string LogoUri { get; set; }

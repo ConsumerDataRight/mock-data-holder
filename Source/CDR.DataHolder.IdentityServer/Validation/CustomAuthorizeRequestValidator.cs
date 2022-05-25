@@ -6,6 +6,7 @@ using CDR.DataHolder.API.Infrastructure.Extensions;
 using CDR.DataHolder.Domain.Repositories;
 using CDR.DataHolder.IdentityServer.Configuration;
 using CDR.DataHolder.IdentityServer.Events;
+using CDR.DataHolder.IdentityServer.Extensions;
 using CDR.DataHolder.IdentityServer.Helpers;
 using CDR.DataHolder.IdentityServer.Logging;
 using CDR.DataHolder.IdentityServer.Models;
@@ -14,6 +15,7 @@ using IdentityServer4.Configuration;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using static CDR.DataHolder.IdentityServer.CdsConstants;
@@ -33,7 +35,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
 
         private CustomAuthorizeRequestValidationContext _requestContext;
         private ValidatedAuthorizeRequest _validatedAuthoriseRequest;
-        private HttpRequest _httpRequest;
+        private IConfiguration _configuration;
         private int _sharingDuration;
         private string _cdrArrangementId;
         private readonly ResponseTypeEqualityComparer
@@ -44,7 +46,8 @@ namespace CDR.DataHolder.IdentityServer.Validation
             CustomJwtRequestValidator customJwtRequestValidator,
             IHttpContextAccessor httpContextAccessor,
             IEventService eventService,
-            IConfigurationSettings configurationSettings, 
+            IConfiguration configuration,
+            IConfigurationSettings configurationSettings,
             IStatusRepository statusRepository,
             IdentityServerOptions options)
         {
@@ -52,7 +55,8 @@ namespace CDR.DataHolder.IdentityServer.Validation
             _customJwtRequestValidator = customJwtRequestValidator;
             _eventService = eventService;
             _httpContextAccessor = httpContextAccessor;
-            _configurationSettings = configurationSettings;            
+            _configurationSettings = configurationSettings;
+            _configuration = configuration;
             _statusRepository = statusRepository;
             _options = options;
         }
@@ -61,16 +65,33 @@ namespace CDR.DataHolder.IdentityServer.Validation
         {
             _requestContext = context;
             _validatedAuthoriseRequest = _requestContext.Result.ValidatedRequest;
-            _httpRequest = _httpContextAccessor.HttpContext.Request;
 
             if (await ValidAuthorizeRequest())
             {
-                ConsentAndAuthenticationHelper.SetClaimsPrincipalAndForceConsentForAuthoriseRequest(_validatedAuthoriseRequest, _sharingDuration, _cdrArrangementId, _configurationSettings, _httpContextAccessor);
+                ConsentAndAuthenticationHelper.SetClaimsPrincipalAndForceConsentForAuthoriseRequest(_validatedAuthoriseRequest, _sharingDuration, _cdrArrangementId, _configuration, _configurationSettings, _httpContextAccessor);
             }
         }
 
         private async Task<bool> ValidAuthorizeRequest()
         {
+            // Must have a request or request_uri parameter.
+            var request = _validatedAuthoriseRequest.Raw[CdsConstants.AuthorizeRequest.Request];
+            var requestUri = _validatedAuthoriseRequest.Raw[CdsConstants.AuthorizeRequest.RequestUri];
+
+            if (string.IsNullOrEmpty(request) && string.IsNullOrEmpty(requestUri))
+            {
+                await SetFailedResult(ValidationCheck.AuthorizeRequestInvalid, "invalid_request");
+                return false;
+            }
+
+            // Determine if this is a by ref (request_uri) or by value (request).
+            // The Energy DH only accepts by reference (PAR) authorisation requests.
+            if (_configuration.FapiComplianceLevel() >= FapiComplianceLevel.Fapi1Phase2 && !IsByReference(request))
+            {
+                await SetFailedResult(ValidationCheck.AuthorizeRequestInvalid, "invalid_request");
+                return false;
+            }
+
             // Custom request JWT Validations
             var jwtRequestResult = await ReadJwtRequestAsync(_validatedAuthoriseRequest);
             if (jwtRequestResult.IsError)
@@ -101,7 +122,12 @@ namespace CDR.DataHolder.IdentityServer.Validation
 
             if (!await ValidSoftwareProductStatus())
             {
-                return await SetFailedResult(ValidationCheck.SoftwreProductStatusInvalid);
+                return await SetFailedResult(ValidationCheck.SoftwareProductStatusInvalid);
+            }
+
+            if (_configuration.FapiComplianceLevel() >= FapiComplianceLevel.Fapi1Phase2 && !ValidPkce())
+            {
+                return await SetFailedResult(ValidationCheck.AuthorisationRequestMissingPkce);
             }
 
             var claimsError = ValidClaims();
@@ -114,26 +140,21 @@ namespace CDR.DataHolder.IdentityServer.Validation
             {
                 return await SetFailedResult(ValidationCheck.AuthorizeRequestInvalidRedirectUri);
             }
-            
+
             return true;
         }
 
         private void LogError(string message, ValidatedAuthorizeRequest request)
         {
             var requestDetails = new AuthorizationRequestValidationLog(request);
-            _logger.LogError(message + "\n{@requestDetails}", requestDetails);
+            _logger.LogError("{message}\n{requestDetails}", message, requestDetails);
         }
 
-        private void LogError(string message, string detail, ValidatedAuthorizeRequest request)
-        {
-            var requestDetails = new AuthorizationRequestValidationLog(request);
-            _logger.LogError(message + ": {detail}\n{@requestDetails}", detail, requestDetails);
-        }
-        private AuthorizeRequestValidationResult Invalid(ValidatedAuthorizeRequest request, string error = OidcConstants.AuthorizeErrors.InvalidRequest, string description = null)
+        private static AuthorizeRequestValidationResult Invalid(ValidatedAuthorizeRequest request, string error = OidcConstants.AuthorizeErrors.InvalidRequest, string description = null)
         {
             return new AuthorizeRequestValidationResult(request, error, description);
         }
-        private AuthorizeRequestValidationResult Valid(ValidatedAuthorizeRequest request)
+        private static AuthorizeRequestValidationResult Valid(ValidatedAuthorizeRequest request)
         {
             return new AuthorizeRequestValidationResult(request);
         }
@@ -148,6 +169,13 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 {
                     LogError("request JWT validation failure", request);
                     return Invalid(request, description: "Invalid JWT request");
+                }
+
+                // Fix for .NET 6 - the claims claim is not included in the RequestObjectValues dictionary so we add in manually here.
+                if (jwtRequestValidationResult.Payload.ContainsKey("claims")
+                    && !request.RequestObjectValues.ContainsKey("claims"))
+                {
+                    request.RequestObjectValues.Add("claims", jwtRequestValidationResult.Payload["claims"]);
                 }
             }
 
@@ -168,8 +196,8 @@ namespace CDR.DataHolder.IdentityServer.Validation
             {
                 _logger.LogError("Client Id in Request JWT is invalid or missing");
                 return false;
-            }           
-            
+            }
+
             return true;
         }
 
@@ -178,18 +206,17 @@ namespace CDR.DataHolder.IdentityServer.Validation
         /// fapi1-advanced-final-ensure-request-object-without-nonce-fails
         ///This test should end with the authorization server showing an error message that the request 
         ///or request object is invalid 
-           /// invalid_request error (due to the missing nonce). 
-           /// nonce is required for all flows that return an id_token from the authorization endpoint, 
-            ///see https://openid.net/specs/openid-connect-core-1_0.html#HybridIDToken 
-            ///and https://bitbucket.org/openid/connect/issues/972/nonce-requirement-in-hybrid-auth-request*/
+        /// invalid_request error (due to the missing nonce). 
+        /// nonce is required for all flows that return an id_token from the authorization endpoint, 
+        ///see https://openid.net/specs/openid-connect-core-1_0.html#HybridIDToken 
+        ///and https://bitbucket.org/openid/connect/issues/972/nonce-requirement-in-hybrid-auth-request*/
         ///
         private bool ValidNonceInRequest()
         {
-            // TODO: nonce is only required for flows which returns an id_token
-
             // State should be from the request object not the query params
             var isState = _validatedAuthoriseRequest.RequestObjectValues.Any(x => x.Key == "state");
-            if(!isState){
+            if (!isState)
+            {
                 _validatedAuthoriseRequest.State = string.Empty;
             }
 
@@ -197,20 +224,60 @@ namespace CDR.DataHolder.IdentityServer.Validation
             {
                 _logger.LogError("nonce is missing from request object");
                 return false;
-            }           
-            
+            }
+
             return true;
         }
 
         // Validate the redirect uri inside the request object. redirect_uri must be present, and a valid uri
         // Additional Info: fapi1-advanced-final-ensure-request-object-without-redirect-uri-fails
-        private bool ValidateRedirectUri(){
-            var redirectUri =_validatedAuthoriseRequest.RequestObjectValues.FirstOrDefault(x => x.Key == OidcConstants.TokenRequest.RedirectUri).Value;
+        private bool ValidateRedirectUri()
+        {
+            var redirectUri = _validatedAuthoriseRequest.RequestObjectValues.FirstOrDefault(x => x.Key == OidcConstants.TokenRequest.RedirectUri).Value;
             if (redirectUri.IsMissingOrTooLong(_options.InputLengthRestrictions.RedirectUri))
             {
                 return false;
             }
             if (!Uri.TryCreate(redirectUri, UriKind.Absolute, out _))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Determines if the authorisation request is based on a PAR request_uri or not.
+        /// </summary>
+        /// <returns>
+        /// True if the authorisation has been initiated via PAR (request_uri).
+        /// </returns>
+        /// <remarks>
+        /// There is some complexity in this determination based on the re-used of this validator in the 
+        /// PushedAuthorizationRequestValidator class.
+        /// When calling this validator directly from the authorisation endpoint, a check of the incoming parameters
+        /// can be performed, namely request_uri (PAR) and request (non-PAR).
+        /// However, when this validator is called from the PAR endpoint, the request parameter is used.  Therefore, an
+        /// additional check is included -> RequestObject != null.
+        /// For PAR endpoint the request parameter is used, but the RequestObject is null.
+        /// For the Authorisation endpoint for non-PAR request, the request parameter is set and the RequestObject is not null.
+        /// For the Authorisation endpoint for PAR request, the request_uri parameter is set and the RequestObject is not null.
+        /// </remarks>
+        private bool IsByReference(string request)
+        {
+            if (!string.IsNullOrEmpty(request) && _validatedAuthoriseRequest.RequestObject != null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        // Validate that the authorisation request contains PKCE parameters
+        private bool ValidPkce()
+        {
+            var requestUri = _validatedAuthoriseRequest.Raw[CdsConstants.AuthorizeRequest.RequestUri];
+            if (!string.IsNullOrEmpty(requestUri) && !_validatedAuthoriseRequest.IsPkce())
             {
                 return false;
             }
@@ -257,18 +324,16 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 _logger.LogError("Sharing Duration {SharingDuration} in Request JWT is invalid, is less then 0", authorizeClaims.SharingDuration);
                 return ValidationCheck.SharingDurationInvalid;
             }
+
+            // Check sharing duration is not greater than 1 year.
+            if (authorizeClaims.SharingDuration.Value > TimingsInSeconds.OneYear)
+            {
+                _logger.LogInformation("Sharing Duration ({sharingDuration}) in Request JWT is greater than one year {oneYear}.  Setting to {oneYear}.", authorizeClaims.SharingDuration.Value, TimingsInSeconds.OneYear, TimingsInSeconds.OneYear);
+                _sharingDuration = TimingsInSeconds.OneYear;
+            }
             else
             {
-                // Check sharing duration is not greater than 1 year.
-                if (authorizeClaims.SharingDuration.Value > TimingsInSeconds.OneYear)
-                {
-                    _logger.LogInformation($"Sharing Duration ({authorizeClaims.SharingDuration.Value}) in Request JWT is greater than one year {TimingsInSeconds.OneYear}.  Setting to {TimingsInSeconds.OneYear}.");
-                    _sharingDuration = TimingsInSeconds.OneYear;
-                }
-                else
-                {
-                    _sharingDuration = authorizeClaims.SharingDuration.Value;
-                }
+                _sharingDuration = authorizeClaims.SharingDuration.Value;
             }
 
             // Check CDR Arrangement ID
@@ -297,6 +362,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 // Array of acr values provided.
                 acrValues = authorizeClaims.IdToken.Acr.Values.ToList();
             }
+
             if (acrValues.Count == 0 || !acrValues.All(x => x == StandardClaims.ACR2Value || x == StandardClaims.ACR3Value))
             {
                 _logger.LogError("Acr {Acr} in Request JWT is invalid.", authorizeClaims.IdToken.Acr.Values.ToSpaceSeparatedString());
@@ -353,7 +419,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
 
         private async Task<bool> ValidSoftwareProductStatus()
         {
-            var claimSoftwareProduct = _validatedAuthoriseRequest.ClientClaims.Where(c => c.Type == "software_id").FirstOrDefault();
+            var claimSoftwareProduct = _validatedAuthoriseRequest.ClientClaims.FirstOrDefault(c => c.Type == "software_id");
 
             if (claimSoftwareProduct == null)
             {
@@ -362,7 +428,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             }
 
             //Data recipient software product
-            var softwareProductId = claimSoftwareProduct?.Value;            
+            var softwareProductId = claimSoftwareProduct?.Value;
             var softwareProduct = await _statusRepository.GetSoftwareProduct(Guid.Parse(softwareProductId));
 
             if (softwareProduct == null)

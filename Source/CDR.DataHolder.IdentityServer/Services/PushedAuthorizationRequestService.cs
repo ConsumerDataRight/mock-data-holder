@@ -20,30 +20,24 @@ namespace CDR.DataHolder.IdentityServer.Services
 {
     public class PushedAuthorizationRequestService : IPushedAuthorizationRequestService
     {
-        private readonly IConfiguration _config;
         private readonly ILogger _logger;
         private readonly IEventService _eventService;
         private readonly IPersistedGrantStore _persistedGrantStore;
         private readonly IPushedAuthorizationRequestValidator _validator;
         private readonly IConfigurationSettings _configurationSettings;
-        private readonly ICustomGrantService _customGrantService;
 
         public PushedAuthorizationRequestService(
-            IConfiguration config,
             ILogger<PushedAuthorizationRequestService> logger,
             IPersistedGrantStore persistedGrantStore,
             IPushedAuthorizationRequestValidator validator,
             IEventService eventService,
-            IConfigurationSettings configurationSettings,
-            ICustomGrantService customGrantService)
+            IConfigurationSettings configurationSettings)
         {
-            _config = config;
             _persistedGrantStore = persistedGrantStore;
             _eventService = eventService;
             _logger = logger;
             _validator = validator;
             _configurationSettings = configurationSettings;
-            _customGrantService = customGrantService;
         }
 
         public async Task<PushedAuthorizationResult> ProcessAuthoriseRequest(NameValueCollection parameters)

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using System.Collections.Generic;
 
 namespace CDR.DataHolder.IdentityServer.Models.UI
@@ -10,7 +11,7 @@ namespace CDR.DataHolder.IdentityServer.Models.UI
     {
 		public ConsentInputModel()
 		{
-            SelectedAccountIds = new string[] { };
+            SelectedAccountIds = Array.Empty<string>();
             RememberConsent = true;
         }
 

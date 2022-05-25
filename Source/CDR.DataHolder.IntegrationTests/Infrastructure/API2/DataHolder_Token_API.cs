@@ -57,12 +57,12 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
             string? jwkCertificateFilename = BaseTest.JWT_CERTIFICATE_FILENAME,
             string? jwkCertificatePassword = BaseTest.JWT_CERTIFICATE_PASSWORD)
         {
+            redirectUri = BaseTest.SubstituteConstant(redirectUri);
+
             var URL = $"{BaseTest.DH_MTLS_GATEWAY_URL}/connect/token";
 
             var formFields = new List<KeyValuePair<string?, string?>>
             {
-                // new KeyValuePair<string?, string?>("redirect_uri", BaseTest.SOFTWAREPRODUCT_REDIRECT_URI), 
-                // new KeyValuePair<string?, string?>("redirect_uri", BaseTest.SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS),
                 new KeyValuePair<string?, string?>("redirect_uri", redirectUri),
             };
 
@@ -100,8 +100,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                         CertificateFilename = jwkCertificateFilename,
                         CertificatePassword = jwkCertificatePassword,
 
-                        // Issuer = (clientId ?? BaseTest.SOFTWAREPRODUCT_ID).ToLower(),
-
                         // Allow for clientId to be deliberately omitted from the JWT
                         Issuer = clientId == OMIT ?
                              "" : // Omit
@@ -136,7 +134,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 
             using var clientHandler = new HttpClientHandler();
             clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-            // clientHandler.ClientCertificates.Add(new X509Certificate2(BaseTest.CERTIFICATE_FILENAME, BaseTest.CERTIFICATE_PASSWORD, X509KeyStorageFlags.Exportable));
             clientHandler.ClientCertificates.Add(new X509Certificate2(certificateFilename ?? throw new NullReferenceException(), certificatePassword, X509KeyStorageFlags.Exportable));
 
             using var client = new HttpClient(clientHandler);
@@ -186,6 +183,8 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
             string? jwkCertificateFilename = BaseTest.JWT_CERTIFICATE_FILENAME,
             string? jwkCertificatePassword = BaseTest.JWT_CERTIFICATE_PASSWORD)
         {
+            redirectUri = BaseTest.SubstituteConstant(redirectUri);
+
             var responseMessage = await SendRequest(authCode, shareDuration: shareDuration,
                 clientId: clientId,
                 redirectUri: redirectUri,

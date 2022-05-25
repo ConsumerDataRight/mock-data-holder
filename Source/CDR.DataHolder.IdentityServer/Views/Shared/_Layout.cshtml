@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.Extensions.Configuration
+@using CDR.DataHolder.IdentityServer.Extensions
+@inject IConfiguration _config
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
@@ -7,27 +11,27 @@
 
 	<title>IdentityServer4</title>
 
-	<link rel="icon" type="image/x-icon" href="~/favicon.ico" />
-	<link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" />
+	<link rel="icon" type="image/x-icon" href="@_config.EnsurePath("/favicon.ico")" />
+	<link rel="shortcut icon" type="image/x-icon" href="@_config.EnsurePath("/favicon.ico")" />
 
-	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-	<link rel="stylesheet" href="~/css/site.css" />
-	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<link rel="stylesheet" href="@_config.EnsurePath("/lib/bootstrap/dist/css/bootstrap.min.css")" />
+	<link rel="stylesheet" href="@_config.EnsurePath("/css/site.css")" />
+	<script src="@_config.EnsurePath("/lib/jquery/dist/jquery.min.js")"></script>
 </head>
 <body>
 	<div class="container">
 		<div class="justify-content-center row">
 			<div class="col-10 col-md-4 pl-0 pr-0">
 				<div class="pt-5 text-center">
-					<img src="~/logo.png" class="rounded-circle pb-2" />
+					<img src="@_config.EnsurePath("/logo.png")" class="rounded-circle pb-2" alt="logo"/>
 				</div>
 				@RenderBody()
 			</div>
 		</div>
 	</div>
 
-	<script src="~/lib/jquery/dist/jquery.slim.min.js"></script>
-	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="@_config.EnsurePath("/lib/jquery/dist/jquery.slim.min.js")"></script>
+	<script src="@_config.EnsurePath("/lib/bootstrap/dist/js/bootstrap.bundle.min.js")"></script>
 
 	@RenderSection("scripts", required: false)
 </body>

@@ -33,7 +33,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
             // Get the SSA 
             var response = await new Infrastructure.API
             {
-                URL = $"https://localhost:7001/cdr-register/v1/banking/data-recipients/brands/{brandId}/software-products/{softwareProductId}/ssa",
+                URL = $"{BaseTest.REGISTER_MTLS_URL}/cdr-register/v1/banking/data-recipients/brands/{brandId}/software-products/{softwareProductId}/ssa",
                 CertificateFilename = BaseTest.CERTIFICATE_FILENAME,
                 CertificatePassword = BaseTest.CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,

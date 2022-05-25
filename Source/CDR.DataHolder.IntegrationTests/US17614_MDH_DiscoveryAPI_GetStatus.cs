@@ -15,6 +15,8 @@ namespace CDR.DataHolder.IntegrationTests
             // Arrange
             var api = new Infrastructure.API
             {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
                 XV = "1",
                 URL = $"{DH_TLS_PUBLIC_BASE_URL}/cds-au/v1/discovery/status"
@@ -42,10 +44,11 @@ namespace CDR.DataHolder.IntegrationTests
                         ""updateTime"": """"
                     },
                     ""links"": {
-                        ""self"": ""https://localhost:8000/cds-au/v1/discovery/status""
+                        ""self"": ""#{public_base_uri}/cds-au/v1/discovery/status""
                     },
                     ""meta"": {}
-                }";
+                }".Replace("#{public_base_uri}", DH_TLS_PUBLIC_BASE_URL);
+                
                 await Assert_HasContent_Json(expectedResponse, response.Content);
             }
         }

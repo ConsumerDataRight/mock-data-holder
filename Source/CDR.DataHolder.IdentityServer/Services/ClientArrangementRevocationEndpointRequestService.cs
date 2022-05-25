@@ -1,4 +1,14 @@
-﻿using System;
+﻿using CDR.DataHolder.IdentityServer.Configuration;
+using CDR.DataHolder.IdentityServer.Interfaces;
+using CDR.DataHolder.IdentityServer.Models;
+using CDR.DataHolder.IdentityServer.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using Serilog.Context;
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -6,258 +16,128 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using CDR.DataHolder.IdentityServer.Configuration;
-using CDR.DataHolder.IdentityServer.Services.Interfaces;
-using IdentityServer4.Configuration;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using static CDR.DataHolder.IdentityServer.CdsConstants;
 
-namespace CDR.DataHolder.IdentityServer.Interfaces
+namespace CDR.DataHolder.IdentityServer.Services
 {
+
     public class ClientArrangementRevocationEndpointRequestService : IClientArrangementRevocationEndpointRequestService
     {
-        private readonly IConfigurationSettings _configurationSettings;
+        private readonly IConfiguration _config;
         private readonly ISecurityService _securityService;
         private readonly IClientArrangementRevocationEndpointHttpClient _clientArrangementRevocationEndpointHttpClient;
         private readonly ILogger _logger;
         private readonly int _defaultExpiryMinutes;
+        private readonly IClientService _clientService;
+        private readonly ICustomGrantService _customGrantService;
 
         public ClientArrangementRevocationEndpointRequestService(
             ILogger<ClientArrangementRevocationEndpointRequestService> logger,
             ISecurityService securityService,
-            IConfigurationSettings configurationSettings,
-            IClientArrangementRevocationEndpointHttpClient clientArrangementRevocationEndpointHttpClient)
+            IConfiguration config,
+            IClientArrangementRevocationEndpointHttpClient clientArrangementRevocationEndpointHttpClient,
+            IClientService clientService,
+            ICustomGrantService customGrantService)
         {
             _securityService = securityService;
-            _configurationSettings = configurationSettings;
+            _config = config;
             _logger = logger;
-            _defaultExpiryMinutes = 2;
+            _defaultExpiryMinutes = 5;
             _clientArrangementRevocationEndpointHttpClient = clientArrangementRevocationEndpointHttpClient;
+            _clientService = clientService;
+            _customGrantService = customGrantService;
         }
 
-        public async Task<bool> ValidParametersReturnsNoContentResponse(Uri arrangementRevocationUri, string cdrArrangementId)
+        /// <summary>
+        /// Send a arrangement revocation request to the relevant DR.
+        /// </summary>
+        /// <param name="cdrArrangementId">CDR Arrangement ID</param>
+        /// <param name="useJwt">Send CDR Arrangement ID in JWT parameter</param>
+        /// <returns></returns>
+        public async Task<DataRecipientRevocationResult> SendRevocationRequest(string cdrArrangementId, bool useJwt = false)
         {
+            using (LogContext.PushProperty("MethodName", "SendRevocationRequest"))
+            {
+                _logger.LogInformation("invoked with cdrArrangementId: {cdrArrangementId}", cdrArrangementId);
+            }
+
+            var result = new DataRecipientRevocationResult() { CdrArrangementId = cdrArrangementId };
+
+            // Find the CDR Arrangement Grant.
+            var grant = await _customGrantService.GetGrant(cdrArrangementId);
+
+            // "cdr_arrangement_grant" grant not found for given id. 
+            if (grant == null 
+            || !grant.Type.Equals(CdsConstants.GrantTypes.CdrArrangementGrant))
+            {
+                _logger.LogError("Invalid consent arrangement: {grant}", (grant == null ? "not found" : $"grant type: {grant.Type}"));
+                result.Errors.Add(new Error() { Code = "urn:au-cds:error:cds-all:Authorisation/InvalidArrangement", Title = "Invalid Consent Arrangement", Detail = cdrArrangementId });
+                result.IsSuccessful = false;
+                return result;
+            }
+
+            // Find the associated client id.
+            var client = await _clientService.FindClientById(grant.ClientId);
+            if (client == null)
+            {
+                _logger.LogError("Invalid consent arrangement: client ({clientId}) not found", grant.ClientId);
+                result.Errors.Add(new Error() { Code = "urn:au-cds:error:cds-all:GeneralError/Unexpected", Title = "Unexpected Error Encountered", Detail = $"Client {grant.ClientId} not found for arrangement: {cdrArrangementId}" });
+                result.IsSuccessful = false;
+                return result;
+            }
+            result.ClientId = client.ClientId;
+
+            // Get the revocation uri for the client.
+            var recipientBaseUriClaim = client.Claims.FirstOrDefault(c => c.Type == CdsConstants.ClientMetadata.RecipientBaseUri);
+            if (recipientBaseUriClaim == null)
+            {
+                _logger.LogError("Invalid consent arrangement: client {recipientBaseUri} not found", CdsConstants.ClientMetadata.RecipientBaseUri);
+                result.Errors.Add(new Error() { Code = "urn:au-cds:error:cds-all:GeneralError/Unexpected", Title = "Unexpected Error Encountered", Detail = $"{CdsConstants.ClientMetadata.RecipientBaseUri} not found for client {grant.ClientId}" });
+                result.IsSuccessful = false;
+                return result;
+            }
+
+            // Build the parameters for the call to the DR's arrangement revocation endpoint.
+            var revocationUri = new Uri($"{recipientBaseUriClaim.Value}/arrangements/revoke");
+            var brandId = _config.GetValue<string>("BrandId");
             var jwtSecurityToken = new JwtSecurityToken(
-               claims: GetClaims(),
-               issuer: "TODO:",
-               audience: arrangementRevocationUri.ToString(),
+               claims: new Claim[]
+               {
+                 new Claim(JwtRegisteredClaimNames.Sub, brandId),
+                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+               },
+               issuer: brandId,
+               audience: revocationUri.ToString(),
                expires: DateTime.UtcNow.AddMinutes(_defaultExpiryMinutes));
+            var signedBearerTokenJwt = await GetSignedJwt(jwtSecurityToken);
 
-            var signedBearerTokenJwt = await GetSignedBearerTokenJwtForArrangementRevocationRequest(jwtSecurityToken);
+            _logger.LogInformation("Calling DR arrangement revocation endpoint ({revocationUri})...", revocationUri);
 
-            var httpResponseStatusCode = await _clientArrangementRevocationEndpointHttpClient.PostToArrangementRevocationEndPoint(
-                GetFormValues(cdrArrangementId),
-                signedBearerTokenJwt,
-                arrangementRevocationUri);
+            // Call the DR's arrangement revocation endpoint.
+            var httpResponse = await _clientArrangementRevocationEndpointHttpClient.PostToArrangementRevocationEndPoint(
+                (await GetFormValues(cdrArrangementId, useJwt)), 
+                signedBearerTokenJwt, 
+                revocationUri);
 
-            if (httpResponseStatusCode.HasValue && httpResponseStatusCode == HttpStatusCode.NoContent)
+            _logger.LogInformation("Response from DR arrangement revocation endpoint: {httpResponse}", httpResponse);
+
+            result.Status = httpResponse.Status;
+            result.IsSuccessful = (result.Status.HasValue && result.Status.Value == HttpStatusCode.NoContent);
+
+            if (!result.IsSuccessful && !string.IsNullOrEmpty(httpResponse.Detail))
             {
-                return true;
+                var respError = JsonConvert.DeserializeObject<API.Infrastructure.Models.ResponseErrorList>(httpResponse.Detail);
+                foreach (var err in respError.Errors)
+                {
+                    result.Errors.Add(new Error() { Code = err.Code, Title = err.Title, Detail = err.Detail });
+                }
             }
-            else
-            {
-                _logger.LogError(
-                    "The DR Client Arrangement Revocation Endpoint for a valid request did not return the expected No Content response. {StatusCode}",
-                    GetHttpResponseStatusCodeMessageForLog(httpResponseStatusCode));
-                return false;
-            }
+            return result;
         }
 
-        public async Task<bool> MissingBearerTokenDoesNotReturnNoContentHttpResponse(Uri arrangementRevocationUri, string cdrArrangementId)
+        public async Task<string> GetSignedJwt(JwtSecurityToken jwtSecurityToken)
         {
-            var httpResponseStatusCode = await _clientArrangementRevocationEndpointHttpClient.PostToArrangementRevocationEndPoint(
-                GetFormValues(cdrArrangementId),
-                string.Empty,
-                arrangementRevocationUri);
-
-            if (httpResponseStatusCode.HasValue && httpResponseStatusCode != HttpStatusCode.NoContent)
-            {
-                return true;
-            }
-            else
-            {
-                _logger.LogError(
-                    "The DR Client Arrangement Revocation Endpoint for a request with a missing bearer token returned a No Content Response. {StatusCode}",
-                    GetHttpResponseStatusCodeMessageForLog(httpResponseStatusCode));
-                return false;
-            }
-        }
-
-        public async Task<bool> InvalidCdrArrangementValueReturnsUnprocessableEntityResponse(Uri arrangementRevocationUri)
-        {
-            var jwtSecurityToken = new JwtSecurityToken(
-                claims: GetClaims(),
-                audience: arrangementRevocationUri.ToString(),
-                expires: DateTime.UtcNow.AddMinutes(_defaultExpiryMinutes));
-
-            var signedBearerTokenJwt = await GetSignedBearerTokenJwtForArrangementRevocationRequest(jwtSecurityToken);
-
-            var httpResponseStatusCode = await _clientArrangementRevocationEndpointHttpClient.PostToArrangementRevocationEndPoint(
-                GetFormValues("abc123"),
-                signedBearerTokenJwt,
-                arrangementRevocationUri);
-
-            if (httpResponseStatusCode.HasValue && httpResponseStatusCode == HttpStatusCode.UnprocessableEntity)
-            {
-                return true;
-            }
-            else
-            {
-                _logger.LogError(
-                    "The DR Client Arrangement Revocation Endpoint for a request with an invalid token value did not return the expected Unprocessable Entity response. {StatusCode}",
-                    GetHttpResponseStatusCodeMessageForLog(httpResponseStatusCode));
-                return false;
-            }
-        }
-
-        public async Task<bool> InvalidSubDoesNotReturnNoContentHttpResponse(Uri arrangementRevocationUri, string cdrArrangementId)
-        {
-            var jwtSecurityToken = new JwtSecurityToken(
-                           claims: GetClaims("invalid"),
-                           issuer: "TODO:",
-                           audience: arrangementRevocationUri.ToString(),
-                           expires: DateTime.UtcNow.AddMinutes(_defaultExpiryMinutes));
-
-            var signedBearerTokenJwt = await GetSignedBearerTokenJwtForArrangementRevocationRequest(jwtSecurityToken);
-
-            var httpResponseStatusCode = await _clientArrangementRevocationEndpointHttpClient.PostToArrangementRevocationEndPoint(
-                GetFormValues(cdrArrangementId),
-                signedBearerTokenJwt,
-                arrangementRevocationUri);
-
-            if (httpResponseStatusCode.HasValue && httpResponseStatusCode != HttpStatusCode.NoContent)
-            {
-                return true;
-            }
-            else
-            {
-                _logger.LogError(
-                    "The DR Client Arrangement Revocation Endpoint for a request with an invalid sub value returned a No Content Response. {StatusCode}",
-                    GetHttpResponseStatusCodeMessageForLog(httpResponseStatusCode));
-                return false;
-            }
-        }
-
-        public async Task<bool> InvalidIssuerDoesNotReturnNoContentHttpResponse(Uri arrangementRevocationUri, string cdrArrangementId)
-        {
-            var jwtSecurityToken = new JwtSecurityToken(
-                           claims: GetClaims(),
-                           issuer: "invalid",
-                           audience: arrangementRevocationUri.ToString(),
-                           expires: DateTime.UtcNow.AddMinutes(_defaultExpiryMinutes));
-
-            var signedBearerTokenJwt = await GetSignedBearerTokenJwtForArrangementRevocationRequest(jwtSecurityToken);
-
-            var httpResponseStatusCode = await _clientArrangementRevocationEndpointHttpClient.PostToArrangementRevocationEndPoint(
-                GetFormValues(cdrArrangementId),
-                signedBearerTokenJwt,
-                arrangementRevocationUri);
-
-            if (httpResponseStatusCode.HasValue && httpResponseStatusCode != HttpStatusCode.NoContent)
-            {
-                return true;
-            }
-            else
-            {
-                _logger.LogError(
-                    "The DR Client Arrangement Revocation Endpoint for a request with an invalid issuer value returned a No Content Response. {StatusCode}",
-                    GetHttpResponseStatusCodeMessageForLog(httpResponseStatusCode));
-                return false;
-            }
-        }
-
-        public async Task<bool> InvalidAudienceDoesNotReturnNoContentHttpResponse(Uri arrangementRevocationUri, string cdrArrangementId)
-        {
-            var jwtSecurityToken = new JwtSecurityToken(
-                           claims: GetClaims(),
-                           issuer: "TODO:",
-                           audience: "http://invalidaudience.com",
-                           expires: DateTime.UtcNow.AddMinutes(_defaultExpiryMinutes));
-
-            var signedBearerTokenJwt = await GetSignedBearerTokenJwtForArrangementRevocationRequest(jwtSecurityToken);
-
-            var httpResponseStatusCode = await _clientArrangementRevocationEndpointHttpClient.PostToArrangementRevocationEndPoint(
-                GetFormValues(cdrArrangementId),
-                signedBearerTokenJwt,
-                arrangementRevocationUri);
-
-            if (httpResponseStatusCode.HasValue && httpResponseStatusCode != HttpStatusCode.NoContent)
-            {
-                return true;
-            }
-            else
-            {
-                _logger.LogError(
-                    "The DR Client Arrangement Revocation Endpoint for a request with an invalid audience value returned a No Content Response. {StatusCode}",
-                    GetHttpResponseStatusCodeMessageForLog(httpResponseStatusCode));
-                return false;
-            }
-        }
-
-        public async Task<bool> NegativeExpiryDoesNotReturnNoContentHttpResponse(Uri arrangementRevocationUri, string cdrArrangementId)
-        {
-            var jwtSecurityToken = new JwtSecurityToken(
-                           claims: GetClaims(),
-                           issuer: "TODO:",
-                           audience: arrangementRevocationUri.ToString(),
-                           expires: DateTime.UtcNow.AddMinutes(-2));
-
-            var signedBearerTokenJwt = await GetSignedBearerTokenJwtForArrangementRevocationRequest(jwtSecurityToken);
-
-            var httpResponseStatusCode = await _clientArrangementRevocationEndpointHttpClient.PostToArrangementRevocationEndPoint(
-                GetFormValues(cdrArrangementId),
-                signedBearerTokenJwt,
-                arrangementRevocationUri);
-
-            if (httpResponseStatusCode.HasValue && httpResponseStatusCode != HttpStatusCode.NoContent)
-            {
-                return true;
-            }
-            else
-            {
-                _logger.LogError(
-                    "The DR Client Arrangement Revocation Endpoint for a request with an invalid expiry value returned a No Content Response. {StatusCode}",
-                    GetHttpResponseStatusCodeMessageForLog(httpResponseStatusCode));
-                return false;
-            }
-        }
-
-        public async Task<bool> InvalidSignatureDoesNotReturnNoContentHttpResponse(Uri arrangementRevocationUri, string cdrArrangementId)
-        {
-            var jwtSecurityToken = new JwtSecurityToken(
-                           claims: GetClaims(),
-                           issuer: "TODO:",
-                           audience: arrangementRevocationUri.ToString(),
-                           expires: DateTime.UtcNow.AddMinutes(_defaultExpiryMinutes));
-
-            var signedBearerTokenJwt = await GetSignedBearerTokenJwtForArrangementRevocationRequest(jwtSecurityToken);
-
-            var bearerTokenArray = signedBearerTokenJwt.Split(".");
-            var bearerTokenJwtWithInvalidSignature = bearerTokenArray[0] + bearerTokenArray[1] + "123456abcdef";
-
-            var httpResponseStatusCode = await _clientArrangementRevocationEndpointHttpClient.PostToArrangementRevocationEndPoint(
-                GetFormValues(cdrArrangementId),
-                bearerTokenJwtWithInvalidSignature,
-                arrangementRevocationUri);
-
-            if (httpResponseStatusCode.HasValue && httpResponseStatusCode != HttpStatusCode.NoContent)
-            {
-                return true;
-            }
-            else
-            {
-                _logger.LogError(
-                    "The DR Client Arrangement Revocation Endpoint for a request with an invalid signature value returned a No Content Response. {StatusCode}",
-                    GetHttpResponseStatusCodeMessageForLog(httpResponseStatusCode));
-                return false;
-            }
-        }
-
-        public async Task<string> GetSignedBearerTokenJwtForArrangementRevocationRequest(JwtSecurityToken jwtSecurityToken)
-        {
-            var keys = await _securityService.GetActiveSecurityKeys(SecurityAlgorithms.RsaSsaPssSha256);
+            var keys = await _securityService.GetActiveSecurityKeys(Algorithms.Signing.PS256);
 
             jwtSecurityToken.Header["alg"] = Algorithms.Signing.PS256;
             jwtSecurityToken.Header["kid"] = keys.First().Key.KeyId;
@@ -270,28 +150,21 @@ namespace CDR.DataHolder.IdentityServer.Interfaces
             return $"{plaintext}.{signature}";
         }
 
-        private Claim[] GetClaims(string subClaim = null)
+        private async Task<Dictionary<string, string>> GetFormValues(string cdrArrangementId, bool useJwt = false)
         {
-            subClaim ??= "TODO:";
+            var formValues = new Dictionary<string, string>();
 
-            return new Claim[]
+            if (useJwt)
             {
-                new Claim(JwtRegisteredClaimNames.Sub, subClaim),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            };
-        }
+                var jwt = new JwtSecurityToken(claims: new Claim[] { new Claim(CdrArrangementRevocationRequest.CdrArrangementJwt, cdrArrangementId) });
+                formValues.Add(CdrArrangementRevocationRequest.CdrArrangementJwt, (await GetSignedJwt(jwt)));
+            }
+            else
+            {
+                formValues.Add(CdrArrangementRevocationRequest.CdrArrangementId, cdrArrangementId);
+            }
 
-        private Dictionary<string, string> GetFormValues(string cdrArrangementId)
-        {
-           return new Dictionary<string, string>
-                {
-                    { CdrArrangementRevocationRequest.CdrArrangementId, cdrArrangementId },
-                };
-        }
-
-        private string GetHttpResponseStatusCodeMessageForLog(HttpStatusCode? httpStatusCode)
-        {
-            return httpStatusCode.HasValue ? $"Status Code: {((int)httpStatusCode.Value).ToString()}" : "HttpStatusCode is null, check error log";
+            return formValues;
         }
     }
 }

@@ -97,7 +97,7 @@ namespace CDR.DataHolder.API.Infrastructure.Extensions
 
         internal static string ConvertFormUrlEncodedSpacesToUrlEncodedSpaces(string str)
         {
-            if ((str != null) && (str.IndexOf('+') >= 0))
+            if (str != null && str.Contains('+'))
             {
                 str = str.Replace("+", "%20");
             }
@@ -120,11 +120,11 @@ namespace CDR.DataHolder.API.Infrastructure.Extensions
             }
             else
             {
-                builder.Append("&");
+                builder.Append('&');
             }
 
             builder.Append(encodedName);
-            builder.Append("=");
+            builder.Append('=');
             if (!String.IsNullOrEmpty(encodedValue))
             {
                 builder.Append(encodedValue);

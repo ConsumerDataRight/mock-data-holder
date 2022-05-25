@@ -75,7 +75,6 @@ namespace CDR.DataHolder.IdentityServer.Validation
             }
 
             // create subject from incoming access token
-            //var claims = tokenResult.Claims.Where(x => !IdentityServerConstants.Filters.ProtocolClaimsFilter.Contains(x.Type));
             var claims = tokenResult.Claims;
             var subject = Principal.Create("UserInfo", claims.ToArray());
 
@@ -83,7 +82,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             var isActiveContext = new IsActiveContext(subject, tokenResult.Client, IdentityServerConstants.ProfileIsActiveCallers.UserInfoRequestValidation);
             await _profile.IsActiveAsync(isActiveContext);
 
-            if (isActiveContext.IsActive == false)
+            if (!isActiveContext.IsActive)
             {
                 _logger.LogError("User is not active: {sub}", subject.GetSubjectId());
 

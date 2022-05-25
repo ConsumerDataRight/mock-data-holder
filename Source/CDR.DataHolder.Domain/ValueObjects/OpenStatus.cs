@@ -2,26 +2,26 @@
 
 namespace CDR.DataHolder.Domain.ValueObjects
 {
-	public class AccountOpenStatus : ReferenceType<OpenStatusEnum, string>
+	public class AccountOpenStatus : ReferenceType<OpenStatus, string>
 	{
-		public OpenStatusEnum Id { get; set; }
+		public OpenStatus Id { get; set; }
 		public string Code { get; set; }
 
-		public static IDictionary<OpenStatusEnum, string> Values
+		public static IDictionary<OpenStatus, string> Values
 		{
 			get
 			{
-				return new Dictionary<OpenStatusEnum, string>
+				return new Dictionary<OpenStatus, string>
 				{
-					{OpenStatusEnum.All, "ALL"  },
-					{OpenStatusEnum.Open, "OPEN"  },
-					{OpenStatusEnum.Closed, "CLOSED"  }
+					{OpenStatus.All, "ALL"  },
+					{OpenStatus.Open, "OPEN"  },
+					{OpenStatus.Closed, "CLOSED"  }
 				};
 			}
 		}
 	}
 
-	public enum OpenStatusEnum
+	public enum OpenStatus
 	{
 		Unknown = 0,
 		Open = 1,

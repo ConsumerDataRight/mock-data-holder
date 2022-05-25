@@ -13,6 +13,14 @@ namespace CDR.DataHolder.IdentityServer.Services
 {
     public class CustomGrantService : ICustomGrantService
     {
+        public enum RemoveGrantsResult
+        {
+            OK,
+            GrantNotValid,
+            GrantNotAssociatedToClient,
+            Error
+        }
+
         private readonly ILogger _logger;
         private readonly IPersistedGrantStore _persistedGrantStore;
 
@@ -47,8 +55,8 @@ namespace CDR.DataHolder.IdentityServer.Services
             var grant = await _persistedGrantStore.GetAsync(keyId);
 
             if (grant == null)
-            { 
-                return null; 
+            {
+                return null;
             }
 
             // Then if all other values match, return the grant.
@@ -93,62 +101,47 @@ namespace CDR.DataHolder.IdentityServer.Services
         /// Removes grants found for the (cdr arrangement id). Currently this is just the refresh token.
         /// </summary>
         /// <returns>
-        /// 1 = Removed OK
-        /// 2 = Associated Grant IS NOT VALID
-        /// 3 = Associated Grant IS NOT ASSOCIATED with CLIENT
-        /// 4 = ERROR
         /// </returns>
-        public async Task<int> RemoveGrantsForCdrArrangementId(string cdrArrangementId, string clientId)
+        public async Task<RemoveGrantsResult> RemoveGrantsForCdrArrangementId(string cdrArrangementId, string clientId)
         {
             (var cdrArrangementGrant, bool isValidClient, bool isValidArrangement) = await GetCdrArrangementGrant(cdrArrangementId, clientId);
+
+            if (cdrArrangementGrant == null && !isValidClient && !isValidArrangement)
+            {
+                _logger.LogError("The CdrArrangementId: {CdrArrangementId} is not valid for the given ClientId: {ClientId}", cdrArrangementId, clientId);
+                return RemoveGrantsResult.GrantNotValid;
+            }
+
+            if (cdrArrangementGrant == null && isValidClient && !isValidArrangement)
+            {
+                _logger.LogError("The CdrArrangementId: {CdrArrangementId} provided is not associated with ClientId: {ClientId}", cdrArrangementId, clientId);
+                return RemoveGrantsResult.GrantNotAssociatedToClient;
+            }
+
             if (cdrArrangementGrant != null && isValidClient && isValidArrangement)
             {
                 var cdrArrangementIdData = JsonConvert.DeserializeObject<CdrArrangementGrant>(cdrArrangementGrant.Data);
                 if (string.IsNullOrWhiteSpace(cdrArrangementIdData.RefreshTokenKey))
                 {
                     _logger.LogInformation("The CDR Arrangment Grant {CdrArrangementId} does not have a refresh token to revoke", cdrArrangementId);
-                    return 4;
+                    return RemoveGrantsResult.OK;
                 }
-                else
-                {
-                    var refreshTokenGrant = await _persistedGrantStore.GetAsync(cdrArrangementIdData.RefreshTokenKey);
-                    if (refreshTokenGrant != null)
-                    {
-                        await RemoveGrant(cdrArrangementIdData.RefreshTokenKey);
 
-                        refreshTokenGrant = await _persistedGrantStore.GetAsync(cdrArrangementIdData.RefreshTokenKey);
-                        if (refreshTokenGrant == null || string.IsNullOrWhiteSpace(refreshTokenGrant.Data))
-                        {
-                            _logger.LogInformation("Revoked RefreshToken: {RefreshTokenKey} using CdrArrangementId: {CdrArrangementId}", cdrArrangementIdData.RefreshTokenKey, cdrArrangementId);
-                            return 1;
-                        }
-                        else
-                        {
-                            throw new ArgumentException($"The Refresh Token was not successfully revoked by calling PersistedGrantStore.RemoveAsync for key: {cdrArrangementIdData.RefreshTokenKey}");
-                        }
-                    }
-                    else
-                    {
-                        _logger.LogError("The CdrArrangementId: {CdrArrangementId} provided did not find an associated refresh token to revoke", cdrArrangementId);
-                        return 4;
-                    }
+                var refreshTokenGrant = await _persistedGrantStore.GetAsync(cdrArrangementIdData.RefreshTokenKey);
+
+                if (refreshTokenGrant == null || string.IsNullOrWhiteSpace(refreshTokenGrant.Data))
+                {
+                    _logger.LogInformation("The CdrArrangementId: {CdrArrangementId} provided did not find an associated refresh token to revoke", cdrArrangementId);
+                    return RemoveGrantsResult.OK;
                 }
+
+                await RemoveGrant(cdrArrangementIdData.RefreshTokenKey);
+                _logger.LogInformation("Revoked RefreshToken: {RefreshTokenKey} using CdrArrangementId: {CdrArrangementId}", cdrArrangementIdData.RefreshTokenKey, cdrArrangementId);
+                return RemoveGrantsResult.OK;
             }
-            else if (cdrArrangementGrant == null && !isValidClient && !isValidArrangement)
-            {
-                _logger.LogError("The CdrArrangementId: {CdrArrangementId} is not valid for the given ClientId: {ClientId}", cdrArrangementId, clientId);
-                return 2;
-            }
-            else if (cdrArrangementGrant == null && isValidClient && !isValidArrangement)
-            {
-                _logger.LogError("The CdrArrangementId: {CdrArrangementId} provided is not associated with ClientId: {ClientId}", cdrArrangementId, clientId);
-                return 3;
-            }
-            else
-            {
-                _logger.LogError("GENERAL ERROR: CdrArrangementId: {CdrArrangementId}, ClientId: {ClientId}", cdrArrangementId, clientId);
-                return 4;
-            }
+
+            _logger.LogError("GENERAL ERROR: CdrArrangementId: {CdrArrangementId}, ClientId: {ClientId}", cdrArrangementId, clientId);
+            return RemoveGrantsResult.Error;
         }
 
         public async Task RemoveGrant(string key)

@@ -73,8 +73,10 @@ namespace CDR.DataHolder.API.Infrastructure.Authorisation
             var accessToken = authHeader.ToString().Replace("Bearer ", "");
             var endpoint = _config["AccessTokenIntrospectionEndpoint"];
 
-            var handler = new HttpClientHandler();
-            handler.ServerCertificateCustomValidationCallback = (a, b, c, d) => true;
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (a, b, c, d) => true
+            };
             var httpClient = new HttpClient(handler);
 
             var formFields = new List<KeyValuePair<string, string>>();

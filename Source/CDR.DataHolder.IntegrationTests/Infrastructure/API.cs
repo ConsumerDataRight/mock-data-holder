@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
@@ -160,20 +159,12 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure
                     var clientHandler = new HttpClientHandler
                     {
                         AllowAutoRedirect = AllowAutoRedirect,
-                        // UseCookies = false
                     };
                     clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
 
                     // Set cookies
                     if (Cookies != null)
                     {
-                        // var cookieContainer = new CookieContainer();
-                        // foreach (var cookie in Cookies)
-                        // {
-                        //     cookieContainer.Add(new Cookie());
-                        // }
-                        // clientHandler.CookieContainer = cookieContainer;
-
                         clientHandler.UseCookies = false;
                         request.Headers.Add("Cookie", Cookies);
                     }

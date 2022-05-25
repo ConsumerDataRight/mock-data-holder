@@ -1,24 +1,50 @@
-﻿using System;
-using System.Security.Authentication;
+﻿using CDR.DataHolder.API.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
+using Serilog.Extensions.Logging;
+using System;
+using System.IO;
+using System.Security.Authentication;
 
 namespace CDR.DataHolder.IdentityServer
 {
-    class Program
+    public sealed class Program
     {
-        static int Main(string[] args)
+        private Program() { }
+
+        public static int Main(string[] args)
         {
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)
+                .AddEnvironmentVariables()
+                .Build();
+
             Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.Extensions.Http.DefaultHttpClientFactory", LogEventLevel.Warning)
+                .MinimumLevel.Override("System", LogEventLevel.Information)
+                .Enrich.FromLogContext()
+                .Enrich.WithProcessId()
+                .Enrich.WithProcessName()
+                .Enrich.WithThreadId()
+                .Enrich.WithThreadName()
+                .Enrich.WithProperty("Environment", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"))
                 .CreateLogger();
+
             try
             {
                 Log.Information("Starting web host", args);
-                CreateHostBuilder(args).Build().Run();
+                CreateHostBuilder(args, configuration, new SerilogLoggerFactory(Log.Logger).CreateLogger<Program>()).Build().Run();
                 return 0;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException && ex.GetType().Name != "StopTheHostException")
             {
                 Log.Fatal(ex, "Host terminated unexpectedly");
                 return 1;
@@ -29,12 +55,9 @@ namespace CDR.DataHolder.IdentityServer
             }
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
+        public static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration, Microsoft.Extensions.Logging.ILogger logger) =>
                 Host.CreateDefaultBuilder(args)
-                .UseSerilog((ctx, cfg) =>
-                {
-                    cfg.ReadFrom.Configuration(ctx.Configuration);
-                })
+                .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseKestrel((context, serverOptions) =>
@@ -43,6 +66,13 @@ namespace CDR.DataHolder.IdentityServer
                                         .Endpoint("HTTPS", listenOptions =>
                                         {
                                             listenOptions.HttpsOptions.SslProtocols = SslProtocols.Tls12;
+
+                                            var tlsCertOverride = configuration.GetTlsCertificateOverride(logger);
+                                            if (tlsCertOverride != null)
+                                            {
+                                                logger.LogInformation("TLS Certificate Override - {thumbprint}", tlsCertOverride.Thumbprint);
+                                                listenOptions.HttpsOptions.ServerCertificate = tlsCertOverride;
+                                            }
                                         });
 
                         serverOptions.ConfigureHttpsDefaults(options =>

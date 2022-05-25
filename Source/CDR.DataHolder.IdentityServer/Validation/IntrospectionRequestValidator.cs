@@ -12,8 +12,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
 {
     public class IntrospectionRequestValidator : DHValidation.IIntrospectionRequestValidator
     {
-        private List<DA.ValidationResult> _validationResults = new List<DA.ValidationResult>();
-
+        private readonly List<DA.ValidationResult> _validationResults = new List<DA.ValidationResult>();
         private readonly ISecretParser _secretParser;
         private readonly ISecretValidator _secretValidator;
 

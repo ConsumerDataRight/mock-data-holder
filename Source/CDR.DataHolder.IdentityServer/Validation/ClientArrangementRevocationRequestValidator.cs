@@ -27,7 +27,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             _clientDetailsValidator = clientDetailsValidator;
             _mtlsCredentialValidator = mtlsCredentialValidator;
 
-            CascadeMode = CascadeMode.StopOnFirstFailure;
+            CascadeMode = CascadeMode.Stop;
 
             RuleFor(x => x.CdrArrangementId)
                 .NotEmpty()
@@ -59,7 +59,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
         private Action<ClientArrangementRevocationRequest> RaiseArrangementRevocationRequestValidationFailureEvent(ValidationCheck check, string message)
             => _ =>
             {
-                _logger.LogError(message);
+                _logger.LogError("{message}", message);
                 _eventService.RaiseAsync(new CdrArrangementRevocationValidationFailureEvent(check)).GetAwaiter().GetResult();
             };
     }

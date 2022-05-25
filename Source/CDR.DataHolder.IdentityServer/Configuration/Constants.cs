@@ -25,6 +25,8 @@
             public const string ParUri = "ParUri";
             public const string RevocationUri = "RevocationUri";
             public const string ArrangementRevocationUri = "ArrangementRevocationUri";
+            public const string BasePath = "BasePath";
+            public const string BaseUri = "BaseUri";
         }
 
         public static class DiscoveryOverrideKeys

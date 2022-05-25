@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CDR.DataHolder.IdentityServer.Configuration
 {
-    internal class Resources
+    public static class Resources
     {
         public static IEnumerable<IdentityResource> GetIdentityResources()
         {

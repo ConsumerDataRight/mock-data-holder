@@ -1,23 +1,23 @@
-﻿using System;
+﻿using CDR.DataHolder.IntegrationTests.Extensions;
+using CDR.DataHolder.IntegrationTests.Fixtures;
+using CDR.DataHolder.IntegrationTests.Infrastructure.API2;
+using FluentAssertions;
+using FluentAssertions.Execution;
+using IdentityServer4.Stores.Serialization;
+using Jose;
+using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using FluentAssertions;
-using FluentAssertions.Execution;
-using IdentityServer4.Stores.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Xunit;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using Jose;
-using Microsoft.Data.Sqlite;
-using CDR.DataHolder.IntegrationTests.Infrastructure.API2;
-using CDR.DataHolder.IntegrationTests.Extensions;
-using CDR.DataHolder.IntegrationTests.Fixtures;
 
 #nullable enable
 
@@ -44,7 +44,6 @@ namespace CDR.DataHolder.IntegrationTests
     public class US12963_MDH_InfosecProfileAPI_Token : BaseTest, IClassFixture<RegisterSoftwareProductFixture>
     {
         public const string SCOPE_TOKEN_ACCOUNTS = "openid bank:accounts.basic:read";
-        // public const string SCOPE_TOKEN_ACCOUNTS_AND_TRANSACTIONS = "openid bank:accounts.basic:read bank:transactions.basic:read";
         public const string SCOPE_TOKEN_ACCOUNTS_AND_TRANSACTIONS = "openid bank:accounts.basic:read bank:transactions:read";
         public const string SCOPE_EXCEED = "openid bank:accounts.basic:read bank:transactions:read additional:scope";
 
@@ -73,7 +72,6 @@ namespace CDR.DataHolder.IntegrationTests
             if (idToken != null)
             {
                 // Decrypt the id token.
-                // var privateKeyCertificate = new X509Certificate2(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, X509KeyStorageFlags.Exportable);
                 var privateKeyCertificate = new X509Certificate2(JWT_CERTIFICATE_FILENAME, JWT_CERTIFICATE_PASSWORD, X509KeyStorageFlags.Exportable);
                 var privateKey = privateKeyCertificate.GetRSAPrivateKey();
                 JweToken token = JWE.Decrypt(idToken, privateKey);
@@ -100,7 +98,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC01_Post_ShouldRespondWith_200OK_IDToken_AccessToken_RefreshToken()
         {
             // Arrange
-            // (var authCode, _) = DataHolder_Authorise_API.Authorise(CUSTOMERID_JANEWILSON, SCOPE_TOKEN_ACCOUNTS);
             (var authCode, _) = await new DataHolder_Authorise_APIv2
             {
                 UserId = USERID_JANEWILSON,
@@ -137,11 +134,9 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Fact]
-        // public async Task AC02_Put_ShouldRespondWith_400BadRequest_InvalidRequestErrorResponse()
         public async Task AC02_Put_ShouldRespondWith_404NotFound()
         {
             // Arrange
-            // (var authCode, _) = DataHolder_Authorise_API.Authorise(CUSTOMERID_JANEWILSON, SCOPE_TOKEN_ACCOUNTS);
             (var authCode, _) = await new DataHolder_Authorise_APIv2
             {
                 UserId = USERID_JANEWILSON,
@@ -157,13 +152,6 @@ namespace CDR.DataHolder.IntegrationTests
             using (new AssertionScope())
             {
                 responseMessage.StatusCode.Should().Be(HttpStatusCode.NotFound);
-
-                // if (responseMessage.StatusCode == HttpStatusCode.BadRequest)
-                // {
-                //     // Assert error response
-                //     var expectedResponse = "{\"error\":\"invalid_request\"}";
-                //     await Assert_HasContent_Json(expectedResponse, responseMessage.Content);
-                // }
             }
         }
 
@@ -174,7 +162,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC03_Post_WithInvalidRequest_GrantType_ShouldRespondWith_400BadRequest_InvalidRequestErrorResponse(string grantType, HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            // (var authCode, _) = DataHolder_Authorise_API.Authorise(CUSTOMERID_JANEWILSON, SCOPE_TOKEN_ACCOUNTS);
             (var authCode, _) = await new DataHolder_Authorise_APIv2
             {
                 UserId = USERID_JANEWILSON,
@@ -203,12 +190,10 @@ namespace CDR.DataHolder.IntegrationTests
         [Theory]
         [InlineData(SOFTWAREPRODUCT_ID, HttpStatusCode.OK)]
         [InlineData("foo", HttpStatusCode.BadRequest)]
-        // [InlineData(null, HttpStatusCode.BadRequest)]
         [InlineData(DataHolder_Token_API.OMIT, HttpStatusCode.BadRequest)]
         public async Task AC03_Post_WithInvalidRequest_ClientId_ShouldRespondWith_400BadRequest_InvalidClientErrorResponse(string clientId, HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            // (var authCode, _) = DataHolder_Authorise_API.Authorise(CUSTOMERID_JANEWILSON, SCOPE_TOKEN_ACCOUNTS);
             (var authCode, _) = await new DataHolder_Authorise_APIv2
             {
                 UserId = USERID_JANEWILSON,
@@ -241,7 +226,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC03_Post_WithInvalidRequest_ClientAssertionType_ShouldRespondWith_400BadRequest_InvalidClientErrorResponse(string clientAssertionType, HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            // (var authCode, _) = DataHolder_Authorise_API.Authorise(CUSTOMERID_JANEWILSON, SCOPE_TOKEN_ACCOUNTS);
             (var authCode, _) = await new DataHolder_Authorise_APIv2
             {
                 UserId = USERID_JANEWILSON,
@@ -273,7 +257,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC03_Post_WithInvalidRequest_ClientAssertion_ShouldRespondWith_400BadRequest_InvalidClientErrorResponse(bool useClientAssertion, HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            // (var authCode, _) = DataHolder_Authorise_API.Authorise(CUSTOMERID_JANEWILSON, SCOPE_TOKEN_ACCOUNTS);
             (var authCode, _) = await new DataHolder_Authorise_APIv2
             {
                 UserId = USERID_JANEWILSON,
@@ -347,7 +330,6 @@ namespace CDR.DataHolder.IntegrationTests
                     expires = now.AddMinutes(10);
                 }
 
-                // var certificate = new X509Certificate2(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, X509KeyStorageFlags.Exportable);
                 var certificate = new X509Certificate2(JWT_CERTIFICATE_FILENAME, JWT_CERTIFICATE_PASSWORD, X509KeyStorageFlags.Exportable);
                 var x509SigningCredentials = new X509SigningCredentials(certificate, SecurityAlgorithms.RsaSsaPssSha256);
 
@@ -364,7 +346,6 @@ namespace CDR.DataHolder.IntegrationTests
             }
 
             // Arrange
-            // (var authCode, _) = DataHolder_Authorise_API.Authorise(CUSTOMERID_JANEWILSON, SCOPE_TOKEN_ACCOUNTS);
             (var authCode, _) = await new DataHolder_Authorise_APIv2
             {
                 UserId = USERID_JANEWILSON,
@@ -398,13 +379,13 @@ namespace CDR.DataHolder.IntegrationTests
         {
             static async Task ExpireAuthCode(string authCode)
             {
-                static string GetKey(SqliteConnection connection, string authCode)
+                static string GetKey(SqlConnection connection, string authCode)
                 {
-                    // Not sure how to derive persisted grant key from authcode, so lets just check only 1 authorization_code row and use it's key
-                    // TODO - ideally, derive persisted grant key from authcode
+                    // Not sure how to derive persisted grant key from authcode, so lets just check only 1 authorization_code row and use it's key 
+                    // ideally, derive persisted grant key from authcode
 
                     // Count, must be 1 row otherwise throw
-                    using var selectCommand = new SqliteCommand($"select count(*) from persistedgrants where type = 'authorization_code'", connection);
+                    using var selectCommand = new SqlCommand($"select count(*) from persistedgrants where [type] = 'authorization_code'", connection);
                     var count = selectCommand.ExecuteScalarInt32();
                     if (count != 1)
                     {
@@ -412,7 +393,7 @@ namespace CDR.DataHolder.IntegrationTests
                     }
 
                     // Get key
-                    using var selectCommand2 = new SqliteCommand($"select key from persistedgrants where type = 'authorization_code'", connection);
+                    using var selectCommand2 = new SqlCommand($"select [key] from persistedgrants where [type] = 'authorization_code'", connection);
                     return selectCommand2.ExecuteScalarString();
                 }
 
@@ -420,13 +401,13 @@ namespace CDR.DataHolder.IntegrationTests
                 const string LIFETIME = @"""Lifetime"":600,";
                 string LIFETIME_PATCHED = $@"""Lifetime"":{LIFETIME_SECONDS},";
 
-                using var connection = new SqliteConnection(IDENTITYSERVER_CONNECTIONSTRING);
+                using var connection = new SqlConnection(IDENTITYSERVER_CONNECTIONSTRING);
                 connection.Open();
 
                 string key = GetKey(connection, authCode);
 
                 // Read data from persistedgrant row
-                using var selectCommand = new SqliteCommand($"select data from persistedgrants where key = @key", connection);
+                using var selectCommand = new SqlCommand($"select [data] from persistedgrants where [key] = @key", connection);
                 selectCommand.Parameters.AddWithValue("@key", key);
                 var data = selectCommand.ExecuteScalarString();
 
@@ -438,7 +419,7 @@ namespace CDR.DataHolder.IntegrationTests
                 var patchedData = data.Replace(LIFETIME, LIFETIME_PATCHED);
 
                 // Update data in persistedgrant row
-                using var updateCommand = new SqliteCommand($"update persistedgrants set data = @data where key = @key", connection);
+                using var updateCommand = new SqlCommand($"update persistedgrants set [data] = @data where [key] = @key", connection);
                 updateCommand.Parameters.AddWithValue("@key", key);
                 updateCommand.Parameters.AddWithValue("@data", patchedData);
                 updateCommand.ExecuteNonQuery();
@@ -448,15 +429,6 @@ namespace CDR.DataHolder.IntegrationTests
             }
 
             // Arrange
-            // const int SHORTLIVEDLIFETIMESECONDS = 10;
-            // (var authCode, _) = DataHolder_Authorise_API.Authorise(CUSTOMERID_JANEWILSON, SCOPE_TOKEN_ACCOUNTS,
-            //     lifetimeSeconds: expired ? SHORTLIVEDLIFETIMESECONDS : 600);
-            // // If testing expired authcode we wait until the SHORTLIVELIFETIME has passed
-            // if (expired)
-            // {
-            //     await Task.Delay((SHORTLIVEDLIFETIMESECONDS + 1) * 1000);
-            // }
-
             TestSetup.DataHolder_PurgeIdentityServer(true);
 
             (var authCode, _) = await new DataHolder_Authorise_APIv2
@@ -480,7 +452,6 @@ namespace CDR.DataHolder.IntegrationTests
             {
                 responseMessage.StatusCode.Should().Be(expectedStatusCode);
 
-                // if (responseMessage.StatusCode != HttpStatusCode.OK)
                 if (expectedStatusCode != HttpStatusCode.OK)
                 {
                     // Assert error response
@@ -582,7 +553,6 @@ namespace CDR.DataHolder.IntegrationTests
             static async Task<(string? authCode, string? refreshToken)> GetRefreshToken(string scope)
             {
                 // Create grant with specific scope
-                // (var authCode, _) = DataHolder_Authorise_API.Authorise(CUSTOMERID_JANEWILSON, scope, sharingDuration: 100000);
                 (var authCode, _) = await new DataHolder_Authorise_APIv2
                 {
                     UserId = USERID_JANEWILSON,
@@ -614,7 +584,6 @@ namespace CDR.DataHolder.IntegrationTests
 
             // Use the refresh token to get a new accesstoken and new refreshtoken (with the requested scope)
             var responseMessage = await DataHolder_Token_API.SendRequest(
-                // authCode,
                 grantType: "refresh_token",
                 refreshToken: refreshToken,
                 scope: requestedScope);
@@ -654,9 +623,9 @@ namespace CDR.DataHolder.IntegrationTests
         [Theory]
         [InlineData(SCOPE_TOKEN_ACCOUNTS, SCOPE_TOKEN_ACCOUNTS, HttpStatusCode.OK)] // Same scope - should be ok
         [InlineData(SCOPE_TOKEN_ACCOUNTS_AND_TRANSACTIONS, SCOPE_TOKEN_ACCOUNTS, HttpStatusCode.OK)] // Decreased in scope - should be ok
-        [InlineData(SCOPE_TOKEN_ACCOUNTS, SCOPE_TOKEN_ACCOUNTS_AND_TRANSACTIONS, HttpStatusCode.BadRequest)] // Increased in scope - should fail
-        [InlineData(SCOPE_TOKEN_ACCOUNTS, SCOPE_EXCEED, HttpStatusCode.BadRequest)] // Exceed the allowable scope of the DR - should fail
-        public async Task AC10_Post_WithRefreshToken_AndDifferentScope_ShouldRespondWith_400BadRequest_InvalidFieldErrorResponse(string initialScope, string requestedScope, HttpStatusCode expectedStatusCode)
+        [InlineData(SCOPE_TOKEN_ACCOUNTS, SCOPE_TOKEN_ACCOUNTS_AND_TRANSACTIONS, HttpStatusCode.OK)] // Increased in scope - should filter and pass
+        [InlineData(SCOPE_TOKEN_ACCOUNTS, SCOPE_EXCEED, HttpStatusCode.OK)] // Exceed the allowable scope of the DR - should filter and pass
+        public async Task AC10_Post_WithRefreshToken_AndDifferentScope_ShouldRespondWith_200OK_Response(string initialScope, string requestedScope, HttpStatusCode expectedStatusCode)
         {
             // Arrange/Act
             var responseMessage = await Test_AC09_AC10(initialScope, requestedScope);
@@ -681,7 +650,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC11_Post_WithInvalidRefreshToken_ShouldRespondWith_400BadRequest_InvalidFieldErrorResponse(string refreshToken, HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            // (var authCode, _) = DataHolder_Authorise_API.Authorise(CUSTOMERID_JANEWILSON, SCOPE_TOKEN_ACCOUNTS);
             (var authCode, _) = await new DataHolder_Authorise_APIv2
             {
                 UserId = USERID_JANEWILSON,
@@ -779,13 +747,12 @@ namespace CDR.DataHolder.IntegrationTests
                 {
                     // Act - Use refresh token to get access token and refresh token
                     var refreshTokenResponse = await DataHolder_Token_API.GetResponseUsingRefreshToken(refreshToken);
-                    // var decodedJWT = new JwtSecurityTokenHandler().ReadJwtToken(refreshTokenResponse?.AccessToken);
 
                     // Assert
                     refreshTokenResponse.Should().NotBeNull();
                     refreshTokenResponse?.AccessToken.Should().NotBeNull();
                     refreshTokenResponse?.RefreshToken.Should().NotBeNull();
-                    refreshTokenResponse?.RefreshToken.Should().NotBe(refreshToken); // a new refresh token is returned 
+                    refreshTokenResponse?.RefreshToken.Should().Be(refreshToken); // same refresh token is returned 
 
                     refreshToken = refreshTokenResponse?.RefreshToken;
                 }

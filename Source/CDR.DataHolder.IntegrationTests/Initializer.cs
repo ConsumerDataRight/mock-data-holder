@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿#if RELEASE
+using System.IO;
 using Microsoft.Extensions.Configuration;
+#endif
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
@@ -18,7 +20,7 @@ namespace CDR.DataHolder.IntegrationTests
             new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
-                .AddJsonFile($"appsettings.Pipeline.json", true)
+                .AddJsonFile($"appsettings.Release.json", true)
                 .AddEnvironmentVariables()
                 .Build();
 #endif                       

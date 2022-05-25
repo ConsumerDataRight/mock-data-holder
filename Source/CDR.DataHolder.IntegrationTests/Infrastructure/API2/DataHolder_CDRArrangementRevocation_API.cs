@@ -40,7 +40,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 formFields.Add(new KeyValuePair<string?, string?>("cdr_arrangement_id", cdrArrangementId));
             }
             formFields.Add(new KeyValuePair<string?, string?>("client_assertion", clientAssertion ??
-                // new ClientAssertion { Aud = URL }.Get()
                 new PrivateKeyJwt2() 
                 {
                     CertificateFilename = jwtCertificateFilename,

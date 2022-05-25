@@ -24,7 +24,7 @@ namespace CDR.DataHolder.IdentityServer.Models.UI
 
 		public TimeSpan ConsentLifeTimeSpan { get; internal set; }
 
-		public class ActionTypes
+		public static class ActionTypes
         {
             public const string Cancel = "cancel";
             public const string Page2 = "page2";

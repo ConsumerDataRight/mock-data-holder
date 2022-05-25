@@ -28,7 +28,6 @@ namespace CDR.DataHolder.IdentityServer.Services
         protected readonly ILogger Logger;
         protected readonly IHttpContextAccessor Context;
         protected readonly IClaimsService ClaimsProvider;
-        protected readonly IReferenceTokenStore ReferenceTokenStore;
         protected readonly ITokenCreationService CreationService;
         protected readonly ISystemClock Clock;
         protected readonly IKeyMaterialService KeyMaterialService;
@@ -40,7 +39,6 @@ namespace CDR.DataHolder.IdentityServer.Services
         /// Initializes a new instance of the <see cref="DefaultTokenService" /> class.
         /// </summary>
         /// <param name="claimsProvider">The claims provider.</param>
-        /// <param name="referenceTokenStore">The reference token store.</param>
         /// <param name="creationService">The signing service.</param>
         /// <param name="contextAccessor">The HTTP context accessor.</param>
         /// <param name="clock">The clock.</param>
@@ -49,7 +47,6 @@ namespace CDR.DataHolder.IdentityServer.Services
         /// <param name="logger">The logger.</param>
         public CustomTokenService(
             IClaimsService claimsProvider,
-            IReferenceTokenStore referenceTokenStore,
             ITokenCreationService creationService,
             IHttpContextAccessor contextAccessor,
             ISystemClock clock,
@@ -61,14 +58,13 @@ namespace CDR.DataHolder.IdentityServer.Services
         {
             Context = contextAccessor;
             ClaimsProvider = claimsProvider;
-            ReferenceTokenStore = referenceTokenStore;
             CreationService = creationService;
             Clock = clock;
             KeyMaterialService = keyMaterialService;
             Options = options;
-			IdPermanenceManager = idPermanenceManager;
+            IdPermanenceManager = idPermanenceManager;
             IdSvrRepository = idSvrRepository;
-			Logger = logger;
+            Logger = logger;
         }
 
         /// <summary>
@@ -118,7 +114,6 @@ namespace CDR.DataHolder.IdentityServer.Services
             // add s_hash claim
             if (request.StateHash.IsPresent())
             {
-                // todo: need constant
                 claims.Add(new Claim(JwtClaimTypes.StateHash, request.StateHash));
             }
 
@@ -172,19 +167,19 @@ namespace CDR.DataHolder.IdentityServer.Services
             return token;
         }
 
-		private bool IsTokenRequest(ValidatedRequest request)
-		{
+        private static bool IsTokenRequest(ValidatedRequest request)
+        {
             return request is ValidatedTokenRequest;
         }
 
-		/// <summary>
-		/// Creates an access token.
-		/// </summary>
-		/// <param name="request">The token creation request.</param>
-		/// <returns>
-		/// An access token
-		/// </returns>
-		public virtual async Task<Token> CreateAccessTokenAsync(TokenCreationRequest request)
+        /// <summary>
+        /// Creates an access token.
+        /// </summary>
+        /// <param name="request">The token creation request.</param>
+        /// <returns>
+        /// An access token
+        /// </returns>
+        public virtual async Task<Token> CreateAccessTokenAsync(TokenCreationRequest request)
         {
             Logger.LogTrace("Creating access token");
             request.Validate();
@@ -200,7 +195,7 @@ namespace CDR.DataHolder.IdentityServer.Services
                 claims.Add(new Claim(JwtClaimTypes.JwtId, CryptoRandom.CreateUniqueId(16)));
             }
             var softwreIdClaim = request.ValidatedRequest.ClientClaims.FirstOrDefault(c => c.Type == ClientMetadata.SoftwareId);
-            if (softwreIdClaim!= null)
+            if (softwreIdClaim != null)
             {
                 claims.Add(softwreIdClaim);
             }
@@ -247,19 +242,16 @@ namespace CDR.DataHolder.IdentityServer.Services
                 token.Audiences.Add(string.Format(IdentityServerConstants.AccessTokenAudience, issuer.EnsureTrailingSlash()));
             }
 
-            foreach (var api in request.ValidatedResources.Resources.ApiResources)
+            foreach (var api in request.ValidatedResources.Resources.ApiResources.Where(x => x.Name.IsPresent()))
             {
-                if (api.Name.IsPresent())
-                {
-                    token.Audiences.Add(api.Name);
-                }
+                token.Audiences.Add(api.Name);
             }
 
             return token;
         }
 
-		private string EncryptSubClaim(List<Claim> claims, ValidatedRequest request, ClaimsPrincipal subject)
-		{
+        private string EncryptSubClaim(List<Claim> claims, ValidatedRequest request, ClaimsPrincipal subject)
+        {
             // Check if a user and a software product is involved.
             if (subject == null || request.Client == null)
             {
@@ -278,7 +270,7 @@ namespace CDR.DataHolder.IdentityServer.Services
             var encryptedSub = EncryptSub(subject.GetSubjectId(), request);
             claims.Add(new Claim(JwtClaimTypes.Subject, encryptedSub));
             return encryptedSub;
-		}
+        }
 
         private string EncryptSub(string sub, ValidatedRequest request)
         {
@@ -314,20 +306,8 @@ namespace CDR.DataHolder.IdentityServer.Services
 
             if (token.Type == OidcConstants.TokenTypes.AccessToken)
             {
-                if (token.AccessTokenType == AccessTokenType.Jwt)
-                {
-                    Logger.LogTrace("Creating JWT access token");
-
-                    tokenResult = await CreationService.CreateTokenAsync(token);
-                }
-                else
-                {
-                    Logger.LogTrace("Creating reference access token");
-
-                    var handle = await ReferenceTokenStore.StoreReferenceTokenAsync(token);
-
-                    tokenResult = handle;
-                }
+                Logger.LogTrace("Creating JWT access token");
+                tokenResult = await CreationService.CreateTokenAsync(token);
             }
             else if (token.Type == OidcConstants.TokenTypes.IdentityToken)
             {

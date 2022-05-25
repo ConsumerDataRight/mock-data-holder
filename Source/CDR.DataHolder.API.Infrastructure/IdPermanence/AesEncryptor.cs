@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CDR.DataHolder.API.Infrastructure.IdPermanence
 {
-    public class AesEncryptor
+    public static class AesEncryptor
     {
         public static byte[] EncryptString(string key, string plainText)
         {
@@ -14,7 +14,8 @@ namespace CDR.DataHolder.API.Infrastructure.IdPermanence
 
             using (var aes = Aes.Create())
             {
-                var keyHash = new MD5CryptoServiceProvider().ComputeHash(Encoding.UTF8.GetBytes(key));
+                var alg = HashAlgorithm.Create("SHA512");
+                var keyHash = alg.ComputeHash(Encoding.UTF8.GetBytes(key));
                 aes.Key = keyHash.Take(24).ToArray();
                 aes.IV = iv;
 
@@ -43,7 +44,7 @@ namespace CDR.DataHolder.API.Infrastructure.IdPermanence
         public static string DecryptString(string key, byte[] cipherText)
         {
             byte[] iv = new byte[16];
-            byte[] buffer = cipherText; //Convert.FromBase64String(cipherText);
+            byte[] buffer = cipherText;
 
             using (var encryptedStream = new MemoryStream(buffer))
             {
@@ -52,7 +53,8 @@ namespace CDR.DataHolder.API.Infrastructure.IdPermanence
                 {
                     using (var aes = Aes.Create())
                     {
-                        var keyHash = new MD5CryptoServiceProvider().ComputeHash(Encoding.UTF8.GetBytes(key));
+                        var alg = HashAlgorithm.Create("SHA512");
+                        var keyHash = alg.ComputeHash(Encoding.UTF8.GetBytes(key));
                         aes.Key = keyHash.Take(24).ToArray();
                         aes.IV = iv;
 

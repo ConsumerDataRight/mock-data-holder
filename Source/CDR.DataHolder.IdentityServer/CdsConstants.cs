@@ -1,5 +1,6 @@
 ﻿using IdentityModel;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 
 namespace CDR.DataHolder.IdentityServer
@@ -20,13 +21,13 @@ namespace CDR.DataHolder.IdentityServer
             public const string RequestJwtFailedValidation = "request_jwt_failed_validation";
         }
 
-        public static List<string> PushedAuthorizationResponseErrorCodes = new List<string>
+        public static readonly ImmutableList<string> PushedAuthorizationResponseErrorCodes = new List<string>
         {
-            AuthorizeErrorCodes.InvalidScope,
             AuthorizeErrorCodes.UnauthorizedClient,
             AuthorizeErrorCodes.InvalidRequest,
+            AuthorizeErrorCodes.InvalidRequestObject,
             AuthorizeErrorCodes.UnsupportedResponseType,
-        };
+        }.ToImmutableList();
 
         public static class AuthServerEndPoints
         {
@@ -44,7 +45,7 @@ namespace CDR.DataHolder.IdentityServer
             }
         }
 
-        public static class ADRArrangementEndPoints
+        public static class AdrArrangementEndPoints
         {
             public const string Revocation = "/arrangements/revoke";
         }
@@ -115,6 +116,7 @@ namespace CDR.DataHolder.IdentityServer
             public const string RegistrationEndpoint = "registration_endpoint";
             public const string CDRArrangementRevocationEndPoint = "cdr_arrangement_revocation_endpoint";
             public const string PushedAuthorizedRequestEndPoint = "pushed_authorization_request_endpoint";
+            public const string RequirePushedAuthorizedRequests = "require_pushed_authorization_requests";
             public const string MtlsEndpointAliases = "mtls_endpoint_aliases";
             public const string FrontChannelLogoutSupported = "frontchannel_logout_supported";
             public const string FrontChannelLogoutSessionSupported = "frontchannel_logout_session_supported";
@@ -129,7 +131,7 @@ namespace CDR.DataHolder.IdentityServer
             public const string TlsClientCertificateBoundAccessTokens = "tls_client_certificate_bound_access_tokens";
         }
 
-        public class Filters
+        public static class Filters
         {
             // filter for claims from an incoming access token (e.g. used at the user profile endpoint)
             public static readonly string[] ProtocolClaimsFilter = {
@@ -148,9 +150,9 @@ namespace CDR.DataHolder.IdentityServer
                 JwtClaimTypes.SessionId,
                 JwtClaimTypes.Scope
             };
+
             // filter list for claims returned from profile service prior to creating tokens
             public static readonly string[] ClaimsServiceFilterClaimTypes = {
-                // TODO: consider JwtClaimTypes.AuthenticationContextClassReference,
                 JwtClaimTypes.AccessTokenHash,
                 JwtClaimTypes.Audience,
                 JwtClaimTypes.AuthenticationMethod,
@@ -181,7 +183,7 @@ namespace CDR.DataHolder.IdentityServer
             };
         }
 
-        public static readonly List<string> SupportedDisplayModes = new List<string>
+        public static readonly string[] SupportedDisplayModes = 
         {
             OidcConstants.DisplayModes.Page,
             OidcConstants.DisplayModes.Popup,
@@ -299,44 +301,42 @@ namespace CDR.DataHolder.IdentityServer
             public const string RefreshToken = "urn:ietf:params:oauth:token-type:refresh_token";
         }
 
-        public static List<string> SupportedTokenTypeHints = new List<string>
+        public static readonly ImmutableList<string> SupportedTokenTypeHints = new List<string>
         {
             TokenTypes.RefreshToken,
-        };
+        }.ToImmutableList();
 
         // Custom: This is different from the source IDV4. So should be a custom validator.
-        public static List<string> SupportedResponseTypes = new List<string>
+        public static readonly ImmutableList<string> SupportedResponseTypes = new List<string>
         {
             ResponseTypes.CodeIdToken,
-        };
+        }.ToImmutableList();
 
-        public static Dictionary<string, string> ResponseTypeToGrantTypeMapping = new Dictionary<string, string>
+        public static readonly ImmutableDictionary<string, string> ResponseTypeToGrantTypeMapping = new Dictionary<string, string>
         {
             { ResponseTypes.CodeIdToken, GrantTypes.Hybrid },
-        };
+        }.ToImmutableDictionary();
 
-        public static Dictionary<string, IEnumerable<string>> AllowedResponseModesForGrantType = new Dictionary<string, IEnumerable<string>>
+        public static readonly ImmutableDictionary<string, IEnumerable<string>> AllowedResponseModesForGrantType = new Dictionary<string, IEnumerable<string>>
         {
             { GrantTypes.AuthorizationCode, new[] { ResponseModes.Fragment, ResponseModes.FormPost } },
             { GrantTypes.Hybrid, new[] { ResponseModes.Fragment, ResponseModes.FormPost } },
-        };
+        }.ToImmutableDictionary();
 
-        public static List<string> AllowedGrantTypesForAuthorizeEndpoint = new List<string>
+        public static readonly string[] AllowedGrantTypesForAuthorizeEndpoint = 
         {
             GrantTypes.AuthorizationCode,
             GrantTypes.Hybrid,
         };
 
-        public static List<string> SupportedResponseModes = new List<string>
+        public static readonly string[] SupportedResponseModes = 
         {
             ResponseModes.FormPost,
-            ResponseModes.Query,
             ResponseModes.Fragment,
         };
 
-        public static List<string> SupportedCodeChallengeMethods = new List<string>
+        public static readonly string[] SupportedCodeChallengeMethods = 
         {
-            CodeChallengeMethods.Plain,
             CodeChallengeMethods.Sha256,
         };
 
@@ -348,12 +348,20 @@ namespace CDR.DataHolder.IdentityServer
             Identity,
         }
 
-        public static Dictionary<string, ScopeRequirement> ResponseTypeToScopeRequirement = new Dictionary<string, ScopeRequirement>
+        public enum FapiComplianceLevel
+        {
+            Fapi1Phase1 = 11,
+            Fapi1Phase2 = 12,
+            Fapi1Phase3 = 13,
+            Fapi2 = 20,
+        }
+
+        public static readonly ImmutableDictionary<string, ScopeRequirement> ResponseTypeToScopeRequirement = new Dictionary<string, ScopeRequirement>
         {
             { ResponseTypes.CodeIdToken, ScopeRequirement.Identity },
-        };
+        }.ToImmutableDictionary();
 
-        public static List<string> SupportedPromptModes = new List<string>
+        public static readonly string[] SupportedPromptModes =
         {
             PromptModes.None,
             PromptModes.Login,
@@ -476,7 +484,6 @@ namespace CDR.DataHolder.IdentityServer
             public const string UnauthorizedClient = "unauthorized_client";
             public const string UnsupportedGrantType = "unsupported_grant_type";
             public const string UnsupportedResponseType = "unsupported_response_type";
-            public const string InvalidScope = "invalid_scope";
             public const string AuthorizationPending = "authorization_pending";
             public const string AccessDenied = "access_denied";
             public const string SlowDown = "slow_down";
@@ -554,6 +561,7 @@ namespace CDR.DataHolder.IdentityServer
         public static class CdrArrangementRevocationRequest
         {
             public const string CdrArrangementId = "cdr_arrangement_id";
+            public const string CdrArrangementJwt = "cdr_arrangement_jwt";
             public const string ClientAssertionType = "client_assertion_type";
             public const string ClientAssertion = "client_assertion";
             public const string ClientId = "client_id";
@@ -570,7 +578,6 @@ namespace CDR.DataHolder.IdentityServer
 
         public static class AuthorizeResponse
         {
-            public const string Scope = "scope";
             public const string Code = "code";
             public const string AccessToken = "access_token";
             public const string ExpiresIn = "expires_in";
@@ -582,7 +589,6 @@ namespace CDR.DataHolder.IdentityServer
             // Standard OIDC error fields
             public const string Error = "error";
             public const string ErrorDescription = "error_description";
-            public const string ErrorDetail = "detail";
         }
 
         public static class AuthorizeError
@@ -597,7 +603,6 @@ namespace CDR.DataHolder.IdentityServer
             public const string UnauthorizedClient = "unauthorized_client";
             public const string AccessDenied = "access_denied";
             public const string UnsupportedResponseType = "unsupported_response_type";
-            public const string InvalidScope = "invalid_scope";
             public const string ServerError = "server_error";
             public const string TemporarilyUnavailable = "temporarily_unavailable";
             public const string InteractionRequired = "interaction_required";
@@ -645,7 +650,6 @@ namespace CDR.DataHolder.IdentityServer
             public const string ClientIdNotFound = "Client Id not found in client store";
         }
 
-
         public static class UserInfoErrorCodes
         {
             public const string InvalidLegalStatusInactive= "Invalid legal_status_inactive";
@@ -684,6 +688,7 @@ namespace CDR.DataHolder.IdentityServer
 
         public static class StandardClaims
         {
+            public const string Expiry = "exp";
             public const string RefreshTokenExpiresAt = "refresh_token_expires_at";
             public const string SharingDurationExpiresAt = "sharing_expires_at";
             public const string SharingDuration = "sharing_duration";
@@ -862,7 +867,9 @@ namespace CDR.DataHolder.IdentityServer
             [Description("Claims is invalid")]
             ClaimsInvalid = 1008,
             [Description("Software Product Status is invalid")]
-            SoftwreProductStatusInvalid = 1009,
+            SoftwareProductStatusInvalid = 1009,
+            [Description("Authorisation request is missing PKCE parameters")]
+            AuthorisationRequestMissingPkce = 1010,
 
             [Description("Token request invalid parameters")]
             TokenRequestInvalidParameters = 1100,
@@ -947,8 +954,6 @@ namespace CDR.DataHolder.IdentityServer
             AuthorizeRequestInvalidRequestUri = 1702,
             [Description("Invalid client_id")]
             AuthorizeRequestInvalidClientId = 1703,
-            [Description("Request_uri could not be found")]
-            AuthorizeRequestNotFoundRequestUri = 1703,
             [Description("redirect_uri is expired")]
             AuthorizeRequestExpiredRequestUri = 1704,
             [Description("Invalid redirect_uri")]
@@ -963,6 +968,8 @@ namespace CDR.DataHolder.IdentityServer
             AuthorizeRequestInvalidNonce = 1709,
             [Description("Invalid parameters")]
             AuthorizeRequestInvalidParameters = 1710,
+            [Description("Request_uri could not be found")]
+            AuthorizeRequestNotFoundRequestUri = 1711,
         }
 
         public static class ValidationErrorMessages

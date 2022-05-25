@@ -1,13 +1,13 @@
+using CDR.DataHolder.IntegrationTests.Extensions;
+using CDR.DataHolder.IntegrationTests.Fixtures;
+using FluentAssertions;
+using FluentAssertions.Execution;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FluentAssertions;
-using FluentAssertions.Execution;
-using Microsoft.Data.Sqlite;
 using Xunit;
-using CDR.DataHolder.IntegrationTests.Extensions;
-using CDR.DataHolder.IntegrationTests.Fixtures;
 
 #nullable enable
 
@@ -36,8 +36,6 @@ namespace CDR.DataHolder.IntegrationTests
             using (new AssertionScope())
             {
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-                // TODO - Check returned profile
             }
         }
 
@@ -65,102 +63,12 @@ namespace CDR.DataHolder.IntegrationTests
 
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
-                    // Assert - Check application/json
-                    // Assert_HasContentType_ApplicationJson(response.Content);
-
                     // Assert - Check WWWAutheticate header
-                    Assert_HasHeader(@"Bearer error=""invalid_token"", error_description=""The token expired at '06/16/2021 05:16:01'""",
+                    Assert_HasHeader(@"Bearer error=""invalid_token"", error_description=""The token expired at '05/16/2022 03:04:03'""",
                         response.Headers, "WWW-Authenticate");
                 }
             }
         }
-
-        // [Fact]
-        // public async Task AC10_Get_WithInvalidClientId_ShouldRespondWith_401Forbidden_InvalidClientIdErrorResponse()
-        // {
-        //     // Arrange
-        //     var accessToken = await new DataHolderAccessToken().GetAccessToken();
-
-        //     // Act
-        //     var api = new Infrastructure.API
-        //     {
-        //         URL = $"{DH_MTLS_GATEWAY_URL}/connect/register/{SOFTWAREPRODUCT_ID_INVALID.ToLower()}",
-        //         CertificateFilename = CERTIFICATE_FILENAME,
-        //         CertificatePassword = CERTIFICATE_PASSWORD,
-        //         HttpMethod = HttpMethod.Get,
-        //         AccessToken = accessToken
-        //     };
-        //     var response = await api.SendAsync();
-
-        //     // Assert
-        //     using (new AssertionScope())
-        //     {
-        //         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-
-        //         if (response.StatusCode == HttpStatusCode.Forbidden)
-        //         {
-        //             // Assert - Check application/json
-        //             Assert_HasContentType_ApplicationJson(response.Content);
-
-        //             var expectedResponse = @"{
-        //                 ""errors"": [{
-        //                     ""code"": ""urn:au-cds:error:cds-all:Authorisation/InvalidConsent"",
-        //                     ""title"": ""Consent Is Invalid"",
-        //                     ""detail"": ""The supplied client id is not valid."",
-        //                     ""meta"": {}
-        //                 }]
-        //             }";
-        //             await Assert_HasContent_Json(expectedResponse, response.Content);
-        //         }
-        //     }
-        // }        
-
-        /*
-        [Theory]
-        [InlineData(SOFTWAREPRODUCT_ID_INVALID,
-            HttpStatusCode.Redirect,
-            SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS, // Unsuccessful request should redirect back to DR
-            "error=invalid_client&error_description=The client is unknown."
-        )]
-        public async Task AC10_Get_WithInvalidClientId_ShouldRespondWith_302Redirect_InvalidClientIdErrorResponse(
-            string softwareProductId,
-            HttpStatusCode expectedStatusCode,
-            string expectedRedirectPath,
-            string? expectedRedirectQuery = null)
-        {
-            // Arrange
-            var accessToken = await new DataHolderAccessToken().GetAccessToken();
-
-            // Act
-            var api = new Infrastructure.API
-            {
-                URL = $"{DH_MTLS_GATEWAY_URL}/connect/register/{softwareProductId.ToLower()}",
-                CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD,
-                HttpMethod = HttpMethod.Get,
-                AccessToken = accessToken
-            };
-            var response = await api.SendAsync(AllowAutoRedirect: false);
-
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                response.StatusCode.Should().Be(expectedStatusCode);
-
-                // Check redirect path
-                var redirectPath = response?.Headers?.Location?.GetLeftPart(UriPartial.Path);
-                redirectPath.Should().Be(expectedRedirectPath);
-
-                // Check redirect query
-                if (expectedRedirectQuery != null)
-                {
-                    var redirectQuery = HttpUtility.UrlDecode(response?.Headers?.Location?.Query.TrimStart('?'));
-                    redirectQuery.Should().StartWith(HttpUtility.UrlDecode(expectedRedirectQuery));
-                }
-            }
-        }
-        */
 
         [Theory]
         [InlineData(SOFTWAREPRODUCT_ID, HttpStatusCode.OK)]
@@ -207,7 +115,7 @@ namespace CDR.DataHolder.IntegrationTests
             static void HideSoftwareProduct()
             {
                 // Hide in identity server
-                using (var connection = new SqliteConnection(IDENTITYSERVER_CONNECTIONSTRING))
+                using (var connection = new SqlConnection(IDENTITYSERVER_CONNECTIONSTRING))
                 {
                     connection.Open();
                     connection.ExecuteNonQuery($@"update clients set clientid = 'foo { SOFTWAREPRODUCT_ID.ToLower() }' where clientid = '{ SOFTWAREPRODUCT_ID.ToLower() }'");
@@ -215,10 +123,10 @@ namespace CDR.DataHolder.IntegrationTests
                 }
 
                 // Hide in dataholder
-                using (var connection = new SqliteConnection(DATAHOLDER_CONNECTIONSTRING))
+                using (var connection = new SqlConnection(DATAHOLDER_CONNECTIONSTRING))
                 {
                     connection.Open();
-                    connection.ExecuteNonQuery($@"update softwareproduct set softwareproductid = 'foo { SOFTWAREPRODUCT_ID }' where softwareproductid = '{ SOFTWAREPRODUCT_ID }'");
+                    connection.ExecuteNonQuery($@"DELETE FROM softwareproduct WHERE softwareproductid = '{ SOFTWAREPRODUCT_ID }'");
                     if (connection.ExecuteScalarInt32($@"select count(*) from softwareproduct where softwareproductid = '{ SOFTWAREPRODUCT_ID }'") != 0) throw new Exception("Error hiding softwareproduct -  mdh");
                 }
             }
@@ -226,7 +134,7 @@ namespace CDR.DataHolder.IntegrationTests
             static void RestoreSoftwareProduct()
             {
                 // Restore in identity server
-                using (var connection = new SqliteConnection(IDENTITYSERVER_CONNECTIONSTRING))
+                using (var connection = new SqlConnection(IDENTITYSERVER_CONNECTIONSTRING))
                 {
                     connection.Open();
                     connection.ExecuteNonQuery($@"update clients set clientid = '{ SOFTWAREPRODUCT_ID.ToLower() }' where clientid = 'foo { SOFTWAREPRODUCT_ID.ToLower() }'");
@@ -234,10 +142,11 @@ namespace CDR.DataHolder.IntegrationTests
                 }
 
                 // Restore in dataholder
-                using (var connection = new SqliteConnection(DATAHOLDER_CONNECTIONSTRING))
+                using (var connection = new SqlConnection(DATAHOLDER_CONNECTIONSTRING))
                 {
                     connection.Open();
-                    connection.ExecuteNonQuery($@"update softwareproduct set softwareproductid = '{ SOFTWAREPRODUCT_ID }' where softwareproductid = 'foo { SOFTWAREPRODUCT_ID }'");
+                    string sqlQuery = string.Format("INSERT INTO [dbo].[SoftwareProduct]([SoftwareProductId],[SoftwareProductName],[SoftwareProductDescription],[LogoUri],[Status],[BrandId]) VALUES ('{0}','MyBudgetHelper',NULL,'https://mocksoftware/mybudgetapp/img/logo.png','ACTIVE','{1}')", SOFTWAREPRODUCT_ID, BRANDID);
+                    connection.ExecuteNonQuery(sqlQuery);
                     if (connection.ExecuteScalarInt32($@"select count(*) from softwareproduct where softwareproductid = '{ SOFTWAREPRODUCT_ID }'") != 1) throw new Exception("Error restoring softwareproduct -  mdh");
                 }
             }

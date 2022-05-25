@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CDR.DataHolder.API.Infrastructure.Filters;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace CDR.DataHolder.Admin.API.Controllers
 {
@@ -11,27 +7,28 @@ namespace CDR.DataHolder.Admin.API.Controllers
     [Route("cds-au")]
     public class AdminController : ControllerBase
     {
-        private readonly ILogger<AdminController> _logger;
+        private const string emptyResult = "{}";
 
-        public AdminController(ILogger<AdminController> logger)
+        public AdminController()
         {
-            _logger = logger;
         }
 
         [HttpGet("v1/admin/metrics")]
         [ApiVersion("1")]
         [HttpGet]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public string GetMetrics()
         {
-            return "{}";
+            return emptyResult;
         }
 
         [HttpGet("v1/admin/metrics")]
         [ApiVersion("2")]
         [HttpGet]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public string GetMetricsV2()
         {
-            return "{}";
+            return emptyResult;
         }
     }
 }

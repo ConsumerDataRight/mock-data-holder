@@ -1,16 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using CDR.DataHolder.API.Infrastructure.Authorisation;
 using CDR.DataHolder.API.Infrastructure.Authorization;
+using CDR.DataHolder.API.Infrastructure.Filters;
 using CDR.DataHolder.API.Infrastructure.IdPermanence;
 using CDR.DataHolder.API.Infrastructure.Models;
 using CDR.DataHolder.Domain.Repositories;
 using CDR.DataHolder.IdentityServer.ClientAuthentication;
 using CDR.DataHolder.IdentityServer.Configuration;
+using CDR.DataHolder.IdentityServer.Extensions;
 using CDR.DataHolder.IdentityServer.Formatters;
 using CDR.DataHolder.IdentityServer.Interfaces;
 using CDR.DataHolder.IdentityServer.Middleware;
@@ -32,15 +28,24 @@ using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Reflection;
 
 namespace CDR.DataHolder.IdentityServer
 {
@@ -60,19 +65,19 @@ namespace CDR.DataHolder.IdentityServer
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
             services.AddAutoMapper(typeof(Startup), typeof(DataHolderDatabaseContext));
 
-            var jwksServiceHttpClientBuilder = services.AddHttpClient<IJwksService, JwksService>()
+            services.AddHttpClient<IJwksService, JwksService>()
                 .ConfigurePrimaryHttpMessageHandler(() =>
                 {
-                    var handler = new HttpClientHandler();
-                    handler.ServerCertificateCustomValidationCallback = (a, b, c, d) => true;
-
+                    var handler = new HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback = (a, b, c, d) => true
+                    };
                     return handler;
                 });
 
             services.AddScoped<IClientService, ClientService>();
             services.AddScoped<IJwtTokenCreationService, JwtTokenCreationService>();
             services.AddScoped<AuthoriseErrorHandlingMiddleware>();
-            services.AddScoped<RevokeErrorHandlingMiddleware>();
             services.AddScoped<UserInfoErrorHandlingMiddleware>();
             services.AddScoped<ICustomGrantService, CustomGrantService>();
             services.AddScoped<IAuthorizeRequestUriService, AuthorizeRequestUriService>();
@@ -81,16 +86,15 @@ namespace CDR.DataHolder.IdentityServer
             services.AddScoped<IIdSvrRepository, IdSvrRepository>();
             services.AddScoped<IProfileService, ProfileService>();
             services.AddSingleton<IIdPermanenceManager, IdPermanenceManager>();
-            services.AddSingleton<IReferenceTokenStore, CustomReferenceTokenStore>();
-            
+            services.AddSingleton<IRevokedTokenStore, RevokedTokenStore>();
+
             services.AddScoped<Validation.IIntrospectionRequestValidator, IntrospectionRequestValidator>();
 
-            var connectionStr = _configuration.GetConnectionString("ResourceDatabase");
+            var connectionStr = _configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Default);
 
-            services.AddDbContext<DataHolderDatabaseContext>(options =>
-                    options.UseSqlite(connectionStr));
+            services.AddDbContext<DataHolderDatabaseContext>(options => options.UseSqlServer(connectionStr));
 
-            string connectionString = _configuration.GetConnectionString("IdentityServerStoreDatabase");
+            string migrationsConnectionString = _configuration.GetConnectionString(DbConstants.ConnectionStringNames.Identity.Migrations);
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
 
             var issuerUri = _configuration[Constants.ConfigurationKeys.IssuerUri];
@@ -107,6 +111,8 @@ namespace CDR.DataHolder.IdentityServer
                 options.Discovery = ConfigureDiscoveryOptions(_configuration);
                 options.Endpoints = ConfigureEndpoints();
 
+                options.InputLengthRestrictions.Scope = 10000;
+
                 options.UserInteraction.LoginUrl = "/account/login";
                 options.UserInteraction.LoginReturnUrlParameter = "returnUrl";
             })
@@ -116,28 +122,22 @@ namespace CDR.DataHolder.IdentityServer
                 .AddClientStore<ClientStore>()
                 .AddCustomAuthorizeRequestValidator<CustomAuthorizeRequestValidator>()
                 .AddCustomTokenRequestValidator<CustomTokenRequestValidator>()
-                .AddCertificateSigningCredential(_configuration)
+                .AddCertificateSigningCredentials(_configuration)
                 .AddConfigurationStore(options =>
                 {
-                    options.ConfigureDbContext = b => b.UseSqlite(
-                        connectionString,
-                        sql => sql.MigrationsAssembly(migrationsAssembly));
+                    options.ConfigureDbContext = b => b.UseSqlServer(migrationsConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
                 })
                 .AddOperationalStore(options =>
                 {
-                    options.ConfigureDbContext = b => b.UseSqlite(
-                        connectionString,
-                        sql => sql.MigrationsAssembly(migrationsAssembly));
+                    options.ConfigureDbContext = b => b.UseSqlServer(migrationsConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
                 })
                 .AddInMemoryIdentityResources(InMemoryConfig.IdentityResources)
                 .AddInMemoryApiResources(InMemoryConfig.Apis)
                 .AddInMemoryApiScopes(InMemoryConfig.ApiScopes)
                 .AddProfileService<ProfileService>();
 
-            services.AddDbContext<PersistedGrantDbContext>(options =>
-                options.UseSqlServer(connectionString));
-            services.AddDbContext<DataHolderDatabaseContext>(options =>
-                options.UseSqlite(_configuration.GetConnectionString("ResourceDatabase")));
+            services.AddDbContext<PersistedGrantDbContext>(options => options.UseSqlServer(_configuration.GetConnectionString(DbConstants.ConnectionStringNames.Identity.Default)));
+            services.AddDbContext<DataHolderDatabaseContext>(options => options.UseSqlServer(_configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Default)));
 
             // override original IdentityServer validator because it doesn't follow CDS specs (redirect_uri should not be required)
             services.AddTransient<ITokenResponseGenerator, Services.TokenResponseGenerator>();
@@ -148,18 +148,16 @@ namespace CDR.DataHolder.IdentityServer
             // override original identityServer revocation response generator
             services.AddTransient<ITokenRevocationResponseGenerator, CustomTokenRevocationResponseGenerator>();
 
+            services.AddTransient<IResourceValidator, CustomResourceValidator>();
+
             services.AddTransient<IUserInfoRequestValidator, CustomUserInfoRequestValidator>();
 
             services.AddScoped<IClaimsService, ClaimsService>();
 
-            services.AddTransient<IEventSink, CustomEventSink>();
             services.AddScoped<IPushedAuthorizationRequestValidator, PushedAuthorizationRequestValidator>();
             services.AddScoped<IPushedAuthorizationRequestService, PushedAuthorizationRequestService>();
 
             services.AddScoped<IJwtRequestUriHttpClient, CustomJwtRequestUriHttpClient>();
-
-            services.AddScoped<IClientRevocationEndpointRequestService, ClientRevocationEndpointRequestService>();
-            services.AddHttpClient<IClientRevocationEndpointHttpClient, ClientRevocationEndpointHttpClient>();
 
             services.AddScoped<IClientArrangementRevocationEndpointRequestService, ClientArrangementRevocationEndpointRequestService>();
             services.AddHttpClient<IClientArrangementRevocationEndpointHttpClient, ClientArrangementRevocationEndpointHttpClient>();
@@ -187,6 +185,7 @@ namespace CDR.DataHolder.IdentityServer
                 options.InputFormatters.Clear();
                 options.InputFormatters.Add(new JwtInputFormatter());
             })
+            .AddRazorRuntimeCompilation()
             .ConfigureApiBehaviorOptions(x =>
             {
                 // MVC implicit validation (via [ApiController]) circuit breaks our ability to handle
@@ -202,7 +201,34 @@ namespace CDR.DataHolder.IdentityServer
                 config.ApiVersionReader = new HeaderApiVersionReader("x-v");
             });
 
-            services.AddMemoryCache();
+            // if the distributed cache connection string has been set then use it, otherwise fall back to in-memory caching.
+            if (UseDistributedCache())
+            {
+                services.AddStackExchangeRedisCache(options => {
+                    options.Configuration = _configuration.GetConnectionString(DbConstants.ConnectionStringNames.Cache.Default);
+                    options.InstanceName = "dataholder-banking-cache-";
+                });
+
+                services.AddDataProtection()
+                    .SetApplicationName("mdh-idsvr")
+                    .PersistKeysToStackExchangeRedis(
+                        StackExchange.Redis.ConnectionMultiplexer.Connect(_configuration.GetConnectionString(DbConstants.ConnectionStringNames.Cache.Default)),
+                        "dataholder-banking-cache-dp-keys");
+            }
+            else
+            {
+                // Use in memory cache.
+                services.AddDistributedMemoryCache();
+            }
+
+            services.AddSession(o =>
+            {
+                o.Cookie.Name = "mdh-idsvr";
+                o.Cookie.SameSite = SameSiteMode.None;
+                o.Cookie.HttpOnly = true;
+                o.IdleTimeout = TimeSpan.FromMinutes(30);
+            });
+
             services.AddTransient<ITokenReplayCache, TokenReplayCache>();
 
             AddValidators(services);
@@ -211,9 +237,18 @@ namespace CDR.DataHolder.IdentityServer
             AddAuthenticationAuthorization(services, _configuration);
 
             services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
+
+            services.AddScoped<LogActionEntryAttribute>();
+
         }
 
-        private void AddAuthenticationAuthorization(IServiceCollection services, IConfiguration configuration)
+        private bool UseDistributedCache()
+        {
+            var cacheConnectionString = _configuration.GetConnectionString(DbConstants.ConnectionStringNames.Cache.Default);
+            return !string.IsNullOrEmpty(cacheConnectionString);
+        }
+
+        private static void AddAuthenticationAuthorization(IServiceCollection services, IConfiguration configuration)
         {
             var issuerUri = configuration.GetValue<string>("IssuerUri");
 
@@ -239,14 +274,11 @@ namespace CDR.DataHolder.IdentityServer
                 { 
                     // We don't want the login session to stick around in the server. After entering the user credentials (username, otp, etc), user has
                     // 60 seconds to agree to the consent. You can change it based on the time it takes to complete your consent flow.
-                    options.ExpireTimeSpan = TimeSpan.FromSeconds(60); 
+                    options.ExpireTimeSpan = TimeSpan.FromSeconds(60);
                 })
                 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
-                    var filePath = configuration["SigningCertificate:Path"];
-                    var pwd = configuration["SigningCertificate:Password"];
-                    var cert = new X509Certificate2(filePath, pwd);
-                    var certSecurityKey = new X509SecurityKey(cert);
+                    var securityService = new SecurityService(configuration);
 
                     options.RequireHttpsMetadata = true;
                     options.SaveToken = true;
@@ -259,7 +291,7 @@ namespace CDR.DataHolder.IdentityServer
                         ValidateLifetime = true,
                         RequireExpirationTime = true,
                         RequireSignedTokens = true,
-                        IssuerSigningKey = certSecurityKey,
+                        IssuerSigningKeys = securityService.SigningKeys,
                     };
 
                     // Ignore server certificate issues when retrieving OIDC configuration and JWKS.
@@ -282,25 +314,36 @@ namespace CDR.DataHolder.IdentityServer
 
             services.AddSingleton<IAuthorizationHandler, ScopeHandler>();
             services.AddSingleton<IAuthorizationHandler, MtlsHandler>();
+            services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, IConfiguration configuration)
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, IConfiguration configuration, ILogger<Startup> logger)
         {
+            app.UseSerilogRequestLogging();
+
+            var basePath = configuration.GetValue<string>(Constants.ConfigurationKeys.BasePath, "");
+            if (!string.IsNullOrEmpty(basePath))
+            {
+                logger.LogInformation("Using base path: {basePath}", basePath);
+                app.UsePathBase(basePath);
+            }
+
             // This is to set the IDSVR base uri during redirects. Or else, it will the localhost which is not ideal when hosted.
             app.Use(async (ctx, next) =>
             {
-                var baseUri = configuration[Constants.ConfigurationKeys.IssuerUri];
+                var baseUri = configuration.GetBaseUri();
                 if (!string.IsNullOrEmpty(baseUri))
                 {
+                    logger.LogInformation("Using base uri: {baseUri}", baseUri);
                     ctx.SetIdentityServerOrigin(baseUri);
                 }
+
                 await next();
             });
 
             // ExceptionHandlingMiddleware must be first in the line, so it will catch all unhandled exceptions.
             app.UseMiddleware<AuthoriseErrorHandlingMiddleware>();
-            app.UseMiddleware<RevokeErrorHandlingMiddleware>();
             app.UseMiddleware<UserInfoErrorHandlingMiddleware>();
 
             // Allow sensitive data to be logged in dev environment only
@@ -312,13 +355,13 @@ namespace CDR.DataHolder.IdentityServer
 
             app.UseStaticFiles();
             app.UseRouting();
+            app.UseSession();
 
-            //app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => endpoints.MapDefaultControllerRoute());
 
-            InitializeDatabase(app, env);
+            InitializeDatabase(app);
         }
 
         private static DiscoveryOptions ConfigureDiscoveryOptions(IConfiguration configuration)
@@ -436,7 +479,7 @@ namespace CDR.DataHolder.IdentityServer
             };
         }
 
-        private static void InitializeDatabase(IApplicationBuilder app, IWebHostEnvironment env)
+        private static void InitializeDatabase(IApplicationBuilder app)
         {
             using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
 

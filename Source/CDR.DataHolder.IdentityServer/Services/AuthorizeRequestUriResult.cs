@@ -93,7 +93,7 @@ namespace CDR.DataHolder.IdentityServer.Services
             else
             {
                 // we now know we must show error page
-                await RedirectToErrorPageAsync(context);
+                RedirectToErrorPageAsync(context);
             }
         }
 
@@ -102,11 +102,10 @@ namespace CDR.DataHolder.IdentityServer.Services
             if (!Response.IsError)
             {
                 // success response -- track client authorization for sign-out
-                //_logger.LogDebug("Adding client {0} to client list cookie for subject {1}", request.ClientId, request.Subject.GetSubjectId());
                 await _userSession.AddClientIdAsync(Response.Request.ClientId);
             }
 
-            await RenderAuthorizeResponseAsync(context);
+            RenderAuthorizeResponseAsync(context);
         }
 
         private string BuildRedirectUri()
@@ -123,7 +122,7 @@ namespace CDR.DataHolder.IdentityServer.Services
                 uri = uri.AddHashFragment(query);
             }
 
-            if (Response.IsError && !uri.Contains("#"))
+            if (Response.IsError && !uri.Contains('#'))
             {
                 // https://tools.ietf.org/html/draft-bradley-oauth-open-redirector-00
                 uri += "#_=_";
@@ -132,7 +131,7 @@ namespace CDR.DataHolder.IdentityServer.Services
             return uri;
         }
 
-        private async Task RenderAuthorizeResponseAsync(HttpContext context)
+        private void RenderAuthorizeResponseAsync(HttpContext context)
         {
             if (Response.Request.ResponseMode == OidcConstants.ResponseModes.Query ||
                 Response.Request.ResponseMode == OidcConstants.ResponseModes.Fragment)
@@ -142,12 +141,11 @@ namespace CDR.DataHolder.IdentityServer.Services
             }
             else
             {
-                //_logger.LogError("Unsupported response mode.");
                 throw new InvalidOperationException("Unsupported response mode");
             }
         }
 
-        private async Task RedirectToErrorPageAsync(HttpContext context)
+        private void RedirectToErrorPageAsync(HttpContext context)
         {
             var errorModel = new ErrorMessage
             {
@@ -165,13 +163,6 @@ namespace CDR.DataHolder.IdentityServer.Services
                 errorModel.RedirectUri = BuildRedirectUri();
                 errorModel.ResponseMode = Response.Request.ResponseMode;
             }
-
-            //// IdentityServer4 default return url is commented out
-            //var message = new Message<ErrorMessage>(errorModel, _clock.UtcNow.UtcDateTime);
-            //var id = await _errorMessageStore.WriteAsync(message);
-
-            //var errorUrl = _options.UserInteraction.ErrorUrl;
-            //var url = errorUrl.AddQueryString(_options.UserInteraction.ErrorIdParameter, id);
 
             if (string.IsNullOrWhiteSpace(Response.RedirectUri))
             {

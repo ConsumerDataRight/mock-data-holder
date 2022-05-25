@@ -1432,7 +1432,7 @@
         },
         {
             "CustomerID": "a97ba8d9-c89d-4126-a3b1-5aaa50f8dc5f",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "bis1",
             "Organisation": {
                 "OrganisationID": "078bd9eb-bf21-4e52-9749-159cf88c6ce2",
@@ -1474,7 +1474,7 @@
         },
         {
             "CustomerID": "7c9b4d7a-09de-4087-baf8-4e849c40bd2e",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "biscof",
             "Organisation": {
                 "OrganisationID": "ccf06ec5-7e57-49a2-9cc8-13bde3f00ba7",
@@ -1516,7 +1516,7 @@
         },
         {
             "CustomerID": "88041dea-f480-43d2-80be-555339fbac3d",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "bread",
             "Organisation": {
                 "OrganisationID": "6a1aaf2f-379c-45b7-ad54-f8104896c683",
@@ -1558,7 +1558,7 @@
         },
         {
             "CustomerID": "6edaf322-a685-41c0-a3b6-aea8a235c34e",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "bis2",
             "Organisation": {
                 "OrganisationID": "bf535f1a-5c79-426f-81e0-c69804c46c46",
@@ -1588,7 +1588,7 @@
         },
         {
             "CustomerID": "89111e7f-a08b-468d-aa8c-0ac3ae0fe559",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "bev",
             "Organisation": {
                 "OrganisationID": "c1ca8c2d-e0ab-4833-bedd-fe3912554e6e",
@@ -1630,7 +1630,7 @@
         },
         {
             "CustomerID": "15c60f0c-91c6-4840-806e-90d395b5c83d",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "bev2",
             "Organisation": {
                 "OrganisationID": "becf64e3-7871-4028-96f0-47a6d5a6564d",
@@ -1672,7 +1672,7 @@
         },
         {
             "CustomerID": "cf486475-34cf-4349-a3cd-57eb0407d429",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "longs",
             "Organisation": {
                 "OrganisationID": "34288459-fe64-4f8d-96ec-7d8bb31133b1",
@@ -1714,7 +1714,7 @@
         },
         {
             "CustomerID": "380bd324-ed6c-4312-b26e-d91cef73c974",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "trainex",
             "Organisation": {
                 "OrganisationID": "c502d9ae-6c68-4039-84d6-8f5c598911cf",
@@ -1756,7 +1756,7 @@
         },
         {
             "CustomerID": "3498bebb-82da-4558-ac93-2a5e72f2c8fd",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "pop",
             "Organisation": {
                 "OrganisationID": "120c781f-ad9d-48b3-8866-3753350d1d31",

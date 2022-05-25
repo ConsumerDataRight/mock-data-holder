@@ -16,19 +16,11 @@ namespace CDR.DataHolder.IntegrationTests
 {
     public class US12968_MDH_InfosecProfileAPI_PAR : BaseTest, IClassFixture<RegisterSoftwareProductFixture>
     {
-        // static private async Task Arrange()
-        // {
-        //     TestSetup.Register_PatchRedirectUri();
-        //     TestSetup.DataHolder_PurgeIdentityServer();
-        //     await TestSetup.DataHolder_RegisterSoftwareProduct();
-        // }
-
         [Fact]
         // Call PAR endpoint, with request, to get a RequestUri
         public async Task AC01_Post_ShouldRespondWith_201Created_RequestUri()
         {
             // Arrange
-            // await Arrange();
 
             // Act
             var response = await DataHolder_Par_API.SendRequest();
@@ -45,21 +37,17 @@ namespace CDR.DataHolder.IntegrationTests
                     var parResponse = await DataHolder_Par_API.DeserializeResponse(response);
                     parResponse.Should().NotBeNull();
                     parResponse?.RequestURI.Should().NotBeNullOrEmpty();
-                    // response?.RequestURI.Should().Be("TODO"); // TODO - need confirm the actual RequestURI is correct?
+                    // need confirm the actual RequestURI is correct?
                     parResponse?.ExpiresIn.Should().Be(90);
                 }
             }
         }
 
         [Theory]
-        // Call PAR endpoint, with cdrArrangementId that the data holder is not associated with, or is unknown, should be rejected
-        // [InlineData("TODO", HttpStatusCode.OK)] // ArrangementID associated with data holder
-        // [InlineData("TODO", HttpStatusCode.BadRequest)] // Unassociated ArrangementID (ArrangementID not associated with data holder)
         [InlineData("foo", HttpStatusCode.BadRequest)] // Unknown ArrangementID
         public async Task AC06_Post_WithUnknownOrUnAssociatedCdrArrangementId_ShouldRespondWith_400BadRequest(string cdrArrangementId, HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            // await Arrange();
 
             // Act
             var response = await DataHolder_Par_API.SendRequest(cdrArrangementId: cdrArrangementId);
@@ -74,42 +62,7 @@ namespace CDR.DataHolder.IntegrationTests
                     // Assert - Check application/json
                     Assert_HasContentType_ApplicationJson(response.Content);
 
-                    var expectedResponse = @"{
-                        ""errors"": [{
-                            ""code"": ""urn:au-cds:error:cds-all:Field/Invalid"",
-                            ""title"": ""Invalid Field"",
-                            ""detail"": ""cdr_arrangement_id is invalid"",
-                            ""meta"": {}
-                        }]
-                    }";
-
-                    await Assert_HasContent_Json(expectedResponse, response.Content);
-                }
-            }
-        }
-
-        [Theory]
-        [InlineData("client_credentials", HttpStatusCode.Created)]
-        [InlineData("foo", HttpStatusCode.BadRequest)]
-        public async Task AC07_Post_WithInvalidGrantType_ShouldRespondWith_400BadRequest(string grantType, HttpStatusCode expectedStatusCode)
-        {
-            // Arrange
-            // await Arrange();
-
-            // Act
-            var response = await DataHolder_Par_API.SendRequest(grantType: grantType);
-
-            // Assert
-            using (new AssertionScope())
-            {
-                response.StatusCode.Should().Be(expectedStatusCode);
-
-                if (expectedStatusCode != HttpStatusCode.Created)
-                {
-                    var expectedResponse = @"{
-                        ""error"": ""invalid_request"",
-                        ""description"": ""Invalid grant_type""
-                    }";
+                    var expectedResponse = @"{""error"":""invalid_request"",""error_description"":""Invalid cdr arrangement id""}";
 
                     await Assert_HasContent_Json(expectedResponse, response.Content);
                 }
@@ -122,7 +75,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC08_Post_WithInvalidClientId_ShouldRespondWith_400BadRequest(string clientId, HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            // await Arrange();
 
             // Act
             var response = await DataHolder_Par_API.SendRequest(clientId: clientId);
@@ -136,7 +88,7 @@ namespace CDR.DataHolder.IntegrationTests
                 {
                     var expectedResponse = @"{
                         ""error"": ""invalid_request"",
-                        ""description"": ""Invalid client_id""
+                        ""error_description"": ""Invalid client_id""
                     }";
 
                     await Assert_HasContent_Json(expectedResponse, response.Content);
@@ -150,7 +102,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC09_Post_WithInvalidClientAssertionType_ShouldRespondWith_400BadRequest(string clientAssertionType, HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            // await Arrange();
 
             // Act
             var response = await DataHolder_Par_API.SendRequest(clientAssertionType: clientAssertionType);
@@ -164,7 +115,7 @@ namespace CDR.DataHolder.IntegrationTests
                 {
                     var expectedResponse = @"{
                         ""error"": ""invalid_request"",
-                        ""description"": ""Invalid client_assertion_type""
+                        ""error_description"": ""Invalid client_assertion_type""
                     }";
 
                     await Assert_HasContent_Json(expectedResponse, response.Content);
@@ -177,7 +128,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC10_Revocation_WithInvalidClientAssertion_ShouldRespondWith_400BadRequest(string clientAssertion, HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            // await Arrange();
 
             // Act
             var response = await DataHolder_Par_API.SendRequest(clientAssertion: clientAssertion);
@@ -191,7 +141,7 @@ namespace CDR.DataHolder.IntegrationTests
                 {
                     var expectedResponse = @"{
                         ""error"": ""invalid_request"",
-                        ""description"": ""Invalid client_assertion""
+                        ""error_description"": ""Invalid client_assertion""
                     }";
 
                     await Assert_HasContent_Json(expectedResponse, response.Content);
@@ -205,10 +155,9 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC11_Post_WithDifferentHolderOfKey_ShouldRespondWith_400BadRequest(string jwtCertificateFilename, string jwtCertificatePassword, HttpStatusCode expectedStatusCode)
         {
             // Act
-            // var response = await DataHolder_Par_API.SendRequest(clientAssertion: clientAssertion);
             var response = await DataHolder_Par_API.SendRequest(
-                jwtCertificateFilename: jwtCertificateFilename,
-                jwtCertificatePassword: jwtCertificatePassword);
+                jwtCertificateForClientAssertionFilename: jwtCertificateFilename,
+                jwtCertificateForClientAssertionPassword: jwtCertificatePassword);
 
             // Assert
             using (new AssertionScope())
@@ -219,7 +168,7 @@ namespace CDR.DataHolder.IntegrationTests
                 {
                     var expectedResponse = @"{
                         ""error"": ""invalid_request"",
-                        ""description"": ""Invalid client_assertion""
+                        ""error_description"": ""Invalid client_assertion""
                     }";
 
                     await Assert_HasContent_Json(expectedResponse, response.Content);
@@ -232,7 +181,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC02_Post_AuthorisationEndpoint_WithRequestUri_ShouldRespondWith_200OK_CdrArrangementId()
         {
             // Arrange
-            // await Arrange();
             var response = await DataHolder_Par_API.SendRequest();
             if (response.StatusCode != HttpStatusCode.Created) throw new Exception("Error with PAR request - StatusCode");
             var parResponse = await DataHolder_Par_API.DeserializeResponse(response);
@@ -273,12 +221,14 @@ namespace CDR.DataHolder.IntegrationTests
         [Theory]
         [InlineData(
             HttpStatusCode.Redirect,
-            BaseTest.SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS,
-            "error=invalid_request_uri&error_description=The request uri has expired"
+            SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS,
+            "error=invalid_request_uri"
         )]
         // Call Authorisaton endpoint, with requestUri issued by PAR endpoint, but after requestUri has expired (90 seconds), should redirect to DH callback URI
         public async Task AC03_Post_AuthorisationEndpoint_WithRequestUri_After90Seconds_ShouldRespondWith_302Found_CallbackURI(HttpStatusCode expectedStatusCode, string expectedRedirectPath, string? expectedRedirectFragment = null)
         {
+            expectedRedirectPath = BaseTest.SubstituteConstant(expectedRedirectPath);
+
             static HttpClient CreateHttpClient()
             {
                 var httpClientHandler = new HttpClientHandler
@@ -294,7 +244,6 @@ namespace CDR.DataHolder.IntegrationTests
             const int PAR_EXPIRY_SECONDS = 90;
 
             // Arrange
-            // await Arrange();
             var response = await DataHolder_Par_API.SendRequest();
             if (response.StatusCode != HttpStatusCode.Created) throw new Exception("Error with PAR request - StatusCode");
             var parResponse = await DataHolder_Par_API.DeserializeResponse(response);
@@ -352,7 +301,6 @@ namespace CDR.DataHolder.IntegrationTests
             }
 
             // Arrange 
-            // await Arrange();
             var cdrArrangementId = await CreateCDRArrangement();
 
             // Act - PAR with existing CdrArrangementId
@@ -377,7 +325,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC05_Post_AuthorisationEndpoint_WithRequestUri_ShouldRespondWith_200OK_CdrArrangementId()
         {
             // Arrange
-            // await Arrange();
             // Create CDR arrangement, call PAR and get RequestURI
             (var cdrArrangementId, var requestUri) = await AC04_Post_WithCdrArrangementId_ShouldRespondWith_201Created_RequestUri();
             if (string.IsNullOrEmpty(requestUri)) throw new Exception("requestUri is null");
@@ -403,9 +350,6 @@ namespace CDR.DataHolder.IntegrationTests
                 tokenResponse?.IdToken.Should().NotBeNullOrEmpty();
                 tokenResponse?.RefreshToken.Should().NotBeNullOrEmpty();
                 tokenResponse?.CdrArrangementId.Should().NotBeNullOrEmpty();
-
-                // Check the arrangement was updated (Arrangementid should be different)??
-                // tokenResponse?.CdrArrangementId.Should().NotBe(cdrArrangementId);
             }
         }
     }

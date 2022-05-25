@@ -18,9 +18,6 @@ namespace CDR.DataHolder.Repository.Entities
         [MaxLength(100), Required]
         public string LegalEntityName { get; set; }
 
-        [MaxLength(4), Required]
-        public string Industry { get; set; }
-
         [MaxLength(25), Required]
         public string Status { get; set; }
 

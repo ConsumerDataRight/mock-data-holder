@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using CDR.DataHolder.API.Infrastructure.Authorization;
+using CDR.DataHolder.API.Infrastructure.Filters;
 using CDR.DataHolder.API.Infrastructure.Models;
 using CDR.DataHolder.IdentityServer.Events;
 using CDR.DataHolder.IdentityServer.Models;
@@ -18,6 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using Serilog.Context;
 using static CDR.DataHolder.IdentityServer.CdsConstants;
 
 namespace CDR.DataHolder.IdentityServer.Controllers
@@ -62,6 +64,7 @@ namespace CDR.DataHolder.IdentityServer.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(ClientRegistrationResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ClientRegistrationError), StatusCodes.Status400BadRequest)]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> Post(ClientRegistrationRequest request)
         {
             // Validate the registration request.
@@ -78,11 +81,19 @@ namespace CDR.DataHolder.IdentityServer.Controllers
                 return new BadRequestObjectResult(new ClientRegistrationError("invalid_client_metadata", "Duplicate registrations for a given software_id are not valid."));
             }
 
-            _logger.LogInformation("RegistrationRequest: {@registrationRequest}", request);
-            var response = _mapper.Map<ClientRegistrationResponse>(request);
-            _logger.LogInformation("RegistrationResponse: {@registrationResponse}", response);
+            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+            {
+                _logger.LogInformation("RegistrationRequest: {@registrationRequest}", request);
+            }
 
-            var client = _mapper.Map<DataReceipientClient>(response);
+            var response = _mapper.Map<ClientRegistrationResponse>(request);
+
+            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+            {
+                _logger.LogInformation("RegistrationResponse: {@registrationResponse}", response);
+            }
+
+            var client = _mapper.Map<DataRecipientClient>(response);
             await _clientService.RegisterClient(client);
             return CreatedAtAction(nameof(Post), EnsureResponse(response));
         }
@@ -100,10 +111,14 @@ namespace CDR.DataHolder.IdentityServer.Controllers
         [ProducesResponseType(typeof(ClientRegistrationResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ClientRegistrationError), StatusCodes.Status400BadRequest)]
         [PolicyAuthorize(AuthorisationPolicy.DynamicClientRegistration)]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> Put([Required] string clientId, IClientRegistrationRequest request)
         {
-            _logger.LogInformation("Put Registration Request: {@clientId}", clientId);
-            _logger.LogInformation("RegistrationRequest: {@registrationRequest}", request);
+            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+            {
+                _logger.LogInformation("Put Registration Request: {@clientId}", clientId);
+                _logger.LogInformation("RegistrationRequest: {@registrationRequest}", request);
+            }
 
             // Validate the incoming client id.
             var (isValidClientId, client) = await ValidateClient(clientId);
@@ -125,9 +140,12 @@ namespace CDR.DataHolder.IdentityServer.Controllers
             response.ClientId = clientId;
             response.ClientIdIssuedAt = Convert.ToInt64(client.Claims.First(x => x.Type == RegistrationResponse.ClientIdIssuedAt).Value);
 
-            _logger.LogInformation("RegistrationResponse: {@registrationResponse}", response);
+            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+            {
+                _logger.LogInformation("RegistrationResponse: {@registrationResponse}", response);
+            }
 
-            var drClient = _mapper.Map<DataReceipientClient>(response);
+            var drClient = _mapper.Map<DataRecipientClient>(response);
             await _clientService.UpdateClient(drClient);
             return new OkObjectResult(EnsureResponse(response));
         }
@@ -144,9 +162,13 @@ namespace CDR.DataHolder.IdentityServer.Controllers
         [ProducesResponseType(typeof(ClientRegistrationResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [PolicyAuthorize(AuthorisationPolicy.DynamicClientRegistration)]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> Get([Required] string clientId)
         {
-            _logger.LogInformation("Get Registration Request: {@clientId}", clientId);
+            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+            {
+                _logger.LogInformation("Get Registration Request: {@clientId}", clientId);
+            }
 
             // Validate the incoming client id.
             var (isValid, client) = await ValidateClient(clientId);
@@ -155,10 +177,13 @@ namespace CDR.DataHolder.IdentityServer.Controllers
                 return InvalidClientIdResult();
             }
 
-            var dataRecipientClient = _mapper.Map<DataReceipientClient>(client);
+            var dataRecipientClient = _mapper.Map<DataRecipientClient>(client);
             var response = _mapper.Map<ClientRegistrationResponse>(dataRecipientClient);
 
-            _logger.LogInformation("RegistrationResponse: {@registrationResponse}", response);
+            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+            {
+                _logger.LogInformation("RegistrationResponse: {@registrationResponse}", response);
+            }
 
             return new OkObjectResult(EnsureResponse(response));
         }
@@ -174,9 +199,13 @@ namespace CDR.DataHolder.IdentityServer.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ClientRegistrationError), StatusCodes.Status404NotFound)]
         [PolicyAuthorize(AuthorisationPolicy.DynamicClientRegistration)]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> Delete([Required] string clientId)
         {
-            _logger.LogInformation("Delete Registration Request: {@clientId}", clientId);
+            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+            {
+                _logger.LogInformation("Delete Registration Request: {@clientId}", clientId);
+            }
 
             // Validate the incoming client id.
             var (isValid, client) = await ValidateClient(clientId);
@@ -187,7 +216,10 @@ namespace CDR.DataHolder.IdentityServer.Controllers
 
             await _clientService.RemoveClientById(clientId);
 
-            _logger.LogInformation("Client deleted: {@clientId}", clientId);
+            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+            {
+                _logger.LogInformation("Client deleted: {@clientId}", clientId);
+            }
 
             return new NoContentResult();
         }
@@ -222,7 +254,7 @@ namespace CDR.DataHolder.IdentityServer.Controllers
             return (true, null);
         }
 
-        private IActionResult BadRequestResponse(IEnumerable<ValidationResult> validationResults)
+        private static IActionResult BadRequestResponse(IEnumerable<ValidationResult> validationResults)
         {
             // SSA errors.
             var ssaErrors = validationResults.Where(x => String.Join(',', x.MemberNames) == nameof(ClientRegistrationRequest.SoftwareStatement));
@@ -258,7 +290,10 @@ namespace CDR.DataHolder.IdentityServer.Controllers
 
         private async Task RaiseRegistrationValidationFailureEvent(ValidationCheck check, string message = null)
         {
-            _logger.LogError(message);
+            using (LogContext.PushProperty("MethodName", "RaiseRegistrationValidationFailureEvent"))
+            {
+                _logger.LogError("{message}", message);
+            }
             await _eventService.RaiseAsync(new RegistrationValidationFailureEvent(check, message));
         }
 
@@ -294,7 +329,10 @@ namespace CDR.DataHolder.IdentityServer.Controllers
 
             if (clientIdClaimValue == null || !clientIdClaimValue.Value.Equals(clientId))
             {
-                _logger.LogInformation($"Client ID does not match access token: clientId = {clientId}");
+                using (LogContext.PushProperty("MethodName", "ValidateClient"))
+                {
+                    _logger.LogInformation("Client ID does not match access token: clientId = {clientId}", clientId);
+                }
                 return (false, null);
             }
 
@@ -302,7 +340,10 @@ namespace CDR.DataHolder.IdentityServer.Controllers
             var client = await _clientService.FindClientById(clientId);
             if (client == null)
             {
-                _logger.LogInformation($"Client not found: {clientId}");
+                using (LogContext.PushProperty("MethodName", "ValidateClient"))
+                {
+                    _logger.LogInformation("Client not found: {clientId}", clientId);
+                }
                 return (false, null);
             }
 

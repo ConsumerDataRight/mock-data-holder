@@ -111,7 +111,7 @@ namespace CDR.DataHolder.IntegrationTests
             // Arrange
             var (ssa, _) = await Arrange();
 
-            var accessToken = await new DataHolderAccessToken().GetAccessToken(true);
+            var accessToken = await new DataHolderAccessToken().GetAccessToken(true);            
 
             // Act
             var registrationRequest = DataHolder_Register_API.CreateRegistrationRequest(ssa);
@@ -137,7 +137,7 @@ namespace CDR.DataHolder.IntegrationTests
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
                     // Assert - Check WWWAutheticate header
-                    Assert_HasHeader(@"Bearer error=""invalid_token"", error_description=""The token expired at '06/16/2021 05:16:01'""",
+                    Assert_HasHeader(@"Bearer error=""invalid_token"", error_description=""The token expired at '05/16/2022 03:04:03'""",
                         response.Headers, "WWW-Authenticate");
                 }
             }

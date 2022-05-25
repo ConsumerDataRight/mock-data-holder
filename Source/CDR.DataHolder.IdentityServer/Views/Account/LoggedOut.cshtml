@@ -1,4 +1,7 @@
-﻿@model LoggedOutViewModel
+﻿@using Microsoft.Extensions.Configuration
+@using CDR.DataHolder.IdentityServer.Extensions
+@inject IConfiguration _config
+@model LoggedOutViewModel
 
 @{ // set this so the layout rendering sees an anonymous user
 				ViewData["signed-out"] = true; }
@@ -18,12 +21,12 @@
 
 	@if (Model.SignOutIframeUrl != null)
 	{
-<iframe width="0" height="0" class="signout" src="@Model.SignOutIframeUrl"></iframe>}
+<iframe width="0" height="0" class="signout" src="@Model.SignOutIframeUrl" title="SignOut"></iframe>}
 </div>
 
 @section scripts
 {
 	@if (Model.AutomaticRedirectAfterSignOut)
 	{
-<script src="~/js/signout-redirect.js"></script>}
+<script src="@_config.EnsurePath("/js/signout-redirect.js")"></script>}
 }

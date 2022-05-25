@@ -1,7 +1,8 @@
 ![Consumer Data Right Logo](https://raw.githubusercontent.com/ConsumerDataRight/mock-data-holder/main/cdr-logo.png) 
 
-[![Consumer Data Standards 1.11.1](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.11.1-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards/includes/releasenotes/releasenotes.1.11.1.html#v1-11-1-release-notes)
+[![Consumer Data Standards v1.16.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.16.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.16.0/#introduction)
 [![Conformance Test Suite 3.2](https://img.shields.io/badge/Conformance%20Test%20Suite-v3.2-darkblue.svg)](https://www.cdr.gov.au/for-providers/conformance-test-suite-data-holders)
+[![FAPI 1.0 Advanced Profile](https://img.shields.io/badge/FAPI%201.0-orange.svg)](https://openid.net/specs/openid-financial-api-part-2-1_0.html)
 [![made-with-dotnet](https://img.shields.io/badge/Made%20with-.NET-1f425Ff.svg)](https://dotnet.microsoft.com/)
 [![made-with-csharp](https://img.shields.io/badge/Made%20with-C%23-1f425Ff.svg)](https://docs.microsoft.com/en-us/dotnet/csharp/)
 [![MIT License](https://img.shields.io/github/license/ConsumerDataRight/mock-data-holder)](./LICENSE)
@@ -13,9 +14,10 @@ This project includes source code, documentation and instructions for a Consumer
 This repository contains a mock implementation of a Mock Data Holder and is offered to help the community in the development and testing of their CDR solutions.
 
 ## Mock Data Holder - Alignment
-The Mock Data Holder aligns to [v1.11.1](https://consumerdatastandardsaustralia.github.io/standards/includes/releasenotes/releasenotes.1.11.1.html#v1-11-1-release-notes) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards).
+The Mock Data Holder aligns to [v1.16.0](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.16.0/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards/#introduction).
 The Mock Data Holder passed v3.2 of the [Conformance Test Suite for Data Holders](https://www.cdr.gov.au/for-providers/conformance-test-suite-data-holders). 
-The Mock Data Holder was tested against [FAPI 0.6](https://openid.net/specs/openid-financial-api-part-1-ID2.html) using the consumerdataright_au profile.
+The Mock Data Holder is compliant with the [FAPI 1.0 Advanced Profile](https://openid.net/specs/openid-financial-api-part-2-1_0.html).
+The Mock Data Holder aligns to [FAPI 1.0 Migration Phase 1 and Phase 2](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.16.0/#authentication-flows). Phase 1 requirements are switched on by default. Configuration has been added to allow switching on Phase 2 requirements.
 
 ## Getting Started
 The Mock Data Holder was built using the [Mock Register](https://github.com/ConsumerDataRight/mock-register) and the [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient). You can swap out any of the Mock Data Holder, Mock Data Register and Mock Data Recipient solutions with a solution of your own.
@@ -32,7 +34,7 @@ To get started, clone the source code.
 git clone https://github.com/ConsumerDataRight/mock-data-holder.git
 ```
 
-Use the [Start-DataHolder.bat file](Source/Start-DataHolder.bat) to build and start all of theprojects needed to run the Data Holder.  Conversely, update the start up projects for the solution to match the [Start-DataHolder.bat file](Source/Start-DataHolder.bat).
+To get help on launching and debugging the solution, see the [help guide](./Help/debugging/HELP.md).
 
 If you would like to contribute features or fixes back to the Mock Data Holder repository, consult the [contributing guidelines](CONTRIBUTING.md).
 
@@ -40,19 +42,13 @@ If you would like to contribute features or fixes back to the Mock Data Holder r
 
 A version of the Mock Data Holder is built into a single Docker image that is made available via [docker hub](https://hub.docker.com/r/consumerdataright/mock-data-holder).
 
-The container can simply be run by pulling and running the latest image using the following Docker commands:
-
 #### Pull the latest image
 
 ```
 docker pull consumerdataright/mock-data-holder
 ```
 
-#### Run the Mock Data Holder container
-
-```
-docker run -d -h mock-data-holder -p 8000:8000 -p 8001:8001 -p 8002:8002 -p 8005:8005 --name mock-data-holder consumerdataright/mock-data-holder
-```
+To get help on launching and debugging the solutions as containers and switching out your solution(s), see the [help guide](./Help/container/HELP.md).
 
 #### Try it out
 
@@ -110,27 +106,16 @@ POST https://localhost:8005/manage/metadata
 ### Use the docker compose file to run a multi-container mock CDR Ecosystem
 
 The [docker compose file](Source/DockerCompose/docker-compose.yml) can be used to run multiple containers from the Mock CDR Ecosystem.
-1. Add the following to your hosts file, eg C:\Windows\System32\drivers\etc\hosts
-````
-127.0.0.1 mock-data-holder
-127.0.0.1 mock-data-recipient
-127.0.0.1 mock-register
-````
-2. Flush the DNS cache, on Windows use: 
-````
-ipconfig /flushdns
-````
-3. Run the [docker compose file](Source/DockerCompose/docker-compose.yml)
-````
-docker-compose up
-````
 
-Update the docker compose file if you would like to swap out one of the mock solutions with a solution of your own.
+**Note:** the [docker compose file](Source/DockerCompose/docker-compose.yml) utilises the Microsoft SQL Server Image from Docker Hub. The Microsoft EULA for the Microsoft SQL Server Image must be accepted to use the [docker compose file](Source/DockerCompose/docker-compose.yml). See the Microsoft SQL Server Image on Docker Hub for more information.
+
+To get help on launching and debugging the solutions as containers and switching out your solution(s), see the [help guide](./Help/container/HELP.md).
 
 ## Mock Data Holder - Architecture
 The following diagram outlines the high level architecture of the Mock Data Holder:
 
-![Mock Data Holder - Architecture](https://raw.githubusercontent.com/ConsumerDataRight/mock-data-holder/main/mock-data-holder-architecture.png)
+[<img src="https://raw.githubusercontent.com/ConsumerDataRight/mock-data-holder/main/mock-data-holder-architecture.png" height='600' width='800' alt="Mock Data Holder - Architecture"/>](https://raw.githubusercontent.com/ConsumerDataRight/mock-data-holder/main/mock-data-holder-architecture.png)
+
 
 ## Mock Data Holder - Components
 The Mock Data Holder contains the following components:
@@ -157,15 +142,15 @@ The Mock Data Holder contains the following components:
   - Also includes trigger points to refresh the Data Recipient, Data Recipient Status and Software Product Status from the Mock Register.
   - A user interface may be added at some time in the future to provide user friendly access to the repository data.
 - Repository
-  - A SQLite database containing Mock Data Holder data.
+  - A SQL database containing Mock Data Holder data.
 
 ## Technology Stack
 
 The following technologies have been used to build the Mock Data Holder:
-- The source code has been written in `C#` using the `.NET 5` framework.
+- The source code has been written in `C#` using the `.Net 6` framework.
 - The Identity Provider is implemented using `Identity Server 4`.
 - The mTLS Gateway has been implemented using `Ocelot`.
-- The Repository utilises a `SQLite` instance.
+- The Repository utilises a `SQL` instance.
 
 # Testing
 
@@ -181,4 +166,4 @@ This project has adopted the **Contributor Covenant**.  For more information see
 [MIT License](./LICENSE)
 
 # Notes
-The Mock Data Holder is provided as a development tool only.  It conforms to the Consumer Data Standards and Register Design.
+The Mock Data Holder is provided as a development tool only.  It conforms to the Consumer Data Standards.

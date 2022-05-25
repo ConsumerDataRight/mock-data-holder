@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿using CDR.DataHolder.API.Infrastructure.Filters;
 using CDR.DataHolder.Domain.Entities;
 using CDR.DataHolder.Domain.Repositories;
 using CDR.DataHolder.Repository.Infrastructure;
@@ -12,6 +8,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Serilog.Context;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace CDR.DataHolder.Manage.API.Controllers
 {
@@ -24,11 +26,10 @@ namespace CDR.DataHolder.Manage.API.Controllers
         private readonly IStatusRepository _statusRepository;
         private readonly DataHolderDatabaseContext _dbContext;
 
-        public ManageController(
-            IConfiguration config,
-            ILogger<ManageController> logger,
-            DataHolderDatabaseContext dbContext,
-            IStatusRepository statusRepository)
+        public ManageController(IConfiguration config,
+                                ILogger<ManageController> logger,
+                                DataHolderDatabaseContext dbContext,
+                                IStatusRepository statusRepository)
         {
             _config = config;
             _logger = logger;
@@ -38,6 +39,7 @@ namespace CDR.DataHolder.Manage.API.Controllers
 
         [HttpPost]
         [Route("Metadata")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> LoadData()
         {
             using var reader = new StreamReader(Request.Body);
@@ -58,6 +60,7 @@ namespace CDR.DataHolder.Manage.API.Controllers
 
         [HttpGet]
         [Route("Metadata")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task GetData()
         {
             var metadata = await _dbContext.GetJsonFromDatabase(_logger);
@@ -70,10 +73,9 @@ namespace CDR.DataHolder.Manage.API.Controllers
         [HttpGet]
         [HttpPost]
         [Route("refresh-dr-metadata")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> RefreshDataRecipients()
         {
-            _logger.LogInformation($"Request received to {nameof(ManageController)}.{nameof(RefreshDataRecipients)}");
-
             // Call the Register to get the data recipients list.
             var endpoint = _config["Register:GetDataRecipientsEndpoint"];
             var data = await GetData(endpoint, 2);
@@ -92,10 +94,9 @@ namespace CDR.DataHolder.Manage.API.Controllers
         [HttpGet]
         [HttpPost]
         [Route("refresh-dr-status")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> RefreshDataRecipientStatus()
         {
-            _logger.LogInformation($"Request received to {nameof(ManageController)}.{nameof(RefreshDataRecipientStatus)}");
-
             // Call the Register to get the data recipient status list.
             var endpoint = _config["Register:GetDataRecipientStatusEndpoint"];
             var data = await GetData<DataRecipientStatus>(endpoint, 1, "dataRecipients");
@@ -117,10 +118,9 @@ namespace CDR.DataHolder.Manage.API.Controllers
         [HttpGet]
         [HttpPost]
         [Route("refresh-sp-status")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> RefreshSoftwareProductStatus()
         {
-            _logger.LogInformation($"Request received to {nameof(ManageController)}.{nameof(RefreshSoftwareProductStatus)}");
-
             // Call the Register to get the software product status list.
             var endpoint = _config["Register:GetSoftwareProductsStatusEndpoint"];
             var data = await GetData<SoftwareProductStatus>(endpoint, 1, "softwareProducts");
@@ -141,13 +141,16 @@ namespace CDR.DataHolder.Manage.API.Controllers
 
         private async Task<string> GetData(string endpoint, int version)
         {
-            _logger.LogInformation($"Retrieving data from {endpoint} (x-v: {version})...");
+            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+            {
+                _logger.LogInformation("Retrieving data from {endpoint} (x-v: {version})...", endpoint, version);
+            }
 
             var httpClient = GetHttpClient();
             httpClient.DefaultRequestHeaders.Add("x-v", version.ToString());
             var response = await httpClient.GetAsync(endpoint);
 
-            _logger.LogInformation($"Status code: {response.StatusCode}");
+            _logger.LogInformation("Status code: {statusCode}", response.StatusCode);
 
             if (response.IsSuccessStatusCode)
             {
@@ -170,7 +173,7 @@ namespace CDR.DataHolder.Manage.API.Controllers
             return null;
         }
 
-        private HttpClient GetHttpClient()
+        private static HttpClient GetHttpClient()
         {
             var clientHandler = new HttpClientHandler();
             clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;

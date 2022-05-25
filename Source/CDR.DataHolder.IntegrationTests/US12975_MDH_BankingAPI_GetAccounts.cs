@@ -39,8 +39,10 @@ namespace CDR.DataHolder.IntegrationTests
             var effectivePage = page ?? 1;
             var effectivePageSize = pageSize ?? 25;
 
-            using var dbContext = new DataHolderDatabaseContext(new DbContextOptionsBuilder<DataHolderDatabaseContext>().UseSqlite(DATAHOLDER_CONNECTIONSTRING).Options);
+            using var dbContext = new DataHolderDatabaseContext(new DbContextOptionsBuilder<DataHolderDatabaseContext>().UseSqlServer(DATAHOLDER_CONNECTIONSTRING).Options);
 
+            // NB: This has to compare decrypted Id's as AES Encryption now uses a Random IV,
+            //     using encrypted ID's in the response and expected content WILL NEVER MATCH
             var accounts = dbContext.Accounts.AsNoTracking()
                 .Include(account => account.Customer)
                 .Where(account => account.Customer.CustomerId == new Guid(customerId))
@@ -101,7 +103,6 @@ namespace CDR.DataHolder.IntegrationTests
                 JsonConvert.SerializeObject(expectedResponse, new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
-                    // DateTimeZoneHandling = DateTimeZoneHandling.Utc,
                     Formatting = Formatting.Indented
                 }),
 
@@ -152,8 +153,8 @@ namespace CDR.DataHolder.IntegrationTests
             int? expectedRecordCount = null)
         {
             // Arrange
-            // var accessToken = await GetAccessToken(tokenType);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(tokenType);
+            ExtractClaimsFromToken(accessToken, out var customerId, out var softwareProductId);
 
             var baseUrl = $"{DH_MTLS_GATEWAY_URL}/cds-au/v1/banking/accounts";
             var url = GetUrl(baseUrl, isOwned, openStatus, productCategory, queryPage, queryPageSize);
@@ -204,9 +205,6 @@ namespace CDR.DataHolder.IntegrationTests
         [Theory]
         [InlineData(TokenType.JANE_WILSON)]
         [InlineData(TokenType.KAMILLA_SMITH)]
-        // [InlineData(TokenType.STEVE_KENNEDY)]
-        // [InlineData(TokenType.STEVE_CURRY)]
-        // [InlineData(TokenType.BUSINESS_1)]
         [InlineData(TokenType.BEVERAGE)]
         public async Task AC01_Get_ShouldRespondWith_200OK_Accounts(TokenType tokenType)
         {
@@ -235,16 +233,14 @@ namespace CDR.DataHolder.IntegrationTests
         [InlineData(TokenType.KAMILLA_SMITH, 0)]
         public async Task AC05_Get_WithIsOwnedFalse_ShouldRespondWith_200OK_NonOwnedAccounts(TokenType tokenType, int expectedRecordCount)
         {
-            await Test_AC01_AC02_AC04_AC04_AC05_AC06_AC07(tokenType, isOwned: false, expectedRecordCount: expectedRecordCount,
-                queryPage: 1, queryPageSize: 5);
+            await Test_AC01_AC02_AC04_AC04_AC05_AC06_AC07(tokenType, isOwned: false, expectedRecordCount: expectedRecordCount, queryPage: 1, queryPageSize: 5);
         }
 
         [Theory]
         [InlineData(TokenType.KAMILLA_SMITH, 9)]
         public async Task AC06_Get_WithOpenStatusCLOSED_ShouldRespondWith_200OK_ClosedAccounts(TokenType tokenType, int expectedRecordCount)
         {
-            await Test_AC01_AC02_AC04_AC04_AC05_AC06_AC07(tokenType, openStatus: "CLOSED", expectedRecordCount: expectedRecordCount,
-                queryPage: 1, queryPageSize: 5);
+            await Test_AC01_AC02_AC04_AC04_AC05_AC06_AC07(tokenType, openStatus: "CLOSED", expectedRecordCount: expectedRecordCount, queryPage: 1, queryPageSize: 5);
         }
 
         [Theory]
@@ -254,19 +250,15 @@ namespace CDR.DataHolder.IntegrationTests
         [InlineData(TokenType.BEVERAGE, "CLOSED", "BUSINESS_LOANS", 1)]
         public async Task AC07_Get_WithOpenStatusOPEN_AndProductCategoryBUSINESSLOANS_ShouldRespondWith_200OK_OpenedBusinessLoanAccounts(TokenType tokenType, string openStatus, string productCategory, int expectedRecordCount)
         {
-            await Test_AC01_AC02_AC04_AC04_AC05_AC06_AC07(tokenType, openStatus: openStatus, productCategory: productCategory, expectedRecordCount: expectedRecordCount,
-                queryPage: 1, queryPageSize: 5);
+            await Test_AC01_AC02_AC04_AC04_AC05_AC06_AC07(tokenType, openStatus: openStatus, productCategory: productCategory, expectedRecordCount: expectedRecordCount, queryPage: 1, queryPageSize: 5);
         }
 
         [Theory]
         [InlineData(SCOPE, HttpStatusCode.OK)]
         [InlineData(SCOPE_WITHOUT_ACCOUNTSBASICREAD, HttpStatusCode.Forbidden)]
-        // [InlineData("", HttpStatusCode.Forbidden)]
-        // [InlineData(null, HttpStatusCode.Forbidden)] 
         public async Task AC08_Get_WithoutBankAccountsReadScope_ShouldRespondWith_403Forbidden(string scope, HttpStatusCode expectedStatusCode)
         {
             // Arrange 
-            // var accessToken = await GetAccessToken(TokenType.LILY_WANG, scope);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.KAMILLA_SMITH, scope);
 
             // Act
@@ -310,7 +302,6 @@ namespace CDR.DataHolder.IntegrationTests
         private async Task Test_AC09_AC11(TokenType tokenType, HttpStatusCode expectedStatusCode, string expectedWWWAuthenticateResponse)
         {
             // Arrange
-            // var accessToken = await GetAccessToken(tokenType);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(tokenType);
 
             // Act
@@ -346,8 +337,6 @@ namespace CDR.DataHolder.IntegrationTests
         [InlineData(TokenType.INVALID_FOO, HttpStatusCode.Unauthorized)]
         public async Task AC09_Get_WithInvalidAccessToken_ShouldRespondWith_401Unauthorized(TokenType tokenType, HttpStatusCode expectedStatusCode)
         {
-            // await Test_AC09_AC11(tokenType, expectedStatusCode, @"Bearer error=""invalid_token""");
-
             // Arrange
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(tokenType);
 
@@ -373,7 +362,6 @@ namespace CDR.DataHolder.IntegrationTests
                 // Assert - Check error response
                 if (expectedStatusCode != HttpStatusCode.OK)
                 {
-                    // var expectedResponse = @"{""error"":""invalid_token""}";
                     var expectedResponse = @"{
                         ""errors"": [
                             {
@@ -400,10 +388,7 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        //[InlineData(false, HttpStatusCode.OK)]
-        // [InlineData(true, HttpStatusCode.Unauthorized)]
         [InlineData(HttpStatusCode.Unauthorized)]
-        // public async Task AC10_Get_WithExpiredAccessToken_ShouldRespondWith_401Unauthorized(bool expired, HttpStatusCode expectedStatusCode)
         public async Task AC10_Get_WithExpiredAccessToken_ShouldRespondWith_401Unauthorized(HttpStatusCode expectedStatusCode)
         {
             // Arrange
@@ -453,7 +438,6 @@ namespace CDR.DataHolder.IntegrationTests
             try
             {
                 // Arrange
-                // var accessToken = await GetAccessToken(TokenType.LILY_WANG);
                 var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.KAMILLA_SMITH);
 
                 // Act
@@ -505,25 +489,6 @@ namespace CDR.DataHolder.IntegrationTests
              }}");
         }
 
-        /* 25/08/2021 - Removed this test, G-D says no longer required, see comments on US12975
-        [Theory]
-        [InlineData("ACTIVE", "Active", HttpStatusCode.OK)]
-        [InlineData("INACTIVE", "Inactive", HttpStatusCode.Forbidden)]
-        [InlineData("REMOVED", "Removed", HttpStatusCode.Forbidden)]
-        public async Task AC13_Get_WithADRBrandNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, string statusDescription, HttpStatusCode expectedStatusCode)
-        {
-            await Test_AC12_AC13_AC14(Table.BRAND, BRANDID, status, expectedStatusCode,
-            $@"{{
-                ""errors"": [{{
-                    ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
-                    ""title"": ""ADR Status Is Not Active"",
-                    ""detail"": ""Brand status is { statusDescription }"",
-                    ""meta"": {{}}
-                }}]
-            }}");
-        }
-        */
-
         [Theory]
         [InlineData("ACTIVE", "Active", HttpStatusCode.OK)]
         [InlineData("INACTIVE", "Inactive", HttpStatusCode.Forbidden)]
@@ -544,7 +509,6 @@ namespace CDR.DataHolder.IntegrationTests
         private async Task Test_AC15_AC16_AC17(string XV, HttpStatusCode expectedStatusCode, string expectedErrorResponse)
         {
             // Arrange
-            // var accessToken = await GetAccessToken(TokenType.LILY_WANG);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.KAMILLA_SMITH);
 
             // Act
@@ -638,7 +602,6 @@ namespace CDR.DataHolder.IntegrationTests
         private async Task Test_AC18_AC19(string? XFapiAuthDate, HttpStatusCode expectedStatusCode, string? expectedErrorResponse = null)
         {
             // Arrange
-            // var accessToken = await GetAccessToken(TokenType.LILY_WANG);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.KAMILLA_SMITH);
 
             // Act
@@ -714,7 +677,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC20_Get_WithXFAPIInteractionId123_ShouldRespondWith_200OK_Accounts_AndXFapiInteractionIDis123(string xFapiInteractionId, HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            // var accessToken = await GetAccessToken(TokenType.LILY_WANG);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.KAMILLA_SMITH);
 
             // Act
@@ -739,8 +701,6 @@ namespace CDR.DataHolder.IntegrationTests
 
                 // Assert - Check x-fapi-interaction-id header
                 Assert_HasHeader(xFapiInteractionId, response.Headers, "x-fapi-interaction-id");
-
-                // await Assert_HasNoContent2(response.Content);
             }
         }
 
@@ -750,7 +710,6 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC21_Get_WithDifferentHolderOfKey_ShouldRespondWith_401Unauthorized(string certificateFilename, string certificatePassword, HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            // var accessToken = await GetAccessToken(TokenType.LILY_WANG);
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.KAMILLA_SMITH);
 
             // Act
@@ -775,7 +734,6 @@ namespace CDR.DataHolder.IntegrationTests
                 // Assert - Check error response
                 if (expectedStatusCode != HttpStatusCode.OK)
                 {
-                    // var expectedResponse = @"{""error"":""invalid_token""}";
                     var expectedResponse = @"{
                         ""errors"": [
                             {
@@ -833,10 +791,77 @@ namespace CDR.DataHolder.IntegrationTests
             ExtractClaimsFromToken(tokenResponse?.AccessToken, out var customerId, out var softwareProductId);
             var encryptedAccountIds = consentedAccounts.Split(',').Select(consentedAccountId => IdPermanenceEncrypt(consentedAccountId, customerId, softwareProductId));
 
-            // Assert - Check each account in response is one of the consented accounts
-            foreach (var account in accountsResponse?.Data?.Accounts ?? throw new NullReferenceException())
+            // Assert
+            using (new AssertionScope())
             {
-                encryptedAccountIds.Should().Contain(account.AccountId);
+                // Assert - Check each account in response is one of the consented accounts
+                foreach (var account in accountsResponse?.Data?.Accounts ?? throw new NullReferenceException())
+                {
+                    encryptedAccountIds.Should().Contain(account.AccountId);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(USERID_JANEWILSON, "98765988,98765987")] // All accounts
+        public async Task ACX02_GetAccountsMultipleTimes_ShouldRespondWith_SameEncryptedAccountIds(string userId, string consentedAccounts)
+        {
+            static async Task<string?[]?> GetAccountIds(string userId, string consentedAccounts)
+            {
+                static async Task<Response?> GetAccounts(string? accessToken)
+                {
+                    var api = new Infrastructure.API
+                    {
+                        CertificateFilename = CERTIFICATE_FILENAME,
+                        CertificatePassword = CERTIFICATE_PASSWORD,
+                        HttpMethod = HttpMethod.Get,
+                        URL = $"{DH_MTLS_GATEWAY_URL}/cds-au/v1/banking/accounts",
+                        XV = "1",
+                        XFapiAuthDate = DateTime.Now.ToUniversalTime().ToString("r"),
+                        AccessToken = accessToken
+                    };
+                    var response = await api.SendAsync();
+                    if (response.StatusCode != HttpStatusCode.OK) throw new Exception("Error getting accounts");
+
+                    var json = await response.Content.ReadAsStringAsync();
+
+                    var accountsResponse = JsonConvert.DeserializeObject<Response>(json);
+
+                    return accountsResponse;
+                }
+
+                // Get authcode
+                (var authCode, _) = await new DataHolder_Authorise_APIv2
+                {
+                    UserId = userId,
+                    OTP = AUTHORISE_OTP,
+                    SelectedAccountIds = consentedAccounts,
+                }.Authorise();
+
+                // Get token
+                var tokenResponse = await DataHolder_Token_API.GetResponse(authCode);
+
+                // Get accounts
+                var accountsResponse = await GetAccounts(tokenResponse?.AccessToken);
+
+                // Return list of account ids
+                return accountsResponse?.Data?.Accounts?.Select(x => x.AccountId).ToArray();
+            }
+
+            // Act - Get accounts
+            var encryptedAccountIDs1 = await GetAccountIds(userId, consentedAccounts);
+
+            // Act - Get accounts again
+            var encryptedAccountIDs2 = await GetAccountIds(userId, consentedAccounts);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                encryptedAccountIDs1.Should().NotBeNullOrEmpty();
+                encryptedAccountIDs2.Should().NotBeNullOrEmpty();
+
+                // Assert - Encrypted account ids should be same
+                encryptedAccountIDs1.Should().BeEquivalentTo(encryptedAccountIDs2);
             }
         }
     }

@@ -25,7 +25,7 @@ namespace CDR.DataHolder.IntegrationTests.Fixtures
 
             // Stand-up JWKS endpoint
             jwks_endpoint = new JWKS_Endpoint(
-                BaseTest.SOFTWAREPRODUCT_JWKS_URI_FOR_INTEGRATION_TESTS,
+                BaseTest.SubstituteConstant(BaseTest.SOFTWAREPRODUCT_JWKS_URI_FOR_INTEGRATION_TESTS),
                 BaseTest.JWT_CERTIFICATE_FILENAME,
                 BaseTest.JWT_CERTIFICATE_PASSWORD);
             jwks_endpoint.Start();

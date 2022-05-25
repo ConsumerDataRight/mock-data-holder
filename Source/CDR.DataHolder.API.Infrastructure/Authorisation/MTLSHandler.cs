@@ -37,6 +37,8 @@ namespace CDR.DataHolder.API.Infrastructure.Authorization
                 requestHeaderClientCertThumprint = headerThumbprints.First();
             }
 
+            _logger.LogDebug("{class}.{method} - X-TlsClientCertThumbprint: {thumbprint}", nameof(MtlsHandler), nameof(HandleRequirementAsync), headerThumbprints);
+
             if (string.IsNullOrWhiteSpace(requestHeaderClientCertThumprint))
             {
                 _logger.LogError("Unauthorized request. Request header 'X-TlsClientCertThumbprint' is missing.");
@@ -59,7 +61,7 @@ namespace CDR.DataHolder.API.Infrastructure.Authorization
 
             if (!accessTokenClientCertThumbprint.Equals(requestHeaderClientCertThumprint, System.StringComparison.OrdinalIgnoreCase))
             {
-                _logger.LogError($"Unauthorized request. X-TlsClientCertThumbprint request header value '{requestHeaderClientCertThumprint}' does not match access token cnf:x5t#S256 claim value '{accessTokenClientCertThumbprint}'");
+                _logger.LogError("Unauthorized request. X-TlsClientCertThumbprint request header value '{requestHeaderClientCertThumprint}' does not match access token cnf:x5t#S256 claim value '{accessTokenClientCertThumbprint}'", requestHeaderClientCertThumprint, accessTokenClientCertThumbprint);
                 return Task.CompletedTask;
             }
 

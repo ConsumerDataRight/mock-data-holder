@@ -10,7 +10,7 @@ namespace CDR.DataHolder.Domain.Repositories
 		Task<Customer> GetCustomer(Guid customerId);
 		Task<Customer> GetCustomerByLoginId(string loginId);
 		Task<bool> CanAccessAccount(string accountId, Guid customerId);
-		Task<Page<Account[]>> GetAllAccounts(AccountFilter filer, int page, int pageSize);
+		Task<Page<Account[]>> GetAllAccounts(AccountFilter filter, int page, int pageSize);
 		Task<Account[]> GetAllAccountsByCustomerIdForConsent(Guid customerId);
 		Task<Page<AccountTransaction[]>> GetAccountTransactions(AccountTransactionsFilter transactionsFilter, int page, int pageSize);
 	}

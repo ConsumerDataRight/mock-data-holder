@@ -11,7 +11,6 @@ namespace CDR.DataHolder.Repository
     public class IdSvrRepository : IIdSvrRepository
 	{
 		private readonly DataHolderDatabaseContext _dataHolderDatabaseContext;
-		private const string CUSTOMERUTYPE_PERSON = "PERSON";
 
 		public IdSvrRepository(DataHolderDatabaseContext dataHolderDatabaseContext)
 		{
@@ -26,10 +25,10 @@ namespace CDR.DataHolder.Repository
 				.Where(x => x.CustomerId == customerId)
 				.Select(x => new UserInfoClaims
 				{
-					GivenName = x.Person != null && x.CustomerUType == CUSTOMERUTYPE_PERSON ? x.Person.FirstName : x.Organisation.AgentFirstName,
-					FamilyName = x.Person != null && x.CustomerUType == CUSTOMERUTYPE_PERSON ? x.Person.LastName : x.Organisation.AgentLastName,
-					Name = x.Person != null && x.CustomerUType == CUSTOMERUTYPE_PERSON ? $"{(!string.IsNullOrEmpty(x.Person.FirstName) ? (x.Person.FirstName + " ") : string.Empty)}{x.Person.LastName}" : x.Organisation.BusinessName,
-					LastUpdated = x.Person != null && x.CustomerUType == CUSTOMERUTYPE_PERSON ? x.Person.LastUpdateTime : x.Organisation.LastUpdateTime,
+					GivenName = x.GivenName,
+					FamilyName = x.FamilyName,
+					Name = x.Name,
+					LastUpdated = x.LastUpdated,
 				})
 				.FirstOrDefaultAsync();
 		}
@@ -46,5 +45,6 @@ namespace CDR.DataHolder.Repository
 				})
 				.FirstOrDefaultAsync();
 		}
+
 	}
 }

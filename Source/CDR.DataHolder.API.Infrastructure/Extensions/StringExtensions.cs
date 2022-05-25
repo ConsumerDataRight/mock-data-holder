@@ -75,11 +75,11 @@ namespace CDR.DataHolder.API.Infrastructure.Extensions
                 throw new ArgumentNullException(nameof(query));
             }
 
-            if (!url.Contains("?"))
+            if (!url.Contains('?'))
             {
                 url += "?";
             }
-            else if (!url.EndsWith("&"))
+            else if (!url.EndsWith('&'))
             {
                 url += "&";
             }
@@ -96,7 +96,7 @@ namespace CDR.DataHolder.API.Infrastructure.Extensions
 
             if (string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException(nameof(name));
+                throw new ArgumentException("{0} was not provided", nameof(name));
             }
 
             return url.AddQueryString($"{name}={(value == null ? string.Empty : UrlEncoder.Default.Encode(value))}");
@@ -114,7 +114,7 @@ namespace CDR.DataHolder.API.Infrastructure.Extensions
                 throw new ArgumentNullException(nameof(query));
             }
 
-            if (!url.Contains("#"))
+            if (!url.Contains('#'))
             {
                 url += "#";
             }
@@ -137,7 +137,7 @@ namespace CDR.DataHolder.API.Infrastructure.Extensions
         {
             if (scopes.IsMissing())
             {
-                return null;
+                return new List<string>();
             }
 
             scopes = scopes.Trim();
@@ -149,7 +149,7 @@ namespace CDR.DataHolder.API.Infrastructure.Extensions
                 return parsedScopes;
             }
 
-            return null;
+            return new List<string>();
         }
     }
 }

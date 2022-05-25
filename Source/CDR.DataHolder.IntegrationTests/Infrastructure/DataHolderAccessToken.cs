@@ -52,7 +52,6 @@ namespace CDR.DataHolder.IntegrationTests
 
         public string ClientAssertionType { get; set; } = BaseTest.CLIENTASSERTIONTYPE;
 
-        // public string ClientRedirectURI { get; set; } = BaseTest.SOFTWAREPRODUCT_REDIRECT_URI;
         public string ClientRedirectURI { get; set; } = BaseTest.SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS;
 
         public string Scope { get; set; } = BaseTest.SCOPE_REGISTRATION;
@@ -63,8 +62,6 @@ namespace CDR.DataHolder.IntegrationTests
         {
             var clientAssertion = new PrivateKeyJwt2
             {
-                // CertificateFilename = CertificateFilename,
-                // CertificatePassword = CertificatePassword,
                 CertificateFilename = BaseTest.JWT_CERTIFICATE_FILENAME,
                 CertificatePassword = BaseTest.JWT_CERTIFICATE_PASSWORD,
                 Issuer = ClientId,

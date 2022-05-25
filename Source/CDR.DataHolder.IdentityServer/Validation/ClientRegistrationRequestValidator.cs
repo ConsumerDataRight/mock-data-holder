@@ -6,10 +6,12 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CDR.DataHolder.IdentityServer.Configuration;
+using CDR.DataHolder.IdentityServer.Extensions;
 using CDR.DataHolder.IdentityServer.Interfaces;
 using CDR.DataHolder.IdentityServer.Models;
 using CDR.DataHolder.IdentityServer.Stores;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -18,19 +20,15 @@ namespace CDR.DataHolder.IdentityServer.Validation
     public class ClientRegistrationRequestValidator : IClientRegistrationRequestValidator
     {
         private readonly ILogger<ClientRegistrationRequestValidator> _logger;
+        private readonly IConfiguration _configuration;
         private readonly IConfigurationSettings _configurationSettings;
-        private readonly DynamicClientStore _clientStore;
-        private readonly IJwksService _jwksService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private IClientRegistrationRequest _registrationRequestObject;
-        private List<ValidationResult> _validationResults = new List<ValidationResult>();
+        private readonly List<ValidationResult> _validationResults = new();
 
         public ClientRegistrationRequestValidator(
+            IConfiguration configuration, 
             ILogger<ClientRegistrationRequestValidator> logger,
-            IConfigurationSettings configurationSettings,
-            DynamicClientStore clientStore,
-            IJwksService jwksService,
-            IHttpContextAccessor httpContextAccessor)
+            IConfigurationSettings configurationSettings)
         {
             // [ABA] Request processing:
             // 1. Decode the request JWT received from Data Recipient, without validating the signature.
@@ -38,11 +36,9 @@ namespace CDR.DataHolder.IdentityServer.Validation
             // 3. Validate the software statement JWT with the CDR Registry JWKS endpoint.
             // 4. Extract the ADR software JWKS endpoint from the software statement.
             // 5. Validate the request JWT using the ADR software JWKS endpoint extracted.
+            _configuration = configuration;
             _logger = logger;
             _configurationSettings = configurationSettings;
-            _clientStore = clientStore;
-            _jwksService = jwksService;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IEnumerable<ValidationResult>> ValidateAsync(IClientRegistrationRequest request)
@@ -150,31 +146,25 @@ namespace CDR.DataHolder.IdentityServer.Validation
             return true;
         }
 
-        private bool MustEqual(object propValue, string propName, string expectedValue)
+        private void MustEqual(object propValue, string propName, string expectedValue)
         {
             if (!CheckMandatory(propValue, propName))
             {
-                return false;
+                return;
             }
 
             if (!propValue.ToString().Equals(expectedValue, StringComparison.OrdinalIgnoreCase))
             {
                 _validationResults.Add(new ValidationResult(string.Format(CdsConstants.ValidationErrorMessages.MustEqual, GetDisplayName(propName), expectedValue), new string[] { propName }));
-                return false;
             }
-
-            return true;
         }
 
-        private bool MustContain(IEnumerable<string> propValue, string propName, string expectedValue)
+        private void MustContain(IEnumerable<string> propValue, string propName, string expectedValue)
         {
             if (!propValue.Contains(expectedValue, StringComparer.OrdinalIgnoreCase))
             {
                 _validationResults.Add(new ValidationResult(string.Format(CdsConstants.ValidationErrorMessages.MustContain, GetDisplayName(propName), expectedValue), new string[] { propName }));
-                return false;
             }
-
-            return true;
         }
 
         private async Task<bool> ValidateRequestSignature()
@@ -201,7 +191,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 IssuerSigningKeys = jwks.Keys,
 
                 ValidateAudience = true,
-                ValidAudience = _configurationSettings.Registration.AudienceUri,
+                ValidAudiences = _configuration.GetValidAudiences(),
 
                 ValidateIssuer = true,
                 ValidIssuer = _registrationRequestObject.SoftwareStatement.SoftwareId,
@@ -232,14 +222,14 @@ namespace CDR.DataHolder.IdentityServer.Validation
 
             if (string.IsNullOrEmpty(sectorIdentifierUri))
             {
-                _logger.LogInformation($"Sector URI not found");
+                _logger.LogInformation("Sector URI not found");
                 return true;
             }
 
             var clientHandler = new HttpClientHandler();
             clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
 
-            _logger.LogInformation($"Sending a request to: {sectorIdentifierUri}");
+            _logger.LogInformation("Sending a request to: {sectorIdentifierUri}", sectorIdentifierUri);
 
             var sectorIdClient = new HttpClient(clientHandler);
             var sectorIdResponse = await sectorIdClient.GetAsync(sectorIdentifierUri);
@@ -302,7 +292,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             var clientHandler = new HttpClientHandler();
             clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
 
-            _logger.LogInformation($"Retrieving JWKS from: {jwksEndpoint}");
+            _logger.LogInformation("Retrieving JWKS from: {jwksEndpoint}", jwksEndpoint);
 
             var jwksClient = new HttpClient(clientHandler);
             var jwksResponse = await jwksClient.GetAsync(jwksEndpoint);

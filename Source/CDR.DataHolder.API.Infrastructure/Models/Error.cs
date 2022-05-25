@@ -157,11 +157,6 @@ namespace CDR.DataHolder.API.Infrastructure.Models
             return new Error("invalid_request_object", string.Empty, description);
         }
 
-        public static Error InvalidScope(string description)
-        {
-            return new Error("invalid_scope", string.Empty, description);
-        }
-
         public static Error MissingOpenIdScope(string description)
         {
             return new Error("invalid_request", string.Empty, description);
@@ -243,13 +238,13 @@ namespace CDR.DataHolder.API.Infrastructure.Models
             };
         }
 
-        public static Error NotFound()
+        public static Error NotFound(string detail = null)
         {            
             return new Error()
             {
                 Code = "urn:au-cds:error:cds-all:Resource/NotFound",
                 Title = "Resource Not Found",
-                Detail = "Account ID could not be found for the customer"
+                Detail = detail
             };
         }
 

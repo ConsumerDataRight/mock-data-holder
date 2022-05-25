@@ -20,7 +20,7 @@ namespace CDR.DataHolder.Domain.Entities
 
 		public static class Statuses
 		{
-			public static string Active = "ACTIVE";
+			public const string Active = "ACTIVE";
 		}
 	}
 }

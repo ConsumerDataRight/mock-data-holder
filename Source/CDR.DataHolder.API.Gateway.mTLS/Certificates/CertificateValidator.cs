@@ -27,7 +27,7 @@ namespace CDR.DataHolder.API.Gateway.mTLS.Certificates
 
             if (clientCert == null)
             {
-                throw new ArgumentNullException("clientCert");
+                throw new ArgumentNullException(nameof(clientCert));
             }
 
             // Validate that the certificate has been issued by the Mock CDR CA.
@@ -49,7 +49,7 @@ namespace CDR.DataHolder.API.Gateway.mTLS.Certificates
 
             if (ch.ChainStatus.Any())
             {
-                _logger.LogError($"The client cert could not be verified to have been issued by '{ROOT_CA_SUBJECT}'. ${ch.ChainStatus[0].StatusInformation}");
+                _logger.LogError("The client cert could not be verified to have been issued by '{subject}'. {statusInformation}", ROOT_CA_SUBJECT, ch.ChainStatus[0].StatusInformation);
                 return false;
             }
 

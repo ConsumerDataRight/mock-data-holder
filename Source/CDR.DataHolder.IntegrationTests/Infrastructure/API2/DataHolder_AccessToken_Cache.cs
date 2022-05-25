@@ -1,64 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Xunit;
 using static CDR.DataHolder.IntegrationTests.BaseTest;
-using CDR.DataHolder.IntegrationTests.Fixtures;
 
 #nullable enable
 
 namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 {
-// TODO MJS 2021-10-21 - Not used in pipeline, remove
-/*
-#if DEBUG
-    public class BROKEN_DataHolder_AccessToken_Cache_UnitTests : BaseTest, IClassFixture<BROKEN_DataHolder_AccessToken_Cache_UnitTests.Fixture>
-    {
-        class Fixture : IAsyncLifetime
-        {
-            public async Task InitializeAsync()
-            {
-                TestSetup.Register_PatchRedirectUri();
-                TestSetup.DataHolder_PurgeIdentityServer();
-                await TestSetup.DataHolder_RegisterSoftwareProduct();
-            }
-
-            public Task DisposeAsync()
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        // TODO 13/08/2021 - Update MDH_InfosecProfileAPI_Token story. Refresh tokens don't work. 
-        // Check with Ashley if this logic is correct:-
-        //   1) call token api with refresh token to get back new access token & refresh token.
-        //   2) repeat #1 (but with new refresh token from previous call to #1), should be able to do this practically forever (until CdrArrangement has expired)
-        // The API works on first call but fails on subsequent calls with "invalid grant". In IDSVR persistedgrants table the refreshtoken has been deleted (hence the invalid grant since the refresh token no longer exists)
-        [Fact]
-        public async Task GetAccessToken_CacheStrategy_ShouldDoE2EAuthConsentFlowOn1stCall_AndHitCacheOnSubsequentCalls()
-        {
-            // Arrange
-            var cache = new BROKEN_DataHolder_AccessToken_Cache();
-
-            // Act/Assert
-            const int MAX = 5;
-            for (int i = 1; i <= MAX; i++)
-            {
-                var token = await cache.GetAccessToken(USERID_JANEWILSON, ACCOUNTIDS_ALL_JANE_WILSON, SCOPE);
-                token.Should().NotBeNullOrEmpty();
-            }
-
-            // Assert
-            cache.Misses.Should().Be(1);
-            cache.Hits.Should().Be(MAX - 1);
-        }
-    }
-#endif    
-*/    
-
     /// <summary>
     /// Get access token from DataHolder.
     /// Cache request (user/selectedaccounts/scope) and refreshtoken.
@@ -83,8 +31,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
             string userId,
             string selectedAccounts,
             string scope = BaseTest.SCOPE
-            // bool expired = false,
-            // string accountId = ""
             )
         {
             async Task<(string accessToken, string refreshToken)> FromAuthConsentFlow()
@@ -157,66 +103,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
         }
     }
 
-// TODO MJS 2021-10-21 - Not used in pipeline, remove
-/*
-#if DEBUG
-    public class DataHolder_AccessToken_Cache_UnitTests : BaseTest, IClassFixture<DataHolder_AccessToken_Cache_UnitTests.Fixture>
-    {
-        class Fixture : IAsyncLifetime
-        {
-            public async Task InitializeAsync()
-            {
-                TestSetup.Register_PatchRedirectUri();
-                TestSetup.DataHolder_PurgeIdentityServer();
-                await TestSetup.DataHolder_RegisterSoftwareProduct();
-            }
-
-            public Task DisposeAsync()
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        private static async Task<HttpResponseMessage> CallResourceAPI(string accessToken)
-        {
-            var api = new Infrastructure.API
-            {
-                CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD,
-                HttpMethod = HttpMethod.Get,
-                URL = $"{DH_MTLS_GATEWAY_URL}/cds-au/v1/banking/accounts",
-                XV = "1",
-                XFapiAuthDate = DateTime.Now.ToUniversalTime().ToString("r"),
-                AccessToken = accessToken
-            };
-            var response = await api.SendAsync();
-
-            return response;
-        }
-
-        [Fact]
-        public async Task GetAccessToken_CacheStrategy_ShouldDoE2EAuthConsentFlowOn1stCall_AndHitCacheOnSubsequentCalls()
-        {
-            // Arrange
-            var cache = new DataHolder_AccessToken_Cache();
-
-            // Act/Assert
-            const int MAX = 5;
-            for (int i = 1; i <= MAX; i++)
-            {
-                var token = await cache.GetAccessToken(USERID_JANEWILSON, ACCOUNTIDS_ALL_JANE_WILSON, SCOPE);
-                token.Should().NotBeNullOrEmpty();
-                (await CallResourceAPI(token!)).StatusCode.Should().Be(HttpStatusCode.OK);  // check access token actually works
-            }
-
-            // Assert
-            cache.Misses.Should().Be(1);
-            cache.Hits.Should().Be(MAX - 1);
-        }
-    }
-#endif      
-*/  
-
     /// <summary>
     /// Get access token from DataHolder.
     /// Cache request (user/selectedaccounts/scope) and accesstoken.
@@ -241,8 +127,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 
         public async Task<string?> GetAccessToken(TokenType tokenType, string scope = BaseTest.SCOPE)
         {
-            // if (expired) { throw new NotImplementedException(); }
-
             switch (tokenType)
             {
                 case TokenType.JANE_WILSON:
@@ -272,8 +156,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
             string userId,
             string selectedAccounts,
             string scope = BaseTest.SCOPE
-            // bool expired = false,
-            // string accountId = ""
             )
         {
             async Task<(string accessToken, string refreshToken)> FromAuthConsentFlow()

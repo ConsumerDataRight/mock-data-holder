@@ -1,8 +1,12 @@
 **Checklist:** (Put an `x` in all the boxes that apply)
 - [ ] My code follows the code style of this project.
+- [ ] I have set this Pull Request to Auto Complete with the delete source branch option selected.
+- [ ] Commented out code has been removed or will be removed.
 - [ ] I have updated the documentation accordingly.
 - [ ] I have added tests to cover my changes.
 - [ ] All new and existing tests passed.
+- [ ] I have updated the `CHANGELOG.md` file as appropriate.
+
 
 **What kind of change does this PR introduce?** (Bug fix, feature, docs update, ...)
 

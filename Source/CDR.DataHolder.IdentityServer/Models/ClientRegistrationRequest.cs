@@ -105,7 +105,7 @@ namespace CDR.DataHolder.IdentityServer.Models
         /// Gets an array of redirection URI strings for use in redirect-based flows.
         /// </summary>
         [Display(Name = "redirect_uris")]
-        public IEnumerable<string> RedirectUris => Claims.Where(x => x.Type == CdsConstants.ClientMetadata.RedirectUris).Select(x => x.Value).ToArray();
+        public IEnumerable<string> RedirectUris => Claims.Where(x => x.Type == CdsConstants.ClientMetadata.RedirectUris).Select(x => x.Value);
 
         /// <summary>
         /// Gets the requested authentication method for the token endpoint.
@@ -126,7 +126,7 @@ namespace CDR.DataHolder.IdentityServer.Models
         /// Gets an array of OAuth 2.0 grant type strings that the client can use at the token endpoint.
         /// </summary>
         [Display(Name = "grant_types")]
-        public IEnumerable<string> GrantTypes => Claims.Where(x => x.Type == CdsConstants.ClientMetadata.GrantTypes).Select(x => x.Value).ToArray();
+        public IEnumerable<string> GrantTypes => Claims.Where(x => x.Type == CdsConstants.ClientMetadata.GrantTypes).Select(x => x.Value);
    
         /// <summary>
         /// Gets an array of the OAuth 2.0 response type strings that the client can use at the authorization endpoint.

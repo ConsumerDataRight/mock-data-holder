@@ -70,11 +70,8 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
         /// </summary>
         public static async Task<HttpResponseMessage> RegisterSoftwareProduct(string registrationRequest)
         {
-            // var accessToken = BaseTest.CreateAccessToken(BaseTest.TokenType.BUSINESS_1); 
-
             var url = $"{BaseTest.DH_MTLS_GATEWAY_URL}/connect/register";
 
-            // var accessToken = new ClientAssertion { Aud = url }.Get();
             var accessToken = new PrivateKeyJwt2()
             {
                 CertificateFilename = BaseTest.JWT_CERTIFICATE_FILENAME,

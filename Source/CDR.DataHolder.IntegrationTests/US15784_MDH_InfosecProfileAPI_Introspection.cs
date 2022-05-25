@@ -156,7 +156,7 @@ namespace CDR.DataHolder.IntegrationTests
             DataHolder_Token_API.Response? tokenResponse;
             if (expired)
             {
-                const int EXPIRED_LIFETIME_SECONDS = 5;
+                const int EXPIRED_LIFETIME_SECONDS = 10;
 
                 tokenResponse = await GetToken(TokenType.JANE_WILSON, tokenLifetime: EXPIRED_LIFETIME_SECONDS, sharingDuration: EXPIRED_LIFETIME_SECONDS);
 

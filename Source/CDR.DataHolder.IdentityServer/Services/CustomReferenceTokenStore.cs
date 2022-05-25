@@ -10,12 +10,10 @@ namespace CDR.DataHolder.IdentityServer.Services
     public class CustomReferenceTokenStore : IReferenceTokenStore
     {
         protected readonly IMemoryCache _memCache;
-        private readonly ILogger<IReferenceTokenStore> _logger;
 
-        public CustomReferenceTokenStore(IMemoryCache memCache, ILogger<IReferenceTokenStore> logger)
+        public CustomReferenceTokenStore(IMemoryCache memCache)
         {
             _memCache = memCache;
-            _logger = logger;
         }
 
         public async Task<Token> GetReferenceTokenAsync(string handle)

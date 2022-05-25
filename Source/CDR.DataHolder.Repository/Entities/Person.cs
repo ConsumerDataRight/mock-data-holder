@@ -7,7 +7,7 @@ namespace CDR.DataHolder.Repository.Entities
 	{
 		public Person()
 		{
-			this.PersonId = new Guid();
+			this.PersonId = Guid.NewGuid();
 		}
 
 		[Key]

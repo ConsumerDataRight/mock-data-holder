@@ -1,10 +1,10 @@
+using IdentityServer4;
+using IdentityServer4.Models;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using IdentityServer4;
-using IdentityServer4.Models;
-using Microsoft.Data.Sqlite;
 using static IdentityModel.OidcConstants;
 
 #nullable enable
@@ -29,7 +29,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
             string[]? accountIds = null)
         {
             // Insert userconsent into persistedgrants table
-            static void InsertUserConsent(SqliteConnection connection, string subject, string? scope)
+            static void InsertUserConsent(SqlConnection connection, string subject, string? scope)
             {
                 var key = Guid.NewGuid().ToString();
 
@@ -45,8 +45,8 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                     Expiration = (DateTime?)null
                 };
 
-                using var insertCommand = new SqliteCommand($@"
-                    insert into persistedgrants (type, clientId, creationTime, subjectId, data, key)
+                using var insertCommand = new SqlCommand($@"
+                    insert into persistedgrants ([type], [clientId], [creationTime], [subjectId], [data], [key])
                     values (@type, @clientId, @creationTime, @subjectId, @data, @key)",
                     connection);
 
@@ -55,27 +55,24 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 insertCommand.Parameters.AddWithValue("@creationTime", creationTime);
                 insertCommand.Parameters.AddWithValue("@subjectId", subject);
                 insertCommand.Parameters.AddWithValue("@data", data.ToJson());
-                // insertCommand.Parameters.AddWithValue("@expiration", expiration);
                 insertCommand.Parameters.AddWithValue("@key", key);
 
                 insertCommand.ExecuteNonQuery();
             }
 
             // Insert cdr arrangement into persistedgrants table
-            static string InsertCDRArrangement(SqliteConnection connection, string subject)
+            static string InsertCDRArrangement(SqlConnection connection, string subject)
             {
                 var cdrArrangementId = Guid.NewGuid().ToString();
                 var creationTime = DateTime.UtcNow;
 
                 var data = new
                 {
-                    // refresh_token_key = "foo",
                     subject,
-                    // auth_code = "foo",
                 };
 
-                using var insertCommand = new SqliteCommand($@"
-                    insert into persistedgrants (type, clientId, creationTime, subjectId, data, key)
+                using var insertCommand = new SqlCommand($@"
+                    insert into persistedgrants ([type], [clientId], [creationTime], [subjectId], [data], [key])
                     values (@type, @clientId, @creationTime, @subjectId, @data, @key)",
                     connection);
 
@@ -84,7 +81,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 insertCommand.Parameters.AddWithValue("@creationTime", creationTime);
                 insertCommand.Parameters.AddWithValue("@subjectId", subject);
                 insertCommand.Parameters.AddWithValue("@data", data.ToJson());
-                // insertCommand.Parameters.AddWithValue("@expiration", expiration);
                 insertCommand.Parameters.AddWithValue("@key", cdrArrangementId);
 
                 insertCommand.ExecuteNonQuery();
@@ -94,19 +90,16 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 
             // Insert authorization into persistedgrants table
             static string InsertAuthorizationCode(
-                SqliteConnection connection, string subject, string? scope, int? sharingDuration, int lifetimeSeconds, string cdrArrangementId, string[]? accountIds)
+                SqlConnection connection, string subject, string? scope, int? sharingDuration, int lifetimeSeconds, string cdrArrangementId, string[]? accountIds)
             {
                 // var authCode = BaseTest.AUTHORISATION_CODE;
                 var authCode = Guid.NewGuid().ToString();
 
                 var SOFTWAREPRODUCT_ID = BaseTest.SOFTWAREPRODUCT_ID.ToLower();
-                // var sub = customerId;
-                // var RedirectUris = new string[] { BaseTest.SOFTWAREPRODUCT_REDIRECT_URI };
                 var RedirectUris = new string[] { BaseTest.SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS };
 
                 // Key for persisted grant
                 var key = $"{authCode}:authorization_code".Sha256();
-
 
                 // Delete persisted grant 
                 // using var deleteCommand = new SqliteCommand($"delete from persistedgrants where key = @key", connection);
@@ -123,7 +116,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 //     expiration = DateTime.UtcNow.AddMinutes(-2);
                 // }
 
-                using var insertCommand = new SqliteCommand($"insert into persistedgrants (type, clientId, creationTime, subjectId, data, expiration, key) values (@type, @clientId, @creationTime, @subjectId, @data, @expiration, @key)", connection);
+                using var insertCommand = new SqlCommand($"insert into persistedgrants ([type], [clientId], [creationTime], [subjectId], [data], [expiration], [key]) values (@type, @clientId, @creationTime, @subjectId, @data, @expiration, @key)", connection);
                 insertCommand.Parameters.AddWithValue("@type", "authorization_code");
                 insertCommand.Parameters.AddWithValue("@clientId", SOFTWAREPRODUCT_ID);
                 insertCommand.Parameters.AddWithValue("@creationTime", creationTime);
@@ -134,7 +127,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 var additionalClaims = new List<Claim>
                 {
                     new Claim("acr", "urn:cds.au:cdr:2"),
-                    // new Claim("cdr_arrangement_id", Guid.NewGuid().ToString())
                     new Claim("cdr_arrangement_id", cdrArrangementId)
                 };
 
@@ -177,7 +169,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
             }
 
             // Connect to IdentityServer db
-            using var connection = new SqliteConnection(BaseTest.IDENTITYSERVER_CONNECTIONSTRING);
+            using var connection = new SqlConnection(BaseTest.IDENTITYSERVER_CONNECTIONSTRING);
             connection.Open();
 
             InsertUserConsent(connection, customerId, scope);

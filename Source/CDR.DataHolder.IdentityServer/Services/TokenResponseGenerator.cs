@@ -4,8 +4,9 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using CDR.DataHolder.API.Infrastructure.Extensions;
+using CDR.DataHolder.API.Infrastructure.IdPermanence;
 using CDR.DataHolder.IdentityServer.Configuration;
-using CDR.DataHolder.IdentityServer.Helpers;
+using CDR.DataHolder.IdentityServer.Extensions;
 using CDR.DataHolder.IdentityServer.Interfaces;
 using CDR.DataHolder.IdentityServer.Models;
 using IdentityServer4;
@@ -15,6 +16,7 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using static CDR.DataHolder.IdentityServer.CdsConstants;
@@ -23,9 +25,9 @@ namespace CDR.DataHolder.IdentityServer.Services
 {
     public class TokenResponseGenerator : IdentityServer4.ResponseHandling.TokenResponseGenerator
     {
-        private readonly IRefreshTokenStore _refreshTokenStore;
-        private readonly IConfigurationSettings _configurationSettings;
         private readonly ICustomGrantService _customGrantService;
+        private readonly IIdPermanenceManager _idPermanenceManager;
+        private readonly IConfiguration _configuration;
 
         public TokenResponseGenerator(
             ISystemClock clock,
@@ -34,15 +36,15 @@ namespace CDR.DataHolder.IdentityServer.Services
             IScopeParser scopeParser,
             IResourceStore resources,
             IClientStore clients,
+            IConfiguration configuration,
             ILogger<TokenResponseGenerator> logger,
-            IRefreshTokenStore refreshTokenStore,
-            IConfigurationSettings configurationSettings,
+            IIdPermanenceManager idPermanenceManager,
             ICustomGrantService customGrantService)
         : base(clock, tokenService, refreshTokenService, scopeParser, resources, clients, logger)
         {
-            _refreshTokenStore = refreshTokenStore;
-            _configurationSettings = configurationSettings;
             _customGrantService = customGrantService;
+            _idPermanenceManager = idPermanenceManager;
+            _configuration = configuration;
         }
 
         protected override async Task<string> CreateIdTokenFromRefreshTokenRequestAsync(ValidatedTokenRequest request, string newAccessToken)
@@ -75,10 +77,12 @@ namespace CDR.DataHolder.IdentityServer.Services
             return null;
         }
 
-        protected override async Task<IdentityServer4.ResponseHandling.TokenResponse> ProcessRefreshTokenRequestAsync(TokenRequestValidationResult request)
+        protected override async Task<IdentityServer4.ResponseHandling.TokenResponse> ProcessRefreshTokenRequestAsync(
+            TokenRequestValidationResult request)
         {
             Logger.LogTrace("Creating response for refresh token request");
 
+            var refreshToken = request.ValidatedRequest.RefreshTokenHandle;
             var oldAccessToken = request.ValidatedRequest.RefreshToken.AccessToken;
             string accessTokenString;
             var scopes = request.ValidatedRequest.RefreshToken.Scopes;
@@ -109,12 +113,7 @@ namespace CDR.DataHolder.IdentityServer.Services
 
                 accessTokenString = await TokenService.CreateSecurityTokenAsync(oldAccessToken);
             }
-            
-            /////////////////////////
-            //New refresh token created
-            /////////////////////////
-            string refreshToken = await CreateRefreshTokenAsync(request);
-            
+
             var response = new IdentityServer4.ResponseHandling.TokenResponse
             {
                 IdentityToken = await CreateIdTokenFromRefreshTokenRequestAsync(request.ValidatedRequest, accessTokenString),
@@ -142,27 +141,6 @@ namespace CDR.DataHolder.IdentityServer.Services
             }
 
             return response;
-        }
-
-        /// <summary>
-        /// Creates and returns new refresh token
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        private async Task<string> CreateRefreshTokenAsync(TokenRequestValidationResult request)
-        {
-            var tokenRequest = new TokenCreationRequest
-            {
-                Subject = request.ValidatedRequest.Subject,
-                ValidatedResources = request.ValidatedRequest.ValidatedResources,
-                ValidatedRequest = request.ValidatedRequest,
-            };
-
-            var at = await TokenService.CreateAccessTokenAsync(tokenRequest);
-            var accessToken = await TokenService.CreateSecurityTokenAsync(at);
-
-            var refreshToken = await RefreshTokenService.CreateRefreshTokenAsync(tokenRequest.Subject, at, request.ValidatedRequest.Client);
-            return refreshToken;
         }
 
         protected override async Task<IdentityServer4.ResponseHandling.TokenResponse> ProcessAuthorizationCodeRequestAsync(TokenRequestValidationResult request)
@@ -212,7 +190,7 @@ namespace CDR.DataHolder.IdentityServer.Services
             {
                 await CreateOrGetArrangementPersistedGrant(request.ValidatedRequest, refreshToken);
             }
-            
+
             //////////////////////////
             // refresh token
             /////////////////////////
@@ -258,22 +236,6 @@ namespace CDR.DataHolder.IdentityServer.Services
                 response.IdentityToken = jwt;
             }
 
-            ////////////////////////////
-            //// cdr arrangement id
-            ///////////////////////////
-            //var arrangementId = await CreateOrGetArrangementPersistedGrant(request.ValidatedRequest, refreshToken);
-            //if (response.Custom == null)
-            //{
-            //    response.Custom = new System.Collections.Generic.Dictionary<string, object>()
-            //    {
-            //        { StandardClaims.CDRArrangementId, arrangementId },
-            //    };
-            //}
-            //else
-            //{
-            //    response.Custom.Add(StandardClaims.CDRArrangementId, arrangementId);
-            //}
-
             return response;
         }
 
@@ -318,27 +280,7 @@ namespace CDR.DataHolder.IdentityServer.Services
             }
             else if (request.DeviceCode != null)
             {
-                createRefreshToken = request.DeviceCode.AuthorizedScopes.Contains(IdentityServerConstants.StandardScopes.OfflineAccess);
-
-                Client client = null;
-                if (request.DeviceCode.ClientId != null)
-                {
-                    client = await Clients.FindEnabledClientByIdAsync(request.DeviceCode.ClientId);
-                }
-
-                if (client == null)
-                {
-                    throw new InvalidOperationException("Client does not exist anymore.");
-                }
-
-                var resources = await Resources.FindEnabledResourcesByScopeAsync(request.DeviceCode.AuthorizedScopes);
-
-                tokenRequest = new TokenCreationRequest
-                {
-                    Subject = request.DeviceCode.Subject,
-                    ValidatedResources = request.ValidatedResources,
-                    ValidatedRequest = request,
-                };
+                throw new InvalidOperationException("DeviceCode not supported.");
             }
             else
             {
@@ -355,6 +297,22 @@ namespace CDR.DataHolder.IdentityServer.Services
             var at = await TokenService.CreateAccessTokenAsync(tokenRequest);
             var accessToken = await TokenService.CreateSecurityTokenAsync(at);
 
+            // If updating an existing CDR Arrangement, delete any existing refresh token.
+            var cdrArrangementId = at.Claims.GetClaimValue<string>(CdsConstants.StandardClaims.CDRArrangementId);
+            if (!string.IsNullOrEmpty(cdrArrangementId))
+            {
+                var searchTerm = $"\"Type\":\"cdr_arrangement_id\",\"Value\":\"{cdrArrangementId}\"";
+                var grant = await _customGrantService.GetGrantByKeyword(
+                    at.Claims.GetClaimValue<string>(CdsConstants.StandardClaims.Sub),
+                    CdsConstants.GrantTypes.RefreshToken,
+                    searchTerm);
+
+                if (grant != null)
+                {
+                    await _customGrantService.RemoveGrant(grant.Key);
+                }
+            }
+
             if (createRefreshToken)
             {
                 var refreshToken = await RefreshTokenService.CreateRefreshTokenAsync(tokenRequest.Subject, at, request.Client);
@@ -365,9 +323,12 @@ namespace CDR.DataHolder.IdentityServer.Services
             return (accessToken, null);
         }
 
-        private async Task<string> CreateOrGetArrangementPersistedGrant(ValidatedTokenRequest validatedRequest, string refreshToken)
+        private async Task<string> CreateOrGetArrangementPersistedGrant(
+            ValidatedTokenRequest validatedRequest,
+            string refreshToken)
         {
-            var sub = validatedRequest.Subject.GetSubjectId();
+            // Decrypt the subject id.
+            var sub = GetSubjectId(validatedRequest);
             var cdrArrangementId = validatedRequest.Subject.GetClaimValue(CdsConstants.StandardClaims.CDRArrangementId);
             var existingGrant = await GetExistingCdrArrangementGrant(sub, cdrArrangementId, validatedRequest.AuthorizationCodeHandle, refreshToken);
 
@@ -376,17 +337,10 @@ namespace CDR.DataHolder.IdentityServer.Services
                 RefreshTokenKey = string.IsNullOrEmpty(refreshToken) ? string.Empty : $"{refreshToken}:{CdsConstants.GrantTypes.RefreshToken}".Sha256(),
                 Subject = sub,
             };
-            var cdrArrangementGrantJson = JsonConvert.SerializeObject(cdrArrangementGrant, Formatting.Indented);
+            var cdrArrangementGrantJson = JsonConvert.SerializeObject(cdrArrangementGrant, Formatting.None);
 
             if (existingGrant != null)
             {
-                // Cleanup previous refresh token.
-                var oldData = JsonConvert.DeserializeObject<CdrArrangementGrant>(existingGrant.Data);
-                if (!string.IsNullOrEmpty(oldData.RefreshTokenKey))
-                {
-                    await _customGrantService.RemoveGrant(oldData.RefreshTokenKey);
-                }
-
                 existingGrant.Data = cdrArrangementGrantJson;
                 return await _customGrantService.StoreGrant(existingGrant);
             }
@@ -406,6 +360,33 @@ namespace CDR.DataHolder.IdentityServer.Services
             return await _customGrantService.StoreGrant(persistedGrant);
         }
 
+        private string GetSubjectId(ValidatedTokenRequest validatedRequest)
+        {
+            // If the sub claim value is a guid, then no need to decrypt.
+            var sub = validatedRequest.Subject.GetSubjectId();
+            if (Guid.TryParse(sub, out _))
+            {
+                return sub;
+            }
+
+            // Extract the claim values needed to decrypt the sub claim.
+            var softwareId = validatedRequest.Subject.Claims.GetClaimValue("software_id");
+            var sectorIdentifierUri = validatedRequest.Subject.Claims.GetClaimValue("sector_identifier_uri");
+
+            if (string.IsNullOrEmpty(softwareId) || string.IsNullOrEmpty(sectorIdentifierUri))
+            {
+                return sub;
+            }
+
+            // Decrypt the sub claim via the id permanence algorithm.
+            var param = new SubPermanenceParameters()
+            {
+                SoftwareProductId = softwareId,
+                SectorIdentifierUri = sectorIdentifierUri
+            };
+            return _idPermanenceManager.DecryptSub(sub, param);
+        }
+
         private async Task<PersistedGrant> GetExistingCdrArrangementGrant(string sub, string cdrArrangementId, string authorizationCode, string refreshToken)
         {
             // Find the grant by cdr arrangement id, subject id and grant type.
@@ -420,11 +401,14 @@ namespace CDR.DataHolder.IdentityServer.Services
             return await _customGrantService.GetGrantByKeyword(sub, CdsConstants.GrantTypes.CdrArrangementGrant, keywordInData);
         }
 
-        private static void AddOptionalClaims(Token idToken, bool refreshTokenCreated)
+        private void AddOptionalClaims(Token idToken, bool refreshTokenCreated)
         {
-            _ = int.TryParse(idToken.Claims.FirstOrDefault(x => x.Type == StandardClaims.SharingDurationExpiresAt)?.Value, out int sharingExpiresAt);
-            int refreshTokenExpiresAt = refreshTokenCreated ? sharingExpiresAt : 0;
-            idToken.Claims.Add(new Claim(StandardClaims.RefreshTokenExpiresAt, refreshTokenExpiresAt.ToString(), ClaimValueTypes.Integer));
+            if (_configuration.FapiComplianceLevel() <= FapiComplianceLevel.Fapi1Phase1)
+            {
+                _ = int.TryParse(idToken.Claims.FirstOrDefault(x => x.Type == StandardClaims.SharingDurationExpiresAt)?.Value, out int sharingExpiresAt);
+                int refreshTokenExpiresAt = refreshTokenCreated ? sharingExpiresAt : 0;
+                idToken.Claims.Add(new Claim(StandardClaims.RefreshTokenExpiresAt, refreshTokenExpiresAt.ToString(), ClaimValueTypes.Integer));
+            }
         }
     }
 }

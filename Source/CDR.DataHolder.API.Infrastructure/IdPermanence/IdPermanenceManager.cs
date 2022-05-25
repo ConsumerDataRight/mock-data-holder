@@ -40,7 +40,7 @@ namespace CDR.DataHolder.API.Infrastructure.IdPermanence
                 {
                     var id = idProperty.Compile()(item);
                     //Generate Permanence Id
-                    id = this.EncryptId(id, idParameters, privateKey);
+                    id = IdPermanenceManager.EncryptId(id, idParameters, privateKey);
 
                     var memberSelectorExpression = idProperty.Body as MemberExpression;
                     if (memberSelectorExpression != null)
@@ -69,7 +69,7 @@ namespace CDR.DataHolder.API.Infrastructure.IdPermanence
             return IdPermanenceHelper.EncryptId(internalId, idParameters, privateKey);
         }
 
-        private string EncryptId(string internalId, IdPermanenceParameters idParameters, string privateKey)
+        private static string EncryptId(string internalId, IdPermanenceParameters idParameters, string privateKey)
         {
             return IdPermanenceHelper.EncryptId(internalId, idParameters, privateKey);
         }

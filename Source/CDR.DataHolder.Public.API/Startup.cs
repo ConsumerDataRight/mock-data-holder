@@ -1,17 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using CDR.DataHolder.API.Infrastructure.Filters;
 using CDR.DataHolder.API.Infrastructure.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace CDR.DataHolder.Public.API
 {
@@ -36,6 +32,8 @@ namespace CDR.DataHolder.Public.API
                 options.ApiVersionReader = new HeaderApiVersionReader("x-v");
                 options.ErrorResponses = new ErrorResponseVersion();
             });
+
+            services.AddScoped<LogActionEntryAttribute>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,6 +43,8 @@ namespace CDR.DataHolder.Public.API
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSerilogRequestLogging();
 
             app.UseHttpsRedirection();
 

@@ -107,7 +107,7 @@ namespace CDR.DataHolder.IdentityServer.Models
         /// Gets an Array of redirection URI strings for use in redirect-based flows.
         /// </summary>
         [JsonPropertyName("redirect_uris")]
-        public IEnumerable<string> RedirectUris => Claims.Where(x => x.Type == "redirect_uris").Select(x => x.Value).ToArray();
+        public IEnumerable<string> RedirectUris => Claims.Where(x => x.Type == "redirect_uris").Select(x => x.Value);
 
         /// <summary>
         ///Sector Identifier Uri used in PPID calculations.

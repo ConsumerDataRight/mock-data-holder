@@ -194,7 +194,7 @@ namespace CDR.DataHolder.API.Infrastructure.UnitTests.Extensions
         public void ToSpaceSeparatedString_EmptyList_ReturnsEmptyString()
         {
             // Arrange.
-            List<string> values = new List<string>(new string[] { });
+            List<string> values = new List<string>(Array.Empty<string>());
             var expected = "";
 
             // Act.
@@ -589,11 +589,11 @@ namespace CDR.DataHolder.API.Infrastructure.UnitTests.Extensions
         }
 
         [Fact]
-        public void ParseScopesString_WithNullScopes_ReturnsNull()
+        public void ParseScopesString_WithNullScopes_ReturnsEmptyCollection()
         {
             // Arrange.
             string scopes = null;
-            List<string> expected = null;
+            List<string> expected = new List<string>();
 
             // Act.
             var actual = scopes.ParseScopesString();
@@ -603,11 +603,11 @@ namespace CDR.DataHolder.API.Infrastructure.UnitTests.Extensions
         }
 
         [Fact]
-        public void ParseScopesString_WithEmptyScopes_ReturnsNull()
+        public void ParseScopesString_WithEmptyScopes_ReturnsEmptyCollection()
         {
             // Arrange.
             string scopes = "";
-            List<string> expected = null;
+            List<string> expected = new List<string>();
 
             // Act.
             var actual = scopes.ParseScopesString();
@@ -617,11 +617,11 @@ namespace CDR.DataHolder.API.Infrastructure.UnitTests.Extensions
         }
 
         [Fact]
-        public void ParseScopesString_WithWhitespaceScopes_ReturnsNull()
+        public void ParseScopesString_WithWhitespaceScopes_ReturnsEmptyCollection()
         {
             // Arrange.
             string scopes = "    ";
-            List<string> expected = null;
+            List<string> expected = new List<string>();
 
             // Act.
             var actual = scopes.ParseScopesString();

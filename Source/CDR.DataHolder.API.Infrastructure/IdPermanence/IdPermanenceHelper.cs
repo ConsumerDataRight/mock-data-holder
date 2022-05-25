@@ -130,7 +130,7 @@ namespace CDR.DataHolder.API.Infrastructure.IdPermanence
             }
             catch (Exception ex)
             {
-                throw new ApplicationException("Unable to generate id.", ex.InnerException ?? ex);
+                throw new FormatException("Unable to generate id.", ex.InnerException ?? ex);
             }
         }
 
@@ -142,7 +142,7 @@ namespace CDR.DataHolder.API.Infrastructure.IdPermanence
             }
             catch (Exception ex)
             {
-                throw new ApplicationException("Unable to decrypt.", ex.InnerException ?? ex);
+                throw new FormatException("Unable to decrypt.", ex.InnerException ?? ex);
             }
         }
 

@@ -32,15 +32,11 @@ namespace CDR.DataHolder.Resource.API.UnitTests.Fixtures
 
             var services = new ServiceCollection();
 
-            var connectionStr = configuration.GetConnectionString("DefaultConnection");
+            var connectionStr = configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Default);
+            Log.Logger.Information($"SQL Db ConnectionString: {connectionStr}");
+            services.AddDbContext<DataHolderDatabaseContext>(options => options.UseSqlServer(connectionStr));
 
-            Log.Logger.Information($"Sqlite Db ConnectionString: {connectionStr}");
-
-            services.AddDbContext<DataHolderDatabaseContext>(options =>
-                    options.UseSqlite(connectionStr));
-
-            services.AddLogging(loggingBuilder =>
-                loggingBuilder.AddSerilog(dispose: true));
+            services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
 
             services.AddAutoMapper(typeof(Startup), typeof(DataHolderDatabaseContext));
 
@@ -53,7 +49,7 @@ namespace CDR.DataHolder.Resource.API.UnitTests.Fixtures
 
             // Migrate the database to the latest version during application startup.
             var context = this.ServiceProvider.GetRequiredService<DataHolderDatabaseContext>();
-            var loggerFactory = this.ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>();
+            var loggerFactory = this.ServiceProvider.GetRequiredService<ILoggerFactory>();
             var logger = loggerFactory.CreateLogger("UnitTests");
 
             loggerFactory.AddSerilog();

@@ -26,13 +26,13 @@ namespace CDR.DataHolder.IdentityServer.Services
         public Task<bool> RemoveClientById(string clientId)
             => _clientStore.RemoveClientByIdAsync(clientId);
 
-        public async Task<bool> RegisterClient(DataReceipientClient client)
+        public async Task<bool> RegisterClient(DataRecipientClient client)
         {
             client.AccessTokenLifetime = _configurationSettings.AccessTokenLifetimeSeconds;
             return await _clientStore.StoreClientAsync(client);
         }
 
-        public async Task<bool> UpdateClient(DataReceipientClient client)
+        public async Task<bool> UpdateClient(DataRecipientClient client)
         {
             client.AccessTokenLifetime = _configurationSettings.AccessTokenLifetimeSeconds;
 

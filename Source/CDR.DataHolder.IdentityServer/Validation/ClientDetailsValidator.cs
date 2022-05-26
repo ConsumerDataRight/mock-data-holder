@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using CDR.DataHolder.API.Infrastructure.Extensions;
 using CDR.DataHolder.IdentityServer.Events;
+using CDR.DataHolder.IdentityServer.Extensions;
 using CDR.DataHolder.IdentityServer.Models;
 using FluentValidation;
 using FluentValidation.Validators;
@@ -25,24 +26,21 @@ namespace CDR.DataHolder.IdentityServer.Validation
         private readonly IEventService _eventService;
         private readonly ILogger<ClientDetailsValidator> _logger;
         private readonly ITokenReplayCache _tokenCache;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ClientDetailsValidator(
             IConfiguration config,
             IdentityServerOptions options,
             IEventService eventService,
             ILogger<ClientDetailsValidator> logger,
-            ITokenReplayCache tokenCache,
-            IHttpContextAccessor httpContextAccessor)
+            ITokenReplayCache tokenCache)
         {
             _config = config;
             _options = options;
             _eventService = eventService;
             _logger = logger;
             _tokenCache = tokenCache;
-            _httpContextAccessor = httpContextAccessor;
 
-            CascadeMode = CascadeMode.StopOnFirstFailure;
+            CascadeMode = CascadeMode.Stop;
 
             RuleFor(x => x.ClientAssertionType)
                 .Equal(ClientAssertionTypes.JwtBearer)
@@ -110,28 +108,12 @@ namespace CDR.DataHolder.IdentityServer.Validation
         private Action<ClientDetails> RaiseEvent(ValidationCheck check, string message)
             => _ =>
             {
-                _logger.LogError(message);
+                _logger.LogError("{message}", message);
                 _eventService.RaiseAsync(new ClientAssertionFailureEvent(check)).GetAwaiter().GetResult();
             };
 
-        private bool BeValidJwt(ClientDetails clientDetails, string clientAssertion, PropertyValidatorContext context)
+        private bool BeValidJwt(ClientDetails clientDetails, string clientAssertion)
         {
-            var uri = new Uri(_options.IssuerUri);
-
-            // Populate valid audiences here and then enable audience validation.
-            var validAudiences = new List<string>
-            {
-                _config["IssuerUri"],
-                _config["AuthorizeUri"],
-                _config["TokenUri"],
-                _config["IntrospectionUri"],
-                _config["UserinfoUri"],
-                _config["RegisterUri"],
-                _config["ParUri"],
-                _config["ArrangementRevocationUri"],
-                _config["RevocationUri"],
-            };
-
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ClockSkew = TimeSpan.FromMinutes(1),
@@ -139,7 +121,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = clientDetails.ClientId,
                 ValidateIssuer = true,
-                ValidAudiences = validAudiences,
+                ValidAudiences = _config.GetValidAudiences(),
                 ValidateAudience = true,
                 RequireSignedTokens = true,
                 RequireExpirationTime = true,
@@ -170,7 +152,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
                     Exception _ => ClientAssertionParseError,
                 };
 
-                _logger.LogError(exception, customMessage);
+                _logger.LogError(exception, "{message}", customMessage);
                 return false;
             }
 

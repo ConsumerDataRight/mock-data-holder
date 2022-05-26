@@ -4,7 +4,9 @@ using System.Security.Claims;
 using CDR.DataHolder.IdentityServer.Configuration;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using static CDR.DataHolder.IdentityServer.CdsConstants;
+using CDR.DataHolder.IdentityServer.Extensions;
 
 namespace CDR.DataHolder.IdentityServer.Helpers
 {
@@ -17,6 +19,7 @@ namespace CDR.DataHolder.IdentityServer.Helpers
             ValidatedAuthorizeRequest validatedRequest,
             int sharingDurationSeconds,
             string cdrArrangementId,
+            IConfiguration configuration,
             IConfigurationSettings configurationSettings,
             IHttpContextAccessor httpContextAccessor)
         {
@@ -35,14 +38,12 @@ namespace CDR.DataHolder.IdentityServer.Helpers
             }
 
             // Add the sharing duration for the refresh token
-            if (sharingDurationSeconds == 0)
+            var expiry = sharingDurationSeconds == 0 ? 0 : DateTimeOffset.UtcNow.AddSeconds(sharingDurationSeconds).ToUnixTimeSeconds();
+            currentIdentity.AddClaim(new Claim(StandardClaims.Expiry, expiry.ToString(), ClaimValueTypes.Integer));
+
+            if (configuration.FapiComplianceLevel() <= CdsConstants.FapiComplianceLevel.Fapi1Phase1)
             {
-                currentIdentity.AddClaim(new Claim(StandardClaims.SharingDurationExpiresAt, "0", ClaimValueTypes.Integer));
-            }
-            else
-            {
-                var sharingExpiresAt = DateTimeOffset.UtcNow.AddSeconds(sharingDurationSeconds);
-                currentIdentity.AddClaim(new Claim(StandardClaims.SharingDurationExpiresAt, sharingExpiresAt.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer));
+                currentIdentity.AddClaim(new Claim(StandardClaims.SharingDurationExpiresAt, expiry.ToString(), ClaimValueTypes.Integer));
             }
 
             // Remove any existing cdr_arrangement_id claim.

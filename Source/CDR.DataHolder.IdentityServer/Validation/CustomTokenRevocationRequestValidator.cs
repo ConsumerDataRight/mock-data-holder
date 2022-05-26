@@ -80,36 +80,23 @@ namespace CDR.DataHolder.IdentityServer.Validation
             // check token type hint
             ///////////////////////////
             var hint = parameters.Get("token_type_hint");
-            if (hint.IsPresent())
+            if (hint.IsPresent() && CdsConstants.SupportedTokenTypeHints.Contains(hint))
             {
                 // In identity server default revocation endpoint, we can only revoke refresh token and reference access token.
                 // In current token endpoint implementation, the access token generated is self-contain, which is not stored in grant store, will expire in 2 - 10 mins.
                 // So in current revocation mechanism, revocation will only revoke refresh_token.
-                if (CdsConstants.SupportedTokenTypeHints.Contains(hint))
-                {
-                    _logger.LogDebug("Token type hint found in request: {TokenTypeHint}", hint);
-                    result.TokenTypeHint = hint;
-                }
-
-                // based on spec at https://tools.ietf.org/html/rfc7009#page-4, token_type_hint should not affect revocation response
-                // "An invalid token type hint value is ignored by the authorization
-                // server and does not influence the revocation response."
-                // else
-                // {
-                //     await RaiseCustomTokenRevocationRequestValidationFailureEvent(ValidationCheck.RevocationRequestUnsupportedTokenType, InvalidTokenTypeHintAccessToken);
-                //     result.IsError = true;
-                //     result.Error = CdsConstants.RevocationErrors.UnsupportedTokenType;
-                // }
+                _logger.LogDebug("Token type hint found in request: {TokenTypeHint}", hint);
+                result.TokenTypeHint = hint;
             }
 
             _logger.LogDebug("ValidateRequestAsync result: {@ValidateRequestResult}", result);
 
             return result;
         }
-
+        
         private async Task RaiseCustomTokenRevocationRequestValidationFailureEvent(ValidationCheck check, string message)
         {
-            _logger.LogError(message);
+            _logger.LogError("{message}", message);
             await _eventService.RaiseAsync(new RevocationRequestValidationFailureEvent(check));
         }
     }

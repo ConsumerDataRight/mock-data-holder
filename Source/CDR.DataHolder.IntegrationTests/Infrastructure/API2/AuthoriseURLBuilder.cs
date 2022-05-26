@@ -12,18 +12,13 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
     public class AuthoriseURLBuilder
     {
         public string ClientId { get; init; } = BaseTest.SOFTWAREPRODUCT_ID.ToLower();
-        // public string RedirectURI { get; init; } = BaseTest.SOFTWAREPRODUCT_REDIRECT_URI;
         public string RedirectURI { get; init; } = BaseTest.SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS;
-        // public string CertificiateFilename { get; init; } = BaseTest.CERTIFICATE_FILENAME;
-        // public string CertificiatePassword { get; init; } = BaseTest.CERTIFICATE_PASSWORD;
         public string JWT_CertificateFilename { get; init; } = BaseTest.JWT_CERTIFICATE_FILENAME;
         public string JWT_CertificatePassword { get; init; } = BaseTest.JWT_CERTIFICATE_PASSWORD;
         public string Scope { get; init; } = BaseTest.SCOPE;
         public string ResponseType { get; init; } = "code id_token";
         public string? Request { get; init; } = null; // use this as the request, rather than build request
         public string? RequestUri { get; init; } = null;
-        // public bool SignJWT { get; init; } = true; // sign the jwt?
-
 
         /// <summary>
         /// Lifetime (in seconds) of the access token. It has to be less than 60 mins
@@ -55,8 +50,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                     queryString.Add("request", Request ?? CreateRequest());
                 }
 
-                var url = QueryHelpers.AddQueryString("https://localhost:8001/connect/authorize", queryString);
-                // var url = QueryHelpers.AddQueryString("https://localhost:8002/connect/authorize", queryString);
+                var url = QueryHelpers.AddQueryString($"{BaseTest.DH_TLS_IDENTITYSERVER_BASE_URL}/connect/authorize", queryString);
 
                 return url;
             }
@@ -70,12 +64,13 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 {
                     { "iss", ClientId },
                     { "iat", iat },
+                    { "nbf", iat },
                     { "exp", iat + TokenLifetime },
                     { "jti", Guid.NewGuid().ToString().Replace("-", string.Empty) },
-                    { "aud", "https://localhost:8001" },
+                    { "aud", BaseTest.DH_TLS_IDENTITYSERVER_BASE_URL },
                     { "response_type", ResponseType },
                     { "client_id", ClientId },
-                    { "redirect_uri", RedirectURI },
+                    { "redirect_uri", BaseTest.SubstituteConstant(RedirectURI) },
                     { "scope", Scope },
                     { "state", "foo" },  
                     { "nonce", "foo" },  
@@ -89,11 +84,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                         }
                     }}
                 };
-
-            // if (RequestUri != null)
-            // {
-            //     subject.Add("request_uri", RequestUri);
-            // }
 
             return JWT2.CreateJWT(JWT_CertificateFilename, JWT_CertificatePassword, subject);
         }

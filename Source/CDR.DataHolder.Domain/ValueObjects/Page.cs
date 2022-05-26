@@ -24,7 +24,6 @@ namespace CDR.DataHolder.Domain.ValueObjects
 			}
 		}
 
-		//TODO: Check CTS sample for filters and [name='updated-since'], etc.
 		public AccountFilter Filter { get; set; }
 	}
 }

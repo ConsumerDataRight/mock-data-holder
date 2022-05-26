@@ -19,7 +19,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             _eventService = eventService;
             _logger = logger;
 
-            CascadeMode = CascadeMode.StopOnFirstFailure;
+            CascadeMode = CascadeMode.Stop;
 
             RuleFor(x => x.CertificateCommonName)
                 .NotEmpty()
@@ -43,7 +43,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
         private Action<MtlsCredential> RaiseEvent(ValidationCheck check, string message)
             => _ =>
             {
-                _logger.LogError(message);
+                _logger.LogError("{message}", message);
                 _eventService.RaiseAsync(new MtlsValidationFailureEvent(check)).GetAwaiter().GetResult();
             };
     }

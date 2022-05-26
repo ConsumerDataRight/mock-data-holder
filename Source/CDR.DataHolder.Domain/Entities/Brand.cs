@@ -19,12 +19,11 @@ namespace CDR.DataHolder.Domain.Entities
 			}
 		}
 
-		// TODO: Ideally this should be a DR
 		public LegalEntity LegalEntity { get; set; }
 
 		public static class Statuses
 		{
-			public static string Active = "ACTIVE";
+			public const string Active = "ACTIVE";
 		}
 	}
 }

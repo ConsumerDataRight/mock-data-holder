@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using CDR.DataHolder.IdentityServer.Extensions;
 using CDR.DataHolder.IdentityServer.Interfaces;

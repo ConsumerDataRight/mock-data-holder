@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "f1d22a39-e21b-4332-b993-f9e871c1f06a",
+		"_postman_id": "6f1dac8b-a905-41cf-8fe4-9af1d9852fb6",
 		"name": "Mock Data Holder",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -116,7 +116,10 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"pm.globals.set(\"x-fapi-auth-date\", new Date().toUTCString());"
+							"var moment = require('moment');\r",
+							"var dateFormat = \"ddd, DD MMM yyyy hh:mm:ss [GMT]\";\r",
+							"var fapiDate = moment().format(dateFormat);\r",
+							"pm.globals.set(\"x-fapi-auth-date\", fapiDate);"
 						],
 						"type": "text/javascript"
 					}
@@ -128,7 +131,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0RUUxQThEQi0xM0FGLTQ0RDctQjU0Qi1FOTRERkYzREY1NDgiLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjIsInNjb3BlIjoiY29tbW9uOmN1c3RvbWVyLmJhc2ljOnJlYWQifQ.IzeDU4YhWJD2fn2sFk0FL4pqR4Oxd4o8FNIhU7YgKIA",
+							"value": "add your DCR access token in here",
 							"type": "string"
 						}
 					]
@@ -176,7 +179,10 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"pm.globals.set(\"x-fapi-auth-date\", new Date().toUTCString());"
+							"var moment = require('moment');\r",
+							"var dateFormat = \"ddd, DD MMM yyyy hh:mm:ss [GMT]\";\r",
+							"var fapiDate = moment().format(dateFormat);\r",
+							"pm.globals.set(\"x-fapi-auth-date\", fapiDate);"
 						],
 						"type": "text/javascript"
 					}
@@ -188,7 +194,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0NzA1RUJBNy1EQUFFLTREQ0EtQTFGOS0xMkFBNzg1QTcwMkYiLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjIsInNjb3BlIjoiY29tbW9uOmN1c3RvbWVyLmJhc2ljOnJlYWQifQ.iU19891jixwGuN1__fxqtCNci1PBvuNB5FR984N4yEc",
+							"value": "add your DCR access token in here",
 							"type": "string"
 						}
 					]
@@ -230,7 +236,10 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"pm.globals.set(\"x-fapi-auth-date\", new Date().toUTCString());"
+							"var moment = require('moment');\r",
+							"var dateFormat = \"ddd, DD MMM yyyy hh:mm:ss [GMT]\";\r",
+							"var fapiDate = moment().format(dateFormat);\r",
+							"pm.globals.set(\"x-fapi-auth-date\", fapiDate);"
 						],
 						"type": "text/javascript"
 					}
@@ -242,7 +251,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJCRkI2ODlGQi03NzQ1LTQ1QjktQkJBQS1CMjFFMDAwNzI0NDciLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjIsInNjb3BlIjoiY29tbW9uOmN1c3RvbWVyLmJhc2ljOnJlYWQifQ.7BIIANmTX0sjkd6Du7Y_zve0M9clvKpASMfO9MNmTfA",
+							"value": "add your DCR access token in here",
 							"type": "string"
 						}
 					]
@@ -284,7 +293,10 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"pm.globals.set(\"x-fapi-auth-date\", new Date().toUTCString());"
+							"var moment = require('moment');\r",
+							"var dateFormat = \"ddd, DD MMM yyyy hh:mm:ss [GMT]\";\r",
+							"var fapiDate = moment().format(dateFormat);\r",
+							"pm.globals.set(\"x-fapi-auth-date\", fapiDate);"
 						],
 						"type": "text/javascript"
 					}
@@ -296,7 +308,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2RURBRjMyMi1BNjg1LTQxQzAtQTNCNi1BRUE4QTIzNUMzNEUiLCJuYW1lIjoiQnVzaW5lc3MgMiIsImlhdCI6MTUxNjIzOTAyMiwic2NvcGUiOiJjb21tb246Y3VzdG9tZXIuYmFzaWM6cmVhZCJ9.oi2ECposZv2vla9GmEdOCPvdWiha4INhcj2ca0AZXgA",
+							"value": "add your DCR access token in here",
 							"type": "string"
 						}
 					]

@@ -38,11 +38,9 @@ namespace CDR.DataHolder.IdentityServer.Validation
         private readonly IRedirectUriValidator _uriValidator;
         private readonly IUserSession _userSession;
         private readonly CustomJwtRequestValidator _customJwtRequestValidator;
-        private readonly IJwtRequestUriHttpClient _jwtRequestUriHttpClient;
         private readonly IPersistedGrantStore _persistedGrantStore;
         private readonly ILogger _logger;
         private readonly ITokenReplayCache _tokenCache;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly ResponseTypeEqualityComparer
             _responseTypeEqualityComparer = new ResponseTypeEqualityComparer();
@@ -56,10 +54,8 @@ namespace CDR.DataHolder.IdentityServer.Validation
             IPersistedGrantStore persistedGrantStore,
             IUserSession userSession,
             CustomJwtRequestValidator customJwtRequestValidator,
-            IJwtRequestUriHttpClient jwtRequestUriHttpClient,
             ILogger<CustomAuthorizeRequestValidator> logger,
-            ITokenReplayCache tokenCache,
-            IHttpContextAccessor httpContextAccessor)
+            ITokenReplayCache tokenCache)
         {
             _config = config;
             _options = options;
@@ -69,10 +65,8 @@ namespace CDR.DataHolder.IdentityServer.Validation
             _uriValidator = uriValidator;
             _customJwtRequestValidator = customJwtRequestValidator;
             _userSession = userSession;
-            _jwtRequestUriHttpClient = jwtRequestUriHttpClient;
             _logger = logger;
             _tokenCache = tokenCache;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<AuthorizeRequestValidationResult> ValidateAsync(NameValueCollection parameters, ClaimsPrincipal subject = null)
@@ -87,6 +81,25 @@ namespace CDR.DataHolder.IdentityServer.Validation
 
             request.Raw = parameters ?? throw new ArgumentNullException(nameof(parameters));
 
+            var jwtRequest = request.Raw.Get(OidcConstants.AuthorizeRequest.Request);
+            if (!jwtRequest.IsPresent())
+            {
+                return Invalid(request, description: "Invalid JWT request");
+            }
+
+            var requestUri = request.Raw.Get(OidcConstants.AuthorizeRequest.RequestUri);
+            if (requestUri.IsPresent())
+            {
+                return Invalid(request, description: "Invalid request_uri");
+            }
+
+            // look for JWT in request and perform basic validation.
+            var jwtRequestResult = await ReadJwtRequestAsync(request, jwtRequest);
+            if (jwtRequestResult.IsError)
+            {
+                return jwtRequestResult;
+            }
+
             // load client_id
             var loadClientResult = await LoadClientAsync(request);
             if (loadClientResult.IsError)
@@ -94,12 +107,22 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 return loadClientResult;
             }
 
-            // look for JWT in request
-            var jwtRequestResult = await ReadJwtRequestAsync(request);
-            if (jwtRequestResult.IsError)
+            // validate the request JWT for this client
+            var jwtRequestValidationResult = await _customJwtRequestValidator.ValidateAsync(request.Client, jwtRequest);
+            if (jwtRequestValidationResult.IsError)
             {
-                return jwtRequestResult;
+                LogError("request JWT validation failure", request);
+                return Invalid(request, error: jwtRequestValidationResult.Error, description: jwtRequestValidationResult.ErrorDescription);
             }
+
+            // merge jwt payload values into original request parameters
+            foreach (var key in jwtRequestValidationResult.Payload.Keys)
+            {
+                var value = jwtRequestValidationResult.Payload[key];
+                request.Raw.Set(key, value);
+            }
+
+            request.RequestObjectValues = jwtRequestValidationResult.Payload;
 
             // validate client_id and redirect_uri
             var clientResult = await ValidateClientAsync(request);
@@ -116,7 +139,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             }
 
             // scope, scope restrictions and plausability
-            var scopeResult = await ValidateScopeAsync(request);
+            var scopeResult = ValidateScope(request);
             if (scopeResult.IsError)
             {
                 return scopeResult;
@@ -134,8 +157,16 @@ namespace CDR.DataHolder.IdentityServer.Validation
             var context = new CustomAuthorizeRequestValidationContext
             {
                 Result = new AuthorizeRequestValidationResult(request),
+
             };
+
             await _customValidator.ValidateAsync(context);
+
+            if (context.Result.IsError)
+            {
+                LogError("Error in custom validation", context.Result.Error, request);
+                return Invalid(request, context.Result.Error, context.Result.ErrorDescription);
+            }
 
             // client authentication validation
             var clientAuthenticationResult = await ValidateClientAuthenticationAsync(request);
@@ -151,13 +182,6 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 return cdrArrangementIdResult;
             }
 
-            var customResult = context.Result;
-            if (customResult.IsError)
-            {
-                LogError("Error in custom validation", customResult.Error, request);
-                return Invalid(request, customResult.Error, customResult.ErrorDescription);
-            }
-
             _logger.LogTrace("Authorize request protocol validation successful");
 
             return Valid(request);
@@ -165,17 +189,12 @@ namespace CDR.DataHolder.IdentityServer.Validation
 
         private async Task<AuthorizeRequestValidationResult> LoadClientAsync(ValidatedAuthorizeRequest request)
         {
-            //////////////////////////////////////////////////////////
-            // client_id must be present
-            /////////////////////////////////////////////////////////
-            var clientId = request.Raw.Get(OidcConstants.AuthorizeRequest.ClientId);
-            if (clientId.IsMissing() || clientId.Length > _options.InputLengthRestrictions.ClientId)
-            {
-                LogError("client_id is missing or too long", request);
-                return Invalid(request, description: "Invalid client_id");
-            }
+            //
+            // FAPI Conformance Testing Suite does not send a client_id parameter with a PAR request, therefore checking for mandatory
+            // client_id parameter fails testing.
+            // Therefore, the client_id should be extracted from the request jwt.
+            //
 
-            request.ClientId = clientId;
 
             //////////////////////////////////////////////////////////
             // check for valid client
@@ -192,117 +211,36 @@ namespace CDR.DataHolder.IdentityServer.Validation
             return Valid(request);
         }
 
-        private async Task<AuthorizeRequestValidationResult> ReadJwtRequestAsync(ValidatedAuthorizeRequest request)
+        private async Task<AuthorizeRequestValidationResult> ReadJwtRequestAsync(ValidatedAuthorizeRequest request, string jwtRequest)
         {
-            //////////////////////////////////////////////////////////
-            // look for optional request params
-            /////////////////////////////////////////////////////////
-            var jwtRequest = request.Raw.Get(OidcConstants.AuthorizeRequest.Request);
-
-            // Customized for CTS to always validate if request uri is present (it isnt allowed)
-
-            var jwtRequestUri = request.Raw.Get(OidcConstants.AuthorizeRequest.RequestUri);
-            if (jwtRequest.IsPresent() && jwtRequestUri.IsPresent())
-            {
-                LogError("Both request and request_uri are present", request);
-                return Invalid(request, description: "Only one request parameter is allowed");
-            }
-
-            if (jwtRequestUri.IsPresent())
-            {
-                // 512 is from the spec
-                if (jwtRequestUri.Length > 512)
-                {
-                    LogError("request_uri is too long", request);
-                    return Invalid(request, description: "request_uri is too long");
-                }
-
-                var jwt = await _jwtRequestUriHttpClient.GetJwtAsync(jwtRequestUri, request.Client);
-                if (jwt.IsMissing())
-                {
-                    LogError("no value returned from request_uri", request);
-                    return Invalid(request, description: "no value returned from request_uri");
-                }
-
-                jwtRequest = jwt;
-            }
-
-            // This code for validate request JWT is customised for CTS
-
             //////////////////////////////////////////////////////////
             // validate request JWT
             /////////////////////////////////////////////////////////
-            if (jwtRequest.IsPresent())
+
+            // check length restrictions
+            if (jwtRequest.Length >= _options.InputLengthRestrictions.Jwt)
             {
-                // check length restrictions
-                if (jwtRequest.Length >= _options.InputLengthRestrictions.Jwt)
-                {
-                    LogError("request value is too long", request);
-                    return Invalid(request, description: "Invalid request value");
-                }
-
-                // validate the request JWT for this client
-                var jwtRequestValidationResult = await _customJwtRequestValidator.ValidateAsync(request.Client, jwtRequest);
-                if (jwtRequestValidationResult.IsError)
-                {
-                    LogError("request JWT validation failure", request);
-                    return Invalid(request, error: PushedAuthorizationServiceErrorCodes.RequestJwtFailedValidation, description: "Request JWT failed validation");
-                }
-
-                // validate client_id match
-                if (jwtRequestValidationResult.Payload.TryGetValue(OidcConstants.AuthorizeRequest.ClientId, out var payloadClientId)) // validates client id matches
-                {
-                    if (payloadClientId != request.Client.ClientId)
-                    {
-                        LogError("client_id in JWT payload does not match client_id in request", request);
-                        return Invalid(request, error: PushedAuthorizationServiceErrorCodes.UnauthorizedClient, description: "Client_id in request JWT does not match request value");
-                    }
-                }
-                else
-                {
-                    LogError("client_id missing from JWT payload", request);
-                    return Invalid(request, error: PushedAuthorizationServiceErrorCodes.UnauthorizedClient, description: "client_id missing from request JWT");
-                }
-
-                // validate response_type match
-                var responseType = request.Raw.Get(OidcConstants.AuthorizeRequest.ResponseType);
-                if (responseType != null)
-                {
-                    if (jwtRequestValidationResult.Payload.TryGetValue(OidcConstants.AuthorizeRequest.ResponseType, out var payloadResponseType))
-                    {
-                        if (payloadResponseType != responseType)
-                        {
-                            LogError("response_type in JWT payload does not match response_type in request", request);
-                            return Invalid(request, description: "Invalid JWT request");
-                        }
-                    }
-                }
-
-                //Validate grant_type for supported grant type Client Credential 
-                var responseGrantType = request.Raw.Get(CdsConstants.GrantTypes.GrantType);
-                if (!string.IsNullOrEmpty(responseGrantType))
-                {
-                    if (!string.Equals(responseGrantType, CdsConstants.GrantTypes.ClientCredentials, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        LogError("grant_type in request is invalid", request);
-                        return Invalid(request, description: "Invalid grant_type");
-                    }                    
-                }
-
-                // merge jwt payload values into original request parameters
-                foreach (var key in jwtRequestValidationResult.Payload.Keys)
-                {
-                    var value = jwtRequestValidationResult.Payload[key];
-                    request.Raw.Set(key, value);
-                }
-
-                request.RequestObjectValues = jwtRequestValidationResult.Payload;
-            }
-            else
-            {
-                return Invalid(request, description: "Invalid JWT request");
+                LogError("request value is too long", request);
+                return Invalid(request, description: "Invalid request value");
             }
 
+            // Simple token validation/parsing.
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var securityToken = tokenHandler.ReadToken(jwtRequest) as JwtSecurityToken;
+            if (securityToken == null)
+            {
+                LogError("request value is not a valid JWT", request);
+                return Invalid(request, description: "Invalid request value");
+            }
+
+            // Extract the client_id from the request object.
+            if (!securityToken.Payload.TryGetValue(OidcConstants.AuthorizeRequest.ClientId, out var payloadClientId))
+            {
+                LogError("client_id missing from JWT payload", request);
+                return Invalid(request, error: PushedAuthorizationServiceErrorCodes.UnauthorizedClient, description: "client_id missing from request JWT");
+            }
+
+            request.ClientId = payloadClientId.ToString();
             return Valid(request);
         }
 
@@ -337,10 +275,10 @@ namespace CDR.DataHolder.IdentityServer.Validation
             //////////////////////////////////////////////////////////
             // check if redirect_uri is valid
             //////////////////////////////////////////////////////////
-            if (await _uriValidator.IsRedirectUriValidAsync(redirectUri, request.Client) == false)
+            if (!(await _uriValidator.IsRedirectUriValidAsync(redirectUri, request.Client)))
             {
                 LogError("Invalid redirect_uri", redirectUri, request);
-                return Invalid(request, OidcConstants.AuthorizeErrors.UnauthorizedClient, "Invalid redirect_uri");
+                return Invalid(request, description: "Invalid redirect_uri");
             }
 
             request.RedirectUri = redirectUri;
@@ -433,25 +371,20 @@ namespace CDR.DataHolder.IdentityServer.Validation
             var responseMode = request.Raw.Get(OidcConstants.AuthorizeRequest.ResponseMode);
             if (responseMode.IsPresent())
             {
-                if (SupportedResponseModes.Contains(responseMode))
-                {
-                    if (AllowedResponseModesForGrantType[request.GrantType].Contains(responseMode))
-                    {
-                        request.ResponseMode = responseMode;
-                    }
-                    else
-                    {
-                        LogError("Invalid response_mode for flow", responseMode, request);
-                        return Invalid(request, OidcConstants.AuthorizeErrors.UnsupportedResponseType, description: "Invalid response_mode");
-                    }
-                }
-                else
+                if (!SupportedResponseModes.Contains(responseMode))
                 {
                     LogError("Unsupported response_mode", responseMode, request);
-                    return Invalid(request, OidcConstants.AuthorizeErrors.UnsupportedResponseType, description: "Invalid response_mode");
+                    return Invalid(request, OidcConstants.AuthorizeErrors.InvalidRequest, description: "Invalid response_mode");
                 }
-            }
 
+                if (!AllowedResponseModesForGrantType[request.GrantType].Contains(responseMode))
+                {
+                    LogError("Invalid response_mode for flow", responseMode, request);
+                    return Invalid(request, OidcConstants.AuthorizeErrors.InvalidRequest, description: "Invalid response_mode");
+                }
+
+                request.ResponseMode = responseMode;
+            }
 
             //////////////////////////////////////////////////////////
             // check if grant type is allowed for client
@@ -467,13 +400,11 @@ namespace CDR.DataHolder.IdentityServer.Validation
             // and if client is allowed to request access token via browser
             //////////////////////////////////////////////////////////
             var responseTypes = responseType.FromSpaceSeparatedString();
-            if (responseTypes.Contains(OidcConstants.ResponseTypes.Token))
+            if (responseTypes.Contains(OidcConstants.ResponseTypes.Token)
+                && !request.Client.AllowAccessTokensViaBrowser)
             {
-                if (!request.Client.AllowAccessTokensViaBrowser)
-                {
-                    LogError("Client requested access token - but client is not configured to receive access tokens via browser", request);
-                    return Invalid(request, description: "Client not configured to receive access tokens via browser");
-                }
+                LogError("Client requested access token - but client is not configured to receive access tokens via browser", request);
+                return Invalid(request, description: "Client not configured to receive access tokens via browser");
             }
 
             return Valid(request);
@@ -482,11 +413,11 @@ namespace CDR.DataHolder.IdentityServer.Validation
         private AuthorizeRequestValidationResult ValidatePkceParameters(ValidatedAuthorizeRequest request)
         {
             var fail = Invalid(request);
-
+            var requirePkce = _config.FapiComplianceLevel() >= FapiComplianceLevel.Fapi1Phase2;
             var codeChallenge = request.Raw.Get(OidcConstants.AuthorizeRequest.CodeChallenge);
             if (codeChallenge.IsMissing())
             {
-                if (request.Client.RequirePkce)
+                if (requirePkce)
                 {
                     LogError("code_challenge is missing", request);
                     fail.ErrorDescription = "code challenge required";
@@ -513,8 +444,8 @@ namespace CDR.DataHolder.IdentityServer.Validation
             var codeChallengeMethod = request.Raw.Get(OidcConstants.AuthorizeRequest.CodeChallengeMethod);
             if (codeChallengeMethod.IsMissing())
             {
-                _logger.LogDebug("Missing code_challenge_method, defaulting to plain");
-                codeChallengeMethod = OidcConstants.CodeChallengeMethods.Plain;
+                _logger.LogDebug("Missing code_challenge_method, defaulting to S256");
+                codeChallengeMethod = OidcConstants.CodeChallengeMethods.Sha256;
             }
 
             if (!SupportedCodeChallengeMethods.Contains(codeChallengeMethod))
@@ -524,23 +455,12 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 return fail;
             }
 
-            // check if plain method is allowed
-            if (codeChallengeMethod == OidcConstants.CodeChallengeMethods.Plain)
-            {
-                if (!request.Client.AllowPlainTextPkce)
-                {
-                    LogError("code_challenge_method of plain is not allowed", request);
-                    fail.ErrorDescription = "Transform algorithm not supported";
-                    return fail;
-                }
-            }
-
             request.CodeChallengeMethod = codeChallengeMethod;
 
             return Valid(request);
         }
 
-        private async Task<AuthorizeRequestValidationResult> ValidateScopeAsync(ValidatedAuthorizeRequest request)
+        private AuthorizeRequestValidationResult ValidateScope(ValidatedAuthorizeRequest request)
         {
             //////////////////////////////////////////////////////////
             // scope must be present
@@ -569,20 +489,17 @@ namespace CDR.DataHolder.IdentityServer.Validation
             // check scope vs response_type plausability
             //////////////////////////////////////////////////////////
             var requirement = ResponseTypeToScopeRequirement[request.ResponseType];
-            if (requirement == ScopeRequirement.Identity ||
-                requirement == ScopeRequirement.IdentityOnly)
+            if ((requirement == ScopeRequirement.Identity || requirement == ScopeRequirement.IdentityOnly)
+                && !request.IsOpenIdRequest)
             {
-                if (request.IsOpenIdRequest == false)
-                {
-                    LogError("response_type requires the openid scope", request);
-                    return Invalid(request, description: "Missing openid scope");
-                }
+                LogError("response_type requires the openid scope", request);
+                return Invalid(request, description: "Missing openid scope");
             }
 
             //////////////////////////////////////////////////////////
             // check if scopes are valid/supported and check for resource scopes
             //////////////////////////////////////////////////////////
-            if (request.RequestedScopes.AreScopesValid() == false)
+            if (!request.RequestedScopes.AreScopesValid())
             {
                 return Invalid(request, OidcConstants.AuthorizeErrors.InvalidScope, "Invalid scope");
             }
@@ -601,13 +518,10 @@ namespace CDR.DataHolder.IdentityServer.Validation
             //////////////////////////////////////////////////////////
             // check scopes and scope restrictions
             //////////////////////////////////////////////////////////
-            if (request.RequestedScopes.AreScopesAllowed(request.Client.AllowedScopes) == false)
+            if (!request.RequestedScopes.AreScopesAllowed(request.Client.AllowedScopes))
             {
                 return Invalid(request, OidcConstants.AuthorizeErrors.UnauthorizedClient, description: "Invalid scope for client");
             }
-
-            // TODO: fix this
-            //request.ValidatedResources.ParsedScopes = _scopeValidator;
 
             //////////////////////////////////////////////////////////
             // check id vs resource scopes and response types plausability
@@ -662,30 +576,22 @@ namespace CDR.DataHolder.IdentityServer.Validation
             //////////////////////////////////////////////////////////
             // check nonce
             //////////////////////////////////////////////////////////
-            var nonce = request.Raw.Get(OidcConstants.AuthorizeRequest.Nonce);
-            if (nonce.IsPresent())
+            var nonceParameter = GetParameter(request, OidcConstants.AuthorizeRequest.Nonce, _options.InputLengthRestrictions.Nonce);
+            if (nonceParameter.Error != null)
             {
-                if (nonce.Length > _options.InputLengthRestrictions.Nonce)
-                {
-                    LogError("Nonce too long", request);
-                    return Invalid(request, description: "Invalid nonce");
-                }
+                return nonceParameter.Error;
+            }
 
-                request.Nonce = nonce;
-            }
-            else
+            if ((request.GrantType == GrantType.Implicit || request.GrantType == GrantType.Hybrid)
+                && request.IsOpenIdRequest
+                && !nonceParameter.IsPresent)
             {
-                if (request.GrantType == GrantType.Implicit ||
-                    request.GrantType == GrantType.Hybrid)
-                {
-                    // only openid requests require nonce
-                    if (request.IsOpenIdRequest)
-                    {
-                        LogError("Nonce required for implicit and hybrid flow with openid scope", request);
-                        return Invalid(request, description: "Invalid nonce");
-                    }
-                }
+                // only openid requests require nonce
+                LogError("Nonce required for implicit and hybrid flow with openid scope", request);
+                return Invalid(request, description: "Invalid nonce");
             }
+
+            request.Nonce = nonceParameter.Value;
 
 
             //////////////////////////////////////////////////////////
@@ -700,24 +606,20 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 }
                 else
                 {
-                    _logger.LogDebug("Unsupported prompt mode - ignored: " + prompt);
+                    _logger.LogDebug("Unsupported prompt mode - ignored: {prompt}", prompt);
                 }
             }
 
             //////////////////////////////////////////////////////////
             // check ui locales
             //////////////////////////////////////////////////////////
-            var uilocales = request.Raw.Get(OidcConstants.AuthorizeRequest.UiLocales);
-            if (uilocales.IsPresent())
+            var uilocalesParameter = GetParameter(request, OidcConstants.AuthorizeRequest.UiLocales, _options.InputLengthRestrictions.UiLocale);
+            if (uilocalesParameter.Error != null)
             {
-                if (uilocales.Length > _options.InputLengthRestrictions.UiLocale)
-                {
-                    LogError("UI locale too long", request);
-                    return Invalid(request, description: "Invalid ui_locales");
-                }
-
-                request.UiLocales = uilocales;
+                return uilocalesParameter.Error;
             }
+            request.UiLocales = uilocalesParameter.Value;
+
 
             //////////////////////////////////////////////////////////
             // check display
@@ -730,70 +632,47 @@ namespace CDR.DataHolder.IdentityServer.Validation
             var maxAge = request.Raw.Get(OidcConstants.AuthorizeRequest.MaxAge);
             if (maxAge.IsPresent())
             {
-                if (int.TryParse(maxAge, out var seconds))
-                {
-                    if (seconds >= 0)
-                    {
-                        request.MaxAge = seconds;
-                    }
-                    else
-                    {
-                        LogError("Invalid max_age.", request);
-                        return Invalid(request, description: "Invalid max_age");
-                    }
-                }
-                else
+                if (!int.TryParse(maxAge, out var seconds) || seconds < 0)
                 {
                     LogError("Invalid max_age.", request);
                     return Invalid(request, description: "Invalid max_age");
                 }
+
+                request.MaxAge = seconds;
             }
 
             //////////////////////////////////////////////////////////
             // check login_hint
             //////////////////////////////////////////////////////////
-            var loginHint = request.Raw.Get(OidcConstants.AuthorizeRequest.LoginHint);
-            if (loginHint.IsPresent())
+            var loginHintParameter = GetParameter(request, OidcConstants.AuthorizeRequest.LoginHint, _options.InputLengthRestrictions.LoginHint);
+            if (loginHintParameter.Error != null)
             {
-                if (loginHint.Length > _options.InputLengthRestrictions.LoginHint)
-                {
-                    LogError("Login hint too long", request);
-                    return Invalid(request, description: "Invalid login_hint");
-                }
-
-                request.LoginHint = loginHint;
+                return loginHintParameter.Error;
             }
+            request.LoginHint = loginHintParameter.Value;
 
             //////////////////////////////////////////////////////////
             // check acr_values
             //////////////////////////////////////////////////////////
-            var acrValues = request.Raw.Get(OidcConstants.AuthorizeRequest.AcrValues);
-            if (acrValues.IsPresent())
+            var acrValuesParameter = GetParameter(request, OidcConstants.AuthorizeRequest.AcrValues, _options.InputLengthRestrictions.AcrValues);
+            if (acrValuesParameter.Error != null)
             {
-                if (acrValues.Length > _options.InputLengthRestrictions.AcrValues)
-                {
-                    LogError("Acr values too long", request);
-                    return Invalid(request, description: "Invalid acr_values");
-                }
-
-                request.AuthenticationContextReferenceClasses = acrValues.FromSpaceSeparatedString().Distinct().ToList();
+                return acrValuesParameter.Error;
             }
+            request.AuthenticationContextReferenceClasses = acrValuesParameter.Value.FromSpaceSeparatedString().Distinct().ToList();
 
             //////////////////////////////////////////////////////////
             // check custom acr_values: idp
             //////////////////////////////////////////////////////////
             var idp = request.GetIdP();
-            if (idp.IsPresent())
+            if (idp.IsPresent()
+                && request.Client.IdentityProviderRestrictions != null
+                && request.Client.IdentityProviderRestrictions.Any()
+                && !request.Client.IdentityProviderRestrictions.Contains(idp))
             {
                 // if idp is present but client does not allow it, strip it from the request message
-                if (request.Client.IdentityProviderRestrictions != null && request.Client.IdentityProviderRestrictions.Any())
-                {
-                    if (!request.Client.IdentityProviderRestrictions.Contains(idp))
-                    {
-                        _logger.LogWarning("idp requested ({idp}) is not in client restriction list.", idp);
-                        request.RemoveIdP();
-                    }
-                }
+                _logger.LogWarning("idp requested ({idp}) is not in client restriction list.", idp);
+                request.RemoveIdP();
             }
 
             //////////////////////////////////////////////////////////
@@ -807,13 +686,27 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 {
                     request.SessionId = sessionId;
                 }
-                else
-                {
-                    LogError("Check session endpoint enabled, but SessionId is missing", request);
-                }
             }
 
             return Valid(request);
+        }
+
+        private (string Value, Boolean IsPresent, AuthorizeRequestValidationResult Error) GetParameter(
+            ValidatedAuthorizeRequest request,
+            string name,
+            int? maxLength = null)
+        {
+            var value = request.Raw.Get(name);
+            var isPresent = value.IsPresent();
+
+            // Length check if required.
+            if (isPresent && maxLength.HasValue && value.Length > maxLength.Value)
+            {
+                LogError("Acr values too long", request);
+                return (value, isPresent, Invalid(request, description: $"Invalid {name}"));
+            }
+
+            return (value, isPresent, null);
         }
 
         private async Task<AuthorizeRequestValidationResult> ValidateClientAuthenticationAsync(ValidatedAuthorizeRequest request)
@@ -855,8 +748,6 @@ namespace CDR.DataHolder.IdentityServer.Validation
 
         private bool BeValidClientAssertion(string clientAssertion, Microsoft.IdentityModel.Tokens.JsonWebKey[] keys, string clientId)
         {
-            var aud = _config["ParUri"];
-
             // Get absolute path
             var tokenValidationParameters = new TokenValidationParameters
             {
@@ -864,8 +755,8 @@ namespace CDR.DataHolder.IdentityServer.Validation
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = clientId,
                 ValidateIssuer = true,
-                ValidAudience = aud,
                 ValidateAudience = true,
+                ValidAudiences = _config.GetValidAudiences(),
                 RequireSignedTokens = true,
                 RequireExpirationTime = true,
                 ValidateLifetime = true,
@@ -895,7 +786,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
                     Exception _ => ClientAssertionParseError,
                 };
 
-                _logger.LogError(exception, customMessage);
+                _logger.LogError(exception, "{message}", customMessage);
                 return false;
             }
 
@@ -939,12 +830,12 @@ namespace CDR.DataHolder.IdentityServer.Validation
             return true;
         }
 
-        private AuthorizeRequestValidationResult Invalid(ValidatedAuthorizeRequest request, string error = OidcConstants.AuthorizeErrors.InvalidRequest, string description = null)
+        private static AuthorizeRequestValidationResult Invalid(ValidatedAuthorizeRequest request, string error = OidcConstants.AuthorizeErrors.InvalidRequest, string description = null)
         {
             return new AuthorizeRequestValidationResult(request, error, description);
         }
 
-        private AuthorizeRequestValidationResult Valid(ValidatedAuthorizeRequest request)
+        private static AuthorizeRequestValidationResult Valid(ValidatedAuthorizeRequest request)
         {
             return new AuthorizeRequestValidationResult(request);
         }
@@ -952,13 +843,13 @@ namespace CDR.DataHolder.IdentityServer.Validation
         private void LogError(string message, ValidatedAuthorizeRequest request)
         {
             var requestDetails = new AuthorizationRequestValidationLog(request);
-            _logger.LogError(message + "\n{@requestDetails}", requestDetails);
+            _logger.LogError("{message}\n{requestDetails}", message, requestDetails);
         }
 
         private void LogError(string message, string detail, ValidatedAuthorizeRequest request)
         {
             var requestDetails = new AuthorizationRequestValidationLog(request);
-            _logger.LogError(message + ": {detail}\n{@requestDetails}", detail, requestDetails);
+            _logger.LogError("{message}: {detail}\n{@requestDetails}", message, detail, requestDetails);
         }
     }
 }

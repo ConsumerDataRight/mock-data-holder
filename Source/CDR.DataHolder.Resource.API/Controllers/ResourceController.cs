@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CDR.DataHolder.API.Infrastructure.Authorization;
+using CDR.DataHolder.API.Infrastructure.Filters;
 using CDR.DataHolder.API.Infrastructure.IdPermanence;
 using CDR.DataHolder.API.Infrastructure.Models;
 using CDR.DataHolder.Domain.Repositories;
@@ -9,9 +10,11 @@ using CDR.DataHolder.Resource.API.Business.Filters;
 using CDR.DataHolder.Resource.API.Business.Models;
 using CDR.DataHolder.Resource.API.Business.Responses;
 using CDR.DataHolder.Resource.API.Business.Services;
+using CDR.DataHolder.Resource.API.Infrastructure.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Serilog.Context;
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -49,20 +52,19 @@ namespace CDR.DataHolder.Resource.API.Controllers
 		[PolicyAuthorize(AuthorisationPolicy.GetCustomersApi)]
 		[HttpGet("v1/common/customer", Name = "GetCustomer")]
 		[CheckScope("common:customer.basic:read")]
-		[CheckVersion(1, 1)]
+		[CheckXV(1, 1)]
 		[CheckAuthDate]
 		[ApiVersion("1")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
 		public async Task<IActionResult> GetCustomer()
 		{
-			_logger.LogInformation($"Request received to {nameof(ResourceController)}.{nameof(GetCustomer)}");
-
 			// Each customer id is different for each ADR based on PPID.
 			// Therefore we need to look up the CustomerClient table to find the actual customer id.
 			// This can be done once we have a client id (Registration) and a valid access token.
 			var customerId = GetCustomerId(this.User);
 			if (customerId == Guid.Empty)
 			{
-				// TODO: Implement response handling when the acceptance criteria is available.
+				// Implement response handling when the acceptance criteria is available.
 				return BadRequest();
 			}
 
@@ -87,9 +89,10 @@ namespace CDR.DataHolder.Resource.API.Controllers
 		[PolicyAuthorize(AuthorisationPolicy.GetAccountsApi)]
 		[HttpGet("v1/banking/accounts", Name = nameof(GetAccounts))]
 		[CheckScope("bank:accounts.basic:read")]
-		[CheckVersion(1, 1)]
+		[CheckXV(1, 1)]
 		[CheckAuthDate]
 		[ApiVersion("1")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
 		public async Task<IActionResult> GetAccounts(
 			[FromQuery(Name = "is-owned")] bool? isOwned,
 			[FromQuery(Name = "open-status"), CheckOpenStatus] string openStatus,
@@ -97,8 +100,6 @@ namespace CDR.DataHolder.Resource.API.Controllers
 			[FromQuery(Name = "page"), CheckPage] string page,
 			[FromQuery(Name = "page-size"), CheckPageSize] string pageSize)
 		{
-			_logger.LogInformation($"Request received to {nameof(ResourceController)}.{nameof(GetAccounts)}");
-
 			// Each customer id is different for each ADR based on PPID.
 			// Therefore we need to look up the CustomerClient table to find the actual customer id.
 			// This can be done once we have a client id (Registration) and a valid access token.
@@ -121,7 +122,7 @@ namespace CDR.DataHolder.Resource.API.Controllers
 				CustomerId = customerId,
 				IsOwned = isOwned,
 				ProductCategory = productCategory,
-				OpenStatus = (openStatus != null && openStatus.Equals(OpenStatusEnum.All.ToString(), StringComparison.OrdinalIgnoreCase)) ? null : openStatus,
+				OpenStatus = (openStatus != null && openStatus.Equals(OpenStatus.All.ToString(), StringComparison.OrdinalIgnoreCase)) ? null : openStatus,
 			};
 			int pageNumber = string.IsNullOrEmpty(page) ? 1 : int.Parse(page);
 			int pageSizeNumber = string.IsNullOrEmpty(pageSize) ? 25 : int.Parse(pageSize);
@@ -152,13 +153,12 @@ namespace CDR.DataHolder.Resource.API.Controllers
 		[PolicyAuthorize(AuthorisationPolicy.GetTransactionsApi)]
 		[HttpGet("v1/banking/accounts/{accountId}/transactions", Name = nameof(GetTransactions))]
 		[CheckScope("bank:transactions:read")]
-		[CheckVersion(1, 1)]
+		[CheckXV(1, 1)]
 		[CheckAuthDate]
 		[ApiVersion("1")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
 		public async Task<IActionResult> GetTransactions([FromQuery] RequestAccountTransactions request)
 		{
-			_logger.LogInformation($"Request received to {nameof(ResourceController)}.{nameof(GetTransactions)}");
-
 			// Each customer id is different for each ADR based on PPID.
 			// Therefore we need to look up the CustomerClient table to find the actual customer id.
 			// This can be done once we have a client id (Registration) and a valid access token.
@@ -188,8 +188,11 @@ namespace CDR.DataHolder.Resource.API.Controllers
 
 			if (string.IsNullOrEmpty(request.AccountId))
 			{
-				_logger.LogError("Account Id could not be retrived from request.");
-				return new NotFoundObjectResult(new ResponseErrorList(Error.NotFound()));
+				using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+				{
+					_logger.LogError("Account Id could not be retrived from request.");
+				}
+				return new NotFoundObjectResult(new ResponseErrorList(Error.NotFound("Account ID could not be found for the customer")));
 			}
 			else
 			{
@@ -197,15 +200,21 @@ namespace CDR.DataHolder.Resource.API.Controllers
 				{
 					// A valid consent exists with bank:transactions:read scope but this Account Id could not be found for the supplied Customer Id.
 					// This scenario will take precedence
-					_logger.LogInformation($"Customer does not have access to this Account Id. Customer Id: {request.CustomerId}, Account Id: {request.AccountId}");
-					return new NotFoundObjectResult(new ResponseErrorList(Error.NotFound()));
+					using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+					{
+						_logger.LogInformation("Customer does not have access to this Account Id. Customer Id: {customerId}, Account Id: {accountId}", request.CustomerId, request.AccountId);
+					}
+					return new NotFoundObjectResult(new ResponseErrorList(Error.NotFound("Account ID could not be found for the customer")));
 				}
 
 				if (!GetAccountIds(User).Contains(request.AccountId))
 				{
 					// A valid consent exists with bank:transactions:read scope and the Account Id can be found for the supplied customer
 					// but this Account Id is not in the list of consented Account Ids
-					_logger.LogInformation($"Consent has not been granted for this Account Id: {request.AccountId}");
+					using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+					{
+						_logger.LogInformation("Consent has not been granted for this Account Id: {accountId}", request.AccountId);
+					}
 					return new NotFoundObjectResult(new ResponseErrorList(Error.ConsentNotFound()));
 				}
 			}
@@ -233,7 +242,10 @@ namespace CDR.DataHolder.Resource.API.Controllers
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, "Could not decrypt account id.");
+				using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+				{
+					_logger.LogError(ex, "Could not decrypt account id.");
+				}
 			}
 
 			return accountId;
@@ -293,7 +305,7 @@ namespace CDR.DataHolder.Resource.API.Controllers
             return errorList;
 		}
 
-		private Guid GetCustomerId(ClaimsPrincipal principal)
+		private static Guid GetCustomerId(ClaimsPrincipal principal)
 		{
 			var customerId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 			if (!Guid.TryParse(customerId, out var customerIdGuid))
@@ -303,10 +315,10 @@ namespace CDR.DataHolder.Resource.API.Controllers
 			return customerIdGuid;
 		}
 
-		private string[] GetAccountIds(ClaimsPrincipal principal)
+		private static string[] GetAccountIds(ClaimsPrincipal principal)
 		{
 			// Check if consumer has granted consent to this account Id
-			return principal.FindAll(Constants.TokenClaimTypes.AccontId)
+			return principal.FindAll(Constants.TokenClaimTypes.AccountId)
 				.Select(c => c.Value)
 				.ToArray();
 		}

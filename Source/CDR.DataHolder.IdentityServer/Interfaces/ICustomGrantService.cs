@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
+using static CDR.DataHolder.IdentityServer.Services.CustomGrantService;
 
 namespace CDR.DataHolder.IdentityServer.Interfaces
 {
@@ -16,7 +17,7 @@ namespace CDR.DataHolder.IdentityServer.Interfaces
 
         Task RemoveGrant(string key);
 
-        Task<int> RemoveGrantsForCdrArrangementId(string cdrArrangementId, string clientId);
+        Task<RemoveGrantsResult> RemoveGrantsForCdrArrangementId(string cdrArrangementId, string clientId);
 
         Task<bool> UpdateCdrArrangementGrant(string cdrArrangementId, string authCode);
 

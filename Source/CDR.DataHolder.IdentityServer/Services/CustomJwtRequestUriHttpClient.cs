@@ -28,21 +28,21 @@ namespace CDR.DataHolder.IdentityServer.Services
             var grant = await _customGrantService.GetGrant(key);
             if (grant == null)
             {
-                _logger.LogError($"{AuthorizeErrorCodes.InvalidRequestUri}: Request URI could not be found.");
+                _logger.LogError("{invalidRequestUri}: Request URI could not be found.", AuthorizeErrorCodes.InvalidRequestUri);
                 return null;
             }
 
             // Check that the grant was for the intended client.
             if (!grant.ClientId.Equals(client.ClientId, StringComparison.OrdinalIgnoreCase))
             {
-                _logger.LogError($"{AuthorizeErrorCodes.InvalidRequestUri}: Request URI could not be found for the client.");
+                _logger.LogError("{invalidRequestUri}: Request URI could not be found for the client.", AuthorizeErrorCodes.InvalidRequestUri);
                 return null;
             }
 
             // Check that the grant has not expired.
             if (!grant.Expiration.HasValue || grant.Expiration < DateTime.UtcNow)
             {
-                _logger.LogError($"{AuthorizeErrorCodes.InvalidRequestUri}: Request URI is expired.");
+                _logger.LogError("{invalidRequestUri}: Request URI is expired.", AuthorizeErrorCodes.InvalidRequestUri);
                 return null;
             }
 

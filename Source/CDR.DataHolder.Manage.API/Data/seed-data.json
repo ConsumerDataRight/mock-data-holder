@@ -2,7 +2,7 @@
     "Customers": [
         {
             "CustomerID": "4ee1a8db-13af-44d7-b54b-e94dff3df548",
-            "CustomerUType": "PERSON",
+            "CustomerUType": "person",
             "LoginId": "jsmith",
             "Person": {
                 "PersonID": "be36d5b8-8d92-4076-81c1-2260ba7e7272",
@@ -49,8 +49,8 @@
                             "TransactionType": "TRANSFER_INCOMING",
                             "Status": "PENDING",
                             "Description": "Transfer",
-                            "PostingDateTime": "",
-                            "ValueDateTime": "",
+                            "PostingDateTime": "2021-05-01T12:44:00Z",
+                            "ValueDateTime": "2021-05-01T12:44:00Z",
                             "ExecutionDateTime": "2021-05-01T12:44:00Z",
                             "Amount": 100.00,
                             "Currency": "AUD",
@@ -122,7 +122,7 @@
         },
         {
             "CustomerID": "bfb689fb-7745-45b9-bbaa-b21e00072447",
-            "CustomerUType": "PERSON",
+            "CustomerUType": "person",
             "LoginId": "jwilson",
             "Person": {
                 "PersonID": "3f0b4a8a-4f0a-49ac-b561-11903a072d22",
@@ -722,7 +722,7 @@
         },
         {
             "CustomerID": "f0a87c57-9a98-401f-9012-b6ac0c882bf7",
-            "CustomerUType": "PERSON",
+            "CustomerUType": "person",
             "LoginId": "lbj",
             "Person": {
                 "PersonID": "b4715700-aab1-42ad-a171-517a02738365",
@@ -770,7 +770,7 @@
         },
         {
             "CustomerID": "aa649633-eed2-4e56-b97d-7df150360942",
-            "CustomerUType": "PERSON",
+            "CustomerUType": "person",
             "LoginId": "ksmith",
             "Person": {
                 "PersonID": "3bf33bd5-a838-4a23-9fc1-a32ab92cf694",
@@ -780,7 +780,7 @@
                 "Prefix": "Mrs",
                 "Suffix": "",
                 "OccupationCode": "123412",
-                "OccupationCodeVersion": "ANZSCO_1220.0_2013_V1.1",
+                "OccupationCodeVersion": "ANZSCO_1220.0_2013_V1.3",
                 "LastUpdateTime": "2021-03-01T18:30:00Z"
             },
             "Accounts": [
@@ -1688,7 +1688,7 @@
         },
         {
             "CustomerID": "dcb72d59-73e9-4807-9b1e-f3e2654190f4",
-            "CustomerUType": "PERSON",
+            "CustomerUType": "person",
             "LoginId": "ssmith",
             "Person": {
                 "PersonID": "bfc3a55a-81c1-427a-8a30-7eeb85560f2f",
@@ -1736,7 +1736,7 @@
         },
         {
             "CustomerID": "390b6e62-db5e-40b9-a0b8-dfb158b1326b",
-            "CustomerUType": "PERSON",
+            "CustomerUType": "person",
             "LoginId": "rray",
             "Person": {
                 "PersonID": "c674766c-371d-41f2-a3a0-5681ea96c9a2",
@@ -1814,7 +1814,7 @@
         },
         {
             "CustomerID": "1cdedda0-1669-4590-842a-fd5a4021dd30",
-            "CustomerUType": "PERSON",
+            "CustomerUType": "person",
             "LoginId": "pjay",
             "Person": {
                 "PersonID": "3ff40f07-1798-4577-ae42-1c5d7329bce9",
@@ -1862,7 +1862,7 @@
         },
         {
             "CustomerID": "3b7715c5-b7a6-4d4b-888e-fc2dadf3e91e",
-            "CustomerUType": "PERSON",
+            "CustomerUType": "person",
             "LoginId": "olee",
             "Person": {
                 "PersonID": "045da794-b5f4-43e7-92f9-6b7f5c36abdf",
@@ -1910,7 +1910,7 @@
         },
         {
             "CustomerID": "75455a64-d1d6-44b9-845c-8a9330e55937",
-            "CustomerUType": "PERSON",
+            "CustomerUType": "person",
             "LoginId": "ldame",
             "Person": {
                 "PersonID": "0fe698a5-34a1-482b-93c7-55e5a47a8064",
@@ -1958,7 +1958,7 @@
         },
         {
             "CustomerID": "6a1aaf2f-379c-45b7-ad54-f8104896c683",
-            "CustomerUType": "PERSON",
+            "CustomerUType": "person",
             "LoginId": "mmia",
             "Person": {
                 "PersonID": "88041dea-f480-43d2-80be-555339fbac3d",
@@ -2006,7 +2006,7 @@
         },
         {
             "CustomerID": "688e36cf-bfc7-46bb-855b-c70893daa800",
-            "CustomerUType": "PERSON",
+            "CustomerUType": "person",
             "LoginId": "dsteve",
             "Person": {
                 "PersonID": "070e0ca0-cb17-41a4-ae05-937e70e0cb89",
@@ -2114,7 +2114,7 @@
         },
         {
             "CustomerID": "4705eba7-daae-4dca-a1f9-12aa785a702f",
-            "CustomerUType": "PERSON",
+            "CustomerUType": "person",
             "LoginId": "sken",
             "Person": {
                 "PersonID": "9090793f-f366-48d3-99ae-c9ab4aefd0f1",
@@ -2131,7 +2131,7 @@
         },
         {
             "CustomerID": "a97ba8d9-c89d-4126-a3b1-5aaa50f8dc5f",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "bis1",
             "Organisation": {
                 "OrganisationID": "078bd9eb-bf21-4e52-9749-159cf88c6ce2",
@@ -2186,7 +2186,7 @@
         },
         {
             "CustomerID": "7c9b4d7a-09de-4087-baf8-4e849c40bd2e",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "biscof",
             "Organisation": {
                 "OrganisationID": "ccf06ec5-7e57-49a2-9cc8-13bde3f00ba7",
@@ -2196,7 +2196,7 @@
                 "BusinessName": "Business coffee",
                 "LegalName": "Legal Business 1",
                 "ShortName": "Bus 1",
-                "ABN": "1653234501",
+                "ABN": "16532345014",
                 "ACN": "123456789",
                 "IsACNCRegistered": "False",
                 "IndustryCode": "",
@@ -2241,7 +2241,7 @@
         },
         {
             "CustomerID": "88041dea-f480-43d2-80be-555339fbac3d",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "bread",
             "Organisation": {
                 "OrganisationID": "6a1aaf2f-379c-45b7-ad54-f8104896c683",
@@ -2251,7 +2251,7 @@
                 "BusinessName": "Bread and butter",
                 "LegalName": "Legal Busines",
                 "ShortName": "Bus 1",
-                "ABN": "1653123501",
+                "ABN": "16531234501",
                 "ACN": "122456789",
                 "IsACNCRegistered": "False",
                 "IndustryCode": "",
@@ -2296,7 +2296,7 @@
         },
         {
             "CustomerID": "6edaf322-a685-41c0-a3b6-aea8a235c34e",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "bis2",
             "Organisation": {
                 "OrganisationID": "bf535f1a-5c79-426f-81e0-c69804c46c46",
@@ -2320,7 +2320,7 @@
         },
         {
             "CustomerID": "89111e7f-a08b-468d-aa8c-0ac3ae0fe559",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "bev",
             "Organisation": {
                 "OrganisationID": "c1ca8c2d-e0ab-4833-bedd-fe3912554e6e",
@@ -2330,7 +2330,7 @@
                 "BusinessName": "Beverage",
                 "LegalName": "Legal Business 2",
                 "ShortName": "Drinks",
-                "ABN": "9841232101",
+                "ABN": "98413232101",
                 "ACN": "987322321",
                 "IsACNCRegistered": "true",
                 "IndustryCode": "",
@@ -2375,7 +2375,7 @@
         },
         {
             "CustomerID": "15c60f0c-91c6-4840-806e-90d395b5c83d",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "bev2",
             "Organisation": {
                 "OrganisationID": "becf64e3-7871-4028-96f0-47a6d5a6564d",
@@ -2430,7 +2430,7 @@
         },
         {
             "CustomerID": "cf486475-34cf-4349-a3cd-57eb0407d429",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "longs",
             "Organisation": {
                 "OrganisationID": "34288459-fe64-4f8d-96ec-7d8bb31133b1",
@@ -2440,8 +2440,8 @@
                 "BusinessName": "Long service",
                 "LegalName": "Legal Business 2",
                 "ShortName": "Service",
-                "ABN": "123123211",
-                "ACN": "11712321",
+                "ABN": "12312321135",
+                "ACN": "117123219",
                 "IsACNCRegistered": "true",
                 "IndustryCode": "",
                 "IndustryCodeVersion": "",
@@ -2485,7 +2485,7 @@
         },
         {
             "CustomerID": "380bd324-ed6c-4312-b26e-d91cef73c974",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "trainex",
             "Organisation": {
                 "OrganisationID": "c502d9ae-6c68-4039-84d6-8f5c598911cf",
@@ -2495,8 +2495,8 @@
                 "BusinessName": "Training",
                 "LegalName": "Training for Exec",
                 "ShortName": "Service",
-                "ABN": "11233211",
-                "ACN": "9956421",
+                "ABN": "11233211642",
+                "ACN": "995642184",
                 "IsACNCRegistered": "true",
                 "IndustryCode": "",
                 "IndustryCodeVersion": "",
@@ -2540,7 +2540,7 @@
         },
         {
             "CustomerID": "3498bebb-82da-4558-ac93-2a5e72f2c8fd",
-            "CustomerUType": "ORGANISATION",
+            "CustomerUType": "organisation",
             "LoginId": "pop",
             "Organisation": {
                 "OrganisationID": "120c781f-ad9d-48b3-8866-3753350d1d31",
@@ -2550,8 +2550,8 @@
                 "BusinessName": "Pop",
                 "LegalName": "Pop",
                 "ShortName": "Service",
-                "ABN": "11233211",
-                "ACN": "9953421",
+                "ABN": "11233211853",
+                "ACN": "995342163",
                 "IsACNCRegistered": "true",
                 "IndustryCode": "",
                 "IndustryCodeVersion": "",
@@ -2598,7 +2598,6 @@
         {
             "legalEntityId": "18b75a76-5821-4c9e-b465-4709291cf0f4",
             "legalEntityName": "Mock Software Company",
-            "industry": "banking",
             "logoUri": "https://mocksoftware/img/logo.png",
             "status": "ACTIVE",
             "dataRecipientBrands": [
@@ -2622,7 +2621,6 @@
         {
             "legalEntityId": "9d34ede4-2c76-4ecc-a31e-ea8392d31cc9",
             "legalEntityName": "FintechX",
-            "industry": "banking",
             "logoUri": "https://fintechx/logo.png",
             "status": "ACTIVE",
             "dataRecipientBrands": [

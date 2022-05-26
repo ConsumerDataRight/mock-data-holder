@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 #nullable enable
 
@@ -15,7 +12,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
     {       
         // Send token request, returning HttpResponseMessage
         static public async Task<HttpResponseMessage> SendRequest(
-            string? grantType = "client_credentials",
             string? clientId = BaseTest.SOFTWAREPRODUCT_ID,
             string? clientAssertionType = BaseTest.CLIENTASSERTIONTYPE,
             string? clientAssertion = null,
@@ -30,11 +26,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
             var URL = $"{BaseTest.DH_MTLS_GATEWAY_URL}/connect/revocation";
 
             var formFields = new List<KeyValuePair<string?, string?>>();
-
-            if (grantType != null)
-            {
-                formFields.Add(new KeyValuePair<string?, string?>("grant_type", grantType));
-            }
 
             if (clientId != null)
             {
@@ -51,7 +42,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 {
                     CertificateFilename = jwt_certificateFilename,
                     CertificatePassword = jwt_certificatePassword,
-                    Issuer = BaseTest.SOFTWAREPRODUCT_ID.ToLower(),
+                    Issuer = (clientId ?? BaseTest.SOFTWAREPRODUCT_ID).ToLower(),
                     Audience = URL
                 }.Generate())
             );

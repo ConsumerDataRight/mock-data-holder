@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
@@ -51,7 +50,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 formFields.Add(new KeyValuePair<string?, string?>("client_assertion_type", clientAssertionType));
             }
             formFields.Add(new KeyValuePair<string?, string?>("client_assertion", clientAssertion ?? 
-                // new ClientAssertion { Aud = URL }.Get()
                 new PrivateKeyJwt2() 
                 {
                     CertificateFilename = BaseTest.JWT_CERTIFICATE_FILENAME,

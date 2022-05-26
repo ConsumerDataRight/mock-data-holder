@@ -1,109 +1,11 @@
 using System;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
-using FluentAssertions;
-using FluentAssertions.Execution;
-using Xunit;
 using static CDR.DataHolder.IntegrationTests.BaseTest;
-using CDR.DataHolder.IntegrationTests.Fixtures;
 
 #nullable enable
 
 namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 {
-// TODO MJS 2021-10-21 - Not used in pipeline, remove
-/*
-#if DEBUG
-    public class DataHolder_Token_UnitTests : IClassFixture<DataHolder_Token_UnitTests.Fixture>
-    {
-        class Fixture : IAsyncLifetime
-        {
-            public async Task InitializeAsync()
-            {
-                TestSetup.Register_PatchRedirectUri();
-                TestSetup.DataHolder_PurgeIdentityServer();
-                await TestSetup.DataHolder_RegisterSoftwareProduct();
-            }
-
-            public Task DisposeAsync()
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        private static async Task<HttpResponseMessage> CallResourceAPI(string accessToken)
-        {
-            var api = new Infrastructure.API
-            {
-                CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD,
-                HttpMethod = HttpMethod.Get,
-                URL = $"{DH_MTLS_GATEWAY_URL}/cds-au/v1/banking/accounts",
-                XV = "1",
-                XFapiAuthDate = DateTime.Now.ToUniversalTime().ToString("r"),
-                AccessToken = accessToken
-            };
-            var response = await api.SendAsync();
-
-            return response;
-        }
-
-        [Fact]
-        public async Task Test_E2E()
-        {
-            using (new AssertionScope())
-            {
-                var e2e = new DataHolder_Token_E2E();
-
-                // Get token using Auth/Consent flow
-                var token1 = await e2e.GetToken_UsingAuthConsent(USERID_JANEWILSON, ACCOUNTIDS_ALL_JANE_WILSON, SCOPE);
-                token1.AccessToken.Should().NotBeNull();
-                token1.RefreshToken.Should().NotBeNull();
-
-                // Call resource API using access token
-                (await CallResourceAPI(token1.AccessToken!)).StatusCode.Should().Be(HttpStatusCode.OK);
-                // (await CallResourceAPI(token1.AccessToken!)).StatusCode.Should().Be(HttpStatusCode.OK);
-                // (await CallResourceAPI(token1.AccessToken!)).StatusCode.Should().Be(HttpStatusCode.OK);
-
-                // Get another token using refresh token
-                var token2 = await e2e.GetToken_UsingRefreshToken(token1.RefreshToken!);
-                token2.AccessToken.Should().NotBeNull();
-                token2.RefreshToken.Should().NotBeNull();
-
-                // Call resource API using access token
-                (await CallResourceAPI(token2.AccessToken!)).StatusCode.Should().Be(HttpStatusCode.OK);
-            }
-        }
-
-        [Fact]
-        public async Task Test_Mocked()
-        {
-            using (new AssertionScope())
-            {
-                var mocked = new DataHolder_Token_Mocked();
-
-                // Get token using Auth/Consent flow
-                var token1 = await mocked.GetToken_UsingAuthConsent(USERID_JANEWILSON, ACCOUNTIDS_ALL_JANE_WILSON, SCOPE);
-                token1.AccessToken.Should().NotBeNull();
-                token1.RefreshToken.Should().NotBeNull();
-
-                // Call resource API using access token
-                (await CallResourceAPI(token1.AccessToken!)).StatusCode.Should().Be(HttpStatusCode.OK);
-
-                // Get another token using refresh token
-                var token2 = await mocked.GetToken_UsingRefreshToken(token1.RefreshToken!);
-                token2.AccessToken.Should().NotBeNull();
-                token2.RefreshToken.Should().NotBeNull();
-
-                // Call resource API using access token
-                (await CallResourceAPI(token2.AccessToken!)).StatusCode.Should().Be(HttpStatusCode.OK);
-            }
-        }
-    }
-#endif
-*/
-
     public class DataHolder_Token_Response
     {
         public string? AccessToken { get; init; }

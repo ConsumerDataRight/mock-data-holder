@@ -41,7 +41,7 @@ namespace CDR.DataHolder.Resource.API.Business.Services
 				subClaim.ValueType));
 
 			// Perform PPID decryption on account ids
-			var accountClaims = newIdentity.FindAll(c => c.Type == Constants.TokenClaimTypes.AccontId).ToArray();
+			var accountClaims = newIdentity.FindAll(c => c.Type == Constants.TokenClaimTypes.AccountId).ToArray();
 			var idParam = new IdPermanenceParameters()
 			{
 				CustomerId = decryptedSubValue,

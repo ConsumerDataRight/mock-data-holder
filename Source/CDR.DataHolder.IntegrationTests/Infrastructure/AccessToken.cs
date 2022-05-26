@@ -13,8 +13,8 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure
 {
     public class AccessToken
     {
-        private const string IDENTITYSERVER_URL = BaseTest.DH_MTLS_IDENTITYSERVER_TOKEN_URL;
-        private const string AUDIENCE = IDENTITYSERVER_URL;
+        private readonly string IDENTITYSERVER_URL = BaseTest.DH_MTLS_IDENTITYSERVER_TOKEN_URL;
+        private readonly string AUDIENCE = BaseTest.DH_MTLS_IDENTITYSERVER_TOKEN_URL;
         private const string SCOPE = "bank:accounts.basic:read";
         private const string GRANT_TYPE = "";
         private const string CLIENT_ID = "86ecb655-9eba-409c-9be3-59e7adf7080d";
@@ -27,13 +27,19 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure
         public string? JWT_CertificateFilename { get; set; }
         public string? JWT_CertificatePassword { get; set; }
 
-        public string URL { get; init; } = IDENTITYSERVER_URL;
+        public string URL { get; init; }
         public string Issuer { get; init; } = ISSUER;
-        public string Audience { get; init; } = AUDIENCE;
+        public string Audience { get; init; }
         public string Scope { get; init; } = SCOPE;
         public string GrantType { get; init; } = GRANT_TYPE;
         public string ClientId { get; init; } = CLIENT_ID;
         public string ClientAssertionType { get; init; } = CLIENT_ASSERTION_TYPE;
+
+        public AccessToken()
+        {
+            URL = IDENTITYSERVER_URL;
+            Audience = AUDIENCE;
+        }
 
         /// <summary>
         /// Get HttpRequestMessage for access token request
@@ -76,11 +82,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure
                 return kvp.Value;
             }
 
-            // DEBUG - 07/09/2021
-            // var tokenizer = new PrivateKeyJwt(certificateFilename, certificatePassword);
-            //var tokenizer = new CDR.DataHolder.IntegrationTests.Infrastructure.API3.PrivateKeyJwt(certificateFilename, certificatePassword);
-            // var client_assertion = tokenizer.Generate(issuer, audience);
-
             var client_assertion = new PrivateKeyJwt2
             {
                 CertificateFilename = jwt_certificateFilename,
@@ -89,7 +90,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure
                 Audience = audience
             }.Generate();
 
-            // var request = new HttpRequestMessage(HttpMethod.Post, IDENTITYSERVER_URL)
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Content = new StringContent(
@@ -125,7 +125,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure
             // Create an access token request
             var request = CreateAccessTokenRequest(
                 URL,
-                // CertificateFilename, CertificatePassword,
                 JWT_CertificateFilename ?? throw new Exception("JWT_Certificatefilename is null"),
                 JWT_CertificatePassword,
                 Issuer, Audience,

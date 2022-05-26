@@ -68,16 +68,13 @@ namespace CDR.DataHolder.IdentityServer.Controllers
 
                 return CreatedAtAction(nameof(Post), parCreatedResponse);
             }
-            else
-            {
-                return ReturnErrorResponseFromService(parResultResponse);
-            }
+
+            return ReturnErrorResponseFromService(parResultResponse);
         }
 
         private static IActionResult ReturnErrorResponseFromService(PushedAuthorizationResult result)
         {
-            if (result.Error == PushedAuthorizationServiceErrorCodes.RequestJwtFailedValidation
-                || result.Error == PushedAuthorizationServiceErrorCodes.UnauthorizedClient)
+            if (result.Error == AuthorizeErrorCodes.UnauthorizedClient)
             {
                 // Sends back 401 if unauthorized client or request jwt fails token validation
                 // https://tools.ietf.org/html/draft-ietf-oauth-par-01#section-3.1.1
@@ -87,7 +84,8 @@ namespace CDR.DataHolder.IdentityServer.Controllers
                     Description = result.ErrorDescription,
                 });
             }
-            else if (PushedAuthorizationResponseErrorCodes.Contains(result.Error))
+
+            if (PushedAuthorizationResponseErrorCodes.Contains(result.Error))
             {
                 return new BadRequestObjectResult(new PushedAuthorizationErrorResponse()
                 {
@@ -114,7 +112,7 @@ namespace CDR.DataHolder.IdentityServer.Controllers
         private async Task RaiseEventAndLogFailedValidation(string error, ValidationCheck check)
         {
             await _eventService.RaiseAsync(new PushedAuthorizationRequestValidationFailureEvent(check));
-            _logger.LogError(error);
+            _logger.LogError("{error}", error);
         }
     }
 }

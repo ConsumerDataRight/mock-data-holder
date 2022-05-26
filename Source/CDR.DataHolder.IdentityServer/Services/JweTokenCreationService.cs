@@ -11,35 +11,58 @@ using Jose;
 using Microsoft.Extensions.Logging;
 using static CDR.DataHolder.IdentityServer.CdsConstants;
 using JsonWebKey = Microsoft.IdentityModel.Tokens.JsonWebKey;
+using IdentityServer4.Configuration;
+using Microsoft.AspNetCore.Authentication;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace CDR.DataHolder.IdentityServer.Services
 {
     /// <summary>
     /// Encrypting done using https://github.com/dvsekhvalnov/jose-jwt.
     /// </summary>
-    public class JweTokenCreationService : ITokenCreationService
+    public class JweTokenCreationService : DefaultTokenCreationService
     {
         private readonly IClientService _clientService;
         private readonly IJwtTokenCreationService _jwtTokenCreationService;
-        private readonly ILogger<JweTokenCreationService> _logger;
 
         public JweTokenCreationService(
+            ISystemClock clock,
+            IKeyMaterialService keys,
+            IdentityServerOptions options,
+            ILogger<DefaultTokenCreationService> logger,
             IClientService clientService,
-            IJwtTokenCreationService jwtTokenCreationService,
-            ILogger<JweTokenCreationService> logger)
+            IJwtTokenCreationService jwtTokenCreationService) : base(clock, keys, options, logger)
         {
             _clientService = clientService;
             _jwtTokenCreationService = jwtTokenCreationService;
-            _logger = logger;
         }
 
-        public async Task<string> CreateTokenAsync(Token token)
+        public override async Task<string> CreateTokenAsync(Token token)
         {
+            // Override the handling of the cnf claim in the access token as there is an issue in Identity Server 4.
+            if (token.Type == IdentityServerConstants.TokenTypes.AccessToken)
+            {
+                if (!string.IsNullOrEmpty(token.Confirmation))
+                {
+                    var cnf = token.Confirmation;
+                    token.Confirmation = null;
+                    token.Claims.Add(new Claim("cnf", cnf, JsonClaimValueTypes.Json));
+                }
+
+                var header = await CreateHeaderAsync(token);
+                var payload = await CreatePayloadAsync(token);
+
+                var jwt = new JwtSecurityToken(header, payload);
+                return await CreateJwtAsync(jwt);
+            }
+
             if (token.Type != IdentityServerConstants.TokenTypes.IdentityToken)
             {
                 return await _jwtTokenCreationService.CreateTokenAsync(token);
             }
 
+            // Handling id_token.
             var client = await _clientService.FindClientById(token.ClientId);
             var clientEncryptionAlg = client.Claims.FirstOrDefault(x => x.Type == ClientMetadata.IdentityTokenEncryptedResponseAlgorithm)?.Value;
             var clientEncryptionEnc = client.Claims.FirstOrDefault(x => x.Type == ClientMetadata.IdentityTokenEncryptedResponseEncryption)?.Value;
@@ -54,17 +77,18 @@ namespace CDR.DataHolder.IdentityServer.Services
             try
             {
                 var tokenSigned = await _jwtTokenCreationService.CreateTokenAsync(token);
-                _logger.LogDebug("Encrypting Id Token with Alg {Alg}, Enc {Enc}", clientEncryptionAlg, clientEncryptionEnc);
+                this.Logger.LogDebug("Encrypting Id Token with Alg {Alg}, Enc {Enc}", clientEncryptionAlg, clientEncryptionEnc);
 
                 // Encode the token and add the kid
                 // Additional info: FAPIValidateEncryptedIdTokenHasKid (OIDCC-10.1)
                 return JWT.Encode(tokenSigned, rsaEncryption, GetJweAlgorithm(clientEncryptionAlg), GetJweEncryption(clientEncryptionEnc),
-                    extraHeaders:new Dictionary<string,object>() {{"kid", clientJwk.Kid }});
+                    extraHeaders: new Dictionary<string, object>() {{"kid", clientJwk.Kid
+                }});
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Encrypting Id Token with Alg {alg}, Enc {enc} failed", clientEncryptionAlg, clientEncryptionEnc);
-                throw new Exception("Error encrypting id token jwt", ex);
+                this.Logger.LogError(ex, "Encrypting Id Token with Alg {alg}, Enc {enc} failed", clientEncryptionAlg, clientEncryptionEnc);
+                throw new FormatException("Error encrypting id token jwt", ex);
             }
             finally
             {
@@ -75,7 +99,7 @@ namespace CDR.DataHolder.IdentityServer.Services
             }
         }
 
-        private RSA GetEncryptionKey(JsonWebKey clientJwk)
+        private static RSA GetEncryptionKey(JsonWebKey clientJwk)
         {
             if (clientJwk == null)
             {
@@ -90,18 +114,18 @@ namespace CDR.DataHolder.IdentityServer.Services
             return rsaEncryption;
         }
 
-        private JweAlgorithm GetJweAlgorithm(string clientAlg)
+        private static JweAlgorithm GetJweAlgorithm(string clientAlg)
         {
             return clientAlg switch
             {
                 Algorithms.Jwe.Alg.RSAOAEP => JweAlgorithm.RSA_OAEP,
                 Algorithms.Jwe.Alg.RSAOAEP256 => JweAlgorithm.RSA_OAEP_256,
                 Algorithms.Jwe.Alg.RSA15 => JweAlgorithm.RSA1_5,
-                _ => throw new Exception($"Client Algorithm {clientAlg} not supported for encryption of Id Token"),
+                _ => throw new ArgumentException($"Client Algorithm {clientAlg} not supported for encryption of Id Token"),
             };
         }
 
-        private JweEncryption GetJweEncryption(string clientEnc)
+        private static JweEncryption GetJweEncryption(string clientEnc)
         {
             return clientEnc switch
             {
@@ -111,7 +135,7 @@ namespace CDR.DataHolder.IdentityServer.Services
                 Algorithms.Jwe.Enc.A128CBCHS256 => JweEncryption.A128CBC_HS256,
                 Algorithms.Jwe.Enc.A192CBCHS384 => JweEncryption.A192CBC_HS384,
                 Algorithms.Jwe.Enc.A256CBCHS512 => JweEncryption.A256CBC_HS512,
-                _ => throw new Exception($"Client Encoding {clientEnc} not supported for encryption of Id Token"),
+                _ => throw new ArgumentException($"Client Encoding {clientEnc} not supported for encryption of Id Token"),
             };
         }
     }

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog.Context;
 using System.Threading.Tasks;
 
 namespace CDR.DataHolder.IdentityServer.Controllers
@@ -37,7 +38,10 @@ namespace CDR.DataHolder.IdentityServer.Controllers
                 return View();
             }
 
-            _logger.LogInformation("Homepage is disabled in production. Returning 404.");
+            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+            {
+                _logger.LogInformation("Homepage is disabled in production. Returning 404.");
+            }
             return NotFound();
         }
 

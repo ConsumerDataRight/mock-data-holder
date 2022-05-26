@@ -11,8 +11,7 @@ namespace CDR.DataHolder.IdentityServer.Configuration
             {
                 new ApiResource("cds-au", "Mock Data Holder (MDH) Resource API")
                 {
-                    // TODO: Need to add all the scopes supported by cds-au api.
-                    // All the scopes supported by the cds-au API.
+                    // All the scopes supported by the data holder.
 					Scopes = new string[] { "cdr:registration", "bank:accounts.detail:read", "bank:accounts.basic:read", "bank:transactions:read", "common:customer.basic:read" }
                 }
             };

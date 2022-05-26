@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using CDR.DataHolder.IntegrationTests.Extensions;
 using Newtonsoft.Json;
 
 #nullable enable
@@ -22,54 +22,96 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
         };
 
         static public async Task<HttpResponseMessage> SendRequest(
-             string? grantType = "client_credentials",
              string? clientId = BaseTest.SOFTWAREPRODUCT_ID,
              string? clientAssertionType = BaseTest.CLIENTASSERTIONTYPE,
+             string? scope = BaseTest.SCOPE,
+             int? sharingDuration = 7776000,
+             string? aud = null,
+             int nbfOffsetSeconds = 0,
+             int expOffsetSeconds = 0,
+             bool addRequestObject = true,
+             bool addNotBeforeClaim = true,
+             bool addExpiryClaim = true,
              string? cdrArrangementId = null,
+             string? redirectUri = BaseTest.SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS,
              string? clientAssertion = null,
+             //string? codeVerifier = null,  // PKCE will be mandatory in FAPI 1.0 phase 2
+             string? requestUri = null,
+             string? responseMode = "fragment",
              string? certificateFilename = BaseTest.CERTIFICATE_FILENAME,
              string? certificatePassword = BaseTest.CERTIFICATE_PASSWORD,
-             string? jwtCertificateFilename = BaseTest.JWT_CERTIFICATE_FILENAME,
-             string? jwtCertificatePassword = BaseTest.JWT_CERTIFICATE_PASSWORD)
+             string? jwtCertificateForClientAssertionFilename = BaseTest.JWT_CERTIFICATE_FILENAME,
+             string? jwtCertificateForClientAssertionPassword = BaseTest.JWT_CERTIFICATE_PASSWORD,
+             string? jwtCertificateForRequestObjectFilename = BaseTest.JWT_CERTIFICATE_FILENAME,
+             string? jwtCertificateForRequestObjectPassword = BaseTest.JWT_CERTIFICATE_PASSWORD)
         {
-            var URL = $"{BaseTest.DH_MTLS_GATEWAY_URL}/connect/par";
-
+            var issuer = BaseTest.DH_TLS_IDENTITYSERVER_BASE_URL;
+            var parUrl = $"{BaseTest.DH_TLS_IDENTITYSERVER_BASE_URL}/connect/par";
             var formFields = new List<KeyValuePair<string?, string?>>();
-            if (grantType != null)
-            {
-                formFields.Add(new KeyValuePair<string?, string?>("grant_type", grantType));
-            }
-            if (clientId != null)
-            {
-                formFields.Add(new KeyValuePair<string?, string?>("client_id", clientId.ToLower()));
-            }
+
             if (clientAssertionType != null)
             {
                 formFields.Add(new KeyValuePair<string?, string?>("client_assertion_type", clientAssertionType));
             }
+
+            // PKCE will be mandatory in FAPI 1.0 phase 2
+            //if (codeVerifier == null)
+            //{
+            //    codeVerifier = string.Concat(System.Guid.NewGuid().ToString(), '-', System.Guid.NewGuid().ToString());
+            //}
+
+            if (requestUri != null)
+            {
+                formFields.Add(new KeyValuePair<string?, string?>("request_uri", requestUri));
+            }
+
             formFields.Add(new KeyValuePair<string?, string?>("client_assertion", clientAssertion ??
-                // new ClientAssertion { Aud = URL }.Get()
                 new PrivateKeyJwt2()
                 {
-                    CertificateFilename = jwtCertificateFilename,
-                    CertificatePassword = jwtCertificatePassword,
-                    Issuer = BaseTest.SOFTWAREPRODUCT_ID.ToLower(),
-                    Audience = URL
+                    CertificateFilename = jwtCertificateForClientAssertionFilename,
+                    CertificatePassword = jwtCertificateForClientAssertionPassword,
+                    Issuer = clientId,
+                    Audience = aud ?? issuer
                 }.Generate()
             ));
-            formFields.Add(new KeyValuePair<string?, string?>("request", new RequestObject { CdrArrangementId = cdrArrangementId }.Get()));
+
+            if (addRequestObject)
+            {
+                var iat = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds();
+                var request = new RequestObject()
+                {
+                    Aud = aud ?? BaseTest.DH_TLS_IDENTITYSERVER_BASE_URL,
+                    IssuedAt = iat,
+                    NotBefore = addNotBeforeClaim ? iat + nbfOffsetSeconds : null,
+                    Expiry = addExpiryClaim ? iat + expOffsetSeconds + 600 : null,
+                    ClientId = clientId,
+                    RedirectUri = redirectUri,
+                    Scope = scope,
+                    CdrArrangementId = cdrArrangementId,
+                    SharingDuration = sharingDuration,
+                    ResponseMode = responseMode,
+                    JwtCertificateFilename = jwtCertificateForRequestObjectFilename,
+                    JwtCertificatePassword = jwtCertificateForRequestObjectPassword,
+                    // PKCE will be mandatory in FAPI 1.0 phase 2
+                    //CodeChallenge = codeVerifier.CreatePkceChallenge(),
+                    //CodeChallengeMethod = "S256"
+                };
+
+                formFields.Add(new KeyValuePair<string?, string?>("request", request.Get()));
+            }
+
             var content = new FormUrlEncodedContent(formFields);
 
             using var clientHandler = new HttpClientHandler();
             clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
             clientHandler.ClientCertificates.Add(new X509Certificate2(
-                certificateFilename ?? throw new ArgumentNullException(nameof(certificateFilename)), 
+                certificateFilename ?? throw new ArgumentNullException(nameof(certificateFilename)),
                 certificatePassword,
                 X509KeyStorageFlags.Exportable));
 
             using var client = new HttpClient(clientHandler);
 
-            var responseMessage = await client.PostAsync(URL, content);
+            var responseMessage = await client.PostAsync(parUrl, content);
 
             return responseMessage;
         }
@@ -85,28 +127,5 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 
             return JsonConvert.DeserializeObject<Response>(responseContent);
         }
-
-        // static public async Task<string?> GetRequestURI(
-        //     string? grantType = "client_credentials",
-        //     string? clientId = BaseTest.SOFTWAREPRODUCT_ID,
-        //     string? clientAssertionType = BaseTest.CLIENTASSERTIONTYPE,
-        //     string? cdrArrangementId = null
-        // )
-        // {
-        //     var responseMessage = await SendRequest(
-        //         grantType: grantType,
-        //         clientId: clientId,
-        //         clientAssertionType: clientAssertionType,
-        //         cdrArrangementId: cdrArrangementId
-        //     );
-
-        //     if (responseMessage.StatusCode != HttpStatusCode.Created)
-        //     {
-        //         throw new Exception($"{nameof(GetRequestURI)} - Error getting RequestURI");
-        //     }
-
-        //     var parResponse = await DeserializeResponse(responseMessage);
-        //     return parResponse?.RequestURI;
-        // }
     }
 }

@@ -30,7 +30,6 @@ namespace CDR.DataHolder.IntegrationTests
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Delete,
-                // AccessToken = GetAccessToken(),
                 AccessToken = await new DataHolderAccessToken().GetAccessToken(),
             };
             var response = await api.SendAsync();
@@ -45,19 +44,10 @@ namespace CDR.DataHolder.IntegrationTests
 
                 if (response.StatusCode == HttpStatusCode.NoContent)
                 {
-                    // TODO - do a get, should fail
+                    // do a get, should fail
                 }
             }
         }
-
-        // AC16 deleted
-        // [Fact]
-        // public void AC16_Delete_WithDeletedClientId_ShouldRespondWith_405MethodNotAllowed_ProfileIsDeleted()
-        // {
-        // #if DEBUG
-        //     throw new NotImplementedException();
-        // #endif
-        // }
 
         [Fact]
         public async Task AC17_Delete_WithExpiredAccessToken_ShouldRespondWith_401Unauthorized_ExpiredAccessTokenErrorResponse()
@@ -87,7 +77,7 @@ namespace CDR.DataHolder.IntegrationTests
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
                     // Assert - Check WWWAutheticate header
-                    Assert_HasHeader(@"Bearer error=""invalid_token"", error_description=""The token expired at '06/16/2021 05:16:01'""",
+                    Assert_HasHeader(@"Bearer error=""invalid_token"", error_description=""The token expired at '05/16/2022 03:04:03'""",
                         response.Headers, "WWW-Authenticate");
                 }
             }

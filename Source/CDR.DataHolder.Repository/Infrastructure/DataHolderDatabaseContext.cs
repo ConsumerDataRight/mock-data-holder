@@ -1,13 +1,11 @@
-﻿using System;
-using CDR.DataHolder.Repository.Entities;
-using CDR.DataHolder.Repository.Infrastructure;
+﻿using CDR.DataHolder.Repository.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-//using Microsoft.Extensions.Configuration;
+using System;
 
 namespace CDR.DataHolder.Repository.Infrastructure
 {
-	public class DataHolderDatabaseContext : DbContext
+    public class DataHolderDatabaseContext : DbContext
 	{
 		public DataHolderDatabaseContext()
 		{
@@ -27,6 +25,8 @@ namespace CDR.DataHolder.Repository.Infrastructure
 		public DbSet<LegalEntity> LegalEntities { get; set; }
 		public DbSet<Brand> Brands { get; set; }
 		public DbSet<SoftwareProduct> SoftwareProducts { get; set; }
+
+		public DbSet<LogEventsManageAPI> LogEventsManageAPI { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -54,9 +54,6 @@ namespace CDR.DataHolder.Repository.Infrastructure
 				.Property(x => x.Amount)
 				.IsRequired()
 				.HasPrecision(16, 2);
-
-			// Seed the database with reference data and initial data
-			modelBuilder.SeedDatabase();
 		}
 
 		private static readonly ValueConverter<DateTime, DateTime> dateTimeConverter = new ValueConverter<DateTime, DateTime>(

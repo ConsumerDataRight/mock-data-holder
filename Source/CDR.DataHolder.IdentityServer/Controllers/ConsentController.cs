@@ -20,6 +20,11 @@ using CDR.DataHolder.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using static CDR.DataHolder.IdentityServer.CdsConstants;
+using Serilog.Context;
+using CDR.DataHolder.IdentityServer.Models;
+using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
+using CDR.DataHolder.IdentityServer.Extensions;
 
 namespace CDR.DataHolder.IdentityServer.Controllers
 {
@@ -31,17 +36,20 @@ namespace CDR.DataHolder.IdentityServer.Controllers
 	public class ConsentController : Controller
 	{
 		private readonly IIdentityServerInteractionService _interaction;
+		private readonly IConfiguration _configuration;
 		private readonly IEventService _events;
 		private readonly ILogger<ConsentController> _logger;
 		private readonly IResourceRepository _resourceRepository;
 
 		public ConsentController(
 			IIdentityServerInteractionService interaction,
+			IConfiguration configuration,
 			IEventService events,
 			IResourceRepository resourceRepository,
 			ILogger<ConsentController> logger)
 		{
 			_interaction = interaction;
+			_configuration = configuration;
 			_events = events;
 			_resourceRepository = resourceRepository;
 			_logger = logger;
@@ -74,7 +82,7 @@ namespace CDR.DataHolder.IdentityServer.Controllers
 			var result = await ProcessConsent(model);
 			if (result.IsRedirect)
 			{
-				return Redirect(result.RedirectUri);
+				return Redirect(_configuration.EnsurePath(result.RedirectUri));
 			}
 
 			if (result.HasValidationError)
@@ -115,11 +123,11 @@ namespace CDR.DataHolder.IdentityServer.Controllers
 					break;
 
 				case ConsentViewModel.ActionTypes.Page1:
-					model.SelectedAccountIds = new string[] { };
+					model.SelectedAccountIds = Array.Empty<string>();
 					break;
 
 				case ConsentViewModel.ActionTypes.Page2:
-					// TODO: Check if any accounts are selected. If not show error.
+					// Check if any accounts are selected. If not show error.
 					break;
 
 				case ConsentViewModel.ActionTypes.Consent:
@@ -185,7 +193,10 @@ namespace CDR.DataHolder.IdentityServer.Controllers
 			}
 			else
 			{
-				_logger.LogError("No consent request matching request: {0}", returnUrl);
+				using (LogContext.PushProperty("MethodName", "BuildViewModelAsync"))
+				{
+					_logger.LogError("No consent request matching request: {returnUrl}", returnUrl);
+				}
 			}
 
 			return null;
@@ -212,7 +223,7 @@ namespace CDR.DataHolder.IdentityServer.Controllers
 				.Select(acc => ConvertToAccountModel(acc));
 			if (allAccounts == null || !allAccounts.Any())
 			{
-				//TODO: throw some error message to the UI
+				// throw some error message to the UI
 			}
 
 			var validAccounts = allAccounts.Where(acc => acc.IsValid).ToArray();
@@ -224,6 +235,17 @@ namespace CDR.DataHolder.IdentityServer.Controllers
 				foreach (var account in validAccounts)
 				{
 					account.IsSelected = model.SelectedAccountIds.Contains(account.Id);
+				}
+			}
+
+			//Get sharing duration
+			TimeSpan sharingDuration = TimeSpan.FromDays(365);
+			if (request.RequestObjectValues.ContainsKey(AuthorizeRequest.Claims))
+			{
+				var authorizeClaims = JsonConvert.DeserializeObject<AuthorizeClaims>(request.RequestObjectValues[AuthorizeRequest.Claims]);
+				if (authorizeClaims.SharingDuration.HasValue)
+				{
+					sharingDuration = TimeSpan.FromSeconds(authorizeClaims.SharingDuration.Value);
 				}
 			}
 
@@ -239,7 +261,7 @@ namespace CDR.DataHolder.IdentityServer.Controllers
 				ClientUrl = request.Client.ClientUri,
 				ClientLogoUrl = request.Client.LogoUri,
 				AllowRememberConsent = request.Client.AllowRememberConsent,
-				ConsentLifeTimeSpan = request.Client.ConsentLifetime != null ? TimeSpan.FromSeconds(request.Client.ConsentLifetime.Value) : TimeSpan.FromDays(365),
+				ConsentLifeTimeSpan = sharingDuration,
 
 				Accounts = validAccounts,
 				InvalidAccounts = invalidAccounts,

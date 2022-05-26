@@ -3,9 +3,9 @@ using static CDR.DataHolder.IdentityServer.CdsConstants;
 
 namespace CDR.DataHolder.IdentityServer.Models
 {
-    public class DataReceipientClient : Client, IClient
+    public class DataRecipientClient : Client, IClient
     {
-        public DataReceipientClient()
+        public DataRecipientClient()
         {
             // Configuration properties.
             Enabled = true;

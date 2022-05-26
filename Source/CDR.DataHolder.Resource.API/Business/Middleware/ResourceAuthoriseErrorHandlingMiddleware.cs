@@ -19,28 +19,28 @@ namespace CDR.DataHolder.Resource.API.Middleware
             _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpContext httpContext, RequestDelegate next)
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
-            await next.Invoke(httpContext);
+            await next.Invoke(context);
 
             try
             {
-                if (httpContext.Request.Path.ToString().EndsWith(Constants.ResourceEndPoints.GetAccounts) && httpContext.Response.StatusCode == StatusCodes.Status401Unauthorized)
+                if (context.Request.Path.ToString().EndsWith(Constants.ResourceEndPoints.GetAccounts) && context.Response.StatusCode == StatusCodes.Status401Unauthorized)
                 {
                     try
                     {
-                        httpContext.Request.Headers.TryGetValue("Authorization", out StringValues authHeader);
+                        context.Request.Headers.TryGetValue("Authorization", out StringValues authHeader);
                         var accessToken = authHeader.ToString().Replace("Bearer ", "");
                         var jwt = accessToken;
 
                         // Try to get the token. Will fail if the token is invalid
                         var handler = new JwtSecurityTokenHandler();
-                        var token = handler.ReadJwtToken(jwt);
+                        handler.ReadJwtToken(jwt);
                     }
                     catch
                     {
                         // Token creation failed. Set error message to invalid_token
-                        await SetUnauthorisedErrorResponseAsync(httpContext, Constants.UnauthorisedErrors.InvalidToken);
+                        await SetUnauthorisedErrorResponseAsync(context, Constants.UnauthorisedErrors.InvalidToken);
                     }
                 }
             }
@@ -50,19 +50,17 @@ namespace CDR.DataHolder.Resource.API.Middleware
             }
         }
 
-        private async Task SetUnauthorisedErrorResponseAsync(HttpContext httpContext, string error)
+        private static async Task SetUnauthorisedErrorResponseAsync(HttpContext httpContext, string error)
         {
             // Replace the response body with the custom error message
             var originBody = httpContext.Response.Body;
 
             var memStream = new MemoryStream();
             httpContext.Response.Body = memStream;
-
             memStream.Position = 0;
-            var responseBody = new StreamReader(memStream).ReadToEnd();
 
             // Get the custom error message
-            responseBody = Constants.UnauthorisedErrors.ErrorMessage.Replace(Constants.UnauthorisedErrors.ErrorMessageDetailReplace, error);
+            var responseBody = Constants.UnauthorisedErrors.ErrorMessage.Replace(Constants.UnauthorisedErrors.ErrorMessageDetailReplace, error);
 
             var memoryStreamModified = new MemoryStream();
             var sw = new StreamWriter(memoryStreamModified);

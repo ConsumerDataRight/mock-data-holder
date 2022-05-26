@@ -12,5 +12,4 @@ namespace CDR.DataHolder.IntegrationTests.Extensions
             return Convert.ToInt32(datetime.Subtract(DateTime.UnixEpoch).TotalSeconds);
         }
     }
-
 }

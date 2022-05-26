@@ -1,5 +1,7 @@
 ﻿using CDR.DataHolder.API.Infrastructure.Extensions;
 using CDR.DataHolder.API.Infrastructure.IdPermanence;
+using CDR.DataHolder.IdentityServer.Extensions;
+using CDR.DataHolder.IdentityServer.Interfaces;
 using CDR.DataHolder.IdentityServer.Models;
 using CDR.DataHolder.IdentityServer.Services.Interfaces;
 using CDR.DataHolder.IdentityServer.Stores;
@@ -10,6 +12,7 @@ using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Serilog.Context;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -26,30 +29,31 @@ namespace CDR.DataHolder.IdentityServer.Controllers
     {
         private readonly IIdSvrService _idSvrService;
         private readonly IRefreshTokenService _refreshTokenService;
-        private readonly IReferenceTokenStore _referenceTokenStore;
+        private readonly IRevokedTokenStore _revokedTokenStore;
         private readonly DynamicClientStore _clientStore;
         private readonly IIntrospectionRequestValidator _validator;
         private readonly ILogger _logger;
         private readonly IIdPermanenceManager _idPermanenceManager;
         private readonly IPersistedGrantStore _persistedGrantStore;
 
-        public IntrospectionController(IIdSvrService idSvrService,
-                                        IRefreshTokenService refreshTokenService,
-                                        IReferenceTokenStore referenceTokenStore,
-                                        DynamicClientStore clientStore,
-                                        IIntrospectionRequestValidator validator,
-                                        ILogger<IntrospectionController> logger,
-                                        IIdPermanenceManager idPermanenceManager,
-                                        IPersistedGrantStore persistedGrantStore)
+        public IntrospectionController(
+            IIdSvrService idSvrService,
+            IRefreshTokenService refreshTokenService,
+            IRevokedTokenStore revokedTokenStore,
+            DynamicClientStore clientStore,
+            IIntrospectionRequestValidator validator,
+            ILogger<IntrospectionController> logger,
+            IPersistedGrantStore persistedGrantStore,
+            IIdPermanenceManager idPermanenceManager)
         {
             _idSvrService = idSvrService;
             _refreshTokenService = refreshTokenService;
-            _referenceTokenStore = referenceTokenStore;
+            _revokedTokenStore = revokedTokenStore;
+            _persistedGrantStore = persistedGrantStore;
             _clientStore = clientStore;
             _validator = validator;
             _logger = logger;
             _idPermanenceManager = idPermanenceManager;
-            _persistedGrantStore = persistedGrantStore;
         }
 
         [HttpPost]
@@ -71,7 +75,10 @@ namespace CDR.DataHolder.IdentityServer.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching client by client_id.");
+                using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+                {
+                    _logger.LogError(ex, "Error fetching client by client_id.");
+                }
                 return Unauthorized(new IntrospectionSubError(IntrospectionErrorCodes.InvalidClient));
             }
 
@@ -91,10 +98,19 @@ namespace CDR.DataHolder.IdentityServer.Controllers
                 });
             }
 
-            //Validate refresh token
+            // Check if the token has been revoked.
+            if (await _revokedTokenStore.IsRevoked(request.Token))
+            {
+                return Ok(new IntrospectionResult
+                {
+                    Active = false,
+                });
+            }
+
+            // Validate refresh token
             var result = await _refreshTokenService.ValidateRefreshTokenAsync(request.Token, client);
 
-            //Create result
+            // Create result
             IntrospectionResult introspectResult = null;
 
             if (!result.IsError && result.RefreshToken != null)
@@ -109,15 +125,13 @@ namespace CDR.DataHolder.IdentityServer.Controllers
 
                 // Get grant
                 var grant = await _idSvrService.GetCdrArrangementGrantAsync(request.ClientId, sub);
-
-                int expiry = int.Parse(result.RefreshToken.Subject.Claims.Single(x => x.Type == StandardClaims.SharingDurationExpiresAt).Value);
                 var scopes = string.Join(' ', result.RefreshToken.Scopes);
 
                 introspectResult = new IntrospectionSuccessResult
                 {
                     Active = true,
                     CdrArrangementId = grant.Key,
-                    Expiry = expiry,
+                    Expiry = result.RefreshToken.GetExpiry(),
                     Scope = scopes
                 };
             }
@@ -148,53 +162,75 @@ namespace CDR.DataHolder.IdentityServer.Controllers
         [Consumes("application/x-www-form-urlencoded")]
         public async Task<IActionResult> PostInternal([Required, FromForm] string token)
         {
-            var tokenIsValid = true;
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var securityToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
-            IEnumerable<Claim> claims = securityToken.Claims;
-
-            // Does the TOKEN exist in the Memory Cache? - if YES then is is a VALID TOKEN
-            var at = await _referenceTokenStore.GetReferenceTokenAsync(token);
-            if (at == null)
+            // Check if the token has been revoked.
+            if (string.IsNullOrEmpty(token) || await _revokedTokenStore.IsRevoked(token))
             {
-                // IF NO - is is still a valid TOKEN?
-                Int32 nbf = Convert.ToInt32(claims.Where(p => p.Type == "nbf").FirstOrDefault()?.Value);
-                Int32 exp = Convert.ToInt32(claims.Where(p => p.Type == "exp").FirstOrDefault()?.Value);
-                TimeSpan timeSpan = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0);
-                Int32 nowInSecs = Convert.ToInt32(timeSpan.TotalSeconds);
-                if (nbf > nowInSecs && exp < nowInSecs)
-                {
-                    tokenIsValid = false;
-                }
-            }
-
-            string clientId;
-            if (!string.IsNullOrEmpty(token))
-            {
-                // IF the User Consent exists in the Persisted Grants store
-                clientId = claims.Where(p => p.Type == "client_id").FirstOrDefault()?.Value;
-                var keys = await _persistedGrantStore.GetAllAsync(new PersistedGrantFilter() { ClientId = clientId });
-                var user = keys.FirstOrDefault(g => g.Type == "user_consent" && g.ClientId == clientId);
-                if (user != null || !string.IsNullOrEmpty(user.Key))
-                {
-                    // AND the REFRESH TOKEN has been revoked, then the ACCESS TOKEN is now INVALID.
-                    var refTkn = keys.FirstOrDefault(g => g.Type == TokenTypes.RefreshToken && g.ClientId == clientId);
-                    if (refTkn == null || string.IsNullOrEmpty(refTkn.Key))
-                    {
-                        tokenIsValid = false;
-                    }
-                }
-            }
-            if (tokenIsValid)
                 return Ok(new IntrospectionResult
                 {
-                    Active = tokenIsValid,
+                    Active = false,
                 });
-            else
-                return Unauthorized(new IntrospectionResult
+            }
+
+            // Check if the token is tied to an active cdr arrangement.
+            // Only revoke the access token if the current client owns the access token.
+            var securityToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            if (securityToken == null)
+            {
+                return Ok(new IntrospectionResult
                 {
-                    Active = tokenIsValid,
+                    Active = false,
                 });
+            }
+
+            // Perform further checking.
+            var clientIdFromAccessToken = securityToken.Claims.GetClaimValue(IntrospectionRequestElements.ClientId);
+            var cdrArrangementId = securityToken.Claims.GetClaimValue(StandardClaims.CDRArrangementId);
+            var arrangement = await _persistedGrantStore.GetAsync(cdrArrangementId);
+
+            // If the arrangement was not found, or has expired, or does not match the client id in the access token.
+            if (arrangement == null 
+                || arrangement.Expiration > DateTime.UtcNow 
+                || !arrangement.ClientId.Equals(clientIdFromAccessToken, StringComparison.OrdinalIgnoreCase))
+            {
+                return Ok(new IntrospectionResult
+                {
+                    Active = false,
+                });
+            }
+
+            return Ok(new IntrospectionResult
+            {
+                Active = IsValid(token)
+            });
+        }
+
+        private static bool IsValid(string accessToken)
+        {
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return false;
+            }
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var securityToken = tokenHandler.ReadToken(accessToken) as JwtSecurityToken;
+
+            if (securityToken == null)
+            {
+                return false;
+            }
+
+            // Check lifetime.
+            if (DateTime.UtcNow < securityToken.ValidFrom)
+            {
+                return false;
+            }
+
+            if (DateTime.UtcNow > securityToken.ValidTo)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private async Task<(bool, IActionResult)> ValidateRequest(IntrospectionRequest request, Client client)
@@ -232,7 +268,7 @@ namespace CDR.DataHolder.IdentityServer.Controllers
             return (true, null);
         }
 
-        private IActionResult BadRequestResponse(IEnumerable<ValidationResult> validationResults)
+        private static IActionResult BadRequestResponse(IEnumerable<ValidationResult> validationResults)
         {
             // Client assertion errors.
             var clientAssertionErrors = validationResults.Where(x => String.Join(',', x.MemberNames) == IntrospectionRequestElements.ClientAssertion);

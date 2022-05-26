@@ -1,143 +1,16 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Web;
 using HtmlAgilityPack;
-using FluentAssertions;
-using Xunit;
-using CDR.DataHolder.IntegrationTests.Fixtures;
 
 #nullable enable
 
 namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 {
-// TODO MJS 2021-10-21 - Not used in pipeline, remove
-/*
-#if DEBUG
-    public class DataHolder_Authorise_APIv2_UnitTests : BaseTest, IClassFixture<DataHolder_Authorise_APIv2_UnitTests.Fixture>
-    {
-        class Fixture : IAsyncLifetime
-        {
-            public async Task InitializeAsync()
-            {
-                TestSetup.Register_PatchRedirectUri();
-                TestSetup.DataHolder_PurgeIdentityServer();
-                await TestSetup.DataHolder_RegisterSoftwareProduct();
-            }
-
-            public Task DisposeAsync()
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        [Fact]
-        public async Task With_ValidUserID_ValidPassword_ShouldRespondWith_Token()
-        {
-            // Arrange
-
-            // Act - Perform authorisation and consent flow to get an authCode
-            (var authCode, var idToken) = await new DataHolder_Authorise_APIv2
-            {
-                UserId = BaseTest.USERID_JANEWILSON,
-                OTP = BaseTest.AUTHORISE_OTP,
-                SelectedAccountIds = ACCOUNTIDS_ALL_JANE_WILSON
-            }.Authorise();
-
-            // Assert
-            authCode.Should().NotBeNullOrEmpty();
-            idToken.Should().NotBeNullOrEmpty();
-
-            // Act - Use the authCode to get an access/id/refresh tokens and cdrArrangementId
-            var tokenResponse = await DataHolder_Token_API.GetResponse(authCode);
-
-            // Assert 
-            tokenResponse.Should().NotBeNull();
-            tokenResponse?.AccessToken.Should().NotBeNullOrEmpty();
-            tokenResponse?.IdToken.Should().NotBeNullOrEmpty();
-            tokenResponse?.RefreshToken.Should().NotBeNullOrEmpty();
-            tokenResponse?.CdrArrangementId.Should().NotBeNullOrEmpty();
-        }
-
-        [Fact]
-        public async Task With_RefreshToken_ShouldRespondWith_AccessToken()
-        {
-            // Act - Perform authorisation and consent flow to get an authCode
-            (var authCode, var idToken) = await new DataHolder_Authorise_APIv2
-            {
-                UserId = BaseTest.USERID_JANEWILSON,
-                OTP = BaseTest.AUTHORISE_OTP,
-                SelectedAccountIds = ACCOUNTIDS_ALL_JANE_WILSON
-            }.Authorise();
-
-            // Assert
-            authCode.Should().NotBeNullOrEmpty();
-            idToken.Should().NotBeNullOrEmpty();
-
-            // Act - Use the authCode to get an access/id/refresh tokens and cdrArrangementId
-            var tokenResponse = await DataHolder_Token_API.GetResponse(authCode);
-
-            // Assert 
-            tokenResponse.Should().NotBeNull();
-            tokenResponse?.AccessToken.Should().NotBeNullOrEmpty();
-            tokenResponse?.IdToken.Should().NotBeNullOrEmpty();
-            tokenResponse?.RefreshToken.Should().NotBeNullOrEmpty();
-            tokenResponse?.CdrArrangementId.Should().NotBeNullOrEmpty();
-
-            // Act - Use refresh token to get access/refresh token
-            var refreshTokenResponseMessage = await DataHolder_Token_API.SendRequest(grantType: "refresh_token", refreshToken: tokenResponse?.RefreshToken);
-
-            // Assert
-            refreshTokenResponseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
-            var refreshTokenResponse = await DataHolder_Token_API.DeserializeResponse(refreshTokenResponseMessage);
-            refreshTokenResponse.Should().NotBeNull();
-            refreshTokenResponse?.AccessToken.Should().NotBeNullOrEmpty();
-            refreshTokenResponse?.IdToken.Should().NotBeNullOrEmpty();
-            refreshTokenResponse?.RefreshToken.Should().NotBeNullOrEmpty();
-            refreshTokenResponse?.CdrArrangementId.Should().NotBeNullOrEmpty();
-        }
-
-        [Fact]
-        public void With_InvalidUserID_ShouldThrow_EDataHolder_Authorise_IncorrectCustomerId()
-        {
-            // Arrange
-            Func<Task> act = async () =>
-            {
-                (var authCode, var idToken) = await new DataHolder_Authorise_APIv2
-                {
-                    UserId = "foo",
-                    OTP = BaseTest.AUTHORISE_OTP,
-                    SelectedAccountIds = ACCOUNTIDS_ALL_JANE_WILSON
-                }.Authorise();
-            };
-
-            // Act/Assert
-            act.Should().Throw<EDataHolder_Authorise_IncorrectCustomerId>();
-        }
-
-        [Fact]
-        public void With_InvalidPassword_ShouldThrow_EDataHolder_Authorise_IncorrectPassword()
-        {
-            // Arrange
-            Func<Task> act = async () =>
-            {
-                (var authCode, var idToken) = await new DataHolder_Authorise_APIv2
-                {
-                    UserId = BaseTest.USERID_JANEWILSON,
-                    OTP = "foo",
-                    SelectedAccountIds = ACCOUNTIDS_ALL_JANE_WILSON
-                }.Authorise();
-            };
-
-            // Act/Assert
-            act.Should().Throw<EDataHolder_Authorise_IncorrectOneTimePassword>();
-        }
-    }
-#endif
-*/
-
     public class EDataHolder_Authorise_IncorrectCustomerId : Exception { }
     public class EDataHolder_Authorise_IncorrectOneTimePassword : Exception { }
 
@@ -183,7 +56,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
         public string CertificatePassword { get; init; } = BaseTest.CERTIFICATE_PASSWORD;
 
 
-        public string ClientId { get; init; } = BaseTest.SOFTWAREPRODUCT_ID.ToLower();        
+        public string ClientId { get; init; } = BaseTest.SOFTWAREPRODUCT_ID.ToLower();
         public string RedirectURI { get; init; } = BaseTest.SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS;
         public string JwtCertificateFilename { get; init; } = BaseTest.JWT_CERTIFICATE_FILENAME;
         public string JwtCertificatePassword { get; init; } = BaseTest.JWT_CERTIFICATE_PASSWORD;
@@ -362,7 +235,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 
         // Confirm selection of accounts and postback 
         private async Task<(string authCode, string idToken)> DataHolder_Consent_Confirm(CookieContainer cookieContainer, HttpResponseMessage? selectAccountsResponse)
-        // private async Task DataHolder_Consent_Confirm(CookieContainer cookieContainer, HttpResponseMessage? selectAccountsResponse)
         {
             async Task<(string authCode, string idToken)> Postback(HttpRequestMessage request)
             {
@@ -383,16 +255,23 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 
                     var query = HttpUtility.ParseQueryString(fragment.TrimStart('#'));
 
-                    var authCode = query["code"];
-                    if (authCode == null)
+                    Exception RaiseException(string errorMessage, string? authCode, string? idToken)
                     {
-                        throw new Exception("authCode is null");
+                        var responseRequestUri = response?.RequestMessage?.RequestUri;
+                        return new SecurityException($"{errorMessage}\r\nauthCode={authCode},idToken={idToken},response.RequestMessage.RequestUri={responseRequestUri}");
                     }
 
+                    var authCode = query["code"];
                     var idToken = query["id_token"];
+
+                    if (authCode == null)
+                    {
+                        throw RaiseException("authCode is null", authCode, idToken);
+                    }
+
                     if (idToken == null)
                     {
-                        throw new Exception("idToken is null");
+                        throw RaiseException("idToken is null", authCode, idToken);
                     }
 
                     var state = query["state"];
@@ -442,7 +321,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
             };
             (var authCode, var idToken) = await Postback(request);
 
-            return (authCode, idToken);           
+            return (authCode, idToken);
         }
     }
 }

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- Account transactions dates in seed data.
+- Account transactions dates and person information in seed data.
 
 ### Fixed
 - Issuing of refresh_token when FapiComplianceLevel is set to Fapi1Phase2.

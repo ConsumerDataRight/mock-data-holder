@@ -252,7 +252,7 @@ namespace CDR.DataHolder.IdentityServer.Services
 
             if (request.AuthorizationCode != null)
             {
-                if (int.TryParse(request.AuthorizationCode.Subject.Claims.FirstOrDefault(x => x.Type == StandardClaims.SharingDurationExpiresAt)?.Value, out int sharingExpiresAt))
+                if (int.TryParse(request.AuthorizationCode.Subject.Claims.FirstOrDefault(x => x.Type == StandardClaims.Expiry)?.Value, out int sharingExpiresAt))
                 {
                     createRefreshToken = sharingExpiresAt > DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 }

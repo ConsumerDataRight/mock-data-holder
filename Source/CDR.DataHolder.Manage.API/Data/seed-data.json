@@ -10,9 +10,9 @@
                 "LastName": "Smith",
                 "MiddleNames": "",
                 "Prefix": "Mr",
-                "Suffix": "",
-                "OccupationCode": "",
-                "OccupationCodeVersion": "",
+                "Suffix": null,
+                "OccupationCode": null,
+                "OccupationCodeVersion": null,
                 "LastUpdateTime": "2021-04-30T08:00:00Z"
             },
             "Accounts": [
@@ -130,7 +130,7 @@
                 "LastName": "Wilson",
                 "MiddleNames": "Amanda",
                 "Prefix": "Dr",
-                "Suffix": "",
+                "Suffix": null,
                 "OccupationCode": "253111",
                 "OccupationCodeVersion": "ANZSCO_1220.0_2013_V1.3",
                 "LastUpdateTime": "2021-01-01T18:30:00Z"
@@ -730,7 +730,7 @@
                 "LastName": "Wiliamson",
                 "MiddleNames": "Javis",
                 "Prefix": "Mr",
-                "Suffix": "",
+                "Suffix": null,
                 "OccupationCode": "253111",
                 "OccupationCodeVersion": "ANZSCO_1220.0_2013_V1.3",
                 "LastUpdateTime": "2021-03-01T18:30:00Z"
@@ -778,7 +778,7 @@
                 "LastName": "Smith",
                 "MiddleNames": "O",
                 "Prefix": "Mrs",
-                "Suffix": "",
+                "Suffix": null,
                 "OccupationCode": "123412",
                 "OccupationCodeVersion": "ANZSCO_1220.0_2013_V1.3",
                 "LastUpdateTime": "2021-03-01T18:30:00Z"
@@ -1696,7 +1696,7 @@
                 "LastName": "Smith",
                 "MiddleNames": "",
                 "Prefix": "Mrs",
-                "Suffix": "",
+                "Suffix": null,
                 "OccupationCode": "123412",
                 "OccupationCodeVersion": "ANZSCO_1220.0_2002_V1.1",
                 "LastUpdateTime": "2021-02-01T18:30:00Z"
@@ -1744,9 +1744,9 @@
                 "LastName": "Ray",
                 "MiddleNames": "",
                 "Prefix": "Mr",
-                "Suffix": "",
-                "OccupationCode": "",
-                "OccupationCodeVersion": "",
+                "Suffix": null,
+                "OccupationCode": null,
+                "OccupationCodeVersion": null,
                 "LastUpdateTime": "2018-03-01T18:30:00Z"
             },
             "Accounts": [
@@ -1822,9 +1822,9 @@
                 "LastName": "Jay",
                 "MiddleNames": "",
                 "Prefix": "Mr",
-                "Suffix": "",
-                "OccupationCode": "",
-                "OccupationCodeVersion": "",
+                "Suffix": null,
+                "OccupationCode": null,
+                "OccupationCodeVersion": null,
                 "LastUpdateTime": "2019-03-01T18:30:00Z"
             },
             "Accounts": [
@@ -1870,9 +1870,9 @@
                 "LastName": "Lee",
                 "MiddleNames": "",
                 "Prefix": "Mr",
-                "Suffix": "",
-                "OccupationCode": "",
-                "OccupationCodeVersion": "",
+                "Suffix": null,
+                "OccupationCode": null,
+                "OccupationCodeVersion": null,
                 "LastUpdateTime": "2018-03-01T18:30:00Z"
             },
             "Accounts": [
@@ -1918,9 +1918,9 @@
                 "LastName": "Dame",
                 "MiddleNames": "",
                 "Prefix": "Mr",
-                "Suffix": "",
-                "OccupationCode": "",
-                "OccupationCodeVersion": "",
+                "Suffix": null,
+                "OccupationCode": null,
+                "OccupationCodeVersion": null,
                 "LastUpdateTime": "2020-03-01T09:30:00Z"
             },
             "Accounts": [
@@ -1966,9 +1966,9 @@
                 "LastName": "Mia",
                 "MiddleNames": "",
                 "Prefix": "Mrs",
-                "Suffix": "",
-                "OccupationCode": "",
-                "OccupationCodeVersion": "",
+                "Suffix": null,
+                "OccupationCode": null,
+                "OccupationCodeVersion": null,
                 "LastUpdateTime": "2021-03-01T09:30:00Z"
             },
             "Accounts": [
@@ -2014,9 +2014,9 @@
                 "LastName": "Steve",
                 "MiddleNames": "Odom",
                 "Prefix": "Mr",
-                "Suffix": "",
-                "OccupationCode": "",
-                "OccupationCodeVersion": "",
+                "Suffix": null,
+                "OccupationCode": null,
+                "OccupationCodeVersion": null,
                 "LastUpdateTime": "2021-01-01T18:30:00Z"
             },
             "Accounts": [
@@ -2123,8 +2123,8 @@
                 "MiddleNames": "Gary,Michael",
                 "Prefix": "Mr",
                 "Suffix": "Jr",
-                "OccupationCode": "",
-                "OccupationCodeVersion": "",
+                "OccupationCode": null,
+                "OccupationCodeVersion": null,
                 "LastUpdateTime": "2021-03-15T12:00:00Z"
             },
             "Accounts": []

@@ -84,6 +84,17 @@ jobs:
     - name: Run unit tests
       run: |
         docker-compose -f './mock-data-holder/Source/docker-compose.UnitTests.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-unit-tests
+
+    # Archive unit test results
+    - name: Archive unit test results
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: unit-test-results
+        path: ${{ github.workspace }}/mock-data-holder-unit-tests/Source/_temp/mock-data-holder-unit-tests/testresults
+        # path: ${{ github.workspace }}/$(Build.SourcesDirectory)/mock-data-holder-unit-tests/Source/_temp/mock-data-holder-unit-tests/testresults
+        # path: ${{ github.workspace }}\cdr\test-results
+
     # Remove unit tests
     - name: Remove unit tests
       run: |
@@ -103,7 +114,6 @@ jobs:
     #  condition: always()
     #  artifact: Mock-Data-Holder - Unit tests
 
-    # test starting the action
     # Archive integration test results
     - name: Archive unit test results
       uses: actions/upload-artifact@v2

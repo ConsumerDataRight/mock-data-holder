@@ -103,3 +103,12 @@ jobs:
     - name: Remove integration tests
       run: |
         docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' down
+    
+    # Archive integration test results
+    - name: Archive integration test results
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: integration-test-results
+        path: ${{ github.workspace }}\$(Build.SourcesDirectory)\sb-mock-data-holder\Source\_temp\mock-data-holder-integration-tests\testresults
+        # path: ${{ github.workspace }}\cdr\test-results

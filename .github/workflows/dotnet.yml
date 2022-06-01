@@ -112,13 +112,21 @@ jobs:
         name: integration-test-results
         path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder-integration-tests/testresults
 
-    # Archive integration test logs
-    - name: Archive integration test logs
+    # Archive mock data holder logs
+    - name: Archive mock data holder logs
       uses: actions/upload-artifact@v2
       if: always()
       with:
         name: integration-test-artifacts
         path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder/tmp
+
+    # Archive mock register logs
+    - name: Archive mock register logs
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: integration-test-artifacts
+        path: ${{ github.workspace }}/mock-register/Source/_temp/mock-register/tmp
 
     # Remove integration tests
     - name: Remove integration tests

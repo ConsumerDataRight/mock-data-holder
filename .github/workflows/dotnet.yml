@@ -72,14 +72,15 @@ jobs:
     - name: Build the mock-data-holder-unit-tests image
       run: |
         docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile.unit-tests --tag mock-data-holder-unit-tests:latest
-    ## Build mock-data-holder-integration-tests image
-    #- name: Build the mock-data-holder-integration-tests image
-    #  run: |
-    #    docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile.integration-tests --tag mock-data-holder-integration-tests:latest
+    # Build mock-data-holder-integration-tests image
+    - name: Build the mock-data-holder-integration-tests image
+      run: |
+        docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile.integration-tests --tag mock-data-holder-integration-tests:latest
     # List docker images
     - name: List Docker images
       run: |
         docker images
+
     # Run unit tests
     - name: Run unit tests
       run: |
@@ -92,42 +93,34 @@ jobs:
       with:
         name: unit-test-results
         path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder-unit-tests/testresults
-        # path: ${{ github.workspace }}/$(Build.SourcesDirectory)/mock-data-holder-unit-tests/Source/_temp/mock-data-holder-unit-tests/testresults
-        # path: ${{ github.workspace }}\cdr\test-results
-
-    # Archive unit test logs
-    - name: Archive integration test logs
-      uses: actions/upload-artifact@v2
-      if: always()
-      with:
-        name: integration-test-artifacts
-        path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder/tmp
 
     # Remove unit tests
     - name: Remove unit tests
       run: |
         docker-compose -f './mock-data-holder/Source/docker-compose.UnitTests.yml' down
-    ## Run integration tests
-    #- name: Run integration tests
-    #  run: |
-    #    docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
-    ## Remove integration tests
-    #- name: Remove integration tests
-    #  run: |
-    #    docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' down
-    
-    ## Publish mock-data-holder unit tests results
-    #- publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-unit-tests/testresults
-    #  displayName: Publish unit tests
-    #  condition: always()
-    #  artifact: Mock-Data-Holder - Unit tests
 
-    ## Archive integration test results
-    #- name: Archive unit test results
-    #  uses: actions/upload-artifact@v2
-    #  if: always()
-    #  with:
-    #    name: unit-test-results
-    #    path: ${{ github.workspace }}/mock-data-holder-unit-tests/Source/_temp/mock-data-holder-unit-tests/testresults
-    #    # path: ${{ github.workspace }}/$(Build.SourcesDirectory)/mock-data-holder-unit-tests/Source/_temp/mock-data-holder-unit-tests/testresults
-    #    # path: ${{ github.workspace }}\cdr\test-results
+    # Run integration tests
+    - name: Run integration tests
+      run: |
+        docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
+
+    # Archive integration test results
+    - name: Archive integration test results
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: integration-test-results
+        path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder-integration-tests/testresults
+
+    # Archive integration test logs
+    - name: Archive integration test logs
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: integration-test-artifacts
+        path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder-integration-tests/tmp
+
+    # Remove integration tests
+    - name: Remove integration tests
+      run: |
+        docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' down

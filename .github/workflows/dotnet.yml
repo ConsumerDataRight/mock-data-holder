@@ -91,7 +91,7 @@ jobs:
       if: always()
       with:
         name: unit-test-results
-        path: ${{ github.workspace }}/mock-data-holder-unit-tests/Source/_temp/mock-data-holder-unit-tests/testresults
+        path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder-unit-tests/testresults
         # path: ${{ github.workspace }}/$(Build.SourcesDirectory)/mock-data-holder-unit-tests/Source/_temp/mock-data-holder-unit-tests/testresults
         # path: ${{ github.workspace }}\cdr\test-results
 

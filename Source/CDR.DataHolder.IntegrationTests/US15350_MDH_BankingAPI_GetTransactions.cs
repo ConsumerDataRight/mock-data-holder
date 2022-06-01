@@ -31,8 +31,8 @@ namespace CDR.DataHolder.IntegrationTests
         private const string FOO_GUID = "F0000000-F000-F000-F000-F00000000000";
 
         // Note: These default dates are based on the current seed-data.json file to select a valid data set.
-        private static string DEFAULT_EFFECTIVENEWESTTIME => "2021-06-01T00:00:00Z";
-        private static string DEFAULT_EFFECTIVEOLDESTTIME => "2021-03-01T00:00:00Z";
+        private static string DEFAULT_EFFECTIVENEWESTTIME => "2022-06-01T00:00:00Z";
+        private static string DEFAULT_EFFECTIVEOLDESTTIME => "2022-03-01T00:00:00Z";
 
         private static (string, int) GetExpectedResponse(
             string accountId, string? accessToken,
@@ -345,9 +345,9 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        [InlineData("2021-05-25T00:00:00.000Z", 2)]
-        [InlineData("2021-05-26T00:00:00.000Z", 0)]
-        // NB: If the appsettings.ENV.json > SeedData > OffsetDates = true - then the reference date of 2021-05-01 for the data seeded into the database will be moved to now
+        [InlineData("2022-05-25T00:00:00.000Z", 2)]
+        [InlineData("2022-05-26T00:00:00.000Z", 0)]
+        // NB: If the appsettings.ENV.json > SeedData > OffsetDates = true - then the reference date of 2022-05-01 for the data seeded into the database will be moved to now
         //     SO THE ABOVE TEST DATES MUST ALSO BE MOVED as per the OffsetDates as set in 010 Repository > ...\Repository\Infrastructure\Extensions.cs
         //     else this test will FAIL.
         public async Task AC05_Get_WithOldestTime_ShouldRespondWith_200OK_FilteredRecords(string oldestTime, int expectedRecordCount)
@@ -356,9 +356,9 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        [InlineData("2021-03-01T00:00:00.000Z", 0)]
-        [InlineData("2021-03-02T00:00:00.000Z", 2)]
-        // NB: If the appsettings.ENV.json > SeedData > OffsetDates = true - then the reference date of 2021-05-01 for the data seeded into the database will be moved to now
+        [InlineData("2022-03-01T00:00:00.000Z", 0)]
+        [InlineData("2022-03-02T00:00:00.000Z", 2)]
+        // NB: If the appsettings.ENV.json > SeedData > OffsetDates = true - then the reference date of 2022-05-01 for the data seeded into the database will be moved to now
         //     SO THE ABOVE TEST DATES MUST ALSO BE MOVED as per the OffsetDates as set in 010 Repository > ...\Repository\Infrastructure\Extensions.cs
         //     else this test will FAIL.
         public async Task AC05b_Get_WithNewestTime_ShouldRespondWith_200OK_FilteredRecords(string newestTime, int expectedRecordCount)
@@ -397,7 +397,7 @@ namespace CDR.DataHolder.IntegrationTests
         [Theory]
         [InlineData("IOU", 2)]
         [InlineData("iou", 2)]
-        // NB: If the appsettings.ENV.json > SeedData > OffsetDates = true - then the reference date of 2021-05-01 for the data seeded into the database will be moved to now
+        // NB: If the appsettings.ENV.json > SeedData > OffsetDates = true - then the reference date of 2022-05-01 for the data seeded into the database will be moved to now
         //     THIS TEST WILL FAIL.
         public async Task AC10_Get_WithText_ShouldRespondWith_200OK_FilteredRecords(string text, int expectedRecordCount)
         {
@@ -466,7 +466,7 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        [InlineData("2021-04-01T00:00:00.000Z", HttpStatusCode.OK)]
+        [InlineData("2022-04-01T00:00:00.000Z", HttpStatusCode.OK)]
         [InlineData("foo", HttpStatusCode.BadRequest)]
         public async Task AC15_Get_WithInvalidField_ShouldRespondWith_400BadRequest_InvalidFieldErrorResponse(string oldestTime, HttpStatusCode expectedStatusCode)
         {

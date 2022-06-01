@@ -2,7 +2,7 @@
 
 Certificates play an important part in the CDR ecosystem to establish trust between participants and protect communications.  **DigiCert** is the Certificate Authority (CA) for the CDR and the ACCC is responsible for provisioning DigiCert certificates to participants during the on-boarding process.
 
-For more information, consult the [Certificate Management](https://cdr-register.github.io/register/#certificate-management) section of the Register Design.
+For more information, consult the [Certificate Management](https://consumerdatastandardsaustralia.github.io/standards/#certificate-management) section of the Consumer Data Standards.
 
 The Mock Data Holder will mimic the behaviour of a data holder in the CDR ecosystem and therefore will use certificates in its interactions.  However, the use of DigiCert for this purpose is not feasible or scalable so an alternative approach is adopted.
 

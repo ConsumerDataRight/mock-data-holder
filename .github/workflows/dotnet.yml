@@ -104,6 +104,7 @@ jobs:
       run: |
         docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' down
     
+    # test starting the action
     # Archive integration test results
     - name: Archive integration test results
       uses: actions/upload-artifact@v2

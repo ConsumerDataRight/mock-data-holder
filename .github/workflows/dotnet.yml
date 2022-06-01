@@ -44,21 +44,17 @@ jobs:
       with:
         path: ./mock-data-holder
 
-    - name: Checkout Register (Main Branch)
-      uses: actions/checkout@v2
+    - name: Pull Mock Register Image (main)
       if: ${{ github.ref == 'refs/heads/main' }}
-      with:
-        repository: ConsumerDataRight/mock-register
-        ref: main
-        path: ./mock-register
-
-    - name: Checkout Register (Develop Branch)
-      uses: actions/checkout@v2
+      run: |
+        docker pull consumerdataright/mock-register:main
+        docker image tag consumerdataright/mock-register:main mock-register:latest
+        
+    - name: Pull Mock Register Image (develop)
       if: ${{ github.ref != 'refs/heads/main' }}
-      with:
-        repository: ConsumerDataRight/mock-register
-        ref: develop
-        path: ./mock-register
+      run: |
+        docker pull consumerdataright/mock-register:develop
+        docker image tag consumerdataright/mock-register:develop mock-register:latest
 
     - name: List contents
       if: always()
@@ -67,10 +63,7 @@ jobs:
         cd mock-data-holder
         ls
         cd ..
-    # Build mock-register image
-    - name: Build the mock-register image
-      run: |
-        docker build ./mock-register/Source --file ./mock-register/Source/Dockerfile --tag mock-register:latest
+
     # Build mock-data-holder image
     - name: Build the mock-data-holder image
       run: |
@@ -106,10 +99,10 @@ jobs:
     
     # test starting the action
     # Archive integration test results
-    - name: Archive integration test results
-      uses: actions/upload-artifact@v2
-      if: always()
-      with:
-        name: integration-test-results
-        path: ${{ github.workspace }}\$(Build.SourcesDirectory)\sb-mock-data-holder\Source\_temp\mock-data-holder-integration-tests\testresults
-        # path: ${{ github.workspace }}\cdr\test-results
+    # - name: Archive integration test results
+     # uses: actions/upload-artifact@v2
+     # if: always()
+     # with:
+     #   name: integration-test-results
+      #  path: ${{ github.workspace }}\$(Build.SourcesDirectory)\sb-mock-data-holder\Source\_temp\mock-data-holder-integration-tests\testresults
+      #  # path: ${{ github.workspace }}\cdr\test-results

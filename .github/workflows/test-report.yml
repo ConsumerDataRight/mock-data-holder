@@ -22,16 +22,16 @@ jobs:
         path: '*.trx'
         reporter: dotnet-trx
 
-  #integration-test-report:
-  #  runs-on: ubuntu-latest
+  integration-test-report:
+    runs-on: ubuntu-latest
 
-  #  steps:
-  #  - uses: actions/checkout@v2
+    steps:
+    - uses: actions/checkout@v2
     
-  #  - name: Publish Integration Test Report
-  #    uses: dorny/test-reporter@v1
-  #    with:
-  #      artifact: integration-test-results
-  #      name: Integration Tests
-  #      path: '*.trx'
-  #      reporter: dotnet-trx
+    - name: Publish Integration Test Report
+      uses: dorny/test-reporter@v1
+      with:
+        artifact: integration-test-results
+        name: Integration Tests
+        path: '*.trx'
+        reporter: dotnet-trx

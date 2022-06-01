@@ -72,10 +72,10 @@ jobs:
     - name: Build the mock-data-holder-unit-tests image
       run: |
         docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile.unit-tests --tag mock-data-holder-unit-tests:latest
-    # Build mock-data-holder-integration-tests image
-    - name: Build the mock-data-holder-integration-tests image
-      run: |
-        docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile.integration-tests --tag mock-data-holder-integration-tests:latest
+    ## Build mock-data-holder-integration-tests image
+    #- name: Build the mock-data-holder-integration-tests image
+    #  run: |
+    #    docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile.integration-tests --tag mock-data-holder-integration-tests:latest
     # List docker images
     - name: List Docker images
       run: |
@@ -88,14 +88,14 @@ jobs:
     - name: Remove unit tests
       run: |
         docker-compose -f './mock-data-holder/Source/docker-compose.UnitTests.yml' down
-    # Run integration tests
-    - name: Run integration tests
-      run: |
-        docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
-    # Remove integration tests
-    - name: Remove integration tests
-      run: |
-        docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' down
+    ## Run integration tests
+    #- name: Run integration tests
+    #  run: |
+    #    docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
+    ## Remove integration tests
+    #- name: Remove integration tests
+    #  run: |
+    #    docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' down
     
     # test starting the action
     # Archive integration test results

@@ -118,7 +118,7 @@ jobs:
       if: always()
       with:
         name: integration-test-artifacts
-        path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder-integration-tests/tmp
+        path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder/tmp
 
     # Remove integration tests
     - name: Remove integration tests

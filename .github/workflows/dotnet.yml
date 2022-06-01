@@ -97,12 +97,19 @@ jobs:
     #  run: |
     #    docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' down
     
+    ## Publish mock-data-holder unit tests results
+    #- publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-unit-tests/testresults
+    #  displayName: Publish unit tests
+    #  condition: always()
+    #  artifact: Mock-Data-Holder - Unit tests
+
     # test starting the action
     # Archive integration test results
-    # - name: Archive integration test results
-     # uses: actions/upload-artifact@v2
-     # if: always()
-     # with:
-     #   name: integration-test-results
-      #  path: ${{ github.workspace }}\$(Build.SourcesDirectory)\sb-mock-data-holder\Source\_temp\mock-data-holder-integration-tests\testresults
-      #  # path: ${{ github.workspace }}\cdr\test-results
+    - name: Archive unit test results
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: unit-test-results
+        path: ${{ github.workspace }}/$(Build.SourcesDirectory)/mock-data-holder-unit-tests/Source/_temp/mock-data-holder-unit-tests/testresults
+        # path: ${{ github.workspace }}/$(Build.SourcesDirectory)/mock-data-holder-unit-tests/Source/_temp/mock-data-holder-unit-tests/testresults
+        # path: ${{ github.workspace }}\cdr\test-results

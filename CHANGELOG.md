@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2022-06-09
 ### Changed
 - Account transactions dates and person information in seed data.
 - Build and Test action to download containers from docker hub.

@@ -44,21 +44,17 @@ jobs:
       with:
         path: ./mock-data-holder
 
-    - name: Checkout Register (Main Branch)
-      uses: actions/checkout@v2
+    - name: Pull Mock Register Image (main)
       if: ${{ github.ref == 'refs/heads/main' }}
-      with:
-        repository: ConsumerDataRight/mock-register
-        ref: main
-        path: ./mock-register
-
-    - name: Checkout Register (Develop Branch)
-      uses: actions/checkout@v2
+      run: |
+        docker pull consumerdataright/mock-register:main
+        docker image tag consumerdataright/mock-register:main mock-register:latest
+        
+    - name: Pull Mock Register Image (develop)
       if: ${{ github.ref != 'refs/heads/main' }}
-      with:
-        repository: ConsumerDataRight/mock-register
-        ref: develop
-        path: ./mock-register
+      run: |
+        docker pull consumerdataright/mock-register:develop
+        docker image tag consumerdataright/mock-register:develop mock-register:latest
 
     - name: List contents
       if: always()
@@ -67,10 +63,7 @@ jobs:
         cd mock-data-holder
         ls
         cd ..
-    # Build mock-register image
-    - name: Build the mock-register image
-      run: |
-        docker build ./mock-register/Source --file ./mock-register/Source/Dockerfile --tag mock-register:latest
+
     # Build mock-data-holder image
     - name: Build the mock-data-holder image
       run: |
@@ -87,19 +80,47 @@ jobs:
     - name: List Docker images
       run: |
         docker images
+
     # Run unit tests
     - name: Run unit tests
       run: |
         docker-compose -f './mock-data-holder/Source/docker-compose.UnitTests.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-unit-tests
+
     # Remove unit tests
     - name: Remove unit tests
       run: |
         docker-compose -f './mock-data-holder/Source/docker-compose.UnitTests.yml' down
+
     # Run integration tests
     - name: Run integration tests
       run: |
         docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
+
     # Remove integration tests
     - name: Remove integration tests
       run: |
         docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' down
+
+    # Archive unit test results
+    - name: Archive unit test results
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: unit-test-results
+        path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder-unit-tests/testresults
+
+    # Archive integration test results
+    - name: Archive integration test results
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: integration-test-results
+        path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder-integration-tests/testresults
+
+    # Archive mock data holder logs
+    - name: Archive mock data holder logs
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: integration-test-artifacts
+        path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder/tmp

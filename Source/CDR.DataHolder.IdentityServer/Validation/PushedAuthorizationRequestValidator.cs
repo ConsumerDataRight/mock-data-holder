@@ -10,6 +10,7 @@ using CDR.DataHolder.IdentityServer.Extensions;
 using CDR.DataHolder.IdentityServer.Interfaces;
 using CDR.DataHolder.IdentityServer.Logging;
 using CDR.DataHolder.IdentityServer.Models;
+using CDR.DataHolder.IdentityServer.Services;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Configuration;
@@ -33,6 +34,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
     {
         private readonly IConfiguration _config;
         private readonly IdentityServerOptions _options;
+        private readonly IClientService _clientService;
         private readonly IClientStore _clients;
         private readonly ICustomAuthorizeRequestValidator _customValidator;
         private readonly IRedirectUriValidator _uriValidator;
@@ -49,6 +51,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             IConfiguration config,
             IdentityServerOptions options,
             IClientStore clients,
+            IClientService clientService,
             ICustomAuthorizeRequestValidator customValidator,
             IRedirectUriValidator uriValidator,
             IPersistedGrantStore persistedGrantStore,
@@ -61,6 +64,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             _options = options;
             _persistedGrantStore = persistedGrantStore;
             _clients = clients;
+            _clientService = clientService;
             _customValidator = customValidator;
             _uriValidator = uriValidator;
             _customJwtRequestValidator = customJwtRequestValidator;
@@ -768,6 +772,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             try
             {
                 var handler = new JwtSecurityTokenHandler();
+                Task.Run(async () => await _clientService.EnsureKid(clientId, clientAssertion, tokenValidationParameters)).Wait();
                 handler.ValidateToken(clientAssertion, tokenValidationParameters, out var token);
                 jwtToken = token as JwtSecurityToken;
             }

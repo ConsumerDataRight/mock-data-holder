@@ -13,12 +13,14 @@ using CDR.DataHolder.Resource.API.Business.Services;
 using CDR.DataHolder.Resource.API.Infrastructure.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog.Context;
 using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using static CDR.DataHolder.API.Infrastructure.Constants;
 
 namespace CDR.DataHolder.Resource.API.Controllers
 {
@@ -29,20 +31,24 @@ namespace CDR.DataHolder.Resource.API.Controllers
 	{
 		private readonly IResourceRepository _resourceRepository;
 		private readonly IStatusRepository _statusRepository;
+		private readonly IConfiguration _config;
 		private readonly IMapper _mapper;
 		private readonly ILogger<ResourceController> _logger;
 		private readonly ITransactionsService _transactionsService;
 		private readonly IIdPermanenceManager _idPermanenceManager;
 
-		public ResourceController(IResourceRepository resourceRepository,
-									IStatusRepository statusRepository,
-									IMapper mapper,
-									ILogger<ResourceController> logger,
-									ITransactionsService transactionsService,
-									IIdPermanenceManager idPermanenceManager)
+		public ResourceController(
+			IResourceRepository resourceRepository,
+			IStatusRepository statusRepository,
+			IConfiguration config,
+			IMapper mapper,
+			ILogger<ResourceController> logger,
+			ITransactionsService transactionsService,
+			IIdPermanenceManager idPermanenceManager)
 		{
 			_resourceRepository = resourceRepository;
 			_statusRepository = statusRepository;
+			_config = config;
 			_mapper = mapper;
 			_logger = logger;
 			_transactionsService = transactionsService;
@@ -81,14 +87,14 @@ namespace CDR.DataHolder.Resource.API.Controllers
 				return BadRequest();
 			}
 
-			response.Links = this.GetLinks("GetCustomer");
+			response.Links = this.GetLinks(nameof(GetCustomer), _config);
 
 			return Ok(response);
 		}
 
 		[PolicyAuthorize(AuthorisationPolicy.GetAccountsApi)]
 		[HttpGet("v1/banking/accounts", Name = nameof(GetAccounts))]
-		[CheckScope("bank:accounts.basic:read")]
+		[CheckScope(ApiScopes.Banking.AccountsBasicRead)]
 		[CheckXV(1, 1)]
 		[CheckAuthDate]
 		[ApiVersion("1")]
@@ -145,14 +151,14 @@ namespace CDR.DataHolder.Resource.API.Controllers
 			_idPermanenceManager.EncryptIds(response.Data.Accounts, idParameters, a => a.AccountId);
 
 			// Set pagination meta data
-			response.Links = this.GetLinks(nameof(GetAccounts), pageNumber, response.Meta.TotalPages.GetValueOrDefault(), pageSizeNumber);
+			response.Links = this.GetLinks(nameof(GetAccounts), _config, pageNumber, response.Meta.TotalPages.GetValueOrDefault(), pageSizeNumber);
 
 			return Ok(response);
 		}
 
 		[PolicyAuthorize(AuthorisationPolicy.GetTransactionsApi)]
 		[HttpGet("v1/banking/accounts/{accountId}/transactions", Name = nameof(GetTransactions))]
-		[CheckScope("bank:transactions:read")]
+		[CheckScope(ApiScopes.Banking.TransactionsRead)]
 		[CheckXV(1, 1)]
 		[CheckAuthDate]
 		[ApiVersion("1")]
@@ -226,7 +232,7 @@ namespace CDR.DataHolder.Resource.API.Controllers
 			_idPermanenceManager.EncryptIds(response.Data.Transactions, idParameters, t => t.AccountId, t => t.TransactionId);
 
 			// Set pagination meta data
-			response.Links = this.GetLinks(nameof(GetTransactions), page, response.Meta.TotalPages.GetValueOrDefault(), pageSize);
+			response.Links = this.GetLinks(nameof(GetTransactions), _config, page, response.Meta.TotalPages.GetValueOrDefault(), pageSize);
 
 			return new OkObjectResult(await Task.FromResult(response));
 		}

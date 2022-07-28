@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -39,6 +40,7 @@ namespace CDR.DataHolder.Resource.API.UnitTests
             var transactionsService = _serviceProvider.GetRequiredService<ITransactionsService>();
             var idPermanenceManager = _serviceProvider.GetRequiredService<IIdPermanenceManager>();
             var loggerFactory = _serviceProvider.GetRequiredService<ILoggerFactory>();
+            var config = _serviceProvider.GetRequiredService<IConfiguration>();
             var logger = loggerFactory.CreateLogger<ResourceController>();
 
             var privateKey = Guid.NewGuid().ToString();
@@ -87,7 +89,7 @@ namespace CDR.DataHolder.Resource.API.UnitTests
                 HttpContext = httpContext
             };
 
-            var controller = new ResourceController(resourceRepository, statusRepository, null, logger, transactionsService, idPermanenceManager);
+            var controller = new ResourceController(resourceRepository, statusRepository, config, null, logger, transactionsService, idPermanenceManager);
             controller.ControllerContext = controllerContext;
             controller.Url = mockUrlHelper.Object;
 
@@ -119,7 +121,9 @@ namespace CDR.DataHolder.Resource.API.UnitTests
             var transactionsService = _serviceProvider.GetRequiredService<ITransactionsService>();
             var idPermanenceManager = _serviceProvider.GetRequiredService<IIdPermanenceManager>();
             var loggerFactory = _serviceProvider.GetRequiredService<ILoggerFactory>();
+            var config = _serviceProvider.GetRequiredService<IConfiguration>();
             var logger = loggerFactory.CreateLogger<ResourceController>();
+            var resourceBaseUri = config.GetValue<string>("ResourceBaseUri");
 
             //Generate Account Permanence Id
             var idParameters = new IdPermanenceParameters
@@ -162,7 +166,7 @@ namespace CDR.DataHolder.Resource.API.UnitTests
                 HttpContext = httpContext
             };
 
-            var controller = new ResourceController(resourceRepository, statusRepository, null, logger, transactionsService, idPermanenceManager);
+            var controller = new ResourceController(resourceRepository, statusRepository, config, null, logger, transactionsService, idPermanenceManager);
             controller.ControllerContext = controllerContext;
             controller.Url = mockUrlHelper.Object;
 
@@ -185,7 +189,7 @@ namespace CDR.DataHolder.Resource.API.UnitTests
             Assert.True(IsValid(accountId, new string[] { "TRN11112", "TRN98765", "TRN11111", "TRN99999" }, response.Data, idPermanenceManager, idParameters));
             Assert.Equal(4, response.Meta.TotalRecords);
             Assert.Equal(1, response.Meta.TotalPages);
-            Assert.Equal($"https://localhost:8003/cds-au/v1/banking/accounts/{accountPermanenceId}/transactions?oldest-time=2021-04-01T00:00:00Z&newest-time=2021-06-01T00:00:00Z&page=1&page-size=10", response.Links.Self.ToString());
+            Assert.Equal($"{resourceBaseUri}/cds-au/v1/banking/accounts/{accountPermanenceId}/transactions?oldest-time=2021-04-01T00:00:00Z&newest-time=2021-06-01T00:00:00Z&page=1&page-size=10", response.Links.Self.ToString());
         }
 
         private static bool IsValid(

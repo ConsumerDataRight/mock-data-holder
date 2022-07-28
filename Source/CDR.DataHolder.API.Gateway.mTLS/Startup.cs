@@ -1,9 +1,12 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using CDR.DataHolder.API.Gateway.mTLS.Certificates;
+using CDR.DataHolder.API.Infrastructure.Exceptions;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Serilog;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CDR.DataHolder.API.Gateway.mTLS
 {
@@ -44,39 +48,55 @@ namespace CDR.DataHolder.API.Gateway.mTLS
                          logger.LogInformation("OnCertificateValidated...");
 
                          var certValidator = context.HttpContext.RequestServices.GetService<ICertificateValidator>();
-                         if (!certValidator.IsValid(context.ClientCertificate))
-                         {
-                             const string failValidationMsg = "The client certificate failed to validate";
-                             logger.LogWarning(failValidationMsg);
-                             context.Fail(failValidationMsg);
-                         }
-
+                         certValidator.ValidateClientCertificate(context.ClientCertificate);
+                         context.Success();
                          return Task.CompletedTask;
                      },
                      OnAuthenticationFailed = context =>
                      {
-                         context.Fail("invalid cert");
-                         return Task.CompletedTask;
+                         context.Fail("invalid client certificate");
+                         throw context.Exception;
                      }
                  };
              })
              // Adding an ICertificateValidationCache results in certificate auth caching the results.
              // The default implementation uses a memory cache.
              .AddCertificateCache();
+            services.AddAuthorization();
             services.AddOcelot();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
             app.UseSerilogRequestLogging();
 
+            app.UseExceptionHandler(exceptionHandlerApp =>
+            {
+                exceptionHandlerApp.Run(async context =>
+                {
+                    // Try and retrieve the error from the ExceptionHandler middleware
+                    var exceptionDetails = context.Features.Get<IExceptionHandlerFeature>();
+                    var ex = exceptionDetails?.Error;
+
+                    if (ex is ClientCertificateException)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = StatusCodes.Status502BadGateway;
+                    }
+
+                    // using static System.Net.Mime.MediaTypeNames;
+                    context.Response.ContentType = Text.Plain;
+                    await context.Response.WriteAsync($"An error occurred handling the request: {ex.Message}");
+                });
+            });
+
             app.UseHttpsRedirection();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             var pipelineConfiguration = new OcelotPipelineConfiguration
             {
@@ -97,8 +117,6 @@ namespace CDR.DataHolder.API.Gateway.mTLS
                     await next.Invoke();
                 }
             };
-
-            app.UseAuthentication();
             app.UseOcelot(pipelineConfiguration).Wait();
         }
     }

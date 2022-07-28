@@ -9,6 +9,8 @@ resources:
 
 trigger:
   - develop
+  - main
+  - releases/*
   
 pool:
   vmImage: ubuntu-latest
@@ -24,7 +26,7 @@ steps:
   displayName: Build mock-register image
   inputs:
     command: build 
-    Dockerfile: $(Build.SourcesDirectory)/sb-mock-register/Source/Dockerfile
+    Dockerfile: $(Build.SourcesDirectory)/sb-mock-register/Source/Dockerfile.for-testing
     buildContext: $(Build.SourcesDirectory)/sb-mock-register/Source
     repository: mock-register
     tags: latest
@@ -57,6 +59,16 @@ steps:
     Dockerfile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/Dockerfile.integration-tests
     buildContext: $(Build.SourcesDirectory)/sb-mock-data-holder/Source
     repository: mock-data-holder-integration-tests
+    tags: latest
+
+# Build mock-data-holder-for-testing
+- task: Docker@2
+  displayName: Build mock-data-holder-for-testing image
+  inputs:
+    command: build 
+    Dockerfile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/Dockerfile.for-testing
+    buildContext: $(Build.SourcesDirectory)/sb-mock-data-holder/Source
+    repository: mock-data-holder-for-testing
     tags: latest
 
 # List docker images
@@ -174,3 +186,17 @@ steps:
   displayName: Publish EF Migration bundle
   condition: always()
   artifact: Database Migration Scripts
+  
+- task: PublishTestResults@2
+  displayName: 'Surface Integration Test TRX results to devops'
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFormat: 'VSTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+    testResultsFiles: '**/results.trx' 
+    #searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
+    #mergeTestResults: false # Optional
+    #failTaskOnFailedTests: false # Optional
+    #testRunTitle: # Optional
+    #buildPlatform: # Optional
+    #buildConfiguration: # Optional
+    #publishRunAttachments: true # Optional

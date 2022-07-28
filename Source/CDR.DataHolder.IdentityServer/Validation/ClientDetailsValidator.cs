@@ -2,13 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Threading.Tasks;
 using CDR.DataHolder.API.Infrastructure.Extensions;
 using CDR.DataHolder.IdentityServer.Events;
 using CDR.DataHolder.IdentityServer.Extensions;
 using CDR.DataHolder.IdentityServer.Models;
+using CDR.DataHolder.IdentityServer.Services;
 using FluentValidation;
 using FluentValidation.Validators;
 using IdentityServer4.Configuration;
+using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -26,17 +29,20 @@ namespace CDR.DataHolder.IdentityServer.Validation
         private readonly IEventService _eventService;
         private readonly ILogger<ClientDetailsValidator> _logger;
         private readonly ITokenReplayCache _tokenCache;
+        private readonly IClientService _clientService;
 
         public ClientDetailsValidator(
             IConfiguration config,
             IdentityServerOptions options,
             IEventService eventService,
+            IClientService clientService,
             ILogger<ClientDetailsValidator> logger,
             ITokenReplayCache tokenCache)
         {
             _config = config;
             _options = options;
             _eventService = eventService;
+            _clientService = clientService;
             _logger = logger;
             _tokenCache = tokenCache;
 
@@ -134,6 +140,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
             try
             {
                 var handler = new JwtSecurityTokenHandler();
+                Task.Run(async () => await _clientService.EnsureKid(clientDetails.ClientId, clientAssertion, tokenValidationParameters)).Wait();
                 handler.ValidateToken(clientAssertion, tokenValidationParameters, out var token);
                 jwtToken = token as JwtSecurityToken;
             }
@@ -203,5 +210,6 @@ namespace CDR.DataHolder.IdentityServer.Validation
 
 			return true;
         }
+
     }
 }

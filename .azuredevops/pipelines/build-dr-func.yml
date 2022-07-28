@@ -1,0 +1,43 @@
+trigger:
+  - develop
+  - main
+  - releases/*
+  
+pool:
+  vmImage: windows-latest
+
+steps:
+  - task: UseDotNet@2
+    displayName: 'Install .NET 6 SDK'
+    inputs:
+      packageType: 'sdk'
+      version: '6.0.x'
+      performMultiLevelLookup: true
+
+  - script: |
+      ls
+      cd Source/CDR.GetDataRecipients
+      ls
+      dotnet restore
+      dotnet build --configuration Release
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: publish
+      arguments: '--configuration Release --output publish_output'
+      projects: 'Source/CDR.GetDataRecipients/CDR.GetDataRecipients.csproj'
+      publishWebProjects: false
+      modifyOutputPath: false
+      zipAfterPublish: false
+
+  - task: ArchiveFiles@2
+    displayName: 'Archive Files'
+    inputs:
+      rootFolderOrFile: '$(System.DefaultWorkingDirectory)/publish_output'
+      includeRootFolder: false
+      archiveFile: '$(System.DefaultWorkingDirectory)/CDR.GetDataRecipients.zip'
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathToPublish: '$(System.DefaultWorkingDirectory)/CDR.GetDataRecipients.zip'
+      artifactName: 'functions'

@@ -26,6 +26,7 @@ namespace CDR.DataHolder.Repository.Entities
         public string Status { get; set; }
 
         public Guid BrandId { get; set; }
+
         public Brand Brand { get; set; }
     }
 }

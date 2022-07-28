@@ -90,7 +90,7 @@ namespace CDR.DataHolder.API.Gateway.mTLS
 
                     // using static System.Net.Mime.MediaTypeNames;
                     context.Response.ContentType = Text.Plain;
-                    await context.Response.WriteAsync($"An error occurred handling the request: {ex.Message}");
+                    await context.Response.WriteAsync($"An error occurred handling the request: {ex?.Message}");
                 });
             });
 

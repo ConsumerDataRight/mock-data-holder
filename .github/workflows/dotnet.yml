@@ -67,7 +67,7 @@ jobs:
     # Build mock-data-holder image
     - name: Build the mock-data-holder image
       run: |
-        docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile --tag mock-data-holder:latest
+        docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile.for-testing --tag mock-data-holder:latest
     # Build mock-data-holder-unit-tests image
     - name: Build the mock-data-holder-unit-tests image
       run: |

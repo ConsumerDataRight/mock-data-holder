@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using CDR.DataHolder.Domain.Entities;
 using CDR.DataHolder.Domain.Repositories;
 using CDR.DataHolder.Repository.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CDR.DataHolder.Repository
 {

@@ -44,8 +44,16 @@ namespace CDR.DataHolder.IdentityServer
                 CreateHostBuilder(args, configuration, new SerilogLoggerFactory(Log.Logger).CreateLogger<Program>()).Build().Run();
                 return 0;
             }
-            catch (Exception ex) when (ex is not OperationCanceledException && ex.GetType().Name != "StopTheHostException")
+            catch (Exception ex)
             {
+                // StopTheHostException - Unhandled exception from a BackgroundService thrown out of
+                // HostBuilder.Build() on adding a migration to a EF/.NET Core 6.0 RC2 project, needs to be dealt with gracefully.
+                string type = ex.GetType().Name;
+                if (type.Equals("StopTheHostException", StringComparison.Ordinal))
+                {
+                    throw;
+                }
+
                 Log.Fatal(ex, "Host terminated unexpectedly");
                 return 1;
             }

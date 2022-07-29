@@ -25,6 +25,7 @@ using CDR.DataHolder.IdentityServer.Models;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 using CDR.DataHolder.IdentityServer.Extensions;
+using static CDR.DataHolder.API.Infrastructure.Constants;
 
 namespace CDR.DataHolder.IdentityServer.Controllers
 {
@@ -137,7 +138,7 @@ namespace CDR.DataHolder.IdentityServer.Controllers
 					consentedScopes.AddRange(request.ValidatedResources.ParsedScopes.Select(s => s.ParsedName));
 					if (request.ValidatedResources.Resources.OfflineAccess)
 					{
-						consentedScopes.Add(CdsConstants.StandardScopes.OfflineAccess);
+						consentedScopes.Add(StandardScopes.OfflineAccess);
 					}
 					
 					// Always remember consent, set expiry based on the user or client settings.

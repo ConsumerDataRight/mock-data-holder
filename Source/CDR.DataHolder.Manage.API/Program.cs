@@ -45,6 +45,14 @@ namespace CDR.DataHolder.Manage.API
             }
             catch (Exception ex)
             {
+                // StopTheHostException - Unhandled exception from a BackgroundService thrown out of
+                // HostBuilder.Build() on adding a migration to a EF/.NET Core 6.0 RC2 project, needs to be dealt with gracefully.
+                string type = ex.GetType().Name;
+                if (type.Equals("StopTheHostException", StringComparison.Ordinal))
+                {
+                    throw;
+                }
+
                 Log.Fatal(ex, "Host terminated unexpectedly");
                 return 1;
             }

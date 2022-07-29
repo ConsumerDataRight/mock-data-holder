@@ -1,6 +1,5 @@
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
-EXPOSE 80
 EXPOSE 8001
 EXPOSE 8002
 
@@ -58,7 +57,17 @@ RUN sudo cp ./gateway-mtls/Certificates/ca.crt /usr/local/share/ca-certificates/
 
 RUN sudo update-ca-certificates
 
-# ENV ASPNETCORE_URLS=https://+:7000;https://+:7001
+RUN addgroup --group appgroup --gid 2000 \
+&& adduser \
+    --uid 1000 \
+    --gid 2000 \
+    "appuser"
+RUN chown -R appuser:appgroup /app
+RUN chown -R appuser:appgroup /usr/bin
+RUN chown -R appuser:appgroup /usr/local
+RUN chown -R appuser:appgroup /tmp
+USER appuser:appgroup 
+
 ENV ASPNETCORE_URLS=https://+:8001;https://+:8002
 
-ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf"]
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf", "-u", "1000"]

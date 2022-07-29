@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using CDR.DataHolder.API.Infrastructure.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +22,7 @@ namespace CDR.DataHolder.API.Gateway.mTLS.Certificates
             _config = config;
         }
 
-        public bool IsValid(X509Certificate2 clientCert)
+        public void ValidateClientCertificate(X509Certificate2 clientCert)
         {
             _logger.LogInformation($"Validating certificate within the {nameof(CertificateValidator)}");
 
@@ -34,7 +35,8 @@ namespace CDR.DataHolder.API.Gateway.mTLS.Certificates
             var rootCACertificate = new X509Certificate2(_config.GetValue<string>("RootCACertificate:Path"));
             var ch = new X509Chain();
             ch.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-            ch.ChainPolicy.VerificationFlags = X509VerificationFlags.AllFlags;
+            ch.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
+            ch.ChainPolicy.CustomTrustStore.Clear();
             ch.ChainPolicy.CustomTrustStore.Add(rootCACertificate);
             ch.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
 
@@ -44,16 +46,13 @@ namespace CDR.DataHolder.API.Gateway.mTLS.Certificates
             }
             catch (Exception ex)
             {
-                throw new ArgumentException("The certificate chain cannot be discovered from the provided client certificate.", ex);
+                throw new ClientCertificateException("The certificate chain cannot be discovered from the provided client certificate.", ex);
             }
 
             if (ch.ChainStatus.Any())
             {
-                _logger.LogError("The client cert could not be verified to have been issued by '{subject}'. {statusInformation}", ROOT_CA_SUBJECT, ch.ChainStatus[0].StatusInformation);
-                return false;
+                throw new ClientCertificateException(ch.ChainStatus.First().StatusInformation);
             }
-
-            return true;
         }
     }
 }

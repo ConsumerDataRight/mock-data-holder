@@ -29,6 +29,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using static CDR.DataHolder.API.Infrastructure.Constants;
 
 namespace CDR.DataHolder.Resource.API
 {
@@ -126,21 +127,21 @@ namespace CDR.DataHolder.Resource.API
             {
                 options.AddPolicy(AuthorisationPolicy.GetCustomersApi.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement("common:customer.basic:read", identityServerIssuer));
+                    policy.Requirements.Add(new ScopeRequirement(ApiScopes.Common.CustomerBasicRead, identityServerIssuer));
                     policy.Requirements.Add(new MtlsRequirement());
                     policy.Requirements.Add(new AccessTokenRequirement());
                 });
 
                 options.AddPolicy(AuthorisationPolicy.GetAccountsApi.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement("bank:accounts.basic:read", identityServerIssuer));
+                    policy.Requirements.Add(new ScopeRequirement(ApiScopes.Banking.AccountsBasicRead, identityServerIssuer));
                     policy.Requirements.Add(new MtlsRequirement());
                     policy.Requirements.Add(new AccessTokenRequirement());
                 });
 
                 options.AddPolicy(AuthorisationPolicy.GetTransactionsApi.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement("bank:transactions:read", identityServerIssuer));
+                    policy.Requirements.Add(new ScopeRequirement(ApiScopes.Banking.TransactionsRead, identityServerIssuer));
                     policy.Requirements.Add(new MtlsRequirement());
                     policy.Requirements.Add(new AccessTokenRequirement());
                 });

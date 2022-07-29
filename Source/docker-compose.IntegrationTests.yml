@@ -19,14 +19,14 @@ services:
       test: test -f /app/admin/_healthcheck_ready || exit 1
       timeout: 5s
       interval: 5s
-      retries: 20
+      retries: 60
     depends_on:
       mssql:
         condition: service_healthy
 
   mock-data-holder:
-    container_name: mock-data-holder
-    image: mock-data-holder
+    container_name: mock-data-holder-for-testing
+    image: mock-data-holder-for-testing
     hostname: mock-data-holder
     ports: 
       - "8000:8000"
@@ -35,7 +35,7 @@ services:
       - "8005:8005"
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.for-testing
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
     volumes:
@@ -44,7 +44,7 @@ services:
       test: test -f /app/manage/_healthcheck_ready || exit 1
       timeout: 5s
       interval: 5s
-      retries: 20    
+      retries: 60    
     depends_on:
       mssql:
         condition: service_healthy
@@ -89,4 +89,4 @@ services:
       test: /opt/mssql-tools/bin/sqlcmd -S . -U sa -P "Pa{}w0rd2019" -Q "SELECT 1" || exit 1 
       timeout: 10s
       interval: 10s
-      retries: 10    
+      retries: 20    

@@ -731,37 +731,6 @@ namespace CDR.DataHolder.IdentityServer
             public const string JwtType = "JWT";
         }
 
-        public static class ApiScopes
-        {
-            public static class Banking
-            {
-                public const string Accounts = "bank:accounts.basic:read";
-                public const string Transactions = "bank:transactions:read";
-            }
-        }
-
-        public static class StandardScopes
-        {
-            //
-            // Summary:
-            //     REQUIRED. Informs the Authorization Server that the Client is making an OpenID
-            //     Connect request. If the openid scope value is not present, the behavior is entirely
-            //     unspecified.
-            public const string OpenId = "openid";
-            //
-            // Summary:
-            //     OPTIONAL. This scope value requests access to the End-User's default profile
-            //     Claims, which are: name, family_name, given_name, middle_name, nickname, preferred_username,
-            //     profile, picture, website, gender, birthdate, zoneinfo, locale, and updated_at.
-            public const string Profile = "profile";
-            //
-            // Summary:
-            //     This scope value MUST NOT be used with the OpenID Connect Implicit Client Implementer's
-            //     Guide 1.0. See the OpenID Connect Basic Client Implementer's Guide 1.0 (http://openid.net/specs/openid-connect-implicit-1_0.html#OpenID.Basic)
-            //     for its usage in that subset of OpenID Connect.
-            public const string OfflineAccess = "offline_access";
-        }
-
         public static class ProtocolTypes
         {
             public const string OpenIdConnect = "oidc";

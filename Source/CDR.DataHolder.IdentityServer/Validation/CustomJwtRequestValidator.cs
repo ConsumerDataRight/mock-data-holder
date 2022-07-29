@@ -1,5 +1,6 @@
 ﻿using CDR.DataHolder.IdentityServer.Configuration;
 using CDR.DataHolder.IdentityServer.Extensions;
+using CDR.DataHolder.IdentityServer.Services;
 using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
@@ -24,6 +25,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger _logger;
+        private readonly IClientService _clientService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CustomJwtRequestValidator"/> class.
@@ -31,10 +33,12 @@ namespace CDR.DataHolder.IdentityServer.Validation
         /// </summary>
         public CustomJwtRequestValidator(
             ILogger<CustomJwtRequestValidator> logger,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IClientService clientService)
         {
             _configuration = configuration;
             _logger = logger;
+            _clientService = clientService;
         }
 
         /// <summary>
@@ -136,7 +140,7 @@ namespace CDR.DataHolder.IdentityServer.Validation
         /// <param name="keys">The keys</param>
         /// <param name="client">The client</param>
         /// <returns></returns>
-        protected virtual Task<JwtSecurityToken> ValidateJwtAsync(string jwtTokenString, IEnumerable<SecurityKey> keys, Client client)
+        protected virtual async Task<JwtSecurityToken> ValidateJwtAsync(string jwtTokenString, IEnumerable<SecurityKey> keys, Client client)
         {
             var validAudiences = new List<string>
             {
@@ -202,9 +206,9 @@ namespace CDR.DataHolder.IdentityServer.Validation
             };
 
             var handler = new JwtSecurityTokenHandler();
+            await _clientService.EnsureKid(client.ClientId, jwtTokenString, tokenValidationParameters);
             handler.ValidateToken(jwtTokenString, tokenValidationParameters, out var token);
-
-            return Task.FromResult((JwtSecurityToken)token);
+            return (JwtSecurityToken)token;
         }
 
         /// <summary>

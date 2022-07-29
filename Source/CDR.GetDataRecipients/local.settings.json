@@ -1,0 +1,19 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "StorageConnectionString": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "Schedule": "0-59 * * * *",
+    "DataHolder_DB_ConnectionString": "Server=(localdb)\\MSSQLLocalDB;Database=cdr-mdh;Integrated Security=true",
+    "DataHolder_Logging_DB_ConnectionString": "Server=(localdb)\\MSSQLLocalDB;Database=cdr-mdh;Integrated Security=true",
+    "Register_GetDataRecipients_Endpoint": "https://localhost:7000/cdr-register/v1/all/data-recipients",
+    "Register_GetDataRecipients_XV": "3",
+    "Ignore_Server_Certificate_Errors": "false"
+  },
+  "Host": {
+    "LocalHttpPort": 7074,
+    "CORS": "*",
+    "CORSCredentials": false
+  }
+}

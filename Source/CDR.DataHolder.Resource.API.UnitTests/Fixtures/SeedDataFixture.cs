@@ -40,6 +40,7 @@ namespace CDR.DataHolder.Resource.API.UnitTests.Fixtures
 
             services.AddAutoMapper(typeof(Startup), typeof(DataHolderDatabaseContext));
 
+            services.AddScoped<IConfiguration>(c => configuration);
             services.AddScoped<IResourceRepository, ResourceRepository>();
             services.AddScoped<IStatusRepository, StatusRepository>();
             services.AddScoped<ITransactionsService, TransactionsService>();

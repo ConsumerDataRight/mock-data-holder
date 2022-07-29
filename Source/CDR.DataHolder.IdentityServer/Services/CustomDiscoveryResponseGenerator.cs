@@ -10,6 +10,7 @@ using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using static CDR.DataHolder.API.Infrastructure.Constants;
 
 namespace CDR.DataHolder.IdentityServer.Services
 {
@@ -126,7 +127,7 @@ namespace CDR.DataHolder.IdentityServer.Services
             // which requires us to replace the fixed size list with a new one.
             var scopesSupported = (IList<string>)discovery[CdsConstants.Discovery.ScopesSupported];
             var updatedScopesSupported = new List<string>(scopesSupported);
-            updatedScopesSupported.Remove(CdsConstants.StandardScopes.OfflineAccess);
+            updatedScopesSupported.Remove(StandardScopes.OfflineAccess);
             discovery[CdsConstants.Discovery.ScopesSupported] = updatedScopesSupported;
 
             // Rearranging so that the Registration endpoint will appear with the rest of the endpoints,

@@ -6,30 +6,46 @@ using CDR.DataHolder.Resource.API.Business.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 
 namespace CDR.DataHolder.Resource.API.Business
 {
     public static class Extensions
-	{
-		public static Links GetLinks(this ControllerBase controller, string routeName, int? currentPage = null, int totalPages = 0, int? pageSize = null)
-		{
-			string forwardedHost = null;
-			if (controller.Request.Headers.TryGetValue("X-Forwarded-Host", out StringValues forwardedHosts))
-			{
-				forwardedHost = forwardedHosts.First();
-			}
+    {
+        public static string GetHostName(this string url)
+        {
+            return url.Replace("https://", "").Replace("http://", "").Split('/')[0];
+        }
 
-			var selfLink = ReplaceUriHost(controller.Request.GetDisplayUrl(), forwardedHost);
+        public static Links GetLinks(this ControllerBase controller, string routeName, IConfiguration configuration, int? currentPage = null, int totalPages = 0, int? pageSize = null)
+        {
+            var resourceBaseUri = configuration.GetValue<string>("ResourceBaseUri");
+            var currentUrl = controller.Request.GetDisplayUrl();
+            var selfLink = new Uri(currentUrl);
 
-			// Construct the non-paginated links.
-			if (currentPage == null || totalPages == 0)
-			{
-				return new Links()
-				{
-					Self = selfLink
-				};
-			}
+            if (string.IsNullOrEmpty(resourceBaseUri))
+            {
+                if (controller.Request.Headers.TryGetValue("X-Forwarded-Host", out StringValues forwardedHosts))
+                {
+                    selfLink = ReplaceUriHost(currentUrl, forwardedHosts.First());
+                }
+            }
+            else
+            {
+                var resourceHostName = resourceBaseUri.GetHostName();
+                var currentHostName = currentUrl.GetHostName();
+                selfLink = new Uri(currentUrl.Replace(currentHostName, resourceHostName));
+            }
+
+            // Construct the non-paginated links.
+            if (currentPage == null || totalPages == 0)
+            {
+                return new Links()
+                {
+                    Self = selfLink
+                };
+            }
 
             // Construct the paginated links
             var links = new LinksPaginated
@@ -40,84 +56,84 @@ namespace CDR.DataHolder.Resource.API.Business
             };
 
             if (currentPage <= 1)
-			{
-				links.Prev = null;
-			}
-			else
-			{
-				links.Prev = controller.GetPageUri(selfLink, currentPage - 1, pageSize);
-			}
-
-			if (currentPage >= totalPages)
-			{
-				links.Next = null;
-			}
-			else
-			{
-				links.Next = controller.GetPageUri(selfLink, currentPage + 1, pageSize);
-			}
-
-			return links;
-		}
-
-		public static Uri GetPageUri(this ControllerBase controller, Uri selfLink, int? page, int? pageSize)
-		{
-			if (!page.HasValue && !pageSize.HasValue)
-			{
-				return selfLink;
+            {
+                links.Prev = null;
+            }
+            else
+            {
+                links.Prev = controller.GetPageUri(selfLink, currentPage - 1, pageSize);
             }
 
-			var query = selfLink.QueryToNameValueCollection();
-
-			if (page.HasValue)
+            if (currentPage >= totalPages)
             {
-				query.AddOrUpdate("page", page.Value.ToString());
+                links.Next = null;
+            }
+            else
+            {
+                links.Next = controller.GetPageUri(selfLink, currentPage + 1, pageSize);
             }
 
-			if (pageSize.HasValue)
+            return links;
+        }
+
+        public static Uri GetPageUri(this ControllerBase controller, Uri selfLink, int? page, int? pageSize)
+        {
+            if (!page.HasValue && !pageSize.HasValue)
             {
-				query.AddOrUpdate("page-size", pageSize.Value.ToString());
-			}
+                return selfLink;
+            }
 
-			return new Uri(string.Format("{0}?{1}", selfLink.ToString().Split('?')[0], query.ToQueryString()));
-		}
+            var query = selfLink.QueryToNameValueCollection();
 
-		private static Uri ReplaceUriHost(string url, string newHost = null)
-		{
-			var uriBuilder = new UriBuilder(url);
-			if (!string.IsNullOrEmpty(newHost))
-			{
-				var segments = newHost.Split(':');
-				uriBuilder.Host = segments[0];
+            if (page.HasValue)
+            {
+                query.AddOrUpdate("page", page.Value.ToString());
+            }
 
-				if (segments.Length > 1)
-				{
-					uriBuilder.Port = int.Parse(segments[1]);
-				}
-			}
+            if (pageSize.HasValue)
+            {
+                query.AddOrUpdate("page-size", pageSize.Value.ToString());
+            }
 
-			return uriBuilder.Uri;
-		}
+            return new Uri(string.Format("{0}?{1}", selfLink.ToString().Split('?')[0], query.ToQueryString()));
+        }
 
-		public static Guid? GetSoftwareProductId(this ControllerBase controller)
-		{
-			string softwareProductIdString = controller.User.FindFirst("software_id")?.Value;
+        private static Uri ReplaceUriHost(string url, string newHost = null)
+        {
+            var uriBuilder = new UriBuilder(url);
+            if (!string.IsNullOrEmpty(newHost))
+            {
+                var segments = newHost.Replace("https://", "").Split(':');
+                uriBuilder.Host = segments[0];
+
+                if (segments.Length > 1)
+                {
+                    uriBuilder.Port = int.Parse(segments[1]);
+                }
+            }
+
+            return uriBuilder.Uri;
+        }
+
+        public static Guid? GetSoftwareProductId(this ControllerBase controller)
+        {
+            string softwareProductIdString = controller.User.FindFirst("software_id")?.Value;
             Guid softwareProductId;
             if (Guid.TryParse(softwareProductIdString, out softwareProductId))
-			{
-				return softwareProductId;
-			}
-			return null;
-		}
+            {
+                return softwareProductId;
+            }
+            return null;
+        }
 
-		public static IApplicationBuilder UseInteractionId(this IApplicationBuilder app)
-		{
-			if (app == null)
-			{
-				throw new ArgumentNullException(nameof(app));
-			}
+        public static IApplicationBuilder UseInteractionId(this IApplicationBuilder app)
+        {
+            if (app == null)
+            {
+                throw new ArgumentNullException(nameof(app));
+            }
 
-			return app.UseMiddleware<InteractionIdMiddleware>();
-		}
-	}
+            return app.UseMiddleware<InteractionIdMiddleware>();
+        }
+    }
 }

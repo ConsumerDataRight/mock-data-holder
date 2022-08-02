@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.Linq;
 using Microsoft.Extensions.Primitives;
+using static CDR.DataHolder.API.Infrastructure.Constants;
 using static CDR.DataHolder.IdentityServer.CdsConstants;
 
 namespace CDR.DataHolder.IdentityServer.Extensions
@@ -47,7 +48,7 @@ namespace CDR.DataHolder.IdentityServer.Extensions
 
         public static bool ContainsApiResourceScopes(this IEnumerable<string> scopes)
         {
-            return scopes.ContainsScope(CdsConstants.ApiScopes.Banking.Accounts) || scopes.ContainsScope(CdsConstants.ApiScopes.Banking.Transactions);
+            return scopes.ContainsScope(ApiScopes.Banking.AccountsBasicRead) || scopes.ContainsScope(ApiScopes.Banking.TransactionsRead);
         }
 
         public static bool ContainsScope(this IEnumerable<string> scopes, string scope)

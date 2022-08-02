@@ -8,6 +8,7 @@ using CDR.DataHolder.IdentityServer.Models;
 using IdentityServer4.Models;
 using static CDR.DataHolder.IdentityServer.CdsConstants;
 using CDR.DataHolder.IdentityServer.Extensions;
+using static CDR.DataHolder.API.Infrastructure.Constants;
 
 namespace CDR.DataHolder.IdentityServer.AutoMapper
 {

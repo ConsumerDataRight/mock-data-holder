@@ -23,10 +23,10 @@ namespace CDR.DataHolder.Repository.Entities
 		public string LogoUri { get; set; }
 
 		[MaxLength(25), Required]
-
 		public string Status { get; set; }
 
 		public Guid LegalEntityId { get; set; }
+
 		public LegalEntity LegalEntity { get; set; }
 
 		public virtual ICollection<SoftwareProduct> SoftwareProducts { get; set; }

@@ -116,6 +116,9 @@ The following diagram outlines the high level architecture of the Mock Data Hold
 
 [<img src="https://raw.githubusercontent.com/ConsumerDataRight/mock-data-holder/main/mock-data-holder-architecture.png" height='600' width='800' alt="Mock Data Holder - Architecture"/>](https://raw.githubusercontent.com/ConsumerDataRight/mock-data-holder/main/mock-data-holder-architecture.png)
 
+Get Data Recipients discovery Azure Function:
+
+[<img src="mock-data-holder-discovery-architecture.png"  height='250' width='360' alt="Get Data Recipients discovery function"/>](mock-data-holder-discovery-architecture.png)
 
 ## Mock Data Holder - Components
 The Mock Data Holder contains the following components:
@@ -141,6 +144,9 @@ The Mock Data Holder contains the following components:
   - Not part of the Consumer Data Standards, but allows for the maintenance of data in the Mock Data Holder repository.
   - Also includes trigger points to refresh the Data Recipient, Data Recipient Status and Software Product Status from the Mock Register.
   - A user interface may be added at some time in the future to provide user friendly access to the repository data.
+- Azure Function
+  - An Azure Function that can automate the continuous Get Data Recipients discovery process.
+  - To get help on the Azure Functions, see the [help guide](./Help/azurefunctions/HELP.md).
 - Repository
   - A SQL database containing Mock Data Holder data.
 

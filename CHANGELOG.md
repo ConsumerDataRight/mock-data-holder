@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2022-08-02
+### Added
+- Azure function to perform Data Recipient discovery by polling the Get Data Recipients API of the Register.
+
+### Changed
+- First version of the Mock Data Holder deployed into the CDR Sandbox.
+
 ## [0.3.1] - 2022-06-09
 ### Changed
 - Account transactions dates and person information in seed data.

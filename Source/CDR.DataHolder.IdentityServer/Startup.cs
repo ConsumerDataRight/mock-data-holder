@@ -132,8 +132,8 @@ namespace CDR.DataHolder.IdentityServer
                     options.ConfigureDbContext = b => b.UseSqlServer(migrationsConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
                 })
                 .AddInMemoryIdentityResources(InMemoryConfig.IdentityResources)
-                .AddInMemoryApiResources(InMemoryConfig.Apis)
-                .AddInMemoryApiScopes(InMemoryConfig.ApiScopes)
+                .AddInMemoryApiResources(InMemoryConfig.Apis(_configuration))
+                .AddInMemoryApiScopes(InMemoryConfig.ApiScopes(_configuration))
                 .AddProfileService<ProfileService>();
 
             services.AddDbContext<PersistedGrantDbContext>(options => options.UseSqlServer(_configuration.GetConnectionString(DbConstants.ConnectionStringNames.Identity.Default)));

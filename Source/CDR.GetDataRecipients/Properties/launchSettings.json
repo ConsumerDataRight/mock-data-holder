@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GetDataRecipients": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --verbose"
+    }
+  }
+}

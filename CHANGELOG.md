@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2022-08-02
+## [1.0.1] - 2022-08-16
+### Changed
+- Updated package references.
+
+## [1.0.0] - 2022-07-22
 ### Added
 - Azure function to perform Data Recipient discovery by polling the Get Data Recipients API of the Register.
 

@@ -44,7 +44,7 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        [InlineData("2")]      
+        [InlineData("3")]      
         public async Task AC01_Post_WithUnregistedSoftwareProduct_ShouldRespondWith_201Created_CreatedProfile(string ssaVersion)
         {
             // Arrange
@@ -84,7 +84,7 @@ namespace CDR.DataHolder.IntegrationTests
             }
 
             // Arrange
-            var ssa = await Register_SSA_API.GetSSA(BRANDID, SOFTWAREPRODUCT_ID, "2");
+            var ssa = await Register_SSA_API.GetSSA(BRANDID, SOFTWAREPRODUCT_ID, "3");
             await Arrange(ssa);
 
             // Act - Try to register the same product again
@@ -133,7 +133,7 @@ namespace CDR.DataHolder.IntegrationTests
             // Arrange
             TestSetup.DataHolder_PurgeIdentityServer();
 
-            var ssa = await Register_SSA_API.GetSSA(BRANDID, SOFTWAREPRODUCT_ID, "2");
+            var ssa = await Register_SSA_API.GetSSA(BRANDID, SOFTWAREPRODUCT_ID, "3");
 
             var registrationRequest = DataHolder_Register_API.CreateRegistrationRequest(
                 signedWithRegisterCertificate ? ssa : CreateFakeSSA(ssa)
@@ -169,7 +169,7 @@ namespace CDR.DataHolder.IntegrationTests
             // Arrange 
             TestSetup.DataHolder_PurgeIdentityServer();
 
-            var ssa = await Register_SSA_API.GetSSA(BRANDID, SOFTWAREPRODUCT_ID, "2");
+            var ssa = await Register_SSA_API.GetSSA(BRANDID, SOFTWAREPRODUCT_ID, "3");
             var registrationRequest = DataHolder_Register_API.CreateRegistrationRequest(ssa, redirect_uris: new string[] { "foo" });
 
             // Act
@@ -199,7 +199,7 @@ namespace CDR.DataHolder.IntegrationTests
             // Arrange 
             TestSetup.DataHolder_PurgeIdentityServer();
 
-            var ssa = await Register_SSA_API.GetSSA(BRANDID, SOFTWAREPRODUCT_ID, "2");
+            var ssa = await Register_SSA_API.GetSSA(BRANDID, SOFTWAREPRODUCT_ID, "3");
             var registrationRequest = DataHolder_Register_API.CreateRegistrationRequest(ssa, token_endpoint_auth_signing_alg: "HS256"); // HS256 is invalid metadata (ie should be PS256)
 
             // Act

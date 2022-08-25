@@ -2,9 +2,9 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <IsPackable>false</IsPackable>
-        <Version>1.0.0</Version>
-        <FileVersion>1.0.0</FileVersion>
-        <AssemblyVersion>1.0.0</AssemblyVersion>
+        <Version>1.0.1</Version>
+        <FileVersion>1.0.1</FileVersion>
+        <AssemblyVersion>1.0.1</AssemblyVersion>
     </PropertyGroup>
     <ItemGroup>
         <Content Include="appsettings.json">
@@ -26,7 +26,7 @@
         <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />
         <PackageReference Include="jose-jwt" Version="3.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.2" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.7" />
         <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.15.1" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
         <PackageReference Include="Serilog.Sinks.XUnit" Version="3.0.3" />
@@ -40,7 +40,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.7" />
     </ItemGroup>
 
     <ItemGroup>

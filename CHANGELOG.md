@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2022-09-15
+### Added
+- Logging middleware to create a centralised list of all API requests and responses
+
+### Fixed
+- Updated supported response modes in OIDC discovery endpoint. [Issue 46](https://github.com/ConsumerDataRight/mock-data-holder/issues/46)
+
 ## [1.0.1] - 2022-08-30
 ### Changed
 - Updated package references.

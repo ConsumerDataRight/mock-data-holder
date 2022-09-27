@@ -147,13 +147,28 @@ steps:
   condition: always()
   artifact: Mock-Data-Holder - Unit tests
 
+# Login to ACR
+- task: Docker@2
+  displayName: Login to ACR
+  condition: always()
+  inputs:
+    command: login
+    containerRegistry: acrcdrsandboxdev
+
+# Run trx formatter to output .MD and .CSV
+- script: |
+    docker run \
+      -v=$(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-integration-tests/testresults/results.trx:/app/results.trx:ro \
+      -v=$(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-integration-tests/testresults/formatted/:/app/out/:rw \
+      acrcdrsandboxdev.azurecr.io/trx-formatter -i results.trx -t "MDH" --outputprefix "MDH" -o out/
+  displayName: 'Run trx-formatter'  
+  condition: always()   
+
 # Publish mock-data-holder integration tests results
 - publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-integration-tests/testresults
   displayName: Publish integration tests
   condition: always()
   artifact: Mock-Data-Holder - Integration tests
-
-# TODO - MJS - Run formatter over TRX to produce formatted report suitable for attaching to Devops US & publish as artifact
 
 - task: UseDotNet@2
   displayName: 'Use .NET 6 sdk'

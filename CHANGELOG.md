@@ -8,9 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [1.1.0] - 2022-10-05
-### Changed
-- Updated Mock Data Holder FapiComplianceLevel to default to Fapi1Phase2.
-- 
 ### Added
 - Logging middleware to create a centralised list of all API requests and responses
 

@@ -153,14 +153,14 @@ steps:
   condition: always()
   inputs:
     command: login
-    containerRegistry: acrcdrsandboxdev
+    containerRegistry: <<yourContainerRegistryName>>
 
 # Run trx formatter to output .MD and .CSV
 - script: |
     docker run \
       -v=$(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-integration-tests/testresults/results.trx:/app/results.trx:ro \
       -v=$(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-integration-tests/testresults/formatted/:/app/out/:rw \
-      acrcdrsandboxdev.azurecr.io/trx-formatter -i results.trx -t "MDH" --outputprefix "MDH" -o out/
+      <<yourContainerRegistryName>>.azurecr.io/trx-formatter -i results.trx -t "MDH" --outputprefix "MDH" -o out/
   displayName: 'Run trx-formatter'  
   condition: always()   
 

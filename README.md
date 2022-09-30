@@ -17,7 +17,7 @@ This repository contains a mock implementation of a Mock Data Holder and is offe
 The Mock Data Holder aligns to [v1.18.0](https://consumerdatastandardsaustralia.github.io/standards/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards/#introduction).
 The Mock Data Holder passed v4.0 of the [Conformance Test Suite for Data Holders](https://www.cdr.gov.au/for-providers/conformance-test-suite-data-holders). 
 The Mock Data Holder is compliant with the [FAPI 1.0 Advanced Profile](https://openid.net/specs/openid-financial-api-part-2-1_0.html).
-The Mock Data Holder aligns to [FAPI 1.0 Migration Phase 1 and Phase 2](https://consumerdatastandardsaustralia.github.io/standards/#authentication-flows). Phase 1 requirements are switched on by default. Configuration has been added to allow switching on Phase 2 requirements.
+The Mock Data Holder aligns to [FAPI 1.0 Migration Phase 2](https://consumerdatastandardsaustralia.github.io/standards/#authentication-flows).
 
 ## Getting Started
 The Mock Data Holder was built using the [Mock Register](https://github.com/ConsumerDataRight/mock-register) and the [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient). You can swap out any of the Mock Data Holder, Mock Data Register and Mock Data Recipient solutions with a solution of your own.

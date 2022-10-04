@@ -38,6 +38,8 @@ namespace CDR.DataHolder.IdentityServer
                 .Enrich.WithProperty("Environment", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"))
                 .CreateLogger();
 
+            Serilog.Debugging.SelfLog.Enable(msg => Log.Logger.Debug(msg));
+
             try
             {
                 Log.Information("Starting web host", args);

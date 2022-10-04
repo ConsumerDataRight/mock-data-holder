@@ -109,6 +109,9 @@ namespace CDR.DataHolder.Resource.API.Controllers
 			// Each customer id is different for each ADR based on PPID.
 			// Therefore we need to look up the CustomerClient table to find the actual customer id.
 			// This can be done once we have a client id (Registration) and a valid access token.
+
+			//LogContext.PushProperty("client_id", ((ClaimsIdentity)this.User.Identity).FindFirst("client_id"));
+
 			var customerId = GetCustomerId(this.User);
 			if (customerId == Guid.Empty)
 			{

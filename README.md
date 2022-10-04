@@ -1,6 +1,6 @@
 ![Consumer Data Right Logo](https://raw.githubusercontent.com/ConsumerDataRight/mock-data-holder/main/cdr-logo.png) 
 
-[![Consumer Data Standards v1.17.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.17.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards/#introduction)
+[![Consumer Data Standards v1.18.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.18.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards/#introduction)
 [![Conformance Test Suite 4.0](https://img.shields.io/badge/Conformance%20Test%20Suite-v4.0-darkblue.svg)](https://www.cdr.gov.au/for-providers/conformance-test-suite-data-holders)
 [![FAPI 1.0 Advanced Profile](https://img.shields.io/badge/FAPI%201.0-orange.svg)](https://openid.net/specs/openid-financial-api-part-2-1_0.html)
 [![made-with-dotnet](https://img.shields.io/badge/Made%20with-.NET-1f425Ff.svg)](https://dotnet.microsoft.com/)
@@ -14,7 +14,7 @@ This project includes source code, documentation and instructions for a Consumer
 This repository contains a mock implementation of a Mock Data Holder and is offered to help the community in the development and testing of their CDR solutions.
 
 ## Mock Data Holder - Alignment
-The Mock Data Holder aligns to [v1.17.0](https://consumerdatastandardsaustralia.github.io/standards/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards/#introduction).
+The Mock Data Holder aligns to [v1.18.0](https://consumerdatastandardsaustralia.github.io/standards/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards/#introduction).
 The Mock Data Holder passed v4.0 of the [Conformance Test Suite for Data Holders](https://www.cdr.gov.au/for-providers/conformance-test-suite-data-holders). 
 The Mock Data Holder is compliant with the [FAPI 1.0 Advanced Profile](https://openid.net/specs/openid-financial-api-part-2-1_0.html).
 The Mock Data Holder aligns to [FAPI 1.0 Migration Phase 1 and Phase 2](https://consumerdatastandardsaustralia.github.io/standards/#authentication-flows). Phase 1 requirements are switched on by default. Configuration has been added to allow switching on Phase 2 requirements.

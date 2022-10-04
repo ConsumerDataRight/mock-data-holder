@@ -85,6 +85,7 @@ namespace CDR.DataHolder.IntegrationTests
                 actual.token_endpoint_auth_methods_supported.Should().BeEquivalentTo(new[] { "private_key_jwt" });
                 actual.subject_types_supported.Should().BeEquivalentTo(new[] { "pairwise" });
                 actual.grant_types_supported.Should().BeEquivalentTo(new[] { "authorization_code", "client_credentials", "refresh_token" });
+                actual.response_modes_supported.Should().BeEquivalentTo(new[] { "form_post", "fragment" });
             }
         }
     }

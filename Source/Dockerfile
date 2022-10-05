@@ -22,6 +22,7 @@ COPY ./CDR.DataHolder.Public.API/. /app/CDR.DataHolder.Public.API
 COPY ./CDR.DataHolder.Resource.API/. /app/CDR.DataHolder.Resource.API
 COPY ./CDR.DataHolder.IdentityServer/. /app/CDR.DataHolder.IdentityServer
 COPY ./CDR.DataHolder.API.Gateway.mTLS/. /app/CDR.DataHolder.API.Gateway.mTLS
+COPY ./CDR.DataHolder.API.Logger/. /app/CDR.DataHolder.API.Logger
 
 WORKDIR /app/CDR.DataHolder.Admin.API
 RUN dotnet publish -c Release -o /app/publish/admin

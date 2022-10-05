@@ -1,0 +1,14 @@
+
+@func_host = http://localhost:7074
+
+## 
+
+GET {{func_host}}/INTEGRATIONTESTS_DATARECIPIENTS
+
+###
+
+GET https://mock-register:7000/cdr-register/v1/all/data-recipients
+
+###
+
+GET https://mock-register:7000/cdr-register/v1/banking/data-recipients

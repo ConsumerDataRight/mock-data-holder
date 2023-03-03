@@ -36,7 +36,6 @@ namespace CDR.DataHolder.Resource.API.UnitTests
         {
             //Arrange
             var resourceRepository = _serviceProvider.GetRequiredService<IResourceRepository>();
-            var statusRepository = _serviceProvider.GetRequiredService<IStatusRepository>();
             var transactionsService = _serviceProvider.GetRequiredService<ITransactionsService>();
             var idPermanenceManager = _serviceProvider.GetRequiredService<IIdPermanenceManager>();
             var loggerFactory = _serviceProvider.GetRequiredService<ILoggerFactory>();
@@ -89,7 +88,7 @@ namespace CDR.DataHolder.Resource.API.UnitTests
                 HttpContext = httpContext
             };
 
-            var controller = new ResourceController(resourceRepository, statusRepository, config, null, logger, transactionsService, idPermanenceManager);
+            var controller = new ResourceController(resourceRepository, config, null, logger, transactionsService, idPermanenceManager);
             controller.ControllerContext = controllerContext;
             controller.Url = mockUrlHelper.Object;
 
@@ -117,7 +116,6 @@ namespace CDR.DataHolder.Resource.API.UnitTests
         {
             //Arrange
             var resourceRepository = _serviceProvider.GetRequiredService<IResourceRepository>();
-            var statusRepository = _serviceProvider.GetRequiredService<IStatusRepository>();
             var transactionsService = _serviceProvider.GetRequiredService<ITransactionsService>();
             var idPermanenceManager = _serviceProvider.GetRequiredService<IIdPermanenceManager>();
             var loggerFactory = _serviceProvider.GetRequiredService<ILoggerFactory>();
@@ -166,7 +164,7 @@ namespace CDR.DataHolder.Resource.API.UnitTests
                 HttpContext = httpContext
             };
 
-            var controller = new ResourceController(resourceRepository, statusRepository, config, null, logger, transactionsService, idPermanenceManager);
+            var controller = new ResourceController(resourceRepository, config, null, logger, transactionsService, idPermanenceManager);
             controller.ControllerContext = controllerContext;
             controller.Url = mockUrlHelper.Object;
 

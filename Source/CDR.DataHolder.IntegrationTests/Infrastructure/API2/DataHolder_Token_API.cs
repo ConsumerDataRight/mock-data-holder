@@ -130,6 +130,8 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 formFields.Add(new KeyValuePair<string?, string?>("scope", scope));
             }
 
+            formFields.Add(new KeyValuePair<string?, string?>("code_verifier", BaseTest.FAPI_PHASE2_CODEVERIFIER)); 
+
             var content = new FormUrlEncodedContent(formFields);
 
             using var clientHandler = new HttpClientHandler();
@@ -183,6 +185,13 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
             string? jwkCertificateFilename = BaseTest.JWT_CERTIFICATE_FILENAME,
             string? jwkCertificatePassword = BaseTest.JWT_CERTIFICATE_PASSWORD)
         {
+            redirectUri = BaseTest.SubstituteConstant(redirectUri);   
+
+            if (clientId == BaseTest.SOFTWAREPRODUCT_ID) 
+            {
+                clientId = BaseTest.GetClientId(BaseTest.SOFTWAREPRODUCT_ID);
+            }
+
             redirectUri = BaseTest.SubstituteConstant(redirectUri);
 
             var responseMessage = await SendRequest(authCode, shareDuration: shareDuration,
@@ -196,7 +205,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 
             if (responseMessage.StatusCode != HttpStatusCode.OK)
             {
-                throw new Exception($"{nameof(GetResponse)} - Error getting response");
+                throw new Exception($"{nameof(GetResponse)} - Error getting response - {responseMessage.StatusCode} - {await responseMessage.Content.ReadAsStringAsync()}");
             }
 
             var response = await DeserializeResponse(responseMessage);

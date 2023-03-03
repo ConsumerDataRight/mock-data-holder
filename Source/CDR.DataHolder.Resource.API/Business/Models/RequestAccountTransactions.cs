@@ -33,8 +33,7 @@ namespace CDR.DataHolder.Resource.API.Business.Models
         [FromQuery(Name = "page-size")]
         [CheckPageSize]
         public string PageSize { get; set; }
-
-        public Guid CustomerId { get; set; }
+        
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

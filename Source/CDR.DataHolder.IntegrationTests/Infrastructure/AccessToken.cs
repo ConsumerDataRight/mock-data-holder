@@ -13,8 +13,8 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure
 {
     public class AccessToken
     {
-        private readonly string IDENTITYSERVER_URL = BaseTest.DH_MTLS_IDENTITYSERVER_TOKEN_URL;
-        private readonly string AUDIENCE = BaseTest.DH_MTLS_IDENTITYSERVER_TOKEN_URL;
+        private readonly string AUTHSERVER_URL = BaseTest.DH_MTLS_AUTHSERVER_TOKEN_URL;
+        private readonly string AUDIENCE = BaseTest.DH_MTLS_AUTHSERVER_TOKEN_URL;
         private const string SCOPE = "bank:accounts.basic:read";
         private const string GRANT_TYPE = "";
         private const string CLIENT_ID = "86ecb655-9eba-409c-9be3-59e7adf7080d";
@@ -37,7 +37,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure
 
         public AccessToken()
         {
-            URL = IDENTITYSERVER_URL;
+            URL = AUTHSERVER_URL;
             Audience = AUDIENCE;
         }
 

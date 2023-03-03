@@ -1,17 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CDR.DataHolder.API.Infrastructure.Filters;
+using CDR.DataHolder.API.Infrastructure.Middleware;
+using CDR.DataHolder.API.Infrastructure.Versioning;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace CDR.DataHolder.Admin.API
@@ -32,9 +27,9 @@ namespace CDR.DataHolder.Admin.API
 
             services.AddApiVersioning(options =>
             {
-                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.DefaultApiVersion = new ApiVersion(2, 0);
                 options.AssumeDefaultVersionWhenUnspecified = true;
-                options.ApiVersionReader = new HeaderApiVersionReader("x-v");
+                options.ApiVersionSelector = new ApiVersionSelector(options);
             });
 
             services.AddScoped<LogActionEntryAttribute>();
@@ -43,10 +38,10 @@ namespace CDR.DataHolder.Admin.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            app.UseExceptionHandler(exceptionHandlerApp =>
             {
-                app.UseDeveloperExceptionPage();
-            }
+                exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));
+            });
 
             app.UseSerilogRequestLogging();
 

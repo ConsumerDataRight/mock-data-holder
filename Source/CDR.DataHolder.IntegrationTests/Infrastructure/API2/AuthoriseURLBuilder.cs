@@ -50,7 +50,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                     queryString.Add("request", Request ?? CreateRequest());
                 }
 
-                var url = QueryHelpers.AddQueryString($"{BaseTest.DH_TLS_IDENTITYSERVER_BASE_URL}/connect/authorize", queryString);
+                var url = QueryHelpers.AddQueryString($"{BaseTest.DH_TLS_AUTHSERVER_BASE_URL}/connect/authorize", queryString);
 
                 return url;
             }
@@ -67,7 +67,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                     { "nbf", iat },
                     { "exp", iat + TokenLifetime },
                     { "jti", Guid.NewGuid().ToString().Replace("-", string.Empty) },
-                    { "aud", BaseTest.DH_TLS_IDENTITYSERVER_BASE_URL },
+                    { "aud", BaseTest.DH_TLS_AUTHSERVER_BASE_URL },
                     { "response_type", ResponseType },
                     { "client_id", ClientId },
                     { "redirect_uri", BaseTest.SubstituteConstant(RedirectURI) },

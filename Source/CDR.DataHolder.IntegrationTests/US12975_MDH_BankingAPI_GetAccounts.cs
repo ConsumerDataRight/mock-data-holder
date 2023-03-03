@@ -13,6 +13,7 @@ using CDR.DataHolder.IntegrationTests.Infrastructure.API2;
 using CDR.DataHolder.IntegrationTests.Models.BankingAccountsResponse;
 using CDR.DataHolder.Repository.Infrastructure;
 using CDR.DataHolder.IntegrationTests.Fixtures;
+using CDR.DataHolder.IntegrationTests.Models;
 
 #nullable enable
 
@@ -34,7 +35,7 @@ namespace CDR.DataHolder.IntegrationTests
             bool? isOwned = null, string? openStatus = null, string? productCategory = null,
             int? page = null, int? pageSize = null)
         {
-            ExtractClaimsFromToken(accessToken, out var customerId, out var softwareProductId);
+            ExtractClaimsFromToken(accessToken, out var loginId, out var softwareProductId);
 
             var effectivePage = page ?? 1;
             var effectivePageSize = pageSize ?? 25;
@@ -45,10 +46,11 @@ namespace CDR.DataHolder.IntegrationTests
             //     using encrypted ID's in the response and expected content WILL NEVER MATCH
             var accounts = dbContext.Accounts.AsNoTracking()
                 .Include(account => account.Customer)
-                .Where(account => account.Customer.CustomerId == new Guid(customerId))
+                // .Where(account => account.Customer.CustomerId == new Guid(customerId))
+                .Where(account => account.Customer.LoginId == loginId)
                 .Select(account => new
                 {
-                    accountId = IdPermanenceEncrypt(account.AccountId, customerId, softwareProductId),
+                    accountId = IdPermanenceEncrypt(account.AccountId, loginId, softwareProductId),
                     creationDate = account.CreationDate.HasValue ? account.CreationDate.Value.ToString("yyyy-MM-dd") : null,
                     displayName = account.DisplayName,
                     nickname = account.NickName,
@@ -154,7 +156,6 @@ namespace CDR.DataHolder.IntegrationTests
         {
             // Arrange
             var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(tokenType);
-            ExtractClaimsFromToken(accessToken, out var customerId, out var softwareProductId);
 
             var baseUrl = $"{DH_MTLS_GATEWAY_URL}/cds-au/v1/banking/accounts";
             var url = GetUrl(baseUrl, isOwned, openStatus, productCategory, queryPage, queryPageSize);
@@ -205,7 +206,7 @@ namespace CDR.DataHolder.IntegrationTests
         [Theory]
         [InlineData(TokenType.JANE_WILSON)]
         [InlineData(TokenType.KAMILLA_SMITH)]
-        [InlineData(TokenType.BEVERAGE)]
+        [InlineData(TokenType.BEVERAGE, Skip = "https://dev.azure.com/CDR-AU/Participant%20Tooling/_workitems/edit/51320")]
         public async Task AC01_Get_ShouldRespondWith_200OK_Accounts(TokenType tokenType)
         {
             await Test_AC01_AC02_AC04_AC04_AC05_AC06_AC07(tokenType);
@@ -246,8 +247,8 @@ namespace CDR.DataHolder.IntegrationTests
         [Theory]
         [InlineData(TokenType.KAMILLA_SMITH, "OPEN", "PERS_LOANS", 7)]
         [InlineData(TokenType.KAMILLA_SMITH, "OPEN", "BUSINESS_LOANS", 0)]
-        [InlineData(TokenType.BUSINESS_1, "OPEN", "BUSINESS_LOANS", 1)]
-        [InlineData(TokenType.BEVERAGE, "CLOSED", "BUSINESS_LOANS", 1)]
+        [InlineData(TokenType.BUSINESS_1, "OPEN", "BUSINESS_LOANS", 1, Skip = "https://dev.azure.com/CDR-AU/Participant%20Tooling/_workitems/edit/51320")]
+        [InlineData(TokenType.BEVERAGE, "CLOSED", "BUSINESS_LOANS", 1, Skip = "https://dev.azure.com/CDR-AU/Participant%20Tooling/_workitems/edit/51320")]
         public async Task AC07_Get_WithOpenStatusOPEN_AndProductCategoryBUSINESSLOANS_ShouldRespondWith_200OK_OpenedBusinessLoanAccounts(TokenType tokenType, string openStatus, string productCategory, int expectedRecordCount)
         {
             await Test_AC01_AC02_AC04_AC04_AC05_AC06_AC07(tokenType, openStatus: openStatus, productCategory: productCategory, expectedRecordCount: expectedRecordCount, queryPage: 1, queryPageSize: 5);
@@ -392,7 +393,7 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC10_Get_WithExpiredAccessToken_ShouldRespondWith_401Unauthorized(HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            var accessToken = BaseTest.EXPIRED_CONSUMER_ACCESS_TOKEN; // await CreateAccessToken_UsingAuthCode(TokenType.LILY_WANG, expired: expired);
+            var accessToken = BaseTest.EXPIRED_CONSUMER_ACCESS_TOKEN; 
 
             // Act
             var api = new Infrastructure.API
@@ -425,20 +426,32 @@ namespace CDR.DataHolder.IntegrationTests
             }
         }
 
-        private async Task Test_AC12_AC13_AC14(Table table, string id, string status, HttpStatusCode expectedStatusCode, string? expectedErrorResponse = null)
+        private async Task Test_AC12_AC13_AC14(EntityType entityType, string id, string status, HttpStatusCode expectedStatusCode, string? expectedErrorResponse = null)
         {
-            if (table == Table.SOFTWAREPRODUCT)
-            {
-                await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.KAMILLA_SMITH); // Ensure token cache is populated before changing status in case InlineData scenarios above are run/debugged out of order
-            }
-
-            var saveStatus = GetStatus(table, id);
-            SetStatus(table, id, status);
+            var saveStatus = GetStatus(entityType, id);
+            SetStatus(entityType, id, status);
 
             try
             {
+                var accessToken = string.Empty;
                 // Arrange
-                var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.KAMILLA_SMITH);
+                try
+                {
+                    accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.KAMILLA_SMITH); // Ensure token cache is populated before changing status in case InlineData scenarios above are run/debugged out of order
+                }
+                catch (AuthoriseException ex)
+                {
+                    // Assert
+                    using (new AssertionScope())
+                    {
+
+                        // Assert - Check error response
+                        ex.Error.Should().Be("urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive");
+                        ex.ErrorDescription.Should().Be(expectedErrorResponse);
+
+                        return;
+                    }
+                }
 
                 // Act
                 var api = new Infrastructure.API
@@ -458,52 +471,30 @@ namespace CDR.DataHolder.IntegrationTests
                 {
                     // Assert - Check status code
                     response.StatusCode.Should().Be(expectedStatusCode);
-
-                    // Assert - Check error response
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        await Assert_HasContent_Json(expectedErrorResponse, response.Content);
-                    }
                 }
             }
             finally
             {
-                SetStatus(table, id, saveStatus);
+                SetStatus(entityType, id, saveStatus);
             }
         }
 
         [Theory]
-        [InlineData("ACTIVE", "Active", HttpStatusCode.OK)]
-        [InlineData("INACTIVE", "Inactive", HttpStatusCode.Forbidden)]
-        [InlineData("REMOVED", "Removed", HttpStatusCode.Forbidden)]
-        public async Task AC12_Get_WithADRSoftwareProductNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, string statusDescription, HttpStatusCode expectedStatusCode)
+        [InlineData("ACTIVE", HttpStatusCode.OK)]
+        [InlineData("INACTIVE",  HttpStatusCode.BadRequest)]
+        [InlineData("REMOVED", HttpStatusCode.BadRequest)]
+        public async Task AC12_Get_WithADRSoftwareProductNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, HttpStatusCode expectedStatusCode)
         {
-            await Test_AC12_AC13_AC14(Table.SOFTWAREPRODUCT, SOFTWAREPRODUCT_ID, status, expectedStatusCode,
-            $@"{{ 
-                ""errors"": [{{ 
-                        ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"", 
-                        ""title"": ""ADR Status Is Not Active"",
-                        ""detail"": ""Software product status is { statusDescription }"", 
-                        ""meta"": {{}} 
-                }}]
-             }}");
+            await Test_AC12_AC13_AC14(EntityType.SOFTWAREPRODUCT, SOFTWAREPRODUCT_ID, status, expectedStatusCode, "Software product status is { statusDescription }");
         }
 
         [Theory]
-        [InlineData("ACTIVE", "Active", HttpStatusCode.OK)]
-        [InlineData("INACTIVE", "Inactive", HttpStatusCode.Forbidden)]
-        [InlineData("REMOVED", "Removed", HttpStatusCode.Forbidden)]
-        public async Task AC14_Get_WithADRParticipationNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, string statusDescription, HttpStatusCode expectedStatusCode)
+        [InlineData("ACTIVE", HttpStatusCode.OK)]
+        [InlineData("INACTIVE", HttpStatusCode.BadRequest)]
+        [InlineData("REMOVED", HttpStatusCode.BadRequest)]
+        public async Task AC14_Get_WithADRParticipationNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, HttpStatusCode expectedStatusCode)
         {
-            await Test_AC12_AC13_AC14(Table.LEGALENTITY, LEGALENTITYID, status, expectedStatusCode,
-            $@"{{
-                ""errors"": [{{
-                    ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
-                    ""title"": ""ADR Status Is Not Active"",
-                    ""detail"": ""ADR status is { statusDescription }"",
-                    ""meta"": {{}}
-                }}]
-            }}");
+            await Test_AC12_AC13_AC14(EntityType.LEGALENTITY, LEGALENTITYID, status, expectedStatusCode, "ADR status is { statusDescription }");
         }
 
         private async Task Test_AC15_AC16_AC17(string XV, HttpStatusCode expectedStatusCode, string expectedErrorResponse)
@@ -783,13 +774,15 @@ namespace CDR.DataHolder.IntegrationTests
                 UserId = userId,
                 OTP = AUTHORISE_OTP,
                 SelectedAccountIds = consentedAccounts,
+                RequestUri = await PAR_GetRequestUri(responseMode: "form_post")
             }.Authorise();
 
             // Act
             var tokenResponse = await DataHolder_Token_API.GetResponse(authCode);
             var accountsResponse = await GetAccounts(tokenResponse?.AccessToken);
-            ExtractClaimsFromToken(tokenResponse?.AccessToken, out var customerId, out var softwareProductId);
-            var encryptedAccountIds = consentedAccounts.Split(',').Select(consentedAccountId => IdPermanenceEncrypt(consentedAccountId, customerId, softwareProductId));
+
+            ExtractClaimsFromToken(tokenResponse?.AccessToken, out var loginId, out var softwareProductId);
+            var encryptedAccountIds = consentedAccounts.Split(',').Select(consentedAccountId => IdPermanenceEncrypt(consentedAccountId, loginId, softwareProductId));
 
             // Assert
             using (new AssertionScope())
@@ -836,6 +829,7 @@ namespace CDR.DataHolder.IntegrationTests
                     UserId = userId,
                     OTP = AUTHORISE_OTP,
                     SelectedAccountIds = consentedAccounts,
+                    RequestUri = await PAR_GetRequestUri(responseMode: "form_post")
                 }.Authorise();
 
                 // Get token

@@ -7,6 +7,7 @@
             public const string ClientCertThumbprintHeaderKey = "X-TlsClientCertThumbprint";
             public const string ClientCertClientNameHeaderKey = "X-TlsClientCertCN";
             public const string ApiVersionHeaderKey = "x-v";
+            public const string ApiMinVersionHeaderKey = "x-min-v";
         }
 
         public static class ApiScopes

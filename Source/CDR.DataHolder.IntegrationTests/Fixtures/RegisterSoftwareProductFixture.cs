@@ -6,7 +6,7 @@ using Xunit;
 namespace CDR.DataHolder.IntegrationTests.Fixtures
 {
     /// <summary>
-    /// Purges DataHolders IdentityServer database and registers software product
+    /// Purges DataHolders AuthServer database and registers software product
     /// (in addition to operations performed by TestFixture)
     /// </summary>
     public class RegisterSoftwareProductFixture : TestFixture, IAsyncLifetime
@@ -15,8 +15,8 @@ namespace CDR.DataHolder.IntegrationTests.Fixtures
         {
             await base.InitializeAsync();
             
-            // Purge IdentityServer
-            TestSetup.DataHolder_PurgeIdentityServer();
+            // Purge AuthServer
+            TestSetup.DataHolder_PurgeAuthServer();
 
             // Register software product
             await TestSetup.DataHolder_RegisterSoftwareProduct();

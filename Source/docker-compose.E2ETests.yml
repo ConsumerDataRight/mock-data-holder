@@ -1,0 +1,115 @@
+# Docker compose e2e tests
+
+version: '3.8'
+
+services:
+  mock-register:
+    container_name: mock-register
+    image: mock-register
+    hostname: mock-register
+    ports: 
+      - "7000:7000"
+      - "7001:7001"
+      - "7006:7006"
+    # FIXME - MJS - comment out extra hosts (only used for debugging tests) or find some way to configure at runtime      
+    extra_hosts:
+      - "mock-data-holder-e2e-tests:host-gateway"
+      - "cdr-auth-server-e2e-tests:host-gateway"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Release
+    # FIXME - MJS - commented out volumes below as volume is mounted as 1001:121 (vsts:docker) in build pipeline and causes issue with chown in dockerfile (appuser:appgroup), ie stops container from starting because of different user
+    # volumes:
+    #   - "./_temp/mock-register/tmp:/tmp"      
+    healthcheck:
+      test: wget --no-check-certificate --no-verbose --spider https://localhost:7006/health || exit 1
+      timeout: 5s
+      interval: 5s
+      retries: 50      
+    depends_on:
+      mssql:
+        condition: service_healthy
+
+  mock-data-holder:
+    container_name: mock-data-holder
+    image: mock-data-holder
+    hostname: mock-data-holder
+    ports: 
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
+      - "8005:8005"
+      # auth ui
+      - "3000:3000"
+    # FIXME - MJS - comment out extra hosts (only used for debugging tests) or find some way to configure at runtime            
+    extra_hosts:
+      - "mock-data-holder-e2e-tests:host-gateway"
+      - "cdr-auth-server-e2e-tests:host-gateway"
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # FIXME - MJS - "production" environment using Azure storage? not working? try development in meantime
+        # target_environment: production
+        target_environment: development
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Release
+      # tests need expiry of 3600
+      - CdrAuthServer__AccessTokenExpirySeconds=3600
+      # FIXME - MJS - is encryption ready?
+      - CdrAuthServer__SupportJarmEncryption=false
+    # FIXME - MJS - commented out volumes below as volume is mounted as 1001:121 (vsts:docker) in build pipeline and causes issue with chown in dockerfile (appuser:appgroup), ie stops container from starting because of different user
+    # volumes:
+    #   - "./_temp/mock-data-holder/tmp:/tmp"      
+    healthcheck:
+      # FIXME - MJS - MDH healthcheck (8005) should be updated to consider embedded CdrAuthServer health (8001). Meanwhile, just check both 8005, 8001 and 3000 (ui)
+      test: ((wget --no-check-certificate --no-verbose --spider https://localhost:8005/health) && (wget --no-check-certificate --no-verbose --spider https://localhost:8001/health) && (wget --no-check-certificate --no-verbose --spider https://localhost:3000)) || exit 1
+      timeout: 5s
+      interval: 5s
+      retries: 50 
+    depends_on:
+      mssql:
+        condition: service_healthy
+      mock-register:
+        condition: service_healthy
+
+  cdr-auth-server-e2e-tests:
+    container_name: cdr-auth-server-e2e-tests
+    image: cdr-auth-server-e2e-tests
+    ports: 
+      - "9999:9999"
+      - "9998:9998"
+      - "9997:9997"
+      - "9996:9996"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Release.Standalone
+      # reconfigure URLs 
+      - URL__CDRAuthServer_BaseUri=https://mock-data-holder:8001
+      - URL__CDRAuthServer_SecureBaseUri=https://mock-data-holder:8002
+      - URL__DH_MTLS_Gateway=https://mock-data-holder:8002
+      - URL__DH_TLS_IdentityServer=https://mock-data-holder:8001
+      - URL__DH_TLS_Public=https://mock-data-holder:8001
+      - URL__MDH_HOST=https://mock-data-holder
+      - Standalone=false
+    volumes:
+      - "./_temp/mock-data-holder-cdr-auth-server-e2e-tests/testresults:/testresults"
+    depends_on:
+      mssql:
+        condition: service_healthy
+      mock-register:
+        condition: service_healthy
+      mock-data-holder:
+        condition: service_healthy
+
+  mssql:
+    container_name: sql1
+    image: 'mcr.microsoft.com/mssql/server:2019-latest'
+    ports: 
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Pa{}w0rd2019
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S . -U sa -P "Pa{}w0rd2019" -Q "SELECT 1" || exit 1 
+      timeout: 5s
+      interval: 5s
+      retries: 20    

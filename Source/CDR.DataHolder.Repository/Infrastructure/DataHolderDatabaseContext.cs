@@ -20,10 +20,7 @@ namespace CDR.DataHolder.Repository.Infrastructure
 		public DbSet<Customer> Customers { get; set; }
 		public DbSet<Account> Accounts { get; set; }
 		public DbSet<Transaction> Transactions { get; set; }
-		public DbSet<Organisation> Organisations { get; set; }
-		public DbSet<LegalEntity> LegalEntities { get; set; }
-        public DbSet<Brand> Brands { get; set; }
-		public DbSet<SoftwareProduct> SoftwareProducts { get; set; }
+		public DbSet<Organisation> Organisations { get; set; }		
 
 		public DbSet<LogEventsDrService> LogEventsDrService { get; set; }
 		public DbSet<LogEventsManageAPI> LogEventsManageAPI { get; set; }

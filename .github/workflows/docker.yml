@@ -65,6 +65,26 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Checkout Authorisation Server (main)
+      if: ${{ github.ref == 'refs/heads/main' }}
+      uses: actions/checkout@v2
+      with:
+        repository: consumerdataright/authorisation-server
+        ref: github.ref
+        path: ./cdr-auth-server
+
+    - name: Checkout Authorisation Server (develop)
+      if: ${{ github.ref != 'refs/heads/main' }}
+      uses: actions/checkout@v2
+      with:
+        repository: consumerdataright/authorisation-server
+        ref: 'refs/heads/develop'
+        path: ./cdr-auth-server
+
+    - name: Copy cdr-auth-server folder into sb-mock-data-holder
+      run: |
+        cp -r ${{ github.workspace }}/cdr-auth-server ${{ github.workspace }}/mock-data-holder/Source/cdr-auth-server
     
     - name: Build and push Docker image
       id: docker_build

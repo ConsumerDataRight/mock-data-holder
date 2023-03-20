@@ -57,7 +57,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: consumerdataright/authorisation-server
-        ref: 'refs/head/develop'
+        ref: 'refs/heads/develop'
         path: ./cdr-auth-server
 
     #copy the authorisation-server code into dataholder

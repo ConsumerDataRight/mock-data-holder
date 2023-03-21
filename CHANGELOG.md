@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.0] - 2023-03-21
 ### Added
 - The Mock Data Holder now utilises the [Authorisation Server](https://github.com/ConsumerDataRight/authorisation-server) as the Identity Provider
+- Get Metrics API
 
 ### Changed 
 - Updated to be compliant with FAPI 1.0 phase 3

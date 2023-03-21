@@ -30,7 +30,6 @@ namespace CDR.DataHolder.Resource.API.Controllers
 	public class ResourceController : ControllerBase
 	{
 		private readonly IResourceRepository _resourceRepository;
-		private readonly IStatusRepository _statusRepository;
 		private readonly IConfiguration _config;
 		private readonly IMapper _mapper;
 		private readonly ILogger<ResourceController> _logger;
@@ -39,7 +38,6 @@ namespace CDR.DataHolder.Resource.API.Controllers
 
 		public ResourceController(
 			IResourceRepository resourceRepository,
-			IStatusRepository statusRepository,
 			IConfiguration config,
 			IMapper mapper,
 			ILogger<ResourceController> logger,
@@ -47,7 +45,6 @@ namespace CDR.DataHolder.Resource.API.Controllers
 			IIdPermanenceManager idPermanenceManager)
 		{
 			_resourceRepository = resourceRepository;
-			_statusRepository = statusRepository;
 			_config = config;
 			_mapper = mapper;
 			_logger = logger;
@@ -64,25 +61,21 @@ namespace CDR.DataHolder.Resource.API.Controllers
         [ServiceFilter(typeof(LogActionEntryAttribute))]
 		public async Task<IActionResult> GetCustomer()
 		{
-			// Each customer id is different for each ADR based on PPID.
-			// Therefore we need to look up the CustomerClient table to find the actual customer id.
-			// This can be done once we have a client id (Registration) and a valid access token.
-			var customerId = GetCustomerId(this.User);
-			if (customerId == Guid.Empty)
+            // Each customer login id is different for each ADR based on PPID.
+            // Therefore we need to look up the CustomerClient table to find the actual customer login id.
+            // This can be done once we have a client id (Registration) and a valid access token.
+            var loginId = GetCustomerLoginId(this.User);
+			if ( string.IsNullOrEmpty(loginId))
 			{
 				// Implement response handling when the acceptance criteria is available.
 				return BadRequest();
 			}
 
-			// Check the status of the data recipient.
-			var statusErrors = await ValidateDataRecipientStatus();
-			if (statusErrors.HasErrors())
-			{
-				return new DataHolderForbidResult(statusErrors);
-			}
-
-			var response = _mapper.Map<ResponseCommonCustomer>(await _resourceRepository.GetCustomer(customerId));
-			if (response == null)
+            //ResponseCommonCustomer Mapper not working because of the existing schema for ResponseCommonCustomer
+            //GetCustomerByLoginId to match schema for ResponseCommonCustomer
+            var response = _mapper.Map<ResponseCommonCustomer>(await _resourceRepository.GetCustomerByLoginId(loginId));
+            
+            if (response == null)
 			{
 				return BadRequest();
 			}
@@ -109,27 +102,16 @@ namespace CDR.DataHolder.Resource.API.Controllers
 			// Each customer id is different for each ADR based on PPID.
 			// Therefore we need to look up the CustomerClient table to find the actual customer id.
 			// This can be done once we have a client id (Registration) and a valid access token.
-
-			//LogContext.PushProperty("client_id", ((ClaimsIdentity)this.User.Identity).FindFirst("client_id"));
-
-			var customerId = GetCustomerId(this.User);
-			if (customerId == Guid.Empty)
+			var loginId = GetCustomerLoginId(this.User);
+			if (string.IsNullOrEmpty(loginId))
 			{
 				return new BadRequestObjectResult(new ResponseErrorList(Error.UnknownError()));
 			}
 
-			// Check the status of the data recipient.
-			var statusErrors = await ValidateDataRecipientStatus();
-			if (statusErrors.HasErrors())
-			{
-				return new DataHolderForbidResult(statusErrors);
-			}
-
 			// Get accounts
-			var accountFilter = new AccountFilter(GetAccountIds(User))
-			{
-				CustomerId = customerId,
-				IsOwned = isOwned,
+            var accountFilter = new AccountFilter(GetAccountIds(User))
+			{                                
+                IsOwned = isOwned,
 				ProductCategory = productCategory,
 				OpenStatus = (openStatus != null && openStatus.Equals(OpenStatus.All.ToString(), StringComparison.OrdinalIgnoreCase)) ? null : openStatus,
 			};
@@ -147,8 +129,8 @@ namespace CDR.DataHolder.Resource.API.Controllers
 			var softwareProductId = this.User.FindFirst(Constants.TokenClaimTypes.SoftwareId)?.Value;
 			var idParameters = new IdPermanenceParameters
 			{
-				SoftwareProductId = softwareProductId,
-				CustomerId = customerId.ToString()
+				SoftwareProductId = softwareProductId,                
+                CustomerId = loginId
 			};
 
 			_idPermanenceManager.EncryptIds(response.Data.Accounts, idParameters, a => a.AccountId);
@@ -168,29 +150,23 @@ namespace CDR.DataHolder.Resource.API.Controllers
         [ServiceFilter(typeof(LogActionEntryAttribute))]
 		public async Task<IActionResult> GetTransactions([FromQuery] RequestAccountTransactions request)
 		{
-			// Each customer id is different for each ADR based on PPID.
-			// Therefore we need to look up the CustomerClient table to find the actual customer id.
-			// This can be done once we have a client id (Registration) and a valid access token.
-			request.CustomerId = GetCustomerId(this.User);
-			if (request.CustomerId == Guid.Empty)
-			{
-				return new BadRequestObjectResult(new ResponseErrorList(Error.UnknownError()));
-			}
-
-			// Check the status of the data recipient.
-			var statusErrors = await ValidateDataRecipientStatus();
-			if (statusErrors.HasErrors())
-			{
-				return new DataHolderForbidResult(statusErrors);
-			}
-
+            // Each customer id is different for each ADR based on PPID.
+            // customer id is not required for account when account id is available
+            // This can be done once we have a client id (Registration) and a valid access token.            
+            var loginId = GetCustomerLoginId(this.User);
+                        
+            if (string.IsNullOrEmpty(loginId))
+            {
+                return new BadRequestObjectResult(new ResponseErrorList(Error.UnknownError()));
+            }
+			            
 			var softwareProductId = this.User.FindFirst(Constants.TokenClaimTypes.SoftwareId)?.Value;
 
 			// Decrypt the incoming account id (ID Permanence rules).
 			var idParameters = new IdPermanenceParameters
 			{
 				SoftwareProductId = softwareProductId,
-				CustomerId = request.CustomerId.ToString(),
+				CustomerId = loginId
 			};
 			
 			request.AccountId = DecryptAccountId(request.AccountId, idParameters);
@@ -205,13 +181,13 @@ namespace CDR.DataHolder.Resource.API.Controllers
 			}
 			else
 			{
-				if (!(await _resourceRepository.CanAccessAccount(request.AccountId, request.CustomerId)))
+				if (!(await _resourceRepository.CanAccessAccount(request.AccountId)))
 				{
 					// A valid consent exists with bank:transactions:read scope but this Account Id could not be found for the supplied Customer Id.
 					// This scenario will take precedence
 					using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
 					{
-						_logger.LogInformation("Customer does not have access to this Account Id. Customer Id: {customerId}, Account Id: {accountId}", request.CustomerId, request.AccountId);
+						_logger.LogInformation("Customer does not have access to this Account Id. Account Id: {accountId}", request.AccountId);
 					}
 					return new NotFoundObjectResult(new ResponseErrorList(Error.NotFound("Account ID could not be found for the customer")));
 				}
@@ -260,71 +236,17 @@ namespace CDR.DataHolder.Resource.API.Controllers
 			return accountId;
 		}
 
-		private async Task<ResponseErrorList> ValidateDataRecipientStatus()
+        private static string GetCustomerLoginId(ClaimsPrincipal principal)
 		{
-			ResponseErrorList errorList = new ResponseErrorList();
-
-			// Get the Product Id from the token
-			var softwareProductId = this.GetSoftwareProductId();
-			if (softwareProductId == null)
+			var loginId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;			
+			if (string.IsNullOrEmpty(loginId))
 			{
-				errorList.Errors.Add(Error.UnknownError());
-				return errorList;
+				return string.Empty;
 			}
-
-			// Get the latest data recipient details from the repository
-			var softwareProduct = await _statusRepository.GetSoftwareProduct(softwareProductId.Value);
-			if (softwareProduct == null)
-			{
-				errorList.Errors.Add(Error.DataRecipientSoftwareProductNotActive());
-				return errorList;
-			}
-
-			if (String.Equals(softwareProduct.Brand.LegalEntity.Status, "Removed", StringComparison.OrdinalIgnoreCase))
-			{
-				errorList.Errors.Add(Error.DataRecipientParticipationRemoved());
-			}
-			else if (String.Equals(softwareProduct.Brand.LegalEntity.Status, "Suspended", StringComparison.OrdinalIgnoreCase))
-			{
-				errorList.Errors.Add(Error.DataRecipientParticipationSuspended());
-			}
-			else if (String.Equals(softwareProduct.Brand.LegalEntity.Status, "Revoked", StringComparison.OrdinalIgnoreCase))
-			{
-				errorList.Errors.Add(Error.DataRecipientParticipationRevoked());
-			}
-			else if (String.Equals(softwareProduct.Brand.LegalEntity.Status, "Surrendered", StringComparison.OrdinalIgnoreCase))
-			{
-				errorList.Errors.Add(Error.DataRecipientParticipationSurrendered());
-			}
-			else if (!softwareProduct.Brand.IsActive || 
-				String.Equals(softwareProduct.Brand.LegalEntity.Status, "Inactive", StringComparison.OrdinalIgnoreCase))
-			{
-				errorList.Errors.Add(Error.DataRecipientParticipationNotActive());
-			}			
-
-			if (String.Equals(softwareProduct.Status, "Inactive", StringComparison.OrdinalIgnoreCase))
-            {
-                errorList.Errors.Add(Error.DataRecipientSoftwareProductNotActive());
-            }
-            else if (String.Equals(softwareProduct.Status, "Removed", StringComparison.OrdinalIgnoreCase))
-            {
-                errorList.Errors.Add(Error.DataRecipientSoftwareProductStatusRemoved());
-            }
-
-            return errorList;
+			return loginId;
 		}
-
-		private static Guid GetCustomerId(ClaimsPrincipal principal)
-		{
-			var customerId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-			if (!Guid.TryParse(customerId, out var customerIdGuid))
-			{
-				return Guid.Empty;
-			}
-			return customerIdGuid;
-		}
-
-		private static string[] GetAccountIds(ClaimsPrincipal principal)
+		
+        private static string[] GetAccountIds(ClaimsPrincipal principal)
 		{
 			// Check if consumer has granted consent to this account Id
 			return principal.FindAll(Constants.TokenClaimTypes.AccountId)

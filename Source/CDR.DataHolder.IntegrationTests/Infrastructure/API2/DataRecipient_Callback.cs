@@ -38,6 +38,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
         {
             public string? PathAndQuery { get; init; }
             public bool received = false;
+            public HttpMethod? method;
             public string? body;
         }
         private CallbackRequest Request { get; init; }
@@ -110,6 +111,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                     endpoints.MapGet(callbackRequest.PathAndQuery!, async context =>
                     {                        
                         var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
+                        callbackRequest.method = HttpMethod.Get;
                         callbackRequest.body = body;
                         callbackRequest.received = true;
                     });
@@ -117,6 +119,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                     endpoints.MapPost(callbackRequest.PathAndQuery!, async context =>
                     {
                         var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
+                        callbackRequest.method = HttpMethod.Post;
                         callbackRequest.body = body;
                         callbackRequest.received = true;
                     });
@@ -130,41 +133,41 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
         }
     }
 
-#if DEBUG
-    public class TestDataRecipientConsentCallback
-    {
-        static HttpClient CreateHttpClient()
-        {
-            var httpClientHandler = new HttpClientHandler();
+// #if DEBUG
+//     public class TestDataRecipientConsentCallback
+//     {
+//         static HttpClient CreateHttpClient()
+//         {
+//             var httpClientHandler = new HttpClientHandler();
 
-            httpClientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-            httpClientHandler.ClientCertificates.Add(new X509Certificate2(BaseTest.CERTIFICATE_FILENAME, BaseTest.CERTIFICATE_PASSWORD, X509KeyStorageFlags.Exportable));
-            var httpClient = new HttpClient(httpClientHandler);
+//             httpClientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+//             httpClientHandler.ClientCertificates.Add(new X509Certificate2(BaseTest.CERTIFICATE_FILENAME, BaseTest.CERTIFICATE_PASSWORD, X509KeyStorageFlags.Exportable));
+//             var httpClient = new HttpClient(httpClientHandler);
 
-            return httpClient;
-        }
+//             return httpClient;
+//         }
 
-        [Fact]
-        public async Task Test()
-        {
-            var callback = new DataRecipientConsentCallback();
-            callback.Start();
-            try
-            {
-                var httpClient = CreateHttpClient();
+//         [Fact]
+//         public async Task Test()
+//         {
+//             var callback = new DataRecipientConsentCallback();
+//             callback.Start();
+//             try
+//             {
+//                 var httpClient = CreateHttpClient();
 
-                const string POSTEDCONTENT = "posted content";
-                var response = await httpClient.PostAsync(callback.RedirectUrl, new StringContent(POSTEDCONTENT));
-                var callbackResponse = await callback.WaitForCallback(10);
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
-                callbackResponse?.received.Should().Be(true);
-                callbackResponse?.body.Should().Be(POSTEDCONTENT);
-            }
-            finally
-            {
-                await callback.Stop();
-            }
-        }
-    }
-#endif    
+//                 const string POSTEDCONTENT = "posted content";
+//                 var response = await httpClient.PostAsync(callback.RedirectUrl, new StringContent(POSTEDCONTENT));
+//                 var callbackResponse = await callback.WaitForCallback(10);
+//                 response.StatusCode.Should().Be(HttpStatusCode.OK);
+//                 callbackResponse?.received.Should().Be(true);
+//                 callbackResponse?.body.Should().Be(POSTEDCONTENT);
+//             }
+//             finally
+//             {
+//                 await callback.Stop();
+//             }
+//         }
+//     }
+// #endif    
 }

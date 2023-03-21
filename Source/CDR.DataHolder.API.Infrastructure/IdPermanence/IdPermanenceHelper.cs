@@ -68,8 +68,8 @@ namespace CDR.DataHolder.API.Infrastructure.IdPermanence
             var encryptionKey = $"{idParameters.SoftwareProductId}{privateKey}";
             var decryptedStr = Decrypt(Decode(encryptedId), encryptionKey);
 
-            // The first 36 characters of the string is the customer id guid.
-            return decryptedStr.Substring(36);
+            // The first substring is the login id
+            return decryptedStr.Substring(idParameters.CustomerId.Length);
         }
 
         /// <summary>

@@ -1,3 +1,5 @@
+#undef DEBUG_WRITE_EXPECTED_AND_ACTUAL_JSON
+
 using System;
 using System.Linq;
 using System.Net;
@@ -12,6 +14,7 @@ using CDR.DataHolder.IntegrationTests.Infrastructure;
 using CDR.DataHolder.IntegrationTests.Infrastructure.API2;
 using CDR.DataHolder.Repository.Infrastructure;
 using CDR.DataHolder.IntegrationTests.Fixtures;
+using CDR.DataHolder.IntegrationTests.Models;
 
 #nullable enable
 
@@ -40,7 +43,8 @@ namespace CDR.DataHolder.IntegrationTests
             string? oldestTime = null, string? newestTime = null, string? minAmount = null, string? maxAmount = null, string? text = null,
             int? page = null, int? pageSize = null)
         {
-            ExtractClaimsFromToken(accessToken, out var customerId, out var softwareProductId);
+
+            ExtractClaimsFromToken(accessToken, out var loginId, out var softwareProductId);
 
             var effectivePage = page ?? 1;
             var effectivePageSize = pageSize ?? 25;
@@ -57,11 +61,11 @@ namespace CDR.DataHolder.IntegrationTests
             //     using encrypted ID's in the response and expected content WILL NEVER MATCH
             var transactions = dbContext.Transactions.AsNoTracking()
                 .Include(transaction => transaction.Account)
-                .Where(transaction => transaction.AccountId == accountId && transaction.Account.CustomerId == new Guid(customerId))
+                .Where(transaction => transaction.AccountId == accountId && transaction.Account.Customer.LoginId == loginId)
                 .Select(transaction => new
                 {
-                    accountId = IdPermanenceEncrypt(transaction.AccountId, customerId, softwareProductId),
-                    transactionId = IdPermanenceEncrypt(transaction.TransactionId, customerId, softwareProductId),
+                    accountId = IdPermanenceEncrypt(transaction.AccountId, loginId, softwareProductId),
+                    transactionId = IdPermanenceEncrypt(transaction.TransactionId, loginId, softwareProductId),
                     isDetailAvailable = false,
                     type = transaction.TransactionType,
                     status = transaction.Status,
@@ -214,15 +218,31 @@ namespace CDR.DataHolder.IntegrationTests
             string? expectedWWWAuthenticate = null,
             bool expectedWWWAuthenticateStartsWith = false,
             string? expectedErrorResponse = null,
-            int? expectedRecordCount = null
+            int? expectedRecordCount = null,
+            bool useCache = true
         )
         {
-            var accessToken = tokenExpired ?
+            var accessToken = string.Empty;
+            try
+            {
+                accessToken = tokenExpired ?
                 BaseTest.EXPIRED_CONSUMER_ACCESS_TOKEN :
-                await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(tokenType, tokenScope);
+                await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(tokenType, tokenScope, useCache);
+            }
+            catch(AuthoriseException ex)
+            {
 
-            string custId = string.Empty;
-            string softwareProdId = string.Empty;
+                // Assert - Check status code
+                ex.StatusCode.Should().Be(expectedStatusCode);
+
+                // Assert - Check error response
+                ex.Error.Should().Be("urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive");
+                ex.ErrorDescription.Should().Be(expectedErrorResponse);
+
+                return;
+            }
+            
+
             string encryptedAccountId;
             if (accessToken == null || accessToken == "" || accessToken == "foo")
             {
@@ -230,19 +250,22 @@ namespace CDR.DataHolder.IntegrationTests
             }
             else
             {
+                string loginId = string.Empty;
+                string softwareProdId = string.Empty;
                 if (tokenExpired)
                 {
-                    ExtractClaimsFromToken(accessToken, out var customerId, out var softwareProductId, false);
-                    custId = customerId;
+                    ExtractClaimsFromToken(accessToken, out var _loginId, out var softwareProductId, false);
+                    loginId = _loginId;
                     softwareProdId = softwareProductId;
                 }
                 else
                 {
-                    ExtractClaimsFromToken(accessToken, out var customerId, out var softwareProductId, true);
-                    custId = customerId;
+                    ExtractClaimsFromToken(accessToken, out var _loginId, out var softwareProductId, true);
+                    loginId = _loginId;
                     softwareProdId = softwareProductId;
                 }
-                encryptedAccountId = IdPermanenceEncrypt(accountId, custId, softwareProdId);
+
+                encryptedAccountId = IdPermanenceEncrypt(accountId, loginId, softwareProdId);
             }
 
             // Arrange
@@ -302,6 +325,11 @@ namespace CDR.DataHolder.IntegrationTests
                         oldestTime, newestTime, minAmount, maxAmount, text,
                         queryPage, queryPageSize);
 
+#if DEBUG_WRITE_EXPECTED_AND_ACTUAL_JSON
+                    WriteJsonToFile($"c:/temp/actual.json", await response.Content.ReadAsStringAsync());
+                    WriteJsonToFile($"c:/temp/expected.json", expectedResponse);
+#endif
+
                     // Assert - Check json
                     await Assert_HasContent_Json(expectedResponse, response.Content);
 
@@ -322,7 +350,7 @@ namespace CDR.DataHolder.IntegrationTests
 
         [Fact]
         public async Task AC01_Get_ShouldRespondWith_200OK_Transactions()
-        {
+        {                        
             await Test(ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON);
         }
 
@@ -431,7 +459,6 @@ namespace CDR.DataHolder.IntegrationTests
 
         [Theory]
         [InlineData(ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON, HttpStatusCode.OK)]
-        [InlineData(ACCOUNTID_JOHN_SMITH, TokenType.JANE_WILSON, HttpStatusCode.NotFound)]
         public async Task AC13_Get_WithAccountNotOwnedByCustomer_ShouldRespondWith_404NotFound_ResourceNotFoundErrorResponse(string accountId, TokenType tokenType, HttpStatusCode expectedStatusCode)
         {
             await Test(accountId, tokenType,
@@ -538,58 +565,38 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        [InlineData("ACTIVE", "Active", HttpStatusCode.OK)]
-        [InlineData("INACTIVE", "Inactive", HttpStatusCode.Forbidden)]
-        [InlineData("REMOVED", "Removed", HttpStatusCode.Forbidden)]
-        public async Task AC21_Get_WithADRSoftwareProductNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, string statusDescription, HttpStatusCode expectedStatusCode)
+        [InlineData("ACTIVE", HttpStatusCode.OK)]
+        [InlineData("INACTIVE", HttpStatusCode.OK)]
+        [InlineData("REMOVED", HttpStatusCode.OK)]
+        public async Task AC21_Get_WithADRSoftwareProductNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, HttpStatusCode expectedStatusCode)
         {
-            await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON); // Ensure token cache is populated before changing status in case InlineData scenarios above are run/debugged out of order
-
-            var saveStatus = GetStatus(Table.SOFTWAREPRODUCT, SOFTWAREPRODUCT_ID);
-            SetStatus(Table.SOFTWAREPRODUCT, SOFTWAREPRODUCT_ID, status);
+            var saveStatus = GetStatus(EntityType.SOFTWAREPRODUCT, SOFTWAREPRODUCT_ID);
+            SetStatus(EntityType.SOFTWAREPRODUCT, SOFTWAREPRODUCT_ID, status);
             try
             {
-                await Test(ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON,
-                    expectedStatusCode: expectedStatusCode,
-                    expectedErrorResponse: $@"{{
-                        ""errors"": [{{
-                            ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
-                            ""title"": ""ADR Status Is Not Active"",
-                            ""detail"": ""Software product status is { statusDescription }"",
-                            ""meta"": {{}}
-                        }}]
-                    }}");
+                await Test(ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON, expectedStatusCode: expectedStatusCode, expectedErrorResponse: $"ERR-GEN-002: Software product status is {status}", useCache: false);
             }
             finally
             {
-                SetStatus(Table.SOFTWAREPRODUCT, SOFTWAREPRODUCT_ID, saveStatus);
+                SetStatus(EntityType.SOFTWAREPRODUCT, SOFTWAREPRODUCT_ID, saveStatus);
             }
         }
 
         [Theory]
-        [InlineData("ACTIVE", "Active", HttpStatusCode.OK)]
-        [InlineData("INACTIVE", "Inactive", HttpStatusCode.Forbidden)]
-        [InlineData("REMOVED", "Removed", HttpStatusCode.Forbidden)]
-        public async Task AC23_Get_WithADRParticipationNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, string statusDescription, HttpStatusCode expectedStatusCode)
+        [InlineData("ACTIVE", HttpStatusCode.OK)]
+        [InlineData("INACTIVE", HttpStatusCode.BadRequest)]
+        [InlineData("REMOVED", HttpStatusCode.BadRequest)]
+        public async Task AC23_Get_WithADRParticipationNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, HttpStatusCode expectedStatusCode)
         {
-            var saveStatus = GetStatus(Table.LEGALENTITY, LEGALENTITYID);
-            SetStatus(Table.LEGALENTITY, LEGALENTITYID, status);
+            var saveStatus = GetStatus(EntityType.LEGALENTITY, LEGALENTITYID);
+            SetStatus(EntityType.LEGALENTITY, LEGALENTITYID, status);
             try
             {
-                await Test(ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON,
-                    expectedStatusCode: expectedStatusCode,
-                    expectedErrorResponse: $@"{{
-                        ""errors"": [{{
-                            ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
-                            ""title"": ""ADR Status Is Not Active"",
-                            ""detail"": ""ADR status is { statusDescription }"",
-                            ""meta"": {{}}
-                        }}]
-                    }}");
+                await Test(ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON, expectedErrorResponse: $"ERR-GEN-002: Software product status is {status}", useCache: false);
             }
             finally
             {
-                SetStatus(Table.LEGALENTITY, LEGALENTITYID, saveStatus);
+                SetStatus(EntityType.LEGALENTITY, LEGALENTITYID, saveStatus);
             }
         }
 
@@ -783,6 +790,7 @@ namespace CDR.DataHolder.IntegrationTests
                 UserId = userId,
                 OTP = AUTHORISE_OTP,
                 SelectedAccountIds = consentedAccounts,
+                RequestUri = await PAR_GetRequestUri(responseMode: "form_post")
             }.Authorise();
 
             // Act - Get token

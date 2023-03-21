@@ -28,7 +28,5 @@ namespace CDR.DataHolder.Repository.Entities
 		public Guid LegalEntityId { get; set; }
 
 		public LegalEntity LegalEntity { get; set; }
-
-		public virtual ICollection<SoftwareProduct> SoftwareProducts { get; set; }
 	}
 }

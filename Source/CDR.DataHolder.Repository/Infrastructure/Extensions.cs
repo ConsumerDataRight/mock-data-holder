@@ -16,34 +16,6 @@ namespace CDR.DataHolder.Repository.Infrastructure
         private static Regex datetimeMatchRegex = new Regex("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z", RegexOptions.Compiled);
 
         /// <summary>
-        /// Retrieves all participant metadata from the database, serialises to JSON and return as a string.
-        /// </summary>
-        public async static Task<string> GetJsonFromDatabase(
-            this DataHolderDatabaseContext databaseContext,
-            ILogger logger)
-        {
-            var regData = await databaseContext.LegalEntities.AsNoTracking().OrderBy(l => l.LegalEntityName)
-                .Include(prop => prop.Brands)
-                .ThenInclude(prop => prop.SoftwareProducts)
-				.ToListAsync();
-
-            var dhData = await databaseContext.Customers.AsNoTracking().OrderBy(c => c.CustomerId)
-                .Include(prop => prop.Person)
-                .Include(prop => prop.Organisation)
-                .Include(prop => prop.Accounts)
-                .ThenInclude(prop => prop.Transactions)
-                .ToListAsync();
-
-            var allData = new { Customers = dhData, LegalEntities = regData };
-
-            return JsonConvert.SerializeObject(allData, new JsonSerializerSettings()
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                NullValueHandling = NullValueHandling.Ignore,
-            });
-        }
-
-        /// <summary>
         /// This is the initial database seed. If there are records in the database, this will not re-seed the database
         /// </summary>
         public async static Task SeedDatabaseFromJsonFile(
@@ -117,11 +89,6 @@ namespace CDR.DataHolder.Repository.Infrastructure
                     dataHolderDatabaseContext.RemoveRange(existingOrgs);
                     dataHolderDatabaseContext.SaveChanges();
 
-                    // Remove all existing legal entity data in the system
-                    var legalEntities = await dataHolderDatabaseContext.LegalEntities.AsNoTracking().ToListAsync();
-                    dataHolderDatabaseContext.RemoveRange(legalEntities);
-                    dataHolderDatabaseContext.SaveChanges();
-
                     logger.LogInformation("Existing data removed from the repository.");
                     logger.LogInformation("Adding Seed data to repository...");
 
@@ -141,10 +108,8 @@ namespace CDR.DataHolder.Repository.Infrastructure
 
                     // Re-create all participants from the incoming JSON file.
                     var allData = JsonConvert.DeserializeObject<JObject>(json);
-                    var newCustomers = allData["Customers"].ToObject<Customer[]>();
-                    var newLegalEntities = allData["LegalEntities"].ToObject<LegalEntity[]>();
-                    dataHolderDatabaseContext.Customers.AddRange(newCustomers);
-                    dataHolderDatabaseContext.LegalEntities.AddRange(newLegalEntities);
+                    var newCustomers = allData["Customers"].ToObject<Customer[]>();                    
+                    dataHolderDatabaseContext.Customers.AddRange(newCustomers);                    
                     dataHolderDatabaseContext.SaveChanges();
 
                     // Finally commit the transaction

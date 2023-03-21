@@ -42,7 +42,29 @@ jobs:
     - name: Checkout Data Holder
       uses: actions/checkout@v2
       with:
-        path: ./mock-data-holder
+        path: ./mock-data-holder    
+    
+    - name: Checkout Authorisation Server (main)
+      if: ${{ github.ref == 'refs/heads/main' }}
+      uses: actions/checkout@v2
+      with:
+        repository: consumerdataright/authorisation-server
+        ref: github.ref
+        path: ./cdr-auth-server
+
+    - name: Checkout Authorisation Server (develop)
+      if: ${{ github.ref != 'refs/heads/main' }}
+      uses: actions/checkout@v2
+      with:
+        repository: consumerdataright/authorisation-server
+        ref: 'refs/heads/develop'
+        path: ./cdr-auth-server
+
+    #copy the authorisation-server code into dataholder
+    - name: Copy cdr-auth-server folder into sb-mock-data-holder
+      run: |
+        cp -r ${{ github.workspace }}/cdr-auth-server ${{ github.workspace }}/mock-data-holder/Source/cdr-auth-server
+    
 
     - name: Pull Mock Register Image (main)
       if: ${{ github.ref == 'refs/heads/main' }}
@@ -67,7 +89,7 @@ jobs:
     # Build mock-data-holder image
     - name: Build the mock-data-holder image
       run: |
-        docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile.for-testing --tag mock-data-holder:latest
+        docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile --tag mock-data-holder:latest
     # Build mock-data-holder-unit-tests image
     - name: Build the mock-data-holder-unit-tests image
       run: |

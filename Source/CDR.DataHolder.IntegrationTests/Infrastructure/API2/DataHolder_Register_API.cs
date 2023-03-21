@@ -36,7 +36,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                     { "iat", iat },
                     { "exp", exp },
                     { "jti", Guid.NewGuid().ToString() },
-                    // { "aud", $"{BaseTest.DH_MTLS_GATEWAY_URL}/connect/register" },
                     { "aud", BaseTest.REGISTRATION_AUDIENCE_URI },
 
                     // Get redirect_uris from SSA

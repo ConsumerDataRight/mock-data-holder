@@ -1,17 +1,9 @@
 ﻿using CDR.DataHolder.API.Infrastructure.Filters;
-using CDR.DataHolder.Domain.Entities;
-using CDR.DataHolder.Domain.Repositories;
 using CDR.DataHolder.Repository.Infrastructure;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Serilog.Context;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -21,19 +13,13 @@ namespace CDR.DataHolder.Manage.API.Controllers
     [Route("[controller]")]
     public class ManageController : ControllerBase
     {
-        private readonly IConfiguration _config;
         private readonly ILogger<ManageController> _logger;
-        private readonly IStatusRepository _statusRepository;
         private readonly DataHolderDatabaseContext _dbContext;
 
-        public ManageController(IConfiguration config,
-                                ILogger<ManageController> logger,
-                                DataHolderDatabaseContext dbContext,
-                                IStatusRepository statusRepository)
+        public ManageController(ILogger<ManageController> logger,
+                                DataHolderDatabaseContext dbContext)
         {
-            _config = config;
             _logger = logger;
-            _statusRepository = statusRepository;
             _dbContext = dbContext;
         }
 
@@ -57,88 +43,7 @@ namespace CDR.DataHolder.Manage.API.Controllers
 
             return Ok();
         }
-
-        [HttpGet]
-        [Route("Metadata")]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task GetData()
-        {
-            var metadata = await _dbContext.GetJsonFromDatabase(_logger);
-
-            // Return the raw JSON response.
-            Response.ContentType = "application/json";
-            await Response.BodyWriter.WriteAsync(System.Text.UTF8Encoding.UTF8.GetBytes(metadata));
-        }
-
-        [HttpGet]
-        [HttpPost]
-        [Route("refresh-dr-metadata")]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> RefreshDataRecipients()
-        {
-            // Call the Register to get the data recipients list.
-            var endpoint = _config["Register:GetDataRecipientsEndpoint"];
-            var data = await GetData(endpoint, 2);
-
-            // If data was retrieved, then update it in our repository.
-            if (!string.IsNullOrEmpty(data))
-            {
-                await _statusRepository.RefreshDataRecipients(data);
-
-                return Ok($"Data recipient records refreshed from {endpoint}.");
-            }
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Data recipient data could not be refreshed.");
-        }
-
-        [HttpGet]
-        [HttpPost]
-        [Route("refresh-dr-status")]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> RefreshDataRecipientStatus()
-        {
-            // Call the Register to get the data recipient status list.
-            var endpoint = _config["Register:GetDataRecipientStatusEndpoint"];
-            var data = await GetData<DataRecipientStatus>(endpoint, 1, "dataRecipients");
-
-            // If data was retrieved, then update it in our repository.
-            if (data != null && data.Any())
-            {
-                foreach (var status in data)
-                {
-                    await _statusRepository.UpdateDataRecipientStatus(status);
-                }
-
-                return Ok($"{data.Count()} data recipient status records refreshed from {endpoint}.");
-            }
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Data recipient status data could not be refreshed.");
-        }
-
-        [HttpGet]
-        [HttpPost]
-        [Route("refresh-sp-status")]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> RefreshSoftwareProductStatus()
-        {
-            // Call the Register to get the software product status list.
-            var endpoint = _config["Register:GetSoftwareProductsStatusEndpoint"];
-            var data = await GetData<SoftwareProductStatus>(endpoint, 1, "softwareProducts");
-
-            // If data was retrieved, then update it in our repository.
-            if (data != null && data.Any())
-            {
-                foreach (var status in data)
-                {
-                    await _statusRepository.UpdateSoftwareProductStatus(status);
-                }
-
-                return Ok($"{data.Count()} software product status records refreshed from {endpoint}.");
-            }
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Software product status data could not be refreshed.");
-        }
-
+                
         private async Task<string> GetData(string endpoint, int version)
         {
             using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
@@ -159,20 +64,7 @@ namespace CDR.DataHolder.Manage.API.Controllers
 
             return null;
         }
-
-        private async Task<IEnumerable<T>> GetData<T>(string endpoint, int version, string rootNode)
-        {
-            var json = await GetData(endpoint, version);
-
-            if (!string.IsNullOrEmpty(json))
-            {
-                var data = JsonConvert.DeserializeObject<JObject>(json);
-                return data[rootNode].ToObject<List<T>>();
-            }
-
-            return null;
-        }
-
+        
         private static HttpClient GetHttpClient()
         {
             var clientHandler = new HttpClientHandler();

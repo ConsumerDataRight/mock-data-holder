@@ -1,4 +1,7 @@
-﻿#if RELEASE
+﻿#undef DEPRECATED_REMOVAL_OF_IDENTITYSERVER_TESTS
+#if DEPRECATED_REMOVAL_OF_IDENTITYSERVER_TESTS
+
+#if RELEASE
 using System.IO;
 using Microsoft.Extensions.Configuration;
 #endif
@@ -33,3 +36,5 @@ namespace CDR.DataHolder.IntegrationTests
         }
     }
 }
+
+#endif

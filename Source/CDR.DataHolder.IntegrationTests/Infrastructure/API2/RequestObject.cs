@@ -7,14 +7,14 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 {
     public class RequestObject
     {
-        public int? SharingDuration { get; init; } = 7776000;
+        public int? SharingDuration { get; init; } = BaseTest.SHARING_DURATION;
         public long? IssuedAt { get; init; } = null;
         public long? Expiry { get; init; } = null;
         public long? NotBefore { get; init; } = null;
-        public string? ClientId { get; init; } = BaseTest.SOFTWAREPRODUCT_ID.ToLower();
+        public string? ClientId { get; init; } = BaseTest.GetClientId(BaseTest.SOFTWAREPRODUCT_ID).ToLower();
         public string? RedirectUri { get; init; } = BaseTest.SOFTWAREPRODUCT_REDIRECT_URI_FOR_INTEGRATION_TESTS;
         public string? Scope { get; init; } = BaseTest.SCOPE;
-        public string? Aud { get; init; } = BaseTest.DH_TLS_IDENTITYSERVER_BASE_URL;
+        public string? Aud { get; init; } = BaseTest.DH_TLS_AUTHSERVER_BASE_URL;
         public string? ResponseMode { get; init; } = "fragment";
         public string? JwtCertificateFilename { get; init; } = null;
         public string? JwtCertificatePassword { get; init; } = null;
@@ -27,15 +27,16 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 
             var requestObject = new Dictionary<string, object>
             {
-                { "iss", ClientId ?? BaseTest.SOFTWAREPRODUCT_ID.ToLower() },
+                { "iss", ClientId ?? BaseTest.GetClientId(BaseTest.SOFTWAREPRODUCT_ID).ToLower() },
                 { "iat", IssuedAt ?? new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() },
                 { "jti", Guid.NewGuid().ToString().Replace("-", string.Empty) },
                 { "response_type", "code id_token"},
+#nullable disable          
                 { "response_mode", ResponseMode},
-                { "client_id", ClientId ?? BaseTest.SOFTWAREPRODUCT_ID.ToLower() },
-                { "redirect_uri", BaseTest.SubstituteConstant(RedirectUri) },
-                { "code_challenge", CodeChallenge },
-                { "code_challenge_method", CodeChallengeMethod },
+#nullable enable              
+                
+                { "client_id", ClientId ?? BaseTest.GetClientId(BaseTest.SOFTWAREPRODUCT_ID).ToLower() },
+                { "redirect_uri", BaseTest.SubstituteConstant(RedirectUri) },                                
                 { "state", Guid.NewGuid().ToString() },
                 { "nonce", Guid.NewGuid().ToString() },
                 { "claims", new {
@@ -67,6 +68,16 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
             if (Aud != null)
             {
                 requestObject.Add("aud", Aud);
+            }
+
+            if (CodeChallenge != null)
+            {
+                requestObject.Add("code_challenge", CodeChallenge);
+            }
+            
+            if (CodeChallengeMethod != null)
+            {
+                requestObject.Add("code_challenge_method", CodeChallengeMethod);
             }
 
             var jwt = JWT2.CreateJWT(JwtCertificateFilename ?? BaseTest.JWT_CERTIFICATE_FILENAME, JwtCertificatePassword ?? BaseTest.JWT_CERTIFICATE_PASSWORD, requestObject);

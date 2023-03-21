@@ -1,106 +1,134 @@
-<h2>Use the pre-built image for this solution</h2>
+# Use the pre-built image
 
-<br />
-<p>1. Pull the latest image from <a href="https://hub.docker.com/r/consumerdataright/mock-data-holder" title="Download the from docker hub here" alt="Download the from docker hub here">Docker Hub</a></p>
+The Mock Data Holder image is available on [Docker Hub](https://hub.docker.com/r/consumerdataright/mock-data-holder).
 
-<span style="display:inline-block;margin-left:1em;">
-	docker pull consumerdataright/mock-data-holder
-</span>
+There are a number of ways that this image can be used.
 
-<br />
-<p>2. Run the Mock Data Holder container</p>
+## Pull the Mock Data Holder image from Docker Hub
 
-<span style="display:inline-block;margin-left:1em;">
-	docker run -d -h mock-data-holder -p 8000:8000 -p 8001:8001 -p 8002:8002 -p 8005:8005 --add-host=host.docker.internal:host-gateway --name mock-data-holder consumerdataright/mock-data-holder
-	docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Pa{}w0rd2019" -p 1433:1433 --name sql1 -h sql1 -d mcr.microsoft.com/mssql/server:2019-latest
-	<br \><br \>
-	Please note - This docker compose file utilises the Microsoft SQL Server Image from Docker Hub.<br \>
-	The Microsoft EULA for the Microsoft SQL Server Image must be accepted to continue.<br \>
-	See the Microsoft SQL Server Image on Docker Hub for more information.<br \>
-	Using the above command from a MS Windows command prompt will run the database.<br \>
-</span>
+Run the following command to pull the latest image from Docker Hub:
 
-<br />
-<p>3. Use the docker compose file to run a multi-container mock CDR Ecosystem.</p>
+```
+docker pull consumerdataright/mock-data-holder
+```
 
-<span style="display:inline-block;margin-left:1em;">
-	The <a href="../../Source/DockerCompose/docker-compose.yml" title="/DockerCompose/docker-compose.yml" alt="Use the docker compose file located here - /DockerCompose/docker-compose.yml">docker compose file</a> can be used to run multiple containers from the Mock CDR Ecosystem, by starting the <a href="https://hub.docker.com/editions/community/docker-ce-desktop-windows" title="Docker Desktop for Windows" alt="Docker Desktop for Windows">docker desktop</a>
-	 (if using a non MS Windows environment, you will need to add this route to the network), this will be added to your hosts file and is used for inter container connectivity via your host IP Address, eg C:\Windows\System32\drivers\etc\hosts
-</span>
+You can also pull a specific image by supplying a tag, such as the name of the branch ("main" or "develop") or a release number:
 
-<br />
+```
+# Pull the image from the main branch
+docker pull consumerdataright/mock-data-holder:main
 
-<span style="display:inline-block;margin-left:1em;">
-	###.###.###.### host.docker.internal
-</span>
+# Pull the 0.5.0 version of the image
+docker pull consumerdataright/mock-data-holder:0.5.0
+```
 
-<br />
+## Run a multi-container Mock CDR Ecosystem
 
-[<img src="./images/docker-desktop.png" height='300' width='625' alt="MS Docker Desktop"/>](./images/docker-desktop.png)
+Multiple containers can be run concurrently to simulate a CDR ecosystem.  The [Mock Register](https://github.com/ConsumerDataRight/mock-register), [Mock Data Holder](https://github.com/ConsumerDataRight/mock-data-holder), [Mock Data Holder Energy](https://github.com/ConsumerDataRight/mock-data-holder-energy) and [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient) containers can be run by using the `docker-compose.yml` file.
 
-<p>4. Execute the <a href="../../Source/DockerCompose/docker-compose.yml" title="/DockerCompose/docker-compose.yml" alt="Use the docker compose file located here - /DockerCompose/docker-compose.yml">docker compose file</a>, the default configuration is to run all mock solutions and executing the comand below will run all the solutions.
-</p>
+The Mock CDR Ecosystem relies on SQL Server for data persistence so the container has a dependency on the SQL Server container image provided by Microsoft.
 
-<span style="display:inline-block;margin-left:1em;margin-bottom:10px;">
-	docker-compose up
-</span>
-<br />
-<br />
+In order to run the Mock CDR Ecosystem and related SQL Server instance, use the provided `docker-compose.yml` file.
 
-<span style="display:inline-block;margin-left:1em;margin-bottom:16px;">
-	Please note - This docker compose file utilises the Microsoft SQL Server Image from Docker Hub.<br \>
-	The Microsoft EULA for the Microsoft SQL Server Image must be accepted to continue.<br \>
-	Replace this unset ACCEPT_MSSQL_EULA variable with a Y if you accept the EULA. eg ACCEPT_EULA=Y<br \>
-	See the Microsoft SQL Server Image on Docker Hub for more information.<br \>
-</span>
+```
+# Navigate to the Source directory where the docker-compose.yml file is located.
+cd .\Source\DockerCompose
 
-[<img src="./images/containers-running.png" height='300' width='625' alt="Containers Running"/>](./images/containers-running.png)
+# Run the Mock CDR Ecosystem and SQL Server containers.
+docker-compose up -d
 
-<span style="display:inline-block;margin-left:1em;margin-top:10px">
-	Should you wish to switch out your own solution, remark the relevant code out of this file.<br \>
-	In this example we will be simulating the switching out of our Mock Data Recipient, we are using the<br \>
-	database connection string Server=host.docker.internal and the endpoints shown below to<br \>
-	connect to the running containers, this will result in the Mock Data Recipient running in MS Visual Studio,<br \>
-	connected to the Mock Register and the Mock Data Holder running in docker.<br \>
-	For details on how to run a Mock solution in MS Visual Studio 
-	see <a href="../debugging/HELP.md" title="Debug Help Guide" alt="View the Debug Help Guide.">help guide</a>
-</span>
-<br />
-<br />
+# When finished, stop the containers.
+docker-compose down
+```
+### Note: EULA for SQL Server
+The `docker-compose.yml` file utilises the Microsoft SQL Server Image from Docker Hub. The Microsoft EULA for the Microsoft SQL Server Image must be accepted to continue.
+Set the `ACCEPT_EULA` environment variable to `Y` within the `docker-compose.yml` if you accept the EULA.
+See the [Microsoft SQL Server Image](https://hub.docker.com/_/microsoft-mssql-server) on Docker Hub for more information.
 
-[<img src="./images/mdr-switch-out-settings.png" height='300' width='625' alt="Mock Data Recipient switched out settings"/>](./images/mdr-switch-out-settings.png)
+Example of accepting the `ACCEPT_EULA` environment variable of the SQL Server container.
+```
+  mssql:
+    container_name: sql1
+    image: 'mcr.microsoft.com/mssql/server:2019-latest'
+    ports:
+      - '1433:1433'
+    environment:
+      - ACCEPT_EULA=Y
+```
 
-<span style="display:inline-block;margin-left:1em;margin-top:10px;margin-bottom:10px;">
-	How to build your own image instead of downloading it from docker hub.<br \>
-	navigate to .\mock-data-holder\Source<br \>
-	open a command prompt and execute the following;<br \>
-	docker build -f Dockerfile.container -t mock-data-holder .<br \>
-	docker run -d -h mdh-host -p 8000:8000 -p 8001:8001 -p 8002:8002 -p 8005:8005 --add-host=host.docker.internal:host-gateway --name mock-data-holder mock-data-holder<br \><br \>
-	Please note - By default, the container above will be using a MS SQL database container, using this command from a MS Windows command prompt will run the database,<br \> 
-	docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Pa{}w0rd2019" -p 1433:1433 --name sql1 -h sql1 -d mcr.microsoft.com/mssql/server:2019-latest
-</span>
+### Note: Mock host names
 
-<span style="display:inline-block;margin-left:1em;margin-top:10px;margin-bottom:10px;">
-	You can connect to the MS SQL database container from MS Sql Server Management Studio (SSMS) using
-	the following settings; <br />
-	Server type: Database Engine <br />
-	Server name: localhost <br />
-	Authentication: SQL Server Authentication <br />
-	Login: sa <br />
-	Password: Pa{}w0rd2019 <br />
-</span>
-<br />
+Each Mock solution has a default host name, as per below:
 
-[<img src="./images/ssms-login-error.png" height='300' width='400' alt="SSMS Login Error"/>](./images/ssms-login-error.png)
+| Mock solution           | Default host name       |
+|-------------------------|-------------------------|
+| Mock Register           | mock-register           |
+| Mock Data Holder        | mock-data-holder        |
+| Mock Data Holder Energy | mock-data-holder-energy |
+| Mock Data Recipient     | mock-data-recipient     |
 
-<p>
-	(NB: if the above error occurs whilst trying to connect to the MS SQL container, the SQL Server Service MUST BE STOPPED, you can do this from SQL Server Manager)
-</p>
+To resolve these host names, each of these host names can be registered in the local machine's `hosts` file (located in C:\Windows\System32\drivers\etc\).
 
-<p>5. The running solution</p>
+```
+127.0.0.1   mock-register
+127.0.0.1   mock-data-holder
+127.0.0.1   mock-data-holder-energy
+127.0.0.1   mock-data-recipient
+127.0.0.1   mssql
+```
 
-<span style="display:inline-block;margin-left:1em;margin-bottom:1em;">
-	Our switched out Mock Data Recipient solution will now be running.
-</span>
+### Switching out a container in the multi-container Mock CDR Ecosystem with your own solution
 
-[<img src="./images/mdr-switch-out-running.png" height='300' width='625' alt="The Mock Data Recipient solution"/>](./images/mdr-switch-out-running.png)
+You can switch out one of the mock solutions running in the multi-container Mock CDR Ecosystem with a mock solution running in MS Visual Studio or with your own solution.
+
+Within the `docker-compose.yml` file, comment out the solution that you do not want to be started. E.g. The Mock Data Recipient:
+
+[<img src="./images/mdr-switch-out-compose-comment.png" width='625' alt="Compose file with MDR commented out."/>](./images/mdr-switch-out-compose-comment.png)
+
+Start the Mock CDR Ecosystem using the docker compose file.
+```
+# Run the Mock CDR Ecosystem containers.
+docker-compose -f docker-compose.yml up -d
+```
+
+In this example we will be switching out our Mock Data Recipient. 
+Clone the [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient) repository from GitHub and open the solution in MS Visual Studio.  
+
+Build and run the Mock Data Recipient in MS Visual Studio. Our switched out Mock Data Recipient solution will now be running. This will result in the Mock Data Recipient running in MS Visual Studio, connected to the Mock Register and the Mock Data Holders running in docker.
+
+[<img src="./images/mdr-switch-out-running.png" width='625' alt="The Mock Data Recipient solution"/>](./images/mdr-switch-out-running.png)
+
+For more details on how to run a mock solution in MS Visual Studio see [help guide](../debugging/HELP.md).
+
+## Build your own Mock Data Holder docker image
+A Mock Data Holder Docker image can also be built and run as a Docker container using your local source code.
+To build this image, you will also need to clone the [Authorisation Server](https://github.com/ConsumerDataRight/authorisation-server) repository from GitHub.
+
+A PowerShell script is available in the Source directory that can be executed in PowerShell with the command below.
+```
+.\copy-cdr-auth-server.ps1
+```
+Build the new docker image.
+```
+docker build -f Dockerfile -t mock-data-holder .
+```
+Run the SQL Server image.
+```
+docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Pa{}w0rd2019" -p 1433:1433 --name sql1 -h sql1 -d mcr.microsoft.com/mssql/server:2019-latest
+```
+Run the new docker image.
+```
+docker run -d -h mock-data-holder -p 8000:8000 -p 8001:8001 -p 8002:8002 -p 8005:8005 -p 3000:3000 --add-host=mssql:host-gateway --name mock-data-holder mock-data-holder
+```
+### Connecting to the MS SQL database container
+You can connect to the MS SQL database container from MS SQL Server Management Studio (SSMS) using the following settings:
+```
+Server type: Database Engine
+Server name: mssql 
+Authentication: SQL Server Authentication 
+Login: sa 
+Password: Pa{}w0rd2019 
+```
+
+## Host on your own infrastructure
+The mock solutions can also be hosted on your own infrastructure, such as virtual machines or kubernetes clusters, in your private data centre or in the public cloud. 

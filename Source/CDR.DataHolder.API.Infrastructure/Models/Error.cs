@@ -194,13 +194,13 @@ namespace CDR.DataHolder.API.Infrastructure.Models
             };
         }
 
-        public static Error UnsupportedXVVersion()
+        public static Error UnsupportedXVVersion(int minVersion = 1, int maxVersion = 1)
         {
             return new Error()
             {
                 Code = "urn:au-cds:error:cds-all:Header/UnsupportedVersion",
                 Title = "Unsupported Version",
-                Detail = "The minimum supported version is 1. The maximum supported version is 1.",
+                Detail = $"The minimum supported version is {minVersion}. The maximum supported version is {maxVersion}.",
                 Meta = new object()
             };
         }

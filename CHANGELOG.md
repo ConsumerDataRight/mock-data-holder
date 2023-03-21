@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2023-02-16
+### Added
+- The Mock Data Holder now utilises the [Authorisation Server](https://github.com/ConsumerDataRight/authorisation-server) as the Identity Provider
+
+### Changed 
+- Updated to be compliant with FAPI 1.0 phase 3
+- Removed Identity Server 4 project
+- Removed Get Data Recipients Azure Function
+
 ## [1.1.1] - 2022-10-19
 ### Fixed
 - Fix for Content-Type check in JwtInputFormatter used in DCR

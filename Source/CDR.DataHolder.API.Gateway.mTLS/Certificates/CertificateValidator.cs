@@ -12,7 +12,6 @@ namespace CDR.DataHolder.API.Gateway.mTLS.Certificates
     /// </summary>
     public class CertificateValidator : ICertificateValidator
     {
-        private const string ROOT_CA_SUBJECT = "CN=Mock CDR CA, OU=CDR, O=ACCC, L=Canberra, S=ACT, C=AU";
         private readonly ILogger<CertificateValidator> _logger;
         private readonly IConfiguration _config;
 

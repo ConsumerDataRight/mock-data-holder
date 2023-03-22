@@ -16,7 +16,6 @@ namespace CDR.DataHolder.IntegrationTests.Fixtures
 
         public DataHolder_AccessToken_Cache DataHolder_AccessToken_Cache { get; } = new();
 
-        // public async Task InitializeAsync()
         public Task InitializeAsync()
         {
             // Patch Register

@@ -1,0 +1,87 @@
+{
+  "data": {
+    "requestTime": "#{requestTime}",
+    "availability": {
+      "currentMonth": 1.0,
+      "previousMonths": [ 1.0, 1.0, 0.99, 1.0, 1.0, 0.98, 0.99, 0.99, 1.0, 0.98, 1.0, 1.0 ]
+    },
+    "performance": {
+      "currentDay": 0.99,
+      "previousDays": [ 0.995, 0.99, 1.0, 1.0, 1.0, 1.0, 0.99 ]
+    },
+    "invocations": {
+      "unauthenticated": {
+        "currentDay": 100,
+        "previousDays": [ 70, 80, 90, 100, 90, 80, 99 ]
+      },
+      "highPriority": {
+        "currentDay": 500,
+        "previousDays": [ 444, 333, 222, 111, 590, 399, 445 ]
+      },
+      "lowPriority": {
+        "currentDay": 1000,
+        "previousDays": [ 900, 1111, 1433, 1322, 999, 750, 600 ]
+      },
+      "unattended": {
+        "currentDay": 0,
+        "previousDays": [ 0, 3, 3, 2, 2, 1, 1 ]
+      },
+      "largePayload": {
+        "currentDay": 0,
+        "previousDays": [ 0, 1, 1, 2, 2, 3, 3 ]
+      }
+    },
+    "averageResponse": {
+      "unauthenticated": {
+        "currentDay": 0,
+        "previousDays": [ 0, 0, 0, 0, 0, 0, 0 ]
+      },
+      "highPriority": {
+        "currentDay": 1.25,
+        "previousDays": [ 1.25, 1.35, 1.45, 1.55, 1.45, 1.35, 1.25 ]
+      },
+      "lowPriority": {
+        "currentDay": 1.75,
+        "previousDays": [ 1.75, 1.85, 1.95, 2.1, 1.95, 1.85, 1.75 ]
+      },
+      "unattended": {
+        "currentDay": 0,
+        "previousDays": [ 0, 0, 0, 0, 0, 0, 0 ]
+      },
+      "largePayload": {
+        "currentDay": 0,
+        "previousDays": [ 0, 0, 0, 0, 0, 0, 0 ]
+      }
+    },
+    "sessionCount": {
+      "currentDay": 100,
+      "previousDays": [ 50, 120, 80, 110, 90, 105, 95 ]
+    },
+    "averageTps": {
+      "currentDay": 0.9,
+      "previousDays": [ 1.2, 0.9, 1.1, 1.0, 1.3, 1.0, 0.9 ]
+    },
+    "peakTps": {
+      "currentDay": 20,
+      "previousDays": [ 10, 10, 15, 25, 40, 30, 25 ]
+    },
+    "errors": {
+      "currentDay": 0,
+      "previousDays": [ 5, 10, 5, 10, 5, 10, 0 ]
+    },
+    "rejections": {
+      "authenticated": {
+        "currentDay": 1,
+        "previousDays": [ 1, 1, 1, 1, 2, 2, 3 ]
+      },
+      "unauthenticated": {
+        "currentDay": 0,
+        "previousDays": [ 0, 0, 0, 0, 0, 0, 0 ]
+      }
+    },
+    "customerCount": 1000,
+    "recipientCount": 10
+  },
+  "links": { "self": "#{self}" },
+  "meta": {}
+}

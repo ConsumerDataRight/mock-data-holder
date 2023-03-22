@@ -119,7 +119,7 @@ namespace CDR.DataHolder.API.Logger
                 _requestQueryString = context.Request.QueryString.ToString();
                 _requestPathBase = context.Request.PathBase.ToString();
 
-                IEnumerable<string> keyValues = context.Request.Headers.Keys.Select(key => key + ": " + string.Join(",", context.Request.Headers[key]));
+                IEnumerable<string> keyValues = context.Request.Headers.Keys.Select(key => key + ": " + string.Join(",", context.Request.Headers[key].ToArray()));
                 _requestHeaders = string.Join(Environment.NewLine, keyValues);
 
                 ExtractIdFromRequest(context.Request);
@@ -130,17 +130,17 @@ namespace CDR.DataHolder.API.Logger
             }
         }
 
-        class ClaimIdentifiers
+        static class ClaimIdentifiers
         {
             public const string ClientId = "client_id";
             public const string SoftwareId = "software_id";
             public const string Iss = "iss";
         }
 
-        void SetIdFromJwt(string jwt, string identifierType, ref string idToSet)
+        private static void SetIdFromJwt(string jwt, string identifierType, ref string idToSet)
         {
             var handler = new JwtSecurityTokenHandler();
-            if (handler.CanReadToken(jwt) == true)
+            if (handler.CanReadToken(jwt))
             {
                 var decodedJwt = handler.ReadJwtToken(jwt);
                 var id = decodedJwt.Claims.FirstOrDefault(x => x.Type == identifierType)?.Value ?? "";
@@ -162,7 +162,7 @@ namespace CDR.DataHolder.API.Logger
 
                 //try fetching from the JWT in the authorization header
                 var authorization = request.Headers[HeaderNames.Authorization];
-                if (AuthenticationHeaderValue.TryParse(authorization, out var headerValue) && string.IsNullOrEmpty(_clientId) == true)
+                if (AuthenticationHeaderValue.TryParse(authorization, out var headerValue) && string.IsNullOrEmpty(_clientId))
                 {
                     var scheme = headerValue.Scheme;
                     var parameter = headerValue.Parameter;
@@ -175,7 +175,7 @@ namespace CDR.DataHolder.API.Logger
                 }
 
                 //try fetching from the clientid in the body for connect/par
-                if (string.IsNullOrEmpty(_requestBody) == false && _requestBody.Contains("client_assertion=") == true && string.IsNullOrEmpty(_clientId) == true)
+                if (!string.IsNullOrEmpty(_requestBody) && _requestBody.Contains("client_assertion=") && string.IsNullOrEmpty(_clientId))
                 {
                     var nameValueCollection = HttpUtility.ParseQueryString(_requestBody);
                     if (nameValueCollection != null)
@@ -193,10 +193,10 @@ namespace CDR.DataHolder.API.Logger
                 }
 
                 //try fetching from the clientid in the body account/login, /consent, /token
-                if (string.IsNullOrEmpty(_requestBody) == false && _requestBody.Contains(ClaimIdentifiers.ClientId) == true && string.IsNullOrEmpty(_clientId) == true)
+                if (!string.IsNullOrEmpty(_requestBody) && _requestBody.Contains(ClaimIdentifiers.ClientId) && string.IsNullOrEmpty(_clientId))
                 {
                     var decodedBody = HttpUtility.UrlDecode(_requestBody);
-                    if (decodedBody.StartsWith("ReturnUrl=/connect/authorize/callback") == true)
+                    if (decodedBody.StartsWith("ReturnUrl=/connect/authorize/callback"))
                     {
                         var queryString = decodedBody["ReturnUrl=/connect/authorize/callback".Length..];
                         var nameValueCollection = HttpUtility.ParseQueryString(queryString);
@@ -208,7 +208,7 @@ namespace CDR.DataHolder.API.Logger
                     }
 
                     var parameterCollection = HttpUtility.ParseQueryString(decodedBody);
-                    if (parameterCollection != null && string.IsNullOrEmpty(_clientId) == true)
+                    if (parameterCollection != null && string.IsNullOrEmpty(_clientId))
                     {
                         _clientId = parameterCollection[ClaimIdentifiers.ClientId];
                         return;
@@ -235,7 +235,7 @@ namespace CDR.DataHolder.API.Logger
                 }
 
                 //try fetching from query string, this should be the last place to check for client id.
-                if (request.QueryString.Value?.Contains(ClaimIdentifiers.ClientId) == true && string.IsNullOrEmpty(_clientId) == true)
+                if (request.QueryString.Value?.Contains(ClaimIdentifiers.ClientId) == true && string.IsNullOrEmpty(_clientId))
                 {
                     var nameValueCollection = HttpUtility.ParseQueryString(request.QueryString.Value);
                     if (nameValueCollection != null)
@@ -304,7 +304,7 @@ namespace CDR.DataHolder.API.Logger
                 _responseBody = await new StreamReader(responseBody).ReadToEndAsync();
                 responseBody.Seek(0, SeekOrigin.Begin);
 
-                IEnumerable<string> keyValues = httpContext.Response.Headers.Keys.Select(key => key + ": " + string.Join(",", httpContext.Response.Headers[key]));
+                IEnumerable<string> keyValues = httpContext.Response.Headers.Keys.Select(key => key + ": " + string.Join(",", httpContext.Response.Headers[key].ToArray()));
                 _responseHeaders = string.Join(System.Environment.NewLine, keyValues);
 
                 _statusCode = httpContext.Response.StatusCode.ToString();

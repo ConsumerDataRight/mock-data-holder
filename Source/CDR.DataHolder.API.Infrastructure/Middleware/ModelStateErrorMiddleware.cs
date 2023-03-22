@@ -1,14 +1,11 @@
 ﻿using System.Linq;
-using System.Net;
 using CDR.DataHolder.API.Infrastructure.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace CDR.DataHolder.API.Infrastructure.Middleware
 {
 
-	public static class ModelStateErrorMiddleware
+    public static class ModelStateErrorMiddleware
     {
         public static IActionResult ExecuteResult(ActionContext context)
         {

@@ -1,6 +1,10 @@
 # Dockerfile for running integration tests
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+# FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+
+# NB: Ensure playwright version used in CDR.SandboxManagement.E2ETests and base image below are same (ie currently 1.28.0)
+FROM mcr.microsoft.com/playwright/dotnet:v1.28.0-focal as build
+
 WORKDIR /src
 EXPOSE 9999
 EXPOSE 9998
@@ -26,3 +30,4 @@ WORKDIR /src/CDR.DataHolder.IntegrationTests
 RUN dotnet build --configuration Release
 
 ENTRYPOINT ["dotnet", "test", "--configuration", "Release", "--no-build", "--logger", "trx;verbosity=detailed;LogFileName=results.trx", "-r", "/testresults"]
+# ENTRYPOINT ["dotnet", "test", "--configuration", "Release", "--no-build", "--filter", "AC01_ShouldRespondWith_200OK_Customers", "--logger", "trx;verbosity=detailed;LogFileName=results.trx", "-r", "/testresults"]

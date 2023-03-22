@@ -31,27 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.DataHolder.Admin.API", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.DataHolder.API.Infrastructure", "CDR.DataHolder.API.Infrastructure\CDR.DataHolder.API.Infrastructure.csproj", "{20E862F1-3BE0-44D4-8511-D9D1034612E9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "030 Identity Server", "030 Identity Server", "{19D02700-0BE6-43C4-8479-3C045387D05C}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.DataHolder.IdentityServer", "CDR.DataHolder.IdentityServer\CDR.DataHolder.IdentityServer.csproj", "{9BADD27B-0ED4-4FCF-BCE1-39AC9FB6CB43}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.DataHolder.IdentityServer.UnitTests", "CDR.DataHolder.IdentityServer.UnitTests\CDR.DataHolder.IdentityServer.UnitTests.csproj", "{EAF85015-206D-4498-AAFA-1C651C074435}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{ECEDD876-2FD3-4A25-874A-8264FCF3C513}"
-	ProjectSection(SolutionItems) = preProject
-		.dockerignore = .dockerignore
-		docker-compose.IntegrationTests.yml = docker-compose.IntegrationTests.yml
-		docker-compose.UnitTests.yml = docker-compose.UnitTests.yml
-		docker-compose.yml = docker-compose.yml
-		Dockerfile = Dockerfile
-		Dockerfile.container = Dockerfile.container
-		Dockerfile.integration-tests = Dockerfile.integration-tests
-		Dockerfile.unit-tests = Dockerfile.unit-tests
-		README.md = README.md
-		run-integration-tests.ps1 = run-integration-tests.ps1
-		run-unit-tests.ps1 = run-unit-tests.ps1
-		supervisord.conf = supervisord.conf
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.DataHolder.API.Infrastructure.UnitTests", "CDR.DataHolder.API.Infrastructure.UnitTests\CDR.DataHolder.API.Infrastructure.UnitTests.csproj", "{0D93D9DF-40BE-41EC-B9FD-4A6B0A37BDF5}"
 EndProject
@@ -61,13 +41,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.DataHolder.Resource.API
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.DataHolder.IntegrationTests", "CDR.DataHolder.IntegrationTests\CDR.DataHolder.IntegrationTests.csproj", "{594639B6-050B-433E-8686-19EAA83230AC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.GetDataRecipients", "CDR.GetDataRecipients\CDR.GetDataRecipients.csproj", "{D333CBF2-8B13-4123-9761-F2D1825D7B19}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "070 Functions", "070 Functions", "{FE6797E5-74EB-411B-9517-4862E5C0FA4B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.GetDataRecipients.IntegrationTests", "CDR.GetDataRecipients.IntegrationTests\CDR.GetDataRecipients.IntegrationTests.csproj", "{E2AC9628-B7E0-4FFA-A218-544770C8D4E4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDR.DataHolder.API.Logger", "CDR.DataHolder.API.Logger\CDR.DataHolder.API.Logger.csproj", "{CA30C6CF-B5A2-401A-B0E4-2015F86058D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.DataHolder.API.Logger", "CDR.DataHolder.API.Logger\CDR.DataHolder.API.Logger.csproj", "{CA30C6CF-B5A2-401A-B0E4-2015F86058D8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -107,14 +81,6 @@ Global
 		{20E862F1-3BE0-44D4-8511-D9D1034612E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20E862F1-3BE0-44D4-8511-D9D1034612E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20E862F1-3BE0-44D4-8511-D9D1034612E9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9BADD27B-0ED4-4FCF-BCE1-39AC9FB6CB43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9BADD27B-0ED4-4FCF-BCE1-39AC9FB6CB43}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9BADD27B-0ED4-4FCF-BCE1-39AC9FB6CB43}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9BADD27B-0ED4-4FCF-BCE1-39AC9FB6CB43}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EAF85015-206D-4498-AAFA-1C651C074435}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EAF85015-206D-4498-AAFA-1C651C074435}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EAF85015-206D-4498-AAFA-1C651C074435}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EAF85015-206D-4498-AAFA-1C651C074435}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0D93D9DF-40BE-41EC-B9FD-4A6B0A37BDF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0D93D9DF-40BE-41EC-B9FD-4A6B0A37BDF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D93D9DF-40BE-41EC-B9FD-4A6B0A37BDF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -127,14 +93,6 @@ Global
 		{594639B6-050B-433E-8686-19EAA83230AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{594639B6-050B-433E-8686-19EAA83230AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{594639B6-050B-433E-8686-19EAA83230AC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D333CBF2-8B13-4123-9761-F2D1825D7B19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D333CBF2-8B13-4123-9761-F2D1825D7B19}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D333CBF2-8B13-4123-9761-F2D1825D7B19}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D333CBF2-8B13-4123-9761-F2D1825D7B19}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E2AC9628-B7E0-4FFA-A218-544770C8D4E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E2AC9628-B7E0-4FFA-A218-544770C8D4E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E2AC9628-B7E0-4FFA-A218-544770C8D4E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E2AC9628-B7E0-4FFA-A218-544770C8D4E4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CA30C6CF-B5A2-401A-B0E4-2015F86058D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CA30C6CF-B5A2-401A-B0E4-2015F86058D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA30C6CF-B5A2-401A-B0E4-2015F86058D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -152,14 +110,10 @@ Global
 		{9E4B01D9-74A5-443F-9639-F322AFAA3537} = {D6C17AA4-5B6D-4E80-8118-835DEFF97C17}
 		{4962F6F4-4DDC-4559-8399-CE20E5E07875} = {D6C17AA4-5B6D-4E80-8118-835DEFF97C17}
 		{20E862F1-3BE0-44D4-8511-D9D1034612E9} = {4B38DDC0-9F63-4B9B-84A2-C97B40EA2D23}
-		{9BADD27B-0ED4-4FCF-BCE1-39AC9FB6CB43} = {19D02700-0BE6-43C4-8479-3C045387D05C}
-		{EAF85015-206D-4498-AAFA-1C651C074435} = {19D02700-0BE6-43C4-8479-3C045387D05C}
 		{0D93D9DF-40BE-41EC-B9FD-4A6B0A37BDF5} = {4B38DDC0-9F63-4B9B-84A2-C97B40EA2D23}
 		{8EAABA54-71FF-4D68-BDF9-6753989DA976} = {D6C17AA4-5B6D-4E80-8118-835DEFF97C17}
 		{09D871DE-970E-439B-BE6E-B2FCFC7C6604} = {8EAABA54-71FF-4D68-BDF9-6753989DA976}
 		{594639B6-050B-433E-8686-19EAA83230AC} = {334094B2-2055-4954-9953-F731DC8C857F}
-		{D333CBF2-8B13-4123-9761-F2D1825D7B19} = {FE6797E5-74EB-411B-9517-4862E5C0FA4B}
-		{E2AC9628-B7E0-4FFA-A218-544770C8D4E4} = {334094B2-2055-4954-9953-F731DC8C857F}
 		{CA30C6CF-B5A2-401A-B0E4-2015F86058D8} = {4B38DDC0-9F63-4B9B-84A2-C97B40EA2D23}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

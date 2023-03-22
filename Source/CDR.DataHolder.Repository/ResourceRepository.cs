@@ -48,11 +48,29 @@ namespace CDR.DataHolder.Repository
 		public async Task<Customer> GetCustomerByLoginId(string loginId)
 		{
 			var customer = await _dataHolderDatabaseContext.Customers.AsNoTracking()
-				.FirstOrDefaultAsync(customer => customer.LoginId == loginId);
-			return _mapper.Map<Customer>(customer);
-		}
+                .Include(p => p.Person)
+                .Include(o => o.Organisation)
+                .FirstOrDefaultAsync(customer => customer.LoginId == loginId);
 
-		public async Task<Page<Account[]>> GetAllAccounts(AccountFilter filter, int page, int pageSize)
+            if (customer == null)
+            {
+                return null;
+            }
+
+            switch (customer.CustomerUType.ToLower())
+            {
+                case "organisation":
+                    return _mapper.Map<Organisation>(customer);
+
+                case "person":
+                    return _mapper.Map<Person>(customer);
+
+                default:
+                    return null;
+            }
+		}
+		
+        public async Task<Page<Account[]>> GetAllAccounts(AccountFilter filter, int page, int pageSize)
 		{
 			var result = new Page<Account[]>()
 			{
@@ -77,8 +95,7 @@ namespace CDR.DataHolder.Repository
 			IQueryable<Entities.Account> accountsQuery = _dataHolderDatabaseContext.Accounts.AsNoTracking()
 				.Include(account => account.Customer)
 				.Where(account =>
-					filter.AllowedAccountIds.Contains(account.AccountId)	
-					&& account.Customer.CustomerId == filter.CustomerId);
+					filter.AllowedAccountIds.Contains(account.AccountId));
 
 			// Apply filters.
 			if (!string.IsNullOrEmpty(filter.OpenStatus))
@@ -108,12 +125,11 @@ namespace CDR.DataHolder.Repository
 		/// <summary>
 		/// Check that the customer can access the given accounts.
 		/// </summary>
-		/// <param name="accountId">Account ID</param>
-		/// <param name="customerId">Customer ID</param>
+		/// <param name="accountId">Account ID is primary key</param>		
 		/// <returns>True if the customer can access the account, otherwise false.</returns>
-		public async Task<bool> CanAccessAccount(string accountId, Guid customerId)
+		public async Task<bool> CanAccessAccount(string accountId)
 		{
-			return await _dataHolderDatabaseContext.Accounts.AnyAsync(a => a.AccountId == accountId && a.CustomerId == customerId);
+			return await _dataHolderDatabaseContext.Accounts.AnyAsync(a => a.AccountId == accountId);
 		}
 
 		/// <summary>
@@ -143,11 +159,11 @@ namespace CDR.DataHolder.Repository
 			};
 
             IQueryable<Entities.Transaction> accountTransactionsQuery = _dataHolderDatabaseContext
-                            .Transactions.Include(x => x.Account).ThenInclude(x => x.Customer).AsNoTracking()
-                    .Where(t => t.AccountId == transactionsFilter.AccountId && t.Account.CustomerId == transactionsFilter.CustomerId)
-					// Oldest/Newest Time
-					//Newest
-					.WhereIf(transactionsFilter.NewestTime.HasValue,
+                            .Transactions.Include(x => x.Account).ThenInclude(x => x.Customer).AsNoTracking()                    
+                    .Where(t => t.AccountId == transactionsFilter.AccountId)
+                    // Oldest/Newest Time
+                    //Newest
+                    .WhereIf(transactionsFilter.NewestTime.HasValue,
 							 t => (t.PostingDateTime ?? t.ExecutionDateTime) <= transactionsFilter.NewestTime)
 					//Oldest
 					.WhereIf(transactionsFilter.OldestTime.HasValue,

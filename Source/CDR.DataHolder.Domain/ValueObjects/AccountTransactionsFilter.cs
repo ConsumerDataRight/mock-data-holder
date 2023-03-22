@@ -14,8 +14,6 @@ namespace CDR.DataHolder.Domain.ValueObjects
 
         public decimal? MaxAmount { get; set; }
 
-        public string Text { get; set; }
-
-        public Guid CustomerId { get; set; }
+        public string Text { get; set; }        
     }
 }

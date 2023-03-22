@@ -13,6 +13,10 @@ using CDR.DataHolder.Repository.Infrastructure;
 using CDR.DataHolder.IntegrationTests.Extensions;
 using CDR.DataHolder.API.Infrastructure.IdPermanence;
 using CDR.DataHolder.IntegrationTests.Fixtures;
+using HtmlAgilityPack;
+using System.IO;
+using CDR.DataHolder.IntegrationTests.Models;
+using System.Drawing;
 
 namespace CDR.DataHolder.IntegrationTests
 {
@@ -34,7 +38,7 @@ namespace CDR.DataHolder.IntegrationTests
             var sub = jwt.Claim("sub").Value;
 
             // Decrypt sub to extraxt customer id
-            var customerId = new Guid(IdPermanenceHelper.DecryptSub(
+            var decryptedSub = IdPermanenceHelper.DecryptSub(
                 sub,
                 new SubPermanenceParameters
                 {
@@ -42,7 +46,9 @@ namespace CDR.DataHolder.IntegrationTests
                     SectorIdentifierUri = SOFTWAREPRODUCT_SECTOR_IDENTIFIER_URI,
                 },
                 BaseTest.IDPERMANENCE_PRIVATEKEY
-            ));
+            );
+
+            var loginId = decryptedSub;
 
             // Get expected response 
             using var dbContext = new DataHolderDatabaseContext(new DbContextOptionsBuilder<DataHolderDatabaseContext>().UseSqlServer(DATAHOLDER_CONNECTIONSTRING).Options);
@@ -51,7 +57,7 @@ namespace CDR.DataHolder.IntegrationTests
                 data = dbContext.Customers.AsNoTracking()
                     .Include(person => person.Person)
                     .Include(organisaton => organisaton.Organisation)
-                    .Where(customer => customer.CustomerId == customerId)
+                    .Where(customer => customer.LoginId == loginId)
                     .Select(customer => new
                     {
                         customerUType = customer.CustomerUType,
@@ -107,7 +113,7 @@ namespace CDR.DataHolder.IntegrationTests
 
         [Theory]
         [InlineData(TokenType.JANE_WILSON)]
-        [InlineData(TokenType.BEVERAGE)]
+        [InlineData(TokenType.BEVERAGE, Skip = "https://dev.azure.com/CDR-AU/Participant%20Tooling/_workitems/edit/51320")]
         public async Task AC01_ShouldRespondWith_200OK_Customers(TokenType tokenType)
         {
             // Arrange
@@ -443,7 +449,7 @@ namespace CDR.DataHolder.IntegrationTests
         public async Task AC08_Get_WithExpiredAccessToken_ShouldRespondWith_401Unauthorized_WWWAuthenticateHeader(HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            var accessToken = BaseTest.EXPIRED_CONSUMER_ACCESS_TOKEN; // await CreateAccessToken_UsingAuthCode(TokenType.JANE_WILSON, expired: expired);
+            var accessToken = BaseTest.EXPIRED_CONSUMER_ACCESS_TOKEN; 
 
             // Act
             var api = new Infrastructure.API
@@ -477,20 +483,39 @@ namespace CDR.DataHolder.IntegrationTests
         }
 
         [Theory]
-        [InlineData("ACTIVE", "Active", HttpStatusCode.OK)]
-        [InlineData("REMOVED", "Removed", HttpStatusCode.Forbidden)]
-        [InlineData("SUSPENDED", "Suspended", HttpStatusCode.Forbidden)]
-        [InlineData("REVOKED", "Revoked", HttpStatusCode.Forbidden)]
-        [InlineData("SURRENDERED", "Surrendered", HttpStatusCode.Forbidden)]
-        [InlineData("INACTIVE", "Inactive", HttpStatusCode.Forbidden)]
-        public async Task AC09_Get_WithADRParticipationNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, string statusDescription, HttpStatusCode expectedStatusCode)
+        [InlineData("ACTIVE", HttpStatusCode.OK)]
+        [InlineData("REMOVED", HttpStatusCode.BadRequest)]
+        [InlineData("SUSPENDED", HttpStatusCode.BadRequest)]
+        [InlineData("REVOKED", HttpStatusCode.BadRequest)]
+        [InlineData("SURRENDERED", HttpStatusCode.BadRequest)]
+        [InlineData("INACTIVE", HttpStatusCode.BadRequest)]
+        public async Task AC09_Get_WithADRParticipationNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, HttpStatusCode expectedStatusCode)
         {
-            var saveStatus = GetStatus(Table.LEGALENTITY, LEGALENTITYID);
-            SetStatus(Table.LEGALENTITY, LEGALENTITYID, status);
+            var saveStatus = GetStatus(EntityType.LEGALENTITY, LEGALENTITYID);
+            SetStatus(EntityType.LEGALENTITY, LEGALENTITYID, status);
             try
             {
+                string accessToken = string.Empty;
                 // Arrange
-                var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON);
+                try
+                {
+                    accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON);
+                }
+                catch(AuthoriseException ex)
+                {
+                    // Assert
+                    using (new AssertionScope())
+                    {
+                        // Assert - Check status code
+                        ex.StatusCode.Should().Be(expectedStatusCode);
+
+                        // Assert - Check error response
+                        ex.Error.Should().Be("urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive");
+                        ex.ErrorDescription.Should().Be($"ERR-GEN-002: Software product status is {status}");
+
+                        return;
+                    }
+                }
 
                 // Act
                 var api = new Infrastructure.API
@@ -509,43 +534,47 @@ namespace CDR.DataHolder.IntegrationTests
                 using (new AssertionScope())
                 {
                     // Assert - Check status code
-                    response.StatusCode.Should().Be(expectedStatusCode);
-
-                    // Assert - Check error response
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        var expectedContent = $@"{{
-                            ""errors"": [{{
-                                ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
-                                ""title"": ""ADR Status Is Not Active"",
-                                ""detail"": ""ADR status is { statusDescription }"",
-                                ""meta"": {{}}
-                            }}]
-                        }}";
-                        await Assert_HasContent_Json(expectedContent, response.Content);
-                    }
+                    response.StatusCode.Should().Be(expectedStatusCode);                    
                 }
             }
             finally
             {
-                SetStatus(Table.LEGALENTITY, LEGALENTITYID, saveStatus);
+                SetStatus(EntityType.LEGALENTITY, LEGALENTITYID, saveStatus);
             }
         }
 
         [Theory]
         [InlineData("ACTIVE", "Active", HttpStatusCode.OK)]
-        [InlineData("INACTIVE", "Inactive", HttpStatusCode.Forbidden)]
-        [InlineData("REMOVED", "Removed", HttpStatusCode.Forbidden)]
+        [InlineData("INACTIVE", "Inactive", HttpStatusCode.BadRequest)]
+        [InlineData("REMOVED", "Removed", HttpStatusCode.BadRequest)]
         public async Task AC11_Get_WithADRSoftwareProductNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, string statusDescription, HttpStatusCode expectedStatusCode)
         {
-            await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON); // Ensure token cache is populated before changing status in case InlineData scenarios above are run/debugged out of order
-
-            var saveStatus = GetStatus(Table.SOFTWAREPRODUCT, SOFTWAREPRODUCT_ID);
-            SetStatus(Table.SOFTWAREPRODUCT, SOFTWAREPRODUCT_ID, status);
+            var saveStatus = GetStatus(EntityType.SOFTWAREPRODUCT, SOFTWAREPRODUCT_ID);
+            SetStatus(EntityType.SOFTWAREPRODUCT, SOFTWAREPRODUCT_ID, status);
             try
             {
                 // Arrange
-                var accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON);
+                var accessToken = string.Empty;
+                try
+                {
+                    accessToken = await Fixture.DataHolder_AccessToken_Cache.GetAccessToken(TokenType.JANE_WILSON);
+                }
+                catch (AuthoriseException ex)
+                {
+                    // Assert
+                    using (new AssertionScope())
+                    {
+                        // Assert - Check status code
+                        ex.StatusCode.Should().Be(expectedStatusCode);
+
+                        // Assert - Check error response
+                        ex.Error.Should().Be("urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive");
+                        ex.ErrorDescription.Should().Be($"ERR-GEN-002: Software product status is {status}");
+
+                        return;
+                    }
+                }
+                    
 
                 // Act
                 var api = new Infrastructure.API
@@ -565,25 +594,11 @@ namespace CDR.DataHolder.IntegrationTests
                 {
                     // Assert - Check status code
                     response.StatusCode.Should().Be(expectedStatusCode);
-
-                    // Assert - Check error response
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        var expectedContent = $@"{{
-                            ""errors"": [{{
-                                ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
-                                ""title"": ""ADR Status Is Not Active"",
-                                ""detail"": ""Software product status is { statusDescription }"",
-                                ""meta"": {{}}
-                            }}]
-                        }}";
-                        await Assert_HasContent_Json(expectedContent, response.Content);
-                    }
                 }
             }
             finally
             {
-                SetStatus(Table.SOFTWAREPRODUCT, SOFTWAREPRODUCT_ID, saveStatus);
+                SetStatus(EntityType.SOFTWAREPRODUCT, SOFTWAREPRODUCT_ID, saveStatus);
             }
         }
 

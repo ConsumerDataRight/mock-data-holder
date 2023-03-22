@@ -9,102 +9,6 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 {
     /// <summary>
     /// Get access token from DataHolder.
-    /// Cache request (user/selectedaccounts/scope) and refreshtoken.
-    /// If cache miss then perform full E2E auth/consent flow to get accesstoken/refresh token and cache returned refresh token.
-    /// If cache hit then use cached refreshtoken to get new accesstoken.
-    /// </summary>
-    public class BROKEN_DataHolder_AccessToken_Cache
-    {
-        public int Hits { get; private set; } = 0;
-        public int Misses { get; private set; } = 0;
-
-        class CacheItem
-        {
-            public string? UserId { get; init; }
-            public string? Scope { get; init; }
-            public string? RefreshToken { get; set; }
-        }
-
-        readonly List<CacheItem> cache = new();
-
-        public async Task<string?> GetAccessToken(
-            string userId,
-            string selectedAccounts,
-            string scope = BaseTest.SCOPE
-            )
-        {
-            async Task<(string accessToken, string refreshToken)> FromAuthConsentFlow()
-            {
-                (var authCode, _) = await new DataHolder_Authorise_APIv2
-                {
-                    UserId = userId,
-                    OTP = BaseTest.AUTHORISE_OTP,
-                    SelectedAccountIds = selectedAccounts,
-                    Scope = scope
-                }.Authorise();
-
-                // use authcode to get access and refresh tokens
-                var tokenResponse = await DataHolder_Token_API.GetResponse(authCode);
-
-                if (tokenResponse?.AccessToken == null)
-                    throw new Exception($"{nameof(FromAuthConsentFlow)} - access token is null");
-
-                if (tokenResponse?.RefreshToken == null)
-                    throw new Exception($"{nameof(FromAuthConsentFlow)} - refresh token is null");
-
-                return (tokenResponse.AccessToken, tokenResponse.RefreshToken);
-            }
-
-            async Task<(string accessToken, string refreshToken)> FromRefreshToken(string? refreshToken)
-            {
-                if (refreshToken == null)
-                    throw new Exception($"{nameof(FromRefreshToken)} - refresh token is null");
-
-                var tokenResponse = await DataHolder_Token_API.GetResponseUsingRefreshToken(refreshToken, scope: scope);
-
-                if (tokenResponse?.AccessToken == null)
-                    throw new Exception($"{nameof(FromRefreshToken)} - access token is null");
-                if (tokenResponse?.RefreshToken == null)
-                    throw new Exception($"{nameof(FromRefreshToken)} - refresh token is null");
-
-                return (tokenResponse.AccessToken, tokenResponse.RefreshToken);
-            }
-
-            // Find refresh token in cache
-            var cacheHit = cache.Find(item => item.UserId == userId && item.Scope == scope);
-
-            // Cache hit
-            if (cacheHit != null)
-            {
-                Hits++;
-
-                // Use refresh token from cache to get access token
-                (var accessToken, var refreshToken) = await FromRefreshToken(cacheHit.RefreshToken);
-
-                // Update refresh token in cache
-                cacheHit.RefreshToken = refreshToken;
-
-                // Return access token
-                return accessToken;
-            }
-            // Cache miss, so perform auth/consent flow to get accesstoken/refreshtoken
-            else
-            {
-                Misses++;
-
-                (var accessToken, var refreshToken) = await FromAuthConsentFlow();
-
-                // Add refresh token to cache
-                cache.Add(new CacheItem { UserId = userId, Scope = scope, RefreshToken = refreshToken });
-
-                // Return access token
-                return accessToken;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Get access token from DataHolder.
     /// Cache request (user/selectedaccounts/scope) and accesstoken.
     /// If cache miss then perform full E2E auth/consent flow to get accesstoken, cache it, and return access token.
     /// If cache hit then use cached access token.
@@ -125,7 +29,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
 
         readonly List<CacheItem> cache = new();
 
-        public async Task<string?> GetAccessToken(TokenType tokenType, string scope = BaseTest.SCOPE)
+        public async Task<string?> GetAccessToken(TokenType tokenType, string scope = BaseTest.SCOPE, bool useCache = true)
         {
             switch (tokenType)
             {
@@ -137,7 +41,7 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
                 case TokenType.BEVERAGE:
                 case TokenType.KAMILLA_SMITH:
                     {
-                        return await GetAccessToken(tokenType.UserId(), tokenType.AllAccountIds(), scope);
+                        return await GetAccessToken(tokenType.UserId(), tokenType.AllAccountIds(), scope, useCache);
                     }
 
                 case TokenType.INVALID_FOO:
@@ -155,17 +59,26 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
         public async Task<string?> GetAccessToken(
             string userId,
             string selectedAccounts,
-            string scope = BaseTest.SCOPE
+            string scope = BaseTest.SCOPE,
+            bool useCache = true
             )
         {
             async Task<(string accessToken, string refreshToken)> FromAuthConsentFlow()
             {
+                var clientId = IntegrationTests.BaseTest.GetClientId(IntegrationTests.BaseTest.SOFTWAREPRODUCT_ID);
+
                 (var authCode, _) = await new DataHolder_Authorise_APIv2
                 {
                     UserId = userId,
                     OTP = BaseTest.AUTHORISE_OTP,
                     SelectedAccountIds = selectedAccounts,
-                    Scope = scope
+                    Scope = scope,
+                    RequestUri = await PAR_GetRequestUri(
+                        scope: scope, 
+                        sharingDuration: SHARING_DURATION,
+                        clientId: clientId,
+                        responseMode: "form_post"
+                    ) 
                 }.Authorise();
 
                 // use authcode to get access and refresh tokens
@@ -181,10 +94,15 @@ namespace CDR.DataHolder.IntegrationTests.Infrastructure.API2
             }
 
             // Find refresh token in cache
-            var cacheHit = cache.Find(item =>
+            CacheItem? cacheHit = null;
+            if (useCache)
+            {
+                cacheHit =  cache.Find(item =>
                 item.UserId == userId &&
                 item.SelectedAccounts == selectedAccounts &&
                 item.Scope == scope);
+            }
+            
 
             // Cache hit
             if (cacheHit != null)

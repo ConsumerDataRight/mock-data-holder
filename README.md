@@ -38,7 +38,7 @@ git clone https://github.com/ConsumerDataRight/mock-data-holder.git
 
 Starting from version 1.2.0, the Mock Data Holder now utilises the [Authorisation Server](https://github.com/ConsumerDataRight/authorisation-server) as an Identity Provider. The [Authorisation Server](https://github.com/ConsumerDataRight/authorisation-server) also needs to be running when running the Mock Data Holder. The [Authorisation Server](https://github.com/ConsumerDataRight/authorisation-server) repository can be cloned using following command.
 ```
-git clone https://github.com/ConsumerDataRight/authorisation-server.git
+git clone https://github.com/ConsumerDataRight/authorisation-server.git ./cdr-auth-server
 ```
 To get help on launching and debugging the solution, see the [help guide](https://github.com/ConsumerDataRight/mock-data-holder/blob/main/Help/debugging/HELP.md).
 

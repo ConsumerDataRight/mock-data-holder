@@ -6,8 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [1.2.1] - 2023-06-07
 ### Changed
 - Updated Authorisation Server git clone command in readme
+- Rebuilt to include v1.0.1 of the [Authorisation Server](https://github.com/ConsumerDataRight/authorisation-server)
 
 ## [1.2.0] - 2023-03-21
 ### Added

@@ -2,9 +2,7 @@
 using CDR.DataHolder.Repository.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Serilog.Context;
 using System.IO;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace CDR.DataHolder.Manage.API.Controllers
@@ -42,13 +40,6 @@ namespace CDR.DataHolder.Manage.API.Controllers
             }
 
             return Ok();
-        }
-                        
-        private static HttpClient GetHttpClient()
-        {
-            var clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-            return new HttpClient(clientHandler);
-        }
+        }        
     }
 }

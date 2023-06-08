@@ -5,15 +5,14 @@
 
     <IsPackable>false</IsPackable>
 
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
 
-    <FileVersion>1.2.0</FileVersion>
+    <FileVersion>1.2.1</FileVersion>
 
-    <AssemblyVersion>1.2.0</AssemblyVersion>
+    <AssemblyVersion>1.2.1</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="appsettings.Container.json" />
     <None Remove="appsettings.Development.json" />
     <None Remove="appsettings.json" />
     <None Remove="appsettings.Release.json" />
@@ -21,11 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="appsettings.Container.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
     <Content Include="appsettings.Development.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

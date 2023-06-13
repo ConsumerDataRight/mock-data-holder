@@ -71,7 +71,7 @@ MDH-CdrAuthServer – Run the Authorisation Server in headed mode.
 MDH-CdrAuthServerHeadless – Run the Authorisation Server in headless mode.
 MDH-CdrAuthServerWorkingWithContainers - Run the Authorisation Server in headed mode and support integration with Docker containers.
 ```
-When running the Authorisation Server in headed mode, follow the instructions [here](https://github.com/ConsumerDataRight/authorisation-server/Source/CdrAuthServer.UI\README.md "Authorisation Server UI ReadMe") to start the React application.
+When running the Authorisation Server in headed mode, follow the instructions [here](https://github.com/ConsumerDataRight/authorisation-server/blob/main/Source/CdrAuthServer.UI/README.md "Authorisation Server UI ReadMe") to start the React application.
 
 1. Open the Authorisation Server solution (cloned to CDR\\Authorisation-Server) in Visual Studio.
 

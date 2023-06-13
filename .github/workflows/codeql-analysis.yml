@@ -22,6 +22,9 @@ on:
       - '.github/pull_request_template.md'
       - '.github/stale.yml'
       - 'LICENSE'
+      - 'Postman/**'
+      - 'Help/**'
+      - 'CertificateManagement/**'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ main, develop ]
@@ -33,6 +36,9 @@ on:
       - '.github/pull_request_template.md'
       - '.github/stale.yml'
       - 'LICENSE'
+      - 'Postman/**'
+      - 'Help/**'
+      - 'CertificateManagement/**'
   schedule:
     - cron: '24 17 * * 4'
 

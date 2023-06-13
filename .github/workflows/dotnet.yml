@@ -12,6 +12,8 @@ on:
       - '.github/stale.yml'
       - 'LICENSE'
       - 'Postman/**'
+      - 'Help/**'
+      - 'CertificateManagement/**'
   pull_request:
     branches: [ main, develop ]
     types: [opened, synchronize, reopened]
@@ -24,6 +26,8 @@ on:
       - '.github/stale.yml'
       - 'LICENSE'
       - 'Postman/**'
+      - 'Help/**'
+      - 'CertificateManagement/**'
     
 env:
   buildConfiguration: 'Release'

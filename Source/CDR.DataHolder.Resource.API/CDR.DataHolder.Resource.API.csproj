@@ -3,9 +3,9 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
-		<Version>1.2.1</Version>
-		<FileVersion>1.2.1</FileVersion>
-		<AssemblyVersion>1.2.1</AssemblyVersion>
+		<Version>1.2.2</Version>
+		<FileVersion>1.2.2</FileVersion>
+		<AssemblyVersion>1.2.2</AssemblyVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -1,36 +1,30 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using CDR.DataHolder.Repository.Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
+using CDR.DataHolder.API.Infrastructure.Filters;
+using CDR.DataHolder.API.Infrastructure.HealthChecks;
 using CDR.DataHolder.API.Infrastructure.Middleware;
 using CDR.DataHolder.Domain.Repositories;
 using CDR.DataHolder.Repository;
-using Serilog;
-using System.IO;
-using CDR.DataHolder.API.Infrastructure.Filters;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+using CDR.DataHolder.Repository.Infrastructure;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System.Linq;
+using Serilog;
 using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CDR.DataHolder.Manage.API
 {
     public class Startup
-    {
-        static private bool healthCheckMigration = false;
-        static private string healthCheckMigrationMessage = null;
-        static private bool healthCheckSeedData = false;
-        static private string healthCheckSeedDataMessage = null;
-
-
+    {        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -52,119 +46,27 @@ namespace CDR.DataHolder.Manage.API
             services.AddDbContext<DataHolderDatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Default)));
 
             services.AddScoped<IStatusRepository, StatusRepository>();
-
             services.AddAutoMapper(typeof(Startup), typeof(DataHolderDatabaseContext));
-
             services.AddScoped<LogActionEntryAttribute>();
+            services.AddSingleton<HealthCheckStatuses>();
 
-            string connStr = Configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Logging);
-            int seedDataTimeSpan = Configuration.GetValue<int>("SeedData:TimeSpan");
             services.AddHealthChecks()
-                   
-                    .AddCheck("migration", () => healthCheckMigration ? HealthCheckResult.Healthy(healthCheckMigrationMessage) : HealthCheckResult.Unhealthy(healthCheckMigrationMessage))
-
-                    // MJS - No idea if "seed-data" below works, nor why it was implemented like that, implemented "seed-data2" here just in case
-                    .AddCheck("seed-data2", () => healthCheckSeedData ? HealthCheckResult.Healthy(healthCheckSeedDataMessage) : HealthCheckResult.Unhealthy(healthCheckSeedDataMessage))
-
-                    .AddCheck("sql-connection", () =>
-                    {
-                        using (var db = new SqlConnection(connStr))
-                        {
-                            try
-                            {
-                                db.Open();
-                            }
-                            catch (SqlException)
-                            {
-                                return HealthCheckResult.Unhealthy();
-                            }
-                        }
-                        return HealthCheckResult.Healthy();
-                    })
-
-                    .AddCheck("seed-data", () =>
-                    {
-                        if (!SeedData())
-                        {
-                            return HealthCheckResult.Healthy("Seed data not configured");
-                        }
-
-                        using (var db = new SqlConnection(connStr))
-                        {
-                            try
-                            {
-                                db.Open();
-                                using var selectCommand = new SqlCommand($"SELECT [TimeStamp] FROM [LogEventsManageAPI] WHERE [Message] = @msg ORDER BY [TimeStamp] DESC", db);
-                                selectCommand.Parameters.AddWithValue("@msg", "Hosting started");
-                                var hostStarted = selectCommand.ExecuteScalar();
-                                if (hostStarted != null)
-                                {
-                                    // Return the TimeStamp for when the Host is Started (all startup processing has completed)
-                                    // use this as the reference to test if the below operations are within the appsetting - SeedData:TimeSpan value
-                                    var hostStartedTimeStamp = Convert.ToDateTime(hostStarted);
-
-                                    // IF the Seed Data was to be Imported or to be Updated
-                                    // if the log record message "Seed-Data:imported" exists and the process was completed within the SeedData:TimeSpan
-                                    // then it is considered to be Healthy
-                                    using var selectCommand1 = new SqlCommand($"SELECT TOP 1 [Id], [TimeStamp] FROM [LogEventsManageAPI] WHERE [Message] = @msg AND [SourceContext] = @srcContext ORDER BY [TimeStamp] DESC", db);
-                                    selectCommand1.Parameters.AddWithValue("@msg", "Seed-Data:imported");
-                                    selectCommand1.Parameters.AddWithValue("@srcContext", "CDR.DataHolder.Manage.API.Startup");
-                                    var dbReader1 = selectCommand1.ExecuteReader();
-                                    if (dbReader1.HasRows)
-                                    {
-                                        using (dbReader1)
-                                        {
-                                            while (dbReader1.Read())
-                                            {
-                                                TimeSpan timespan = (hostStartedTimeStamp - Convert.ToDateTime(dbReader1.GetDateTime(1)));
-                                                if (timespan.Minutes < seedDataTimeSpan)
-                                                {
-                                                    return HealthCheckResult.Healthy();
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    dbReader1.Close();
-
-                                    // IF the Seed Data was flagged as to NOT be Imported
-                                    // if the log record message "Seed-Data:not-imported" exists and the process was completed within the SeedData:TimeSpan
-                                    // then it is considered to be Healthy
-                                    using var selectCommand2 = new SqlCommand($"SELECT TOP 1 [Id], [TimeStamp] FROM [LogEventsManageAPI] WHERE [Message] = @msg AND [SourceContext] = @srcContext ORDER BY [TimeStamp] DESC", db);
-                                    selectCommand2.Parameters.AddWithValue("@msg", "Seed-Data:not-imported");
-                                    selectCommand2.Parameters.AddWithValue("@srcContext", "CDR.DataHolder.Manage.API.Startup");
-                                    var dbReader2 = selectCommand2.ExecuteReader();
-                                    if (dbReader2.HasRows)
-                                    {
-                                        using (dbReader2)
-                                        {
-                                            while (dbReader2.Read())
-                                            {
-                                                TimeSpan timespan = (hostStartedTimeStamp - Convert.ToDateTime(dbReader2.GetDateTime(1)));
-                                                if (timespan.Minutes < seedDataTimeSpan)
-                                                    return HealthCheckResult.Healthy();
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            catch (SqlException)
-                            {
-                                return HealthCheckResult.Unhealthy();
-                            }
-
-                            return HealthCheckResult.Unhealthy();
-                        }
-                    });
+                    .AddCheck<ApplicationHealthCheck>("Application Check", HealthStatus.Unhealthy, new[] { "AppStatus" }, TimeSpan.FromSeconds(3))
+                    .AddCheck<SqlServerHealthCheck>("SQL Server Check", HealthStatus.Unhealthy, new[] { "DatabaseStatus" }, TimeSpan.FromSeconds(10))
+                    .AddCheck<DatabaseMigrationHealthCheck>("Migrations Check", HealthStatus.Unhealthy, new[] { "Migrations" }, TimeSpan.FromSeconds(10))
+                    .AddCheck<DatabaseSeedingHealthCheck>("Seeding Check", HealthStatus.Unhealthy, new[] { "Seeding" }, TimeSpan.FromSeconds(3));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger, IHostApplicationLifetime applicationLifetime, HealthCheckStatuses healthStatuses)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            applicationLifetime.ApplicationStarted.Register(() => { healthStatuses.AppStatus = AppStatus.Started;});
+            applicationLifetime.ApplicationStopping.Register(() => { healthStatuses.AppStatus = AppStatus.Shutdown;});
 
             app.UseSerilogRequestLogging();
 
@@ -183,17 +85,15 @@ namespace CDR.DataHolder.Manage.API
             });
 
             // Ensure the database exists and is up to the latest version.
-            EnsureDatabase(app, logger);
+            EnsureDatabase(app, logger, healthStatuses);
         }
 
-        private void EnsureDatabase(IApplicationBuilder app, ILogger<Startup> logger)
+        private void EnsureDatabase(IApplicationBuilder app, ILogger<Startup> logger, HealthCheckStatuses healthCheckStatuses)
         {
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
                 if (RunMigrations())
                 {
-                    healthCheckMigrationMessage = "Migration in progress";
-
                     // Use DBO connection string since it has DBO rights needed to update db schema
                     var optionsBuilder = new DbContextOptionsBuilder<DataHolderDatabaseContext>();
                     optionsBuilder.UseSqlServer(Configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Migrations)
@@ -202,10 +102,7 @@ namespace CDR.DataHolder.Manage.API
                     // Ensure the database is created and up to date.
                     using var dbMigrationsContext = new DataHolderDatabaseContext(optionsBuilder.Options);
                     dbMigrationsContext.Database.Migrate();
-
-                    healthCheckMigrationMessage = "Migration completed";
                 }
-                healthCheckMigration = true;
 
                 // Seed the database using the sample data JSON.
                 var seedDataFilePath = Configuration.GetValue<string>("SeedData:FilePath");
@@ -214,19 +111,14 @@ namespace CDR.DataHolder.Manage.API
 
                 if (!string.IsNullOrEmpty(seedDataFilePath))
                 {
-                    healthCheckSeedDataMessage = "Seeding of data in progress";
-
                     var context = serviceScope.ServiceProvider.GetRequiredService<DataHolderDatabaseContext>();
                     logger.LogInformation("Seed data file found within configuration.  Attempting to seed the repository from the seed data...");
-                    Task.Run(() => context.SeedDatabaseFromJsonFile(seedDataFilePath, logger, seedDataOverwrite, offsetDates)).Wait();
-
-                    healthCheckSeedDataMessage = "Seeding of data completed";
+                    Task.Run(() => context.SeedDatabaseFromJsonFile(seedDataFilePath, logger, healthCheckStatuses, seedDataOverwrite, offsetDates)).Wait();
                 }
                 else
                 {
-                    healthCheckSeedDataMessage = "Data is not seeded based on configuration";
+                    healthCheckStatuses.SeedingStatus = SeedingStatus.NotConfigured;
                 }
-                healthCheckSeedData = true;
             }
         }
 
@@ -240,12 +132,6 @@ namespace CDR.DataHolder.Manage.API
             return !string.IsNullOrEmpty(dbo);
         }
 
-        private bool SeedData()
-        {
-            var seedDataFilePath = Configuration.GetValue<string>("SeedData:FilePath");
-            return !string.IsNullOrEmpty(seedDataFilePath);
-        }
-
         private static Task CustomResponseWriter(HttpContext context, HealthReport healthReport)
         {
             context.Response.ContentType = "application/json";
@@ -254,7 +140,8 @@ namespace CDR.DataHolder.Manage.API
                 status = healthReport.Entries.Select(e => new
                 {
                     key = e.Key,
-                    value = e.Value.Status.ToString()
+                    value = e.Value.Status.ToString(),
+                    description = e.Value.Description
                 })
             });
             return context.Response.WriteAsync(result);

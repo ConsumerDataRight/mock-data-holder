@@ -46,12 +46,15 @@ namespace CDR.DataHolder.Resource.API.UnitTests.Fixtures
             services.AddScoped<ITransactionsService, TransactionsService>();
             services.AddSingleton<IIdPermanenceManager>(x => new IdPermanenceManager(configuration));
 
+            services.AddSingleton<HealthCheckStatuses>();
+
             this.ServiceProvider = services.BuildServiceProvider();
 
             // Migrate the database to the latest version during application startup.
             var context = this.ServiceProvider.GetRequiredService<DataHolderDatabaseContext>();
             var loggerFactory = this.ServiceProvider.GetRequiredService<ILoggerFactory>();
             var logger = loggerFactory.CreateLogger("UnitTests");
+            var healthCheckStatuses = this.ServiceProvider.GetRequiredService<HealthCheckStatuses>();
 
             loggerFactory.AddSerilog();
 
@@ -66,7 +69,7 @@ namespace CDR.DataHolder.Resource.API.UnitTests.Fixtures
             if (!string.IsNullOrEmpty(seedDataFilePath))
             {
                 logger.LogInformation("Seed data file found within configuration.  Attempting to seed the repository from the seed data...");
-                Task.Run(() => context.SeedDatabaseFromJsonFile(seedDataFilePath, logger, seedDataOverwrite, offsetDates)).Wait();
+                Task.Run(() => context.SeedDatabaseFromJsonFile(seedDataFilePath, logger, healthCheckStatuses, seedDataOverwrite, offsetDates)).Wait();
             }
         }
     }

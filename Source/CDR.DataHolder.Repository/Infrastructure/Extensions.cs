@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -22,6 +21,7 @@ namespace CDR.DataHolder.Repository.Infrastructure
             this DataHolderDatabaseContext dataHolderDatabaseContext,
             string jsonFileFullPath,
             ILogger logger,
+            HealthCheckStatuses healthStatuses,
             bool overwriteExistingData = false,
             bool offsetDates = true)
         {
@@ -32,7 +32,7 @@ namespace CDR.DataHolder.Repository.Infrastructure
             }
 
             var json = await File.ReadAllTextAsync(jsonFileFullPath);
-            await dataHolderDatabaseContext.SeedDatabaseFromJson(json, logger, overwriteExistingData, offsetDates);
+            await dataHolderDatabaseContext.SeedDatabaseFromJson(json, logger, healthStatuses, overwriteExistingData, offsetDates);
         }
 
         /// <summary>
@@ -42,6 +42,7 @@ namespace CDR.DataHolder.Repository.Infrastructure
             this DataHolderDatabaseContext dataHolderDatabaseContext,
             string json,
             ILogger logger,
+            HealthCheckStatuses healthStatuses,
             bool overwriteExistingData = false,
             bool offsetDates = true)
         {
@@ -57,13 +58,13 @@ namespace CDR.DataHolder.Repository.Infrastructure
                  "Existing data found, but set to overwrite.  Seeding data..." :
                  "No existing data found.  Seeding data...");
 
-            await dataHolderDatabaseContext.ReSeedDatabaseFromJson(json, logger, offsetDates);
+            await dataHolderDatabaseContext.ReSeedDatabaseFromJson(json, logger, healthStatuses, offsetDates);
         }
 
         /// <summary>
         /// Re-Seed the database from the input JSON data. All existing data in the database will be removed prior to creating the new data set.
         /// </summary>
-        public async static Task ReSeedDatabaseFromJson(this DataHolderDatabaseContext dataHolderDatabaseContext, string json, ILogger logger, bool offsetDates = true)
+        public async static Task ReSeedDatabaseFromJson(this DataHolderDatabaseContext dataHolderDatabaseContext, string json, ILogger logger, HealthCheckStatuses healthStatuses, bool offsetDates = true)
         {
             using (var transaction = dataHolderDatabaseContext.Database.BeginTransaction())
             {
@@ -108,8 +109,8 @@ namespace CDR.DataHolder.Repository.Infrastructure
 
                     // Re-create all participants from the incoming JSON file.
                     var allData = JsonConvert.DeserializeObject<JObject>(json);
-                    var newCustomers = allData["Customers"].ToObject<Customer[]>();                    
-                    dataHolderDatabaseContext.Customers.AddRange(newCustomers);                    
+                    var newCustomers = allData["Customers"].ToObject<Customer[]>();
+                    dataHolderDatabaseContext.Customers.AddRange(newCustomers);
                     dataHolderDatabaseContext.SaveChanges();
 
                     // Finally commit the transaction
@@ -117,9 +118,12 @@ namespace CDR.DataHolder.Repository.Infrastructure
 
                     // DO NOT REMOVE or ALTER this is referenced in the health check
                     logger.LogInformation("Seed-Data:imported");
+                    healthStatuses.SeedingStatus = SeedingStatus.Succeeded;
+
                 }
                 catch (Exception ex)
                 {
+                    healthStatuses.SeedingStatus = SeedingStatus.Failed;
                     // Log any errors.
                     logger.LogError(ex, "Error while seeding the database.");
                     throw;

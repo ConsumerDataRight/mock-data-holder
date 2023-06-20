@@ -2,10 +2,6 @@
 
 resources:
   repositories:
-  - repository: MockRegister
-    type: git
-    name: sb-mock-register
-    ref: develop
   - repository: CDRAuthServer
     type: git
     name: cdr-auth-server
@@ -19,434 +15,501 @@ resources:
         include:
         - develop
         - main
-        - releases/*
+
 
 trigger:
   - develop
   - main
-  - releases/*
-  
+
+variables:  
+  ${{ if eq(variables['Build.SourceBranchName'], 'main') }}: 
+    mockRegisterContainerTag: main
+  ${{ elseif contains(variables['Build.SourceBranch'], 'releases/') }}:
+    mockRegisterContainerTag: $(MockRegisterReleaseContainerTag)
+  ${{ else }}:
+    mockRegisterContainerTag: develop
+
+  baseSourceDirectory: $(Build.SourcesDirectory)/sb-mock-data-holder/Source
+
+
 pool:
   vmImage: ubuntu-latest
 
-steps:
-
-###################################################################################################
-# Checkout repositories
-###################################################################################################
-
-- checkout: MockRegister
-- checkout: self
-- checkout: CDRAuthServer
-
-###################################################################################################
-# Build images
-###################################################################################################
-
-# Build mock-register
-- task: Docker@2
-  displayName: Build mock-register image
-  inputs:
-    command: build 
-    # Dockerfile: $(Build.SourcesDirectory)/sb-mock-register/Source/Dockerfile.for-testing
-    Dockerfile: $(Build.SourcesDirectory)/sb-mock-register/Source/Dockerfile
-    buildContext: $(Build.SourcesDirectory)/sb-mock-register/Source
-    repository: mock-register
-    tags: latest
-
-# Copy cdr-auth-server into sb-mock-data-holder/source/cdr-auth-server
-- task: CopyFiles@2
-  displayName: Copy cdr-auth-server folder into sb-mock-data-holder
-  inputs:
-    sourceFolder: $(Build.SourcesDirectory)/cdr-auth-server
-    contents: '**' 
-    targetFolder: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/cdr-auth-server   
-
-# Build mock-data-holder
-- task: Docker@2
-  displayName: Build mock-data-holder image
-  inputs:
-    command: build 
-    Dockerfile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/Dockerfile
-    buildContext: $(Build.SourcesDirectory)/sb-mock-data-holder/Source
-    repository: mock-data-holder
-    tags: latest
-
-# Build mock-data-holder-unit-tests
-- task: Docker@2
-  displayName: Build mock-data-holder-unit-tests image
-  inputs:
-    command: build 
-    Dockerfile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/Dockerfile.unit-tests
-    buildContext: $(Build.SourcesDirectory)/sb-mock-data-holder/Source
-    repository: mock-data-holder-unit-tests
-    tags: latest
-
-# Build mock-data-holder-integration-tests
-- task: Docker@2
-  displayName: Build mock-data-holder-integration-tests image
-  inputs:
-    command: build 
-    Dockerfile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/Dockerfile.integration-tests
-    buildContext: $(Build.SourcesDirectory)/sb-mock-data-holder/Source
-    repository: mock-data-holder-integration-tests
-    tags: latest
-
-# Build cdr-auth-server-integration-tests
-- task: Docker@2
-  displayName: Build cdr-auth-server-integration-tests image
-  inputs:
-    command: build 
-    Dockerfile: $(Build.SourcesDirectory)/cdr-auth-server/Source/Dockerfile.integration-tests
-    buildContext: $(Build.SourcesDirectory)/cdr-auth-server/Source
-    repository: cdr-auth-server-integration-tests
-    tags: latest
-
-# FIXME - MJS - temp disable e2e tests
-# # Build cdr-auth-server-e2e-tests
-# - task: Docker@2
-#   displayName: Build cdr-auth-server-e2e-tests image
-#   inputs:
-#     command: build 
-#     Dockerfile: $(Build.SourcesDirectory)/cdr-auth-server/Source/Dockerfile.e2e-tests
-#     buildContext: $(Build.SourcesDirectory)/cdr-auth-server/Source
-#     repository: cdr-auth-server-e2e-tests
-#     tags: latest
-
-# List docker images
-- task: Docker@2
-  displayName: List Docker images
-  condition: always() 
-  inputs:
-    command: images
-
-###################################################################################################
-# Unit tests 
-###################################################################################################
-
-# Run unit tests
-- task: DockerCompose@0
-  displayName: Unit Tests - Up
-  inputs:
-    action: Run a Docker Compose command
-    dockerComposeFile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/docker-compose.UnitTests.yml     
-    dockerComposeCommand: up --abort-on-container-exit --exit-code-from mock-data-holder-unit-tests
-
-# Remove unit tests
-- task: DockerCompose@0
-  displayName: Unit Tests - Down
-  condition: always()
-  inputs:
-    action: Run a Docker Compose command
-    dockerComposeFile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/docker-compose.UnitTests.yml     
-    dockerComposeCommand: down
-
-###################################################################################################
-# Integration tests
-###################################################################################################
-
-# Run integration tests
-- task: DockerCompose@0
-  displayName: Integration Tests - Up
-  condition: always()
-  inputs:
-    action: Run a Docker Compose command
-    dockerComposeFile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/docker-compose.IntegrationTests.yml     
-    dockerComposeCommand: up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
-
-# Remove integration tests
-- task: DockerCompose@0
-  displayName: Integration Tests - Down
-  condition: always()
-  inputs:
-    action: Run a Docker Compose command
-    dockerComposeFile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/docker-compose.IntegrationTests.yml     
-    dockerComposeCommand: down
-
-# Run integration tests - CAS
-- task: DockerCompose@0
-  displayName: Integration Tests CAS - Up
-  condition: always()
-  inputs:
-    action: Run a Docker Compose command
-    dockerComposeFile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/docker-compose.IntegrationTests.CdrAuthServer.yml     
-    dockerComposeCommand: up --abort-on-container-exit --exit-code-from cdr-auth-server-integration-tests
-
-# Remove cdr-auth-server integration tests
-- task: DockerCompose@0
-  displayName: Integration Tests CAS - Down
-  condition: always()
-  inputs:
-    action: Run a Docker Compose command
-    dockerComposeFile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/docker-compose.IntegrationTests.CdrAuthServer.yml         
-    dockerComposeCommand: down
-
-###################################################################################################
-# E2E tests
-###################################################################################################
-
-# FIXME - MJS - temp disable e2e tests
-# # Run E2E tests - CAS
-# - script: |
-#     cd $(Build.SourcesDirectory)/sb-mock-data-holder/Source
-#     docker compose -f docker-compose.E2ETests.yml up cdr-auth-server-e2e-tests --abort-on-container-exit --exit-code-from cdr-auth-server-e2e-tests
-#   displayName: E2E Tests CAS - Up  
-#   condition: always()
-
-# # Remove E2E tests - CAS
-# - task: DockerCompose@0
-#   displayName: E2E Tests CAS - Down
-#   condition: always()
-#   inputs:
-#     action: Run a Docker Compose command
-#     dockerComposeFile: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/docker-compose.E2ETests.yml
-#     dockerComposeCommand: down
-
-###################################################################################################
-# Publish images
-###################################################################################################
-
-# Save docker image to TAR so it can be published
-- task: Docker@2
-  displayName: Save MockDataHolder image to TAR
-  inputs:
-    repository: mock-data-holder
-    command: save
-    arguments: --output $(build.artifactstagingdirectory)/mock-data-holder.image.tar mock-data-holder
-    addPipelineData: false
-
-# Save docker image to TAR so it can be published
-- task: Docker@2
-  displayName: Save MockDataHolder image to TAR
-  inputs:
-    repository: mock-data-holder
-    command: save
-    arguments: --output $(build.artifactstagingdirectory)/mock-data-holder.image.tar mock-data-holder
-    addPipelineData: false
-
-# Publish docker image
-- task: PublishPipelineArtifact@1
-  displayName: Publish container images
-  inputs:
-    path: $(build.artifactstagingdirectory)
-    artifact: Container Images
-
-###################################################################################################
-# Publish logs
-###################################################################################################
-
-# FIXME - MJS - See dockercompose, volume no longer mapped as 1001:121 (vsts:docker) in build pipeline and causes issue with chown in dockerfile (appuser:appgroup), ie stops register from starting because of different user
-# # Publish mock-register logs
-# - publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-register/tmp
-#   displayName: Publish MockRegister logs
-#   condition: always()
-#   artifact: Mock-Register - Logs
-
-# FIXME - MJS - See dockercompose, volume no longer mapped as 1001:121 (vsts:docker) in build pipeline and causes issue with chown in dockerfile (appuser:appgroup), ie stops register from starting because of different user
-# # Publish mock-data-holder logs
-# - publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder/tmp
-#   displayName: Publish MockDataHolder logs
-#   condition: always()
-#   artifact: Mock-Data-Holder - Logs
-
-# # Publish mock-data-holder unit tests results
-# - publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-unit-tests/testresults
-#   displayName: Publish unit tests
-#   condition: always()
-#   artifact: Mock-Data-Holder - Unit tests
-
-###################################################################################################
-# Publish test results
-###################################################################################################
-
-# Login to ACR
-- task: Docker@2
-  displayName: Login to ACR
-  condition: always()
-  inputs:
-    command: login
-    containerRegistry: <<yourContainerRegistryName>>
-
-# Run trx formatter to output .MD and .CSV
-- script: |
-    docker run \
-      -v=$(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-integration-tests/testresults/results.trx:/app/results.trx:ro \
-      -v=$(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-integration-tests/testresults/formatted/:/app/out/:rw \
-      <<yourContainerRegistryName>>.azurecr.io/trx-formatter -i results.trx -t "MDH" --outputprefix "MDH" -o out/
-  displayName: 'Run trx-formatter'  
-  condition: always()   
-
-# Publish mock-data-holder integration tests results
-- publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-integration-tests/testresults
-  displayName: Publish integration tests
-  condition: always()
-  artifact: Mock-Data-Holder - Integration tests
-
-
-# mock-data-holder-cdr-auth-server-integration-tests (MDH-CAS)
-
-# Run trx formatter to output .MD and .CSV
-- script: |
-    docker run \
-      -v=$(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-cdr-auth-server-integration-tests/testresults/results.trx:/app/results.trx:ro \
-      -v=$(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-cdr-auth-server-integration-tests/testresults/formatted/:/app/out/:rw \
-      <<yourContainerRegistryName>>.azurecr.io/trx-formatter -i results.trx -t "MDH-CAS" --outputprefix "MDH-CAS" -o out/
-  displayName: 'Run trx-formatter (CAS)'  
-  condition: always()   
-
-# Publish mock-data-holder integration tests results
-- publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-cdr-auth-server-integration-tests/testresults
-  displayName: Publish integration tests (CAS)
-  condition: always()
-  artifact: Mock-Data-Holder - CAS - Integration tests
-
-# Surface trx
-- task: PublishTestResults@2
-  displayName: 'Surface test results to devops'
-  condition: succeededOrFailed()
-  inputs:
-    testResultsFormat: 'VSTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
-    testResultsFiles: '**/results.trx' 
-
-# FIXME - MJS - temp disable e2e tests
-
-# # Run trx formatter to output .MD and .CSV
-# - script: |
-#     docker run \
-#       -v=$(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-cdr-auth-server-e2e-tests/testresults/results.trx:/app/results.trx:ro \
-#       -v=$(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-cdr-auth-server-e2e-tests/testresults/formatted/:/app/out/:rw \
-#       <<yourContainerRegistryName>>.azurecr.io/trx-formatter -i results.trx -t "MDH-CAS-E2E" --outputprefix "MDH-CAS-E2E" -o out/
-#   displayName: "Run trx-formatter (CAS)"
-#   condition: always()
-
-# - publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-cdr-auth-server-e2e-tests/testresults
-#   displayName: Publish cdr-auth-server E2E tests
-#   condition: always()
-#   artifact: E2E tests (CAS)
-
-# # - task: PublishTestResults@2
-# #   displayName: "Surface E2E Test (CAS) TRX results to devops"
-# #   condition: succeededOrFailed()
-# #   inputs:
-# #     testResultsFormat: "VSTest" # Options: JUnit, NUnit, VSTest, xUnit, cTest
-# #     testResultsFiles: "**/results.trx"
-# #     searchFolder: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/_temp/mock-data-holder-cdr-auth-server-e2e-tests/testresults # Optional
-# #     # searchFolder: ./Source/_temp/mock-data-holder-cdr-auth-server-e2e-tests/testresults # Optional
-# #     mergeTestResults: true # Optional
-# #     testRunTitle: "mock-data-holder-cdr-auth-server-E2E-tests" # Optional
-# #     publishRunAttachments: true # Optional
-
-
-###################################################################################################
-# EF migrations
-###################################################################################################
-
-- task: UseDotNet@2
-  displayName: 'Use .NET 6 sdk'
-  condition: always()
-  inputs:
-    packageType: sdk
-    version: '6.0.x'
-    performMultiLevelLookup: true
-
-- task: CmdLine@2
-  displayName: 'Install dotnet-ef'
-  condition: always()
-  inputs:
-    script: 'dotnet tool install --global dotnet-ef'
+jobs:
+  - job: Build
+    timeoutInMinutes: 120
+    steps:
     
-- task: CmdLine@2
-  displayName: 'Check dotnet-ef version'
-  condition: always()
-  inputs:
-    script: 'dotnet-ef'
+    ###################################################################################################
+      # Set obligation date container tags
+    ###################################################################################################
+      - task: PowerShell@2
+        displayName: Update Obligation date
+        inputs:
+          targetType: 'inline'
+          script: |      
+            $DataHolderObligationDate = "$(ObligationDate)"
+            if (-not [string]::IsNullOrWhiteSpace( $DataHolderObligationDate )) {
+              Write-Host "##vso[task.setvariable variable=ObligationDateTag]$DataHolderObligationDate"
+            }
+            else {
+              Write-Host "##vso[task.setvariable variable=ObligationDateTag]22-4"
+            }
+      # Set release version variables for release tags
+      - task: PowerShell@2
+        name: 'splitBranchName'
+        displayName: 'Split Branch Name'  
+        inputs:
+          targetType: 'inline'
+          script: |
+            $branchParts = "$(Build.SourceBranchName)" -split '\.'
+            # Write-Host "Branch Name: $branchParts"
+            $majorVersion = $branchParts[0]
+            $minorVersion = $branchParts[1]
+            # Write-Host "Major Name: $majorVersion"
+            Write-Host "##vso[task.setvariable variable=majorVersion]$majorVersion"
+            Write-Host "##vso[task.setvariable variable=minorVersion]$minorVersion"      
+            Write-Host "##vso[task.setvariable variable=majorMinorVersion]$majorVersion.$minorVersion"
 
-- script: |
-    cd $(Build.SourcesDirectory)/sb-mock-data-holder/Source/CDR.DataHolder.Repository 
-    dotnet ef migrations bundle --context DataHolderDatabaseContext --verbose --self-contained
-    ls
-  displayName: 'Run EF Migrations bundle'
-  condition: always()
+      ###################################################################################################
+      # Checkout repositories
+      ###################################################################################################
 
-- publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/CDR.DataHolder.Repository/efbundle
-  displayName: Publish EF Migration bundle
-  condition: always()
-  artifact: Database Migration Scripts  
+      - checkout: self
+      - checkout: git://cdr-auth-server@refs/heads/develop
+        persistCredentials: true
+        ### Swith AuthServer to required branch.
+      - powershell: |   
+          cd cdr-auth-server
+          $branchRef = ""      
+          $authServerBranch = ""
+          $SourcebranchName = "$(Build.SourceBranch)" -replace 'refs/heads/', ''
+          
+          if ($branchName -match "releases/") {
+            $authServerBranch = "$(AuthServerReleaseBranchName)"
+            $branchRef = "refs/heads/$(authServerBranch)"
+          }
+          elseif ($branchName -eq "main" -or $branchName -eq "develop") {
+            $authServerBranch = $branchName
+            $branchRef = "$(Build.SourceBranch)"
+          }
+          else {
+            $authServerBranch = "develop"
+            $branchRef = "refs/heads/develop"
+          }
+          echo "authServerBranch - $authServerBranch and branchRef - $branchRef"
+          if ( git ls-remote origin $branchRef) 
+          {
+              echo "Remote branch of $branchRef exists for cdr_auth_server"
+              git switch $authServerBranch
+              git status      
+          }
+                
+          cd ..
+          
+        displayName: 'Switch cdr-auth-server code to required branch'
 
-# CdrAuthServer
+      ###################################################################################################
+      # Build image
+      ###################################################################################################
+      
+      # Copy files cdr-auth-server into the source folder of mock-data-holder
+      - task: CopyFiles@2
+        displayName: Copy cdr-auth-server folder into sb-mock-data-holder-energy
+        inputs:
+          sourceFolder: $(Build.SourcesDirectory)/cdr-auth-server
+          contents: '**' 
+          targetFolder: $(baseSourceDirectory)/cdr-auth-server
 
-- script: |
-    cd $(Build.SourcesDirectory)/sb-mock-data-holder/Source/cdr-auth-server/Source/CdrAuthServer.Repository
-    dotnet ef migrations bundle --context CdrAuthServervDatabaseContext --verbose --self-contained
-    ls
-  displayName: "Run EF Migrations bundle (CdrAuthServer)"
-  condition: always()
+      # Build mock-data-holder
+      - task: Docker@2
+        displayName: Build mock-data-holder image
+        inputs:
+          command: build
+          Dockerfile: $(baseSourceDirectory)/Dockerfile
+          buildContext: $(baseSourceDirectory)
+          repository: mock-data-holder
+          tags: latest
 
-- publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/cdr-auth-server/Source/CdrAuthServer.Repository/efbundle
-  displayName: Publish EF Migration bundle (CdrAuthServer)
-  condition: always()
-  artifact: Database Migration Scripts (CdrAuthServer)     
+      ###################################################################################################
+      # Login to ACR and pull mock solution containers
+      ###################################################################################################
 
-###################################################################################################
-# Tag images and push to ACR
-###################################################################################################
+      # Login to ACR
+      - task: Docker@2
+        displayName: Login to ACR
+        condition: always()
+        inputs:
+          command: login
+          containerRegistry: $(AcrBaseUrl)
+      
+      # Login to Shared ACR
+      - task: Docker@2
+        displayName: Login to Shared ACR
+        inputs:
+          command: login    
+          containerRegistry: $(SpSharedAcr)
 
-# mock-data-holder
+      # Pull and re-tag images from Azure ACR
+      - task: Bash@3
+        displayName: Pull docker images from ACR
+        inputs:
+          targetType: inline
+          script: |
+            docker pull $(AcrBaseUrl).azurecr.io/mock-register:$(mockRegisterContainerTag)
+            docker tag $(AcrBaseUrl).azurecr.io/mock-register:$(mockRegisterContainerTag) mock-register:latest
 
-- task: Docker@2
-  displayName: 'Re-Tag Mock Data Holder image with :branch-name'
-  inputs:
-    containerRegistry: <<yourContainerRegistryName>>
-    repository: 'mock-data-holder'
-    command: tag
-    arguments: 'mock-data-holder <<yourContainerRegistryName>>.azurecr.io/mock-data-holder:$(Build.SourceBranchName)'
+      # List docker images
+      - task: Docker@2
+        displayName: List Docker images
+        condition: always()
+        inputs:
+          command: images
 
-- task: Docker@2
-  displayName: 'Re-Tag Mock Data Holder image with :latest (for develop branch only)'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
-  inputs:
-    containerRegistry: <<yourContainerRegistryName>>
-    repository: 'mock-data-holder'
-    command: tag
-    arguments: 'mock-data-holder <<yourContainerRegistryName>>.azurecr.io/mock-data-holder:latest'
+      ###################################################################################################
+      # Unit tests
+      ###################################################################################################
 
-- task: CmdLine@2
-  displayName: 'Push Mock Data Holder image with :branch-name tag to ACR'
-  inputs:
-    script: 'docker push <<yourContainerRegistryName>>.azurecr.io/mock-data-holder:$(Build.SourceBranchName)' 
+      # Run unit tests
+      - task: DockerCompose@0
+        displayName: Unit Tests - Up
+        inputs:
+          action: Run a Docker Compose command
+          dockerComposeFile: $(baseSourceDirectory)/docker-compose.UnitTests.yml
+          dockerComposeCommand: up --abort-on-container-exit --exit-code-from mock-data-holder-unit-tests
 
-- task: CmdLine@2
-  displayName: 'Push Mock Data Holder image with :latest tag to ACR (develop branch only)'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
-  inputs:
-    script: 'docker push <<yourContainerRegistryName>>.azurecr.io/mock-data-holder:latest' 
+      # Remove unit tests
+      - task: DockerCompose@0
+        displayName: Unit Tests - Down
+        condition: always()
+        inputs:
+          action: Run a Docker Compose command
+          dockerComposeFile: $(baseSourceDirectory)/docker-compose.UnitTests.yml
+          dockerComposeCommand: down
 
-# mock-data-holder
+      ###################################################################################################
+      # Integration tests
+      ###################################################################################################
 
-- task: Docker@2
-  displayName: 'Re-Tag Mock Data Holder image with :branch-name'
-  inputs:
-    containerRegistry: <<yourContainerRegistryName>>
-    repository: 'mock-data-holder'
-    command: tag
-    arguments: 'mock-data-holder <<yourContainerRegistryName>>.azurecr.io/mock-data-holder:$(Build.SourceBranchName)'
+      # Run integration tests
+      - task: DockerCompose@0
+        displayName: Integration Tests - Up
+        condition: always()
+        inputs:
+          action: Run a Docker Compose command
+          dockerComposeFile: $(baseSourceDirectory)/docker-compose.IntegrationTests.yml
+          dockerComposeCommand: up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
 
-- task: Docker@2
-  displayName: 'Re-Tag Mock Data Holder image with :latest (for develop branch only)'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
-  inputs:
-    containerRegistry: <<yourContainerRegistryName>>
-    repository: 'mock-data-holder'
-    command: tag
-    arguments: 'mock-data-holder <<yourContainerRegistryName>>.azurecr.io/mock-data-holder:latest'
+      # Output Docker Logs
+      - script: |
+          docker logs mock-register
+          docker logs mock-data-holder
+        displayName: 'Output Docker Logs'  
+        condition: always()
 
-- task: CmdLine@2
-  displayName: 'Push Mock Data Holder image with :branch-name tag to ACR'
-  inputs:
-    script: 'docker push <<yourContainerRegistryName>>.azurecr.io/mock-data-holder:$(Build.SourceBranchName)' 
+      # Remove integration tests
+      - task: DockerCompose@0
+        displayName: Integration Tests - Down
+        condition: always()
+        inputs:
+          action: Run a Docker Compose command
+          dockerComposeFile: $(baseSourceDirectory)/docker-compose.IntegrationTests.yml
+          dockerComposeCommand: down
 
-- task: CmdLine@2
-  displayName: 'Push Mock Data Holder image with :latest tag to ACR (develop branch only)'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
-  inputs:
-    script: 'docker push <<yourContainerRegistryName>>.azurecr.io/mock-data-holder:latest' 
+      ###################################################################################################
+      # Publish images
+      ###################################################################################################
+
+      # Save docker image to TAR so it can be published
+      - task: Docker@2
+        displayName: Save MockDataHolder image to TAR
+        inputs:
+          repository: mock-data-holder
+          command: save
+          arguments: --output $(build.artifactstagingdirectory)/mock-data-holder.image.tar mock-data-holder
+          addPipelineData: false
+
+      # Save docker image to TAR so it can be published
+      - task: Docker@2
+        displayName: Save MockDataHolder image to TAR
+        inputs:
+          repository: mock-data-holder
+          command: save
+          arguments: --output $(build.artifactstagingdirectory)/mock-data-holder.image.tar mock-data-holder
+          addPipelineData: false
+
+      # Publish docker image
+      - task: PublishPipelineArtifact@1
+        displayName: Publish container images
+        inputs:
+          path: $(build.artifactstagingdirectory)
+          artifact: Container Images
+
+      ###################################################################################################
+      # Publish test results
+      ###################################################################################################
+
+      # Run trx formatter to output .MD and .CSV
+      - script: |
+          docker run \
+            -v=$(baseSourceDirectory)/_temp/mock-data-holder-integration-tests/testresults/results.trx:/app/results.trx:ro \
+            -v=$(baseSourceDirectory)/_temp/mock-data-holder-integration-tests/testresults/formatted/:/app/out/:rw \
+            $(AcrBaseUrl).azurecr.io/trx-formatter -i results.trx -t "MDH" --outputprefix "MDH" -o out/
+        displayName: "Run trx-formatter"
+        condition: always()
+
+      # Publish mock-data-holder integration tests results
+      - publish: $(baseSourceDirectory)/_temp/mock-data-holder-integration-tests/testresults
+        displayName: Publish integration tests
+        condition: always()
+        artifact: Mock-Data-Holder - Integration tests
+
+      # Surface trx
+      - task: PublishTestResults@2
+        displayName: 'Surface test results to devops'
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: 'VSTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+          testResultsFiles: '**/results.trx'
+
+      ###################################################################################################
+      # EF migrations
+      ###################################################################################################
+
+      - task: UseDotNet@2
+        displayName: 'Use .NET 6 sdk'
+        condition: always()
+        inputs:
+          packageType: sdk
+          version: '6.0.x'
+          performMultiLevelLookup: true
+
+      - task: CmdLine@2
+        displayName: 'Install dotnet-ef'
+        condition: always()
+        inputs:
+          script: 'dotnet tool install --global dotnet-ef'
+
+      - task: CmdLine@2
+        displayName: 'Check dotnet-ef version'
+        condition: always()
+        inputs:
+          script: 'dotnet-ef'
+
+      - script: |
+          cd $(baseSourceDirectory)/CDR.DataHolder.Repository 
+          dotnet ef migrations bundle --context DataHolderDatabaseContext --verbose --self-contained
+          ls
+        displayName: 'Run EF Migrations bundle'
+        condition: always()
+
+      - publish: $(baseSourceDirectory)/CDR.DataHolder.Repository/efbundle
+        displayName: Publish EF Migration bundle
+        condition: always()
+        artifact: Database Migration Scripts
+
+        # CdrAuthServer
+
+      - script: |
+          cd $(Build.SourcesDirectory)/sb-mock-data-holder/Source/cdr-auth-server/Source/CdrAuthServer.Repository
+          dotnet ef migrations bundle --context CdrAuthServervDatabaseContext --verbose --self-contained
+          ls
+        displayName: 'Run EF Migrations bundle (CdrAuthServer)'
+        condition: always()
+
+      - publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/cdr-auth-server/Source/CdrAuthServer.Repository/efbundle
+        displayName: Publish EF Migration bundle (CdrAuthServer)
+        condition: always()
+        artifact: Database Migration Scripts (CdrAuthServer)    
+
+      ###################################################################################################
+      # Tag images and push to ACR
+      ###################################################################################################
+
+      # mock-data-holder
+
+      - task: Docker@2
+        displayName: 'Re-Tag Mock Data Holder image with :branch-name'
+        inputs:
+          containerRegistry: $(AcrBaseUrl)
+          repository: 'mock-data-holder'
+          command: tag
+          arguments: 'mock-data-holder $(AcrBaseUrl).azurecr.io/mock-data-holder:$(Build.SourceBranchName)'
+
+      - task: Docker@2
+        displayName: 'Re-Tag Mock Data Holder image with :latest (for develop branch only)'
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+        inputs:
+          containerRegistry: $(AcrBaseUrl)
+          repository: 'mock-data-holder'
+          command: tag
+          arguments: 'mock-data-holder $(AcrBaseUrl).azurecr.io/mock-data-holder:latest'
+
+      - task: CmdLine@2
+        displayName: 'Push Mock Data Holder image with :branch-name tag to ACR'
+        inputs:
+          script: 'docker push $(AcrBaseUrl).azurecr.io/mock-data-holder:$(Build.SourceBranchName)'
+
+      - task: CmdLine@2
+        displayName: 'Push Mock Data Holder image with :latest tag to ACR (develop branch only)'
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+        inputs:
+          script: 'docker push $(AcrBaseUrl).azurecr.io/mock-data-holder:latest'
+
+      ###################################################################################################
+      # Tag images and push to Shared ACR
+      ###################################################################################################
+      # Pipeline variables are required : SharedAcrBaseUrl and SpSharedAcr
+      # develop branch tags
+      - task: Docker@2
+        displayName: 'Re-Tag Mock Data Holder image with develop-latest (for develop branch only)'  
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))  
+        inputs:
+          containerRegistry: $(SpSharedAcr)
+          repository: 'mock-data-holder'
+          command: tag    
+          arguments: 'mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:develop-latest'
+      # develop-latest-obligation-date tag
+      - task: Docker@2
+        displayName: 'Re-Tag Mock Data Holder image with develop-latest-{obligation-date} (for develop branch only)'  
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+        inputs:
+          containerRegistry: $(SpSharedAcr)
+          repository: 'mock-data-holder'
+          command: tag        
+          arguments: 'mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:develop-latest-$(ObligationDateTag)'
+    
+      # develop branch> build number tag only
+      - task: Docker@2
+        displayName: 'Re-Tag Mock Data Holder image with build number (for develop branch only)'  
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+        inputs:
+          containerRegistry: $(SpSharedAcr)
+          repository: 'mock-data-holder'
+          command: tag    
+          arguments: 'mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.BuildId)'
+      # main branch tags
+      # Pipeline variables are required : SharedAcrBaseUrl
+      - task: Docker@2
+        displayName: 'Re-Tag Mock Data Holder image with main-latest (for main branch only)'
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+        inputs:
+          containerRegistry: $(SpSharedAcr)
+          repository: 'mock-data-holder'
+          command: tag    
+          arguments: 'mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:main-latest'
+      # main-latest-obligation-date tag
+      - task: Docker@2
+        displayName: 'Re-Tag Mock Data Holder image with main-latest-{obligation-date} (for main branch only)'
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+        inputs:
+          containerRegistry: $(SpSharedAcr)
+          repository: 'mock-data-holder'
+          command: tag    
+          arguments: 'mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:main-latest-$(ObligationDateTag)'
+      # Build number tag
+      - task: Docker@2
+        displayName: 'Re-Tag Mock Data Holder image with build number (for main branch only)'
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+        inputs:
+          containerRegistry: $(SpSharedAcr)
+          repository: 'mock-data-holder'
+          command: tag    
+          arguments: 'mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.BuildId)'
+      # Re tag for full version for releases branch
+      - task: Docker@2
+        displayName: 'Re-Tag Mock Data Holder image with full version for releases branch'  
+        # Cannot use releases/* wildcard 
+        condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+        inputs:
+          containerRegistry: $(SpSharedAcr)
+          repository: 'mock-data-holder'
+          command: tag
+          arguments: 'mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.SourceBranchName)'
+      # Re tag release full version and obligation date
+      - task: Docker@2
+        displayName: 'Re-Tag Mock Data Holder image with releases-{obligation-date} for releases branch'    
+        condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+        inputs:
+          containerRegistry: $(SpSharedAcr)
+          repository: 'mock-data-holder'
+          command: tag
+          arguments: 'mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.SourceBranchName)-$(ObligationDateTag)'
+      #  Re tag Major and Mnior Tags using above variables
+      - task: Docker@2
+        displayName: 'Re-Tag Mock Data Holder image with major and minor tags for releases branch'    
+        condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+        inputs:
+          containerRegistry: $(SpSharedAcr)
+          repository: 'mock-data-holder'
+          command: tag    
+          arguments: 'mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:"$(majorMinorVersion)"'
+      #  Re tag Major release Tag using above variables
+      - task: Docker@2  
+        displayName: 'Re-Tag Mock Data Holder image with major tag for releases branch'    
+        condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+        inputs:
+          containerRegistry: $(SpSharedAcr)
+          repository: 'mock-data-holder'
+          command: tag
+          arguments: 'mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:"$(majorVersion)"'
+      # Pushing develop branch tags changes to the ACR
+      - task: CmdLine@2
+        displayName: 'Push Mock Data Holder image with :develop-latest tag to ACR (develop branch only)'  
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+        inputs:
+          script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:develop-latest' 
+      - task: CmdLine@2
+        displayName: 'Push Mock Data Holder image with :develop-latest-obligation-date tag to ACR (develop branch only)'  
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+        inputs:    
+          script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:develop-latest-$(ObligationDateTag)'
+    
+      - task: CmdLine@2
+        displayName: 'Push Mock Data Holder image with :build id tag to ACR (develop branch only)'  
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+        inputs:
+          script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.BuildId)'
+      # Pushing main branch tags changes to the ACR
+      - task: CmdLine@2
+        displayName: 'Push Mock Data Holder image with :main-latest tag to ACR (main branch only)'
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+        inputs:
+          script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:main-latest'
+      - task: CmdLine@2
+        displayName: 'Push Mock Data Holder image with :main-latest-obligation-date tag to ACR (main branch only)'
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+        inputs:
+          script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:main-latest-$(ObligationDateTag)'
+    
+      - task: CmdLine@2
+        displayName: 'Push Mock Data Holder image with :build id tag to ACR (main branch only)'
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+        inputs:
+          script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.BuildId)'
+        
+      # Push  release full version Tag
+      - task: CmdLine@2
+        displayName: 'Push Mock Data Holder image with releases tags to ACR (releases branch only)'  
+        condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+        inputs:
+          script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.SourceBranchName)'
+      # Push  release full version Tag and obligation date
+      - task: CmdLine@2  
+        displayName: 'Push Mock Data Holder image with releases tags to ACR (releases branch only)'  
+        condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+        inputs:
+          script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.SourceBranchName)-$(ObligationDateTag)'
+      # Push Major and Minor release Tags using above variables
+      - task: CmdLine@2  
+        displayName: 'Push Mock Data Holder image with releases tags to ACR (releases branch only)'
+        condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+        inputs:    
+          script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:"$(majorMinorVersion)"'
+  
+      # Push Major release Tag using above variables
+      - task: CmdLine@2  
+        displayName: 'Push Mock Data Holder image with releases tags to ACR (releases branch only)'
+        condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+        inputs:
+          script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:"$(majorVersion)"'

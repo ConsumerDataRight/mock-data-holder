@@ -1,8 +1,11 @@
-﻿using CDR.DataHolder.API.Infrastructure.Filters;
+﻿using CDR.DataHolder.API.Infrastructure;
+using CDR.DataHolder.API.Infrastructure.Filters;
 using CDR.DataHolder.Repository.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Serilog.Context;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace CDR.DataHolder.Manage.API.Controllers
@@ -13,12 +16,14 @@ namespace CDR.DataHolder.Manage.API.Controllers
     {
         private readonly ILogger<ManageController> _logger;
         private readonly DataHolderDatabaseContext _dbContext;
+        private readonly HealthCheckStatuses _healthCheckStatuses;
 
         public ManageController(ILogger<ManageController> logger,
-                                DataHolderDatabaseContext dbContext)
+                                DataHolderDatabaseContext dbContext, HealthCheckStatuses healthCheckStatuses)
         {
             _logger = logger;
             _dbContext = dbContext;
+            _healthCheckStatuses=healthCheckStatuses;
         }
 
         [HttpPost]
@@ -31,7 +36,7 @@ namespace CDR.DataHolder.Manage.API.Controllers
 
             try
             {
-                await _dbContext.SeedDatabaseFromJson(json, _logger, true);
+                await _dbContext.SeedDatabaseFromJson(json, _logger, _healthCheckStatuses, true);
             }
             catch
             {

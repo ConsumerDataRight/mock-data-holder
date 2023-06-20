@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-	<Version>1.2.1</Version>
-	<FileVersion>1.2.1</FileVersion>
-	<AssemblyVersion>1.2.1</AssemblyVersion>
+	<Version>1.2.2</Version>
+	<FileVersion>1.2.2</FileVersion>
+	<AssemblyVersion>1.2.2</AssemblyVersion>
   </PropertyGroup>
 
 	<ItemGroup>
@@ -16,6 +16,10 @@
 		<PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.1" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.23.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\CDR.DataHolder.Repository\CDR.DataHolder.Repository.csproj" />
 	</ItemGroup>
 	
 </Project>

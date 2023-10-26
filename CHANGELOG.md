@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.3] - 2023-10-26
+### Changed
+- Rebuilt to include v1.0.3 of the [Authorisation Server](https://github.com/ConsumerDataRight/authorisation-server)
+
 ## [1.2.2] - 2023-06-20
 ### Changed
 - Regenerated all mTLS, SSA and TLS certificates to allow for another five years before they expire.

@@ -133,22 +133,22 @@ jobs:
     # Run banking integration tests
     - name: Run banking integration tests
       run: |
-        docker-compose -f './mock-data-holder/Source/DockerCompose/docker-compose.IntegrationTests.Banking.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
+        docker compose -f './mock-data-holder/Source/DockerCompose/docker-compose.IntegrationTests.Banking.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
     
     # Run energy integration tests
     - name: Run energy integration tests
       run: |
-        docker-compose -f './mock-data-holder/Source/DockerCompose/docker-compose.IntegrationTests.Energy.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
+        docker compose -f './mock-data-holder/Source/DockerCompose/docker-compose.IntegrationTests.Energy.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
 
     # Remove banking integration tests
     - name: Remove banking integration tests
       run: |
-        docker-compose -f './mock-data-holder/Source/DockerCompose/docker-compose.IntegrationTests.Banking.yml' down
+        docker compose -f './mock-data-holder/Source/DockerCompose/docker-compose.IntegrationTests.Banking.yml' down
 
     # Remove energy integration tests
     - name: Remove energy integration tests
       run: |
-        docker-compose -f './mock-data-holder/Source/DockerCompose/docker-compose.IntegrationTests.Energy.yml' down
+        docker compose -f './mock-data-holder/Source/DockerCompose/docker-compose.IntegrationTests.Energy.yml' down
 
     # Archive unit test results
     - name: Archive unit test results

@@ -32,7 +32,8 @@ on:
       - 'CertificateManagement/**'
 
 env:
-  DOCKER_IMAGE: consumerdataright/mock-data-holder
+  DOCKER_BANKING_IMAGE: consumerdataright/mock-data-holder
+  DOCKER_ENERGY_IMAGE: consumerdataright/mock-data-holder-energy
 
 jobs:
   build-docker:
@@ -44,13 +45,28 @@ jobs:
       with:
         path: ./mock-data-holder
     
-    - name: Setup Docker Metadata
-      id: meta
+    - name: Setup Banking Docker Metadata
+      id: meta-banking
       uses: docker/metadata-action@v3
       with:
         # list of Docker images to use as base name for tags
         images: |
-          ${{ env.DOCKER_IMAGE }}
+          ${{ env.DOCKER_BANKING_IMAGE }}
+        # generate Docker tags based on the following events/attributes
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+
+    - name: Setup Energy Docker Metadata
+      id: meta-energy
+      uses: docker/metadata-action@v3
+      with:
+        # list of Docker images to use as base name for tags
+        images: |
+          ${{ env.DOCKER_ENERGY_IMAGE }}
         # generate Docker tags based on the following events/attributes
         tags: |
           type=ref,event=branch
@@ -101,7 +117,7 @@ jobs:
         target: Banking
         platforms: linux/amd64,linux/arm64
         push: ${{ github.repository_owner == 'ConsumerDataRight' && github.event_name != 'pull_request' }}
-        tags: ${{ steps.meta.outputs.tags }}
+        tags: ${{ steps.meta-banking.outputs.tags }}
         
     - name: Banking Image digest
       run: echo banking ${{ steps.docker_banking_build.outputs.digest }}
@@ -115,16 +131,25 @@ jobs:
         target: Energy
         platforms: linux/amd64,linux/arm64
         push: ${{ github.repository_owner == 'ConsumerDataRight' && github.event_name != 'pull_request' }}
-        tags: ${{ steps.meta.outputs.tags }}
+        tags: ${{ steps.meta-energy.outputs.tags }}
         
     - name: Energy Image digest
       run: echo energy ${{ steps.docker_energy_build.outputs.digest }}
 
-    - name: Docker Hub Description
+    - name: Docker Hub Banking Description
       if: ${{ github.repository_owner == 'ConsumerDataRight' && github.ref_name == 'main' }}
       uses: peter-evans/dockerhub-description@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-        repository: ${{ env.DOCKER_IMAGE }}
+        repository: ${{ env.DOCKER_BANKING_IMAGE }}
+        enable-url-completion: true
+
+    - name: Docker Hub Energy Description
+      if: ${{ github.repository_owner == 'ConsumerDataRight' && github.ref_name == 'main' }}
+      uses: peter-evans/dockerhub-description@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        repository: ${{ env.DOCKER_ENERGY_IMAGE }}
         enable-url-completion: true

@@ -98,7 +98,7 @@ jobs:
     # Build mock-data-holder energy image
     - name: Build the mock-data-holder energy image
       run: |
-        docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile --target Energy --tag mock-data-holder:latest
+        docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile --target Energy --tag mock-data-holder-energy:latest
         
     # Build mock-data-holder-banking-unit-tests image
     - name: Build the mock-data-holder-banking-unit-tests image

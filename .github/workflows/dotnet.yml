@@ -165,7 +165,7 @@ jobs:
       with:
         name: banking-integration-test-results
         path: ${{ github.workspace }}/mock-data-holder/Source/DockerCompose/_temp/mock-data-holder-banking-integration-tests/testresults
-    
+        
     # Archive energy integration test results
     - name: Archive energy integration test results
       uses: actions/upload-artifact@v2
@@ -174,3 +174,29 @@ jobs:
         name: energy-integration-test-results
         path: ${{ github.workspace }}/mock-data-holder/Source/DockerCompose/_temp/mock-data-holder-energy-integration-tests/testresults
         
+   # Publish unit test 
+    - name: Publish Unit Test Report
+      uses: dorny/test-reporter@v1
+      with:
+        artifact: unit-test-results
+        name: Unit Tests
+        path: '*.trx'
+        reporter: dotnet-trx
+    
+    # Publish banking integration Test Report
+    - name: Publish Banking Integration Test Report
+      uses: dorny/test-reporter@v1
+      with:
+        artifact: banking-integration-test-results
+        name: Banking Integration Tests
+        path: '*.trx'
+        reporter: dotnet-trx
+
+    # Publish energy integration Test Report
+    - name: Publish Energy Integration Test Report
+      uses: dorny/test-reporter@v1
+      with:
+        artifact: energy-integration-test-results
+        name: Energy Integration Tests
+        path: '*.trx'
+        reporter: dotnet-trx

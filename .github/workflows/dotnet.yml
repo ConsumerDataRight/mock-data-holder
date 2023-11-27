@@ -90,18 +90,31 @@ jobs:
         ls
         cd ..
 
-    # Build mock-data-holder image
-    - name: Build the mock-data-holder image
+    # Build mock-data-holder banking image
+    - name: Build the mock-data-holder banking image
       run: |
-        docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile --tag mock-data-holder:latest
-    # Build mock-data-holder-unit-tests image
-    - name: Build the mock-data-holder-unit-tests image
+        docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile --target Banking --tag mock-data-holder:latest
+
+    # Build mock-data-holder energy image
+    - name: Build the mock-data-holder energy image
+      run: |
+        docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile --target Energy --tag mock-data-holder:latest
+        
+    # Build mock-data-holder-banking-unit-tests image
+    - name: Build the mock-data-holder-banking-unit-tests image
       run: |
         docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile.unit-tests --tag mock-data-holder-unit-tests:latest
-    # Build mock-data-holder-integration-tests image
-    - name: Build the mock-data-holder-integration-tests image
+    
+    # Build mock-data-holder-banking-integration-tests image
+    - name: Build the mock-data-holder-banking-integration-tests image
       run: |
-        docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile.integration-tests --tag mock-data-holder-integration-tests:latest
+        docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile.integration-tests --build-arg INTEGRATION_TESTS_LOCATION=Banking/CDR.DataHolder.Banking.Tests.IntegrationTests --tag mock-data-holder-integration-tests-banking:latest
+
+    # Build mock-data-holder-energy-integration-tests image
+    - name: Build the mock-data-holder-energy-integration-tests image
+      run: |
+        docker build ./mock-data-holder/Source --file ./mock-data-holder/Source/Dockerfile.integration-tests --build-arg INTEGRATION_TESTS_LOCATION=Energy/CDR.DataHolder.Energy.Tests.IntegrationTests --tag mock-data-holder-integration-tests-energy:latest
+
     # List docker images
     - name: List Docker images
       run: |
@@ -110,22 +123,32 @@ jobs:
     # Run unit tests
     - name: Run unit tests
       run: |
-        docker-compose -f './mock-data-holder/Source/docker-compose.UnitTests.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-unit-tests
+        docker-compose -f './mock-data-holder/Source/DockerCompose/docker-compose.UnitTests.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-unit-tests
 
     # Remove unit tests
     - name: Remove unit tests
       run: |
-        docker-compose -f './mock-data-holder/Source/docker-compose.UnitTests.yml' down
+        docker-compose -f './mock-data-holder/Source/DockerCompose/docker-compose.UnitTests.yml' down
 
-    # Run integration tests
-    - name: Run integration tests
+    # Run banking integration tests
+    - name: Run banking integration tests
       run: |
-        docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
+        docker-compose -f './mock-data-holder/Source/DockerCompose/docker-compose.IntegrationTests.Banking.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
+    
+    # Run energy integration tests
+    - name: Run energy integration tests
+      run: |
+        docker-compose -f './mock-data-holder/Source/DockerCompose/docker-compose.IntegrationTests.Energy.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
 
-    # Remove integration tests
-    - name: Remove integration tests
+    # Remove banking integration tests
+    - name: Remove banking integration tests
       run: |
-        docker-compose -f './mock-data-holder/Source/docker-compose.IntegrationTests.yml' down
+        docker-compose -f './mock-data-holder/Source/DockerCompose/docker-compose.IntegrationTests.Banking.yml' down
+
+    # Remove energy integration tests
+    - name: Remove energy integration tests
+      run: |
+        docker-compose -f './mock-data-holder/Source/DockerCompose/docker-compose.IntegrationTests.Energy.yml' down
 
     # Archive unit test results
     - name: Archive unit test results
@@ -133,20 +156,21 @@ jobs:
       if: always()
       with:
         name: unit-test-results
-        path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder-unit-tests/testresults
+        path: ${{ github.workspace }}/mock-data-holder/Source/DockerCompose/_temp/mock-data-holder-unit-tests/testresults
 
-    # Archive integration test results
-    - name: Archive integration test results
+    # Archive banking integration test results
+    - name: Archive banking integration test results
       uses: actions/upload-artifact@v2
       if: always()
       with:
-        name: integration-test-results
-        path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder-integration-tests/testresults
-
-    # Archive mock data holder logs
-    - name: Archive mock data holder logs
+        name: banking-integration-test-results
+        path: ${{ github.workspace }}/mock-data-holder/Source/DockerCompose/_temp/mock-data-holder-banking-integration-tests/testresults
+    
+    # Archive energy integration test results
+    - name: Archive energy integration test results
       uses: actions/upload-artifact@v2
       if: always()
       with:
-        name: integration-test-artifacts
-        path: ${{ github.workspace }}/mock-data-holder/Source/_temp/mock-data-holder/tmp
+        name: energy-integration-test-results
+        path: ${{ github.workspace }}/mock-data-holder/Source/DockerCompose/_temp/mock-data-holder-energy-integration-tests/testresults
+        

@@ -60,28 +60,45 @@ COPY ./cdr-auth-server/Source/CdrAuthServer/. /app/CdrAuthServer
 COPY ./cdr-auth-server/Source/CdrAuthServer.Infrastructure/. /app/CdrAuthServer.Infrastructure
 COPY ./cdr-auth-server/Source/CdrAuthServer.API.Logger/. /app/CdrAuthServer.API.Logger
 
-COPY ./CDR.DataHolder.API.Infrastructure/. /app/CDR.DataHolder.API.Infrastructure
-COPY ./CDR.DataHolder.Repository/. /app/CDR.DataHolder.Repository
-COPY ./CDR.DataHolder.Domain/. /app/CDR.DataHolder.Domain
-COPY ./CDR.DataHolder.Admin.API/. /app/CDR.DataHolder.Admin.API
-COPY ./CDR.DataHolder.Manage.API/. /app/CDR.DataHolder.Manage.API
-COPY ./CDR.DataHolder.Public.API/. /app/CDR.DataHolder.Public.API
-COPY ./CDR.DataHolder.Resource.API/. /app/CDR.DataHolder.Resource.API
-COPY ./CDR.DataHolder.API.Gateway.mTLS/. /app/CDR.DataHolder.API.Gateway.mTLS
-COPY ./CDR.DataHolder.API.Logger/. /app/CDR.DataHolder.API.Logger
+COPY ./Shared/CDR.DataHolder.Admin.API/. /app/Shared/CDR.DataHolder.Admin.API
+COPY ./Shared/CDR.DataHolder.Shared.API.Gateway.mTLS/. /app/Shared/CDR.DataHolder.Shared.API.Gateway.mTLS
+COPY ./Shared/CDR.DataHolder.Shared.API.Infrastructure/. /app/Shared/CDR.DataHolder.Shared.API.Infrastructure
+COPY ./Shared/CDR.DataHolder.Shared.API.Logger/. /app/Shared/CDR.DataHolder.Shared.API.Logger
+COPY ./Shared/CDR.DataHolder.Manage.API/. /app/Shared/CDR.DataHolder.Manage.API
+COPY ./Shared/CDR.DataHolder.Public.API/. /app/Shared/CDR.DataHolder.Public.API
+COPY ./Shared/CDR.DataHolder.Shared.Domain/. /app/Shared/CDR.DataHolder.Shared.Domain
+COPY ./Shared/CDR.DataHolder.Shared.Repository/. /app/Shared/CDR.DataHolder.Shared.Repository
+COPY ./Shared/CDR.DataHolder.Shared.Business/. /app/Shared/CDR.DataHolder.Shared.Business
+
+COPY ./Common/CDR.DataHolder.Common.API/. /app/Common/CDR.DataHolder.Common.API
+
+COPY ./Banking/CDR.DataHolder.Banking.Domain/. /app/Banking/CDR.DataHolder.Banking.Domain
+COPY ./Banking/CDR.DataHolder.Banking.Repository/. /app/Banking/CDR.DataHolder.Banking.Repository
+COPY ./Banking/CDR.DataHolder.Banking.Resource.API/. /app/Banking/CDR.DataHolder.Banking.Resource.API
+COPY ./Banking/CDR.DataHolder.Banking.Resource.API.UnitTests/. /app/Banking/CDR.DataHolder.Banking.Resource.API.UnitTests
+
+COPY ./Energy/CDR.DataHolder.Energy.Domain/. /app/Energy/CDR.DataHolder.Energy.Domain
+COPY ./Energy/CDR.DataHolder.Energy.Repository/. /app/Energy/CDR.DataHolder.Energy.Repository
+COPY ./Energy/CDR.DataHolder.Energy.Resource.API/. /app/Energy/CDR.DataHolder.Energy.Resource.API
+COPY ./Energy/CDR.DataHolder.Energy.Resource.API.UnitTests/. /app/Energy/CDR.DataHolder.Energy.Resource.API.UnitTests
+
 
 WORKDIR /app/CdrAuthServer
 RUN dotnet publish -c Release -o /app/publish/cdrauthserver
 
-WORKDIR /app/CDR.DataHolder.Admin.API
+WORKDIR /app/Shared/CDR.DataHolder.Admin.API
 RUN dotnet publish -c Release -o /app/publish/admin
-WORKDIR /app/CDR.DataHolder.Manage.API
+WORKDIR /app/Shared/CDR.DataHolder.Manage.API
 RUN dotnet publish -c Release -o /app/publish/manage
-WORKDIR /app/CDR.DataHolder.Public.API
+WORKDIR /app/Shared/CDR.DataHolder.Public.API
 RUN dotnet publish -c Release -o /app/publish/public
-WORKDIR /app/CDR.DataHolder.Resource.API
-RUN dotnet publish -c Release -o /app/publish/resource
-WORKDIR /app/CDR.DataHolder.API.Gateway.mTLS
+WORKDIR /app/Common/CDR.DataHolder.Common.API
+RUN dotnet publish -c Release -o /app/publish/common
+WORKDIR /app/Banking/CDR.DataHolder.Banking.Resource.API
+RUN dotnet publish -c Release -o /app/publish/bankingresource
+WORKDIR /app/Energy/CDR.DataHolder.Energy.Resource.API
+RUN dotnet publish -c Release -o /app/publish/energyresource
+WORKDIR /app/Shared/CDR.DataHolder.Shared.API.Gateway.mTLS
 RUN dotnet publish -c Release -o /app/publish/gateway-mtls
 
 COPY supervisord.conf /app/publish/supervisord.conf
@@ -108,11 +125,13 @@ COPY --from=ui-build /etc/nginx/ssl/authserver-ui.key /etc/nginx/ssl/authserver-
 COPY --from=publish /app/publish/supervisord.conf .
 COPY --from=publish /app/publish/wait-until-manage-healthy-then-start.sh .
 COPY --from=publish /app/publish/cdrauthserver ./cdrauthserver
-COPY --from=publish /app/publish/resource ./resource
+COPY --from=publish /app/publish/bankingresource ./bankingresource
+COPY --from=publish /app/publish/energyresource ./energyresource
 COPY --from=publish /app/publish/admin ./admin
 COPY --from=publish /app/publish/manage ./manage
 COPY --from=publish /app/publish/gateway-mtls ./gateway-mtls
 COPY --from=publish /app/publish/public ./public
+COPY --from=publish /app/publish/common ./common
 
 RUN apt-get update && apt-get install -y supervisor
 
@@ -148,7 +167,63 @@ USER appuser:appgroup
 
 ENV ASPNETCORE_URLS=https://+:8001;https://+:8002
 
-# CdrAuthServer is embedded in MDH so override settings 
+FROM final AS Energy
+
+# CdrAuthServer is embedded in MDHE so override settings 
+ENV CdrAuthServer__Issuer=https://mock-data-holder-energy:8101
+ENV CdrAuthServer__BaseUri=https://mock-data-holder-energy:8101
+ENV CdrAuthServer__SecureBaseUri=https://mock-data-holder-energy:8102
+ENV CdrAuthServer__ScopesProfile=energy
+ENV AccessTokenIntrospectionEndpoint=https://mock-data-holder-energy:8101/connect/introspect-internal
+ENV CdrAuthServer__HttpsPort=8101
+ENV CdrAuthServer__HttpPort=8180
+ENV CdrAuthServer__AuthUiBaseUri=https://mock-data-holder-energy:3100
+ENV CdrAuthServer__SeedData__FilePath="Data/customer-seed-data-energy.json"
+ENV ConnectionStrings__CDR_Auth_Server_RW="Server=mssql;Database=cdr-mdhe-auth-server;User Id='SA';Password='Pa{}w0rd2019';MultipleActiveResultSets=True;TrustServerCertificate=True;Encrypt=False"
+ENV ConnectionStrings__CDR_Auth_Server_Migrations_DBO="Server=mssql;Database=cdr-mdhe-auth-server;User Id='SA';Password='Pa{}w0rd2019';MultipleActiveResultSets=True;TrustServerCertificate=True;Encrypt=False"
+ENV ConnectionStrings__CDR_Auth_Server_Logging_DBO="Server=mssql;Database=cdr-mdhe-auth-server;User Id='SA';Password='Pa{}w0rd2019';MultipleActiveResultSets=True;TrustServerCertificate=True;Encrypt=False"
+ENV ConnectionStrings__CDR_Auth_Server_RequestResponse_Logging_DBO="Server=mssql;Database=cdr-mdhe-auth-server;User Id='SA';Password='Pa{}w0rd2019';MultipleActiveResultSets=True;TrustServerCertificate=True;Encrypt=False"
+ENV CdrAuthServer__AutoFillCustomerId="mmoss"
+ENV CdrAuthServer__BrandName="Mock Data Holder Energy"
+ENV CdrAuthServer__HeadlessMode=false
+ENV REACT_APP_DATA_FILE_NAME=customer-seed-data-energy.json
+ENV REACT_APP_CLUSTER_DATA_FILE_NAME=cluster-seed-data.json
+ENV REACT_APP_DEFAULT_USER_NAME_TEXT="mmoss, hhare"
+ENV REACT_APP_CDR_POLICY_LINK=https://cdr-policy
+ENV REACT_APP_JWKS_URI=https://mock-data-holder-energy:8101/.well-known/openid-configuration/jwks
+ENV REACT_APP_CDR_FAQ_LINK=https://consumerdataright.atlassian.net/wiki/spaces/PT/pages/4948421/CDR+Sandbox
+
+#Energy APIs Overrides
+ENV Industry=Energy
+ENV ConnectionStrings__DataHolder_DB="Server=mssql;Database=cdr-mdhe;User Id='SA';Password='Pa{}w0rd2019';MultipleActiveResultSets=True;TrustServerCertificate=True;Encrypt=False"
+ENV ConnectionStrings__DataHolder_Logging_DB=Server="mssql;Database=cdr-mdhe;User Id='SA';Password='Pa{}w0rd2019';MultipleActiveResultSets=True;TrustServerCertificate=True;Encrypt=False"
+ENV ConnectionStrings__DataHolder_RequestResponse_Logging_DB="Server=mssql;Database=cdr-mdhe;User Id='SA';Password='Pa{}w0rd2019';MultipleActiveResultSets=True;TrustServerCertificate=True;Encrypt=False"
+ENV ConnectionStrings__DataHolder_Migrations_DB="Server=mssql;Database=cdr-mdhe;User Id='SA';Password='Pa{}w0rd2019';MultipleActiveResultSets=True;TrustServerCertificate=True;Encrypt=False"
+
+ #Manage API
+ENV SeedData__FilePath="Data/seed-data.energy.json"
+
+ #Admin API
+ENV AdminBaseUri=https://mock-data-holder-energy:8102
+ENV DataHolderJwksUri=https://mock-data-holder-energy:8101/.well-known/openid-configuration/jwks
+ENV DataHolderIssuer=https://mock-data-holder-energy:8101
+ENV RegisterJwksUri=https://mock-register:7000/cdr-register/v1/jwks
+
+#PUBLIC API
+ENV Domain=mock-data-holder-energy:8100
+
+#Resource API and Common API
+ENV IdentityServerIssuerUri=https://mock-data-holder-energy:8101
+ENV IdentityServerUrl=https://mock-data-holder-energy:8101
+ENV ResourceBaseUri=https://mock-data-holder-energy:8102
+
+
+# Entry point #################################################################
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf", "-u", "1000"]
+
+FROM final AS Banking
+
+############ CdrAuthServer is embedded in MDH so override settings 
 ENV CdrAuthServer__Issuer=https://mock-data-holder:8001
 ENV CdrAuthServer__BaseUri=https://mock-data-holder:8001
 ENV CdrAuthServer__SecureBaseUri=https://mock-data-holder:8002
@@ -168,6 +243,36 @@ ENV REACT_APP_DEFAULT_USER_NAME_TEXT="jwilson, ksmith"
 ENV REACT_APP_CDR_POLICY_LINK=https://cdr-policy
 ENV REACT_APP_JWKS_URI=https://mock-data-holder:8001/.well-known/openid-configuration/jwks
 ENV REACT_APP_CDR_FAQ_LINK=https://consumerdataright.atlassian.net/wiki/spaces/PT/pages/4948421/CDR+Sandbox
+####END Of AuthServer
+
+######Banking overrides for DH################################################
+ENV Industry=Banking
+ENV ConnectionStrings__DataHolder_DB="Server=mssql;Database=cdr-mdh;User Id='SA';Password='Pa{}w0rd2019';MultipleActiveResultSets=True;TrustServerCertificate=True;Encrypt=False"
+ENV ConnectionStrings__DataHolder_Logging_DB="Server=mssql;Database=cdr-mdh;User Id='SA';Password='Pa{}w0rd2019';MultipleActiveResultSets=True;TrustServerCertificate=True;Encrypt=False"
+ENV ConnectionStrings__DataHolder_RequestResponse_Logging_DB="Server=mssql;Database=cdr-mdh;User Id='SA';Password='Pa{}w0rd2019';MultipleActiveResultSets=True;TrustServerCertificate=True;Encrypt=False"
+ENV ConnectionStrings__DataHolder_Migrations_DB="Server=mssql;Database=cdr-mdh;User Id='SA';Password='Pa{}w0rd2019';MultipleActiveResultSets=True;TrustServerCertificate=True;Encrypt=False"
+
+#Manage API
+ENV SeedData__FilePath="Data/seed-data.banking.json"
+
+#Admin API
+ENV AdminBaseUri=https://mock-data-holder:8002
+ENV DataHolderJwksUri=https://mock-data-holder:8001/.well-known/openid-configuration/jwks
+ENV DataHolderIssuer=https://mock-data-holder:8001
+ENV RegisterJwksUri=https://mock-register:7000/cdr-register/v1/jwks
+
+#PUBLIC API
+ENV Domain=mock-data-holder:8000
+
+#Resource API and Common API
+ENV IdentityServerIssuerUri=https://mock-data-holder:8001
+ENV IdentityServerUrl=https://mock-data-holder:8001
+ENV ResourceBaseUri=https://mock-data-holder:8002
+
+# Entry point #################################################################
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf", "-u", "1000"]
+
+FROM final AS NoIndustry
 
 # Entry point #################################################################
 ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf", "-u", "1000"]

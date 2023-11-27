@@ -1,0 +1,41 @@
+# Docker compose for local development
+# - Uses pre-built images from consumerdataright for external services.
+# - Builds fresh images of data holders for each industry.
+version: '3.8'
+
+name: mock-data-holder-local
+services:
+  mock-register:
+    extends:
+      file: docker-compose.yml
+      service: mock-register
+
+  mock-data-holder:
+    image: mock-data-holder
+    extends:
+      file: docker-compose.yml
+      service: mock-data-holder
+    build:
+      context: ..
+      dockerfile: Dockerfile        
+      target: "Banking"     
+
+  mock-data-holder-energy:
+    image: mock-data-holder-energy
+    extends:
+      file: docker-compose.yml
+      service: mock-data-holder-energy
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: "Energy"
+  
+  mock-data-recipient:
+    extends:
+      file: docker-compose.yml
+      service: mock-data-recipient
+
+  mssql:
+    extends:
+      file: docker-compose.yml
+      service: mssql

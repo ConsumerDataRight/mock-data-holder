@@ -17,7 +17,9 @@ git clone https://github.com/ConsumerDataRight/authorisation-server.git
 ## Run solution using .Net command line
 
 1. Download and install the free [MS Windows Terminal](https://docs.microsoft.com/en-us/windows/terminal/get-started "Download the free Windows Terminal here").  
-2. Use the [Start-Data-Holder](../../Source/Start-Data-Holder.bat "Use the Start-Data-Holder .Net CLI batch file here") batch file to build and run the required projects to start the Mock Data Holder.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2a. Use the [Start-Data-Holder-Banking](../../Source/Banking/Start-Data-Holder-Banking.bat "Use the Start-Data-Holder-Banking .Net CLI batch file here") batch file to build and run the required projects to start the Mock Data Holder Banking.\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2b. Use the [Start-Data-Holder-Energy](../../Source/Energy/Start-Data-Holder-Energy.bat "Use the Start-Data-Holder-Energy .Net CLI batch file here") batch file to build and run the required projects to start the Mock Data Holder Energy.
 
 [<img src="./images/DotNet-CLI-Running.png" width='625' alt="Start projects from .Net CLI"/>](./images/DotNet-CLI-Running.png)
 
@@ -39,19 +41,31 @@ An output window will be launched for the Authorisation Server project showing t
 
 ## Run solution using MS Visual Studio
 
-### Start the Mock Data Holder
-To launch the Mock Data Holder solution using MS Visual Studio, the following projects need to be started:
+### Start the Mock Data Holder Banking
+To launch the Mock Data Holder Banking solution using MS Visual Studio, the following projects need to be started:
 ```
-CDR.DataHolder.API.Gateway.mTLS
-CDR.DataHolder.Resource.API
+CDR.DataHolder.Shared.API.Gateway.mTLS
+CDR.DataHolder.Banking.Resource.API
 CDR.DataHolder.Public.API
 CDR.DataHolder.Manage.API
+CDR.DataHolder.Common.API
 ```
+
+### Start the Mock Data Holder Energy
+To launch the Mock Data Holder Energy solution using MS Visual Studio, the following projects need to be started:
+```
+CDR.DataHolder.Shared.API.Gateway.mTLS
+CDR.DataHolder.Energy.Resource.API
+CDR.DataHolder.Public.API
+CDR.DataHolder.Manage.API
+CDR.DataHolder.Common.API
+```
+
 The following steps outline describe how to launch the Mock Data Holder solution using MS Visual Studio:
 
-1. Navigate to the solution properties and select a "Start" action for the required projects.
-
-[<img src="./images/MS-Visual-Studio-Select-multiple-projects.png" width='625' alt="Projects selected to be started"/>](./images/MS-Visual-Studio-Select-multiple-projects.png)
+1. Navigate to the solution properties and select a "Start" action for the required projects for Banking or Energy.
+    1. Use the Start the Mock Data Holder Banking projects shown above as start up projects in Microsoft Visual Studio to start a Banking Mock Data Holder
+    2. Use the Start the Mock Data Holder Energy projects shwon above as start up projects in Microsoft Visual Studio to start an Energy Mock Data Holder
 
 2. Click "Start" to start the Mock Data Holder solution.
 

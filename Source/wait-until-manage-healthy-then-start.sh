@@ -1,9 +1,14 @@
 
 while true; do
-
+    
     # Check if manage api is healthy
-    echo "wait-until-manage-healthy-then-start.sh -" $1 "- Waiting for https://localhost:8005/health to respond OK"
-    wget --no-check-certificate --no-verbose --spider https://localhost:8005/health
+    if [ "$Industry" = "Energy" ]; then
+        echo "wait-until-manage-healthy-then-start.sh -" $1 "- Waiting for https://localhost:8105/health to respond OK"
+        wget --no-check-certificate --no-verbose --spider https://localhost:8105/health
+    elif [ "$Industry" = "Banking" ]; then
+        echo "wait-until-manage-healthy-then-start.sh -" $1 "- Waiting for https://localhost:8005/health to respond OK"
+        wget --no-check-certificate --no-verbose --spider https://localhost:8005/health
+    fi
 
     # If healthy then exit code will be 0, so exit loop
     if [ $? -eq 0 ]; then 

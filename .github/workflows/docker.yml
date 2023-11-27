@@ -92,15 +92,39 @@ jobs:
       run: |
         cp -r ${{ github.workspace }}/cdr-auth-server ${{ github.workspace }}/mock-data-holder/Source/cdr-auth-server
     
-    - name: Build and push Docker image
-      id: docker_build
+    - name: Build and push Banking Docker image
+      id: docker_banking_build
       uses: docker/build-push-action@v2
       with:
         context: ./mock-data-holder/Source
         file: ./mock-data-holder/Source/Dockerfile
+        target: Banking
         platforms: linux/amd64,linux/arm64
         push: ${{ github.repository_owner == 'ConsumerDataRight' && github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         
-    - name: Image digest
-      run: echo ${{ steps.docker_build.outputs.digest }}
+    - name: Banking Image digest
+      run: echo banking ${{ steps.docker_banking_build.outputs.digest }}
+
+    - name: Build and push Energy Docker image
+      id: docker_energy_build
+      uses: docker/build-push-action@v2
+      with:
+        context: ./mock-data-holder/Source
+        file: ./mock-data-holder/Source/Dockerfile
+        target: Energy
+        platforms: linux/amd64,linux/arm64
+        push: ${{ github.repository_owner == 'ConsumerDataRight' && github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        
+    - name: Energy Image digest
+      run: echo energy ${{ steps.docker_energy_build.outputs.digest }}
+
+    - name: Docker Hub Description
+      if: ${{ github.repository_owner == 'ConsumerDataRight' && github.ref_name == 'main' }}
+      uses: peter-evans/dockerhub-description@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        repository: ${{ env.DOCKER_IMAGE }}
+        enable-url-completion: true

@@ -4,9 +4,9 @@ The Mock Data Holder image is available on [Docker Hub](https://hub.docker.com/r
 
 There are a number of ways that this image can be used.
 
-## Pull the Mock Data Holder image from Docker Hub
+## Pull the Mock Data Holder Banking and Energy images from Docker Hub
 
-Run the following command to pull the latest image from Docker Hub:
+Run the following command to pull the latest Banking Mock Data Holder image from Docker Hub:
 
 ```
 docker pull consumerdataright/mock-data-holder
@@ -21,7 +21,23 @@ docker pull consumerdataright/mock-data-holder:main
 # Pull the 0.5.0 version of the image
 docker pull consumerdataright/mock-data-holder:0.5.0
 ```
+Note: The default 'mock-data-holder' image is a Banking Mock Data Holder.
 
+Run the following command to pull the latest Energy Mock Data Holder image from Docker Hub:
+
+```
+docker pull consumerdataright/mock-data-holder-energy
+```
+
+You can also pull a specific image by supplying a tag, such as the name of the branch ("main" or "develop") or a release number:
+
+```
+# Pull the image from the main branch
+docker pull consumerdataright/mock-data-holder-energy:main
+
+# Pull the 0.5.0 version of the image
+docker pull consumerdataright/mock-data-holder-energy:0.5.0
+```
 ## Run a multi-container Mock CDR Ecosystem
 
 Multiple containers can be run concurrently to simulate a CDR ecosystem.  The [Mock Register](https://github.com/ConsumerDataRight/mock-register), [Mock Data Holder](https://github.com/ConsumerDataRight/mock-data-holder), [Mock Data Holder Energy](https://github.com/ConsumerDataRight/mock-data-holder-energy) and [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient) containers can be run by using the `docker-compose.yml` file.
@@ -100,7 +116,7 @@ Build and run the Mock Data Recipient in MS Visual Studio. Our switched out Mock
 
 For more details on how to run a mock solution in MS Visual Studio see [help guide](../debugging/HELP.md).
 
-## Build your own Mock Data Holder docker image
+## Build and run Mock Data Holder Banking and Mock Data Holder Energy container
 A Mock Data Holder Docker image can also be built and run as a Docker container using your local source code.
 To build this image, you will also need to clone the [Authorisation Server](https://github.com/ConsumerDataRight/authorisation-server) repository from GitHub.
 
@@ -108,17 +124,27 @@ A PowerShell script is available in the Source directory that can be executed in
 ```
 .\copy-cdr-auth-server.ps1
 ```
-Build the new docker image.
+Build a new docker image for Banking.
 ```
-docker build -f Dockerfile -t mock-data-holder .
+docker build -f Dockerfile --target Banking -t mock-data-holder .
 ```
+
+Build a new docker image for Energy.
+```
+docker build -f Dockerfile --target Energy -t mock-data-holder-energy .
+```
+
 Run the SQL Server image.
 ```
 docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Pa{}w0rd2019" -p 1433:1433 --name sql1 -h sql1 -d mcr.microsoft.com/mssql/server:2019-latest
 ```
-Run the new docker image.
+Run a new Banking docker container.
 ```
-docker run -d -h mock-data-holder -p 8000:8000 -p 8001:8001 -p 8002:8002 -p 8005:8005 -p 3000:3000 --add-host=mssql:host-gateway --name mock-data-holder mock-data-holder
+docker run -d -h mock-data-holder -p 8000:8000 -p 8001:8001 -p 8002:8002 -p 8005:8005 -p 8006:8006 -p 3000:3000 --add-host=mssql:host-gateway --name mock-data-holder mock-data-holder
+```
+Run a new Energy docker container.
+```
+docker run -d -h mock-data-holder-energy -p 8100:8100 -p 8101:8001 -p 8102:8102 -p 8105:8105 -p 8106:8106 -p 3100:3100 --add-host=mssql:host-gateway --name mock-data-holder-energy mock-data-holder-energy
 ```
 ### Connecting to the MS SQL database container
 You can connect to the MS SQL database container from MS SQL Server Management Studio (SSMS) using the following settings:

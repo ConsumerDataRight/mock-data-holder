@@ -1,15 +1,27 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
 ## [Unreleased]
 
-## [1.2.3] - 2023-10-26
+## [2.0.1] - 2023-11-29
+### Fixed
+- Refactored code and fixed code smells
+
+## [2.0.0] - 2023-10-26
 ### Changed
-- Rebuilt to include v1.0.3 of the [Authorisation Server](https://github.com/ConsumerDataRight/authorisation-server)
+- Combined Mock Data Holder Banking and Energy repositories into a single code base.
+- Refactored automated tests to use a shared NuGet package.
+
+### Added
+- Get Metrics v4 and v5 endpoints added.
+
+## [1.2.3] - 2023-10-03
+### Changed
+- Added the ability to pass the client certificate received for MTLS to backend APIs via custom header of X-TlsClientCert.
 
 ## [1.2.2] - 2023-06-20
 ### Changed

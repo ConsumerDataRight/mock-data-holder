@@ -22,16 +22,30 @@ jobs:
         path: '*.trx'
         reporter: dotnet-trx
 
-  integration-test-report:
+  banking-integration-test-report:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
     
-    - name: Publish Integration Test Report
+    - name: Publish Banking Integration Test Report
       uses: dorny/test-reporter@v1
       with:
-        artifact: integration-test-results
-        name: Integration Tests
+        artifact: banking-integration-test-results
+        name: Banking Integration Tests
+        path: '*.trx'
+        reporter: dotnet-trx
+
+  energy-integration-test-report:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Publish Energy Integration Test Report
+      uses: dorny/test-reporter@v1
+      with:
+        artifact: energy-integration-test-results
+        name: Energy Integration Tests
         path: '*.trx'
         reporter: dotnet-trx

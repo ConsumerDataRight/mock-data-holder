@@ -1,0 +1,430 @@
+{
+  "data": {
+    "requestTime": "#{requestTime}",
+    "availability": {
+      "aggregate": {
+        "currentMonth": "1",
+        "previousMonths": [ "1.0", "1.0", "0.99", "1.0", "1.0", "0.98", "0.99", "0.99", "1.0", "0.98", "1.0", "1.0" ]
+      },
+      "unauthenticated": {
+        "currentMonth": "1",
+        "previousMonths": [ "1.0", "1.0", "1.0", "1.0", "1.0", "0.99", "0.99", "0.99", "1.0", "1.0", "1.0", "1.0" ]
+      },
+      "authenticated": {
+        "currentMonth": "1",
+        "previousMonths": [ "1.0", "1.0", "0.99", "1.0", "1.0", "0.99", "1.0", "1.0", "1.0", "0.96", "1.0", "1.0" ]
+      }
+    },
+    "performance": {
+      "currentDay": "0.7651",
+      "previousDays": [ "0.7841", "0.9999", "0.4172", "1.0", "1.0", "1.0", "1.0" ]
+    },
+    "invocations": {
+      "unauthenticated": {
+        "currentDay": 125,
+        "previousDays": [ 78, 320, 80, 90, 100, 90, 80 ]
+      },
+      "highPriority": {
+        "currentDay": 742,
+        "previousDays": [ 500, 444, 333, 222, 111, 590, 399 ]
+      },
+      "lowPriority": {
+        "currentDay": 234,
+        "previousDays": [ 1000, 900, 1111, 1433, 1322, 999, 750 ]
+      },
+      "unattended": {
+        "currentDay": 130,
+        "previousDays": [ 450, 0, 3, 3, 2, 2, 1 ]
+      },
+      "largePayload": {
+        "currentDay": 23,
+        "previousDays": [ 230, 0, 1, 1, 2, 2, 3 ]
+      }
+    },
+    "averageResponse": {
+      "unauthenticated": {
+        "currentDay": 74.25,
+        "previousDays": [ 22.23, 87.25, 74.12, 0.21, 41.12, 7.211, 1 ]
+      },
+      "highPriority": {
+        "currentDay": 87.2,
+        "previousDays": [ 1.25, 1.25, 1.35, 1.45, 1.55, 1.45, 1.35 ]
+      },
+      "lowPriority": {
+        "currentDay": 34.7,
+        "previousDays": [ 1.75, 1.75, 1.85, 1.95, 2.1, 1.95, 1.85 ]
+      },
+      "unattended": {
+        "currentDay": 0,
+        "previousDays": [ 80, 2.3, 1.23, 7.4, 54.2, 0, 0 ]
+      },
+      "largePayload": {
+        "currentDay": 42.8,
+        "previousDays": [ 4.1, 4.1, 50.12, 0.214, 6, 0, 0 ]
+      }
+    },
+    "sessionCount": {
+      "currentDay": 257,
+      "previousDays": [ 90, 50, 120, 80, 110, 90, 105 ]
+    },
+    "averageTps": {
+      "aggregate": {
+        "currentDay": 4.1,
+        "previousDays": [ 4.2, 4.8, 5.2, 4.75, 5.4, 3.9, 4.99 ]
+      },
+      "unauthenticated": {
+        "currentDay": 4.2,
+        "previousDays": [ 4.5, 5, 5.66, 5.1, 5, 4.4, 5.3 ]
+      },
+      "authenticated": {
+        "currentDay": 0.9,
+        "previousDays": [ 1.2, 0.9, 1.1, 1.0, 1.3, 1.0, 0.9 ]
+      }
+    },
+    "peakTps": {
+      "aggregate": {
+        "currentDay": 20,
+        "previousDays": [ 10, 10, 15, 25, 40, 30, 25 ]
+      },
+      "unauthenticated": {
+        "currentDay": 20,
+        "previousDays": [ 10, 10, 15, 25, 40, 30, 25 ]
+      },
+      "authenticated": {
+        "currentDay": 11,
+        "previousDays": [ 9, 5, 2, 23, 22, 19, 7 ]
+      }
+    },
+    "errors": {
+      "aggregate": {
+        "currentDay": 120,
+        "previousDays": [ 115, 99, 52, 144, 92, 46, 82 ]
+      },
+      "unauthenticated": {
+        "currentDay": {
+          "400": 14,
+          "404": 6,
+          "500": 8
+        },
+        "previousDays": [
+          {
+            "400": 22,
+            "404": 5
+          },
+          {
+            "400": 39,
+            "404": 1,
+            "500": 4
+          },
+          {
+            "400": 15,
+            "500": 15
+          },
+          {
+            "400": 29,
+            "404": 3,
+            "405": 2,
+            "500": 11
+          },
+          {
+            "400": 44,
+            "404": 16,
+            "500": 10
+          },
+          {
+            "400": 11,
+            "404": 5,
+            "500": 3
+          },
+          {
+            "400": 1,
+            "404": 4,
+            "405": 2,
+            "422": 1,
+            "500": 9
+          }
+        ]
+      },
+      "authenticated": {
+        "currentDay": {
+          "400": 55,
+          "401": 7,
+          "403": 9,
+          "404": 1,
+          "405": 3,
+          "500": 17
+        },
+        "previousDays": [
+          {
+            "400": 40,
+            "401": 8,
+            "403": 5,
+            "404": 5,
+            "500": 30
+          },
+          {
+            "400": 41,
+            "401": 1,
+            "403": 6,
+            "404": 3,
+            "500": 4
+          },
+          {
+            "400": 19,
+            "401": 1,
+            "405": 1,
+            "500": 1
+          },
+          {
+            "400": 69,
+            "401": 11,
+            "403": 2,
+            "404": 6,
+            "405": 1,
+            "500": 10
+          },
+          {
+            "400": 5,
+            "401": 2,
+            "403": 3,
+            "404": 6,
+            "500": 6
+          },
+          {
+            "400": 20,
+            "403": 3,
+            "404": 1,
+            "500": 3
+          },
+          {
+            "400": 15,
+            "401": 5,
+            "403": 4,
+            "404": 19,
+            "405": 5,
+            "422": 11,
+            "500": 6
+          }
+        ]
+      }
+    },
+    "rejections": {
+      "authenticated": {
+        "currentDay": 123,
+        "previousDays": [ 1, 1, 1, 1, 1, 2, 2 ]
+      },
+      "unauthenticated": {
+        "currentDay": 540,
+        "previousDays": [ 40, 40, 0, 30, 50, 0, 350 ]
+      }
+    },
+    "customerCount": 741,
+    "recipientCount": 985,
+    "authorisations": {
+      "activeAuthorisationCount": {
+        "individual": 0,
+        "nonIndividual": 0
+      },
+      "newAuthorisationCount": {
+        "currentDay": {
+          "onceOff": {
+            "individual": 76,
+            "nonIndividual": 5
+          },
+          "ongoing": {
+            "individual": 44,
+            "nonIndividual": 18
+          }
+        },
+        "previousDays": [
+          {
+            "onceOff": {
+              "individual": 21,
+              "nonIndividual": 5
+            },
+            "ongoing": {
+              "individual": 12,
+              "nonIndividual": 14
+            }
+          },
+          {
+            "onceOff": {
+              "individual": 45,
+              "nonIndividual": 0
+            },
+            "ongoing": {
+              "individual": 33,
+              "nonIndividual": 16
+            }
+          },
+          {
+            "onceOff": {
+              "individual": 23,
+              "nonIndividual": 16
+            },
+            "ongoing": {
+              "individual": 62,
+              "nonIndividual": 23
+            }
+          },
+          {
+            "onceOff": {
+              "individual": 55,
+              "nonIndividual": 7
+            },
+            "ongoing": {
+              "individual": 5,
+              "nonIndividual": 8
+            }
+          },
+          {
+            "onceOff": {
+              "individual": 37,
+              "nonIndividual": 20
+            },
+            "ongoing": {
+              "individual": 6,
+              "nonIndividual": 7
+            }
+          },
+          {
+            "onceOff": {
+              "individual": 77,
+              "nonIndividual": 11
+            },
+            "ongoing": {
+              "individual": 40,
+              "nonIndividual": 1
+            }
+          },
+          {
+            "onceOff": {
+              "individual": 105,
+              "nonIndividual": 3
+            },
+            "ongoing": {
+              "individual": 11,
+              "nonIndividual": 6
+            }
+          }
+        ]
+      },
+      "revokedAuthorisationCount": {
+        "currentDay": {
+          "individual": 54,
+          "nonIndividual": 14
+        },
+        "previousDays": [
+          {
+            "individual": 43,
+            "nonIndividual": 0
+          },
+          {
+            "individual": 28,
+            "nonIndividual": 0
+          },
+          {
+            "individual": 56,
+            "nonIndividual": 11
+          },
+          {
+            "individual": 6,
+            "nonIndividual": 1
+          },
+          {
+            "individual": 17,
+            "nonIndividual": 2
+          },
+          {
+            "individual": 31,
+            "nonIndividual": 0
+          },
+          {
+            "individual": 19,
+            "nonIndividual": 9
+          }
+        ]
+      },
+      "amendedAuthorisationCount": {
+        "currentDay": {
+          "individual": 12,
+          "nonIndividual": 1
+        },
+        "previousDays": [
+          {
+            "individual": 1,
+            "nonIndividual": 11
+          },
+          {
+            "individual": 9,
+            "nonIndividual": 29
+          },
+          {
+            "individual": 22,
+            "nonIndividual": 0
+          },
+          {
+            "individual": 19,
+            "nonIndividual": 2
+          },
+          {
+            "individual": 5,
+            "nonIndividual": 0
+          },
+          {
+            "individual": 7,
+            "nonIndividual": 84
+          },
+          {
+            "individual": 19,
+            "nonIndividual": 8
+          }
+        ]
+      },
+      "expiredAuthorisationCount": {
+        "currentDay": {
+          "individual": 3,
+          "nonIndividual": 0
+        },
+        "previousDays": [
+          {
+            "individual": 45,
+            "nonIndividual": 0
+          },
+          {
+            "individual": 23,
+            "nonIndividual": 0
+          },
+          {
+            "individual": 22,
+            "nonIndividual": 0
+          },
+          {
+            "individual": 9,
+            "nonIndividual": 8
+          },
+          {
+            "individual": 4,
+            "nonIndividual": 3
+          },
+          {
+            "individual": 16,
+            "nonIndividual": 7
+          },
+          {
+            "individual": 29,
+            "nonIndividual": 2
+          }
+        ]
+      },
+      "abandonedConsentFlowCount": {
+        "currentDay": 10,
+        "previousDays": [ 5, 10, 11, 7, 21, 1, 3 ]
+      }
+    }
+  },
+  "links": {
+    "self": "#{self}"
+  },
+  "meta": {}
+}

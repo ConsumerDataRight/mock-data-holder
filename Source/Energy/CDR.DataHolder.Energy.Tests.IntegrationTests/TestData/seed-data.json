@@ -1,0 +1,644 @@
+{
+  "Customers": [
+    {
+      "CustomerID": "db1ddad1-a033-4088-8d0f-c800ed462717",
+      "CustomerUType": "person",
+      "LoginId": "mmoss",
+      "Person": {
+        "PersonID": "dcc01b7d-2f15-4cd6-ab50-efd247124a29",
+        "FirstName": "Mary",
+        "LastName": "Moss",
+        "MiddleNames": "",
+        "Prefix": "Ms",
+        "Suffix": null,
+        "OccupationCode": null,
+        "OccupationCodeVersion": null,
+        "LastUpdateTime": "2021-04-01T10:30:00Z"
+      },
+      "Accounts": [
+        {
+          "AccountId": "0011223301",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-01",
+          "DisplayName": "ELECTRICITY ACCOUNT",
+          "CreationDate": "2019-01-01",
+          "AccountPlans": [
+            {
+              "AccountPlanId": "875140e7-45a8-4020-8f41-bf5a389ed341",
+              "PlanId": "d324b77c-8938-472d-8df9-5647eeded7d4",
+              "Nickname": "ELECTRICITY",
+              "ServicePoints": [
+                {
+                  "ServicePointId": "0cfc2692-52c4-4a60-a51c-3268d89f3009",
+                  "NationalMeteringId": "24daa73c-7c34-4a7d-a150-deec62dce555",
+                  "ServicePointClassification": "EXTERNAL_PROFILE",
+                  "ServicePointStatus": "ACTIVE",
+                  "JurisdictionCode": "ALL",
+                  "IsGenerator": true,
+                  "ValidFromDate": "2019-01-01",
+                  "LastUpdateDateTime": "2021-04-30T08:00:00Z"
+                }
+              ],
+              "PlanOverview": {
+                "PlanOverviewId": "154b2445-602a-4e22-bfa9-5bec652586d0",
+                "DisplayName": "HOME SAVER PLAN",
+                "StartDate": "2019-01-01",
+                "EndDate": "2023-01-01"
+              }
+            }
+          ],
+          "AccountConcessions": [
+            {
+              "AccountConcessionId": "00000000-1111-2222-3333-444444444444",
+              "DisplayName": "Pensioner",
+              "StartDate": "2019-01-01",
+              "EndDate": "2020-01-01",
+              "Type": "FIXED_AMOUNT",
+              "Amount": "87.20",
+              "DiscountFrequency": "P1Y"
+            }
+          ]
+        },
+        {
+          "AccountId": "0011223302",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-02",
+          "DisplayName": "ELECTRICITY ACCOUNT 2",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223303",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-03",
+          "DisplayName": "ELECTRICITY ACCOUNT 3",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223304",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-04",
+          "DisplayName": "ELECTRICITY ACCOUNT 4",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223305",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-05",
+          "DisplayName": "ELECTRICITY ACCOUNT 5",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223306",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-06",
+          "DisplayName": "ELECTRICITY ACCOUNT 6",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223307",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-07",
+          "DisplayName": "ELECTRICITY ACCOUNT 7",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223308",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-08",
+          "DisplayName": "ELECTRICITY ACCOUNT 8",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223309",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-09",
+          "DisplayName": "ELECTRICITY ACCOUNT 9",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223310",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-10",
+          "DisplayName": "ELECTRICITY ACCOUNT 10",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223311",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-11",
+          "DisplayName": "ELECTRICITY ACCOUNT 11",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223312",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-12",
+          "DisplayName": "ELECTRICITY ACCOUNT 12",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223313",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-13",
+          "DisplayName": "ELECTRICITY ACCOUNT 13",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223314",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-14",
+          "DisplayName": "ELECTRICITY ACCOUNT 14",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223315",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-15",
+          "DisplayName": "ELECTRICITY ACCOUNT 15",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223316",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-16",
+          "DisplayName": "ELECTRICITY ACCOUNT 16",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223317",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-17",
+          "DisplayName": "ELECTRICITY ACCOUNT 17",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223318",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "MDHE-18",
+          "DisplayName": "ELECTRICITY ACCOUNT 18",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223319",
+          "OpenStatus": "CLOSED",
+          "AccountNumber": "MDHE-19",
+          "DisplayName": "ELECTRICITY ACCOUNT 19",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223320",
+          "OpenStatus": "CLOSED",
+          "AccountNumber": "MDHE-20",
+          "DisplayName": "ELECTRICITY ACCOUNT 20",
+          "CreationDate": "2019-01-01"
+        },
+        {
+          "AccountId": "0011223321",
+          "OpenStatus": "CLOSED",
+          "AccountNumber": "MDHE-21",
+          "DisplayName": "ELECTRICITY ACCOUNT 21",
+          "CreationDate": "2019-01-01"
+        }
+      ]
+    },
+    {
+      "CustomerID": "66e60ee6-dfa9-4c9a-8520-ca6913f2a3d7",
+      "CustomerUType": "person",
+      "LoginId": "hhare",
+      "Person": {
+        "PersonID": "3d69824a-5237-43c9-be06-1b168a5f19e2",
+        "FirstName": "Hedda",
+        "LastName": "Hare",
+        "MiddleNames": "",
+        "Prefix": "Ms",
+        "Suffix": null,
+        "OccupationCode": null,
+        "OccupationCodeVersion": null,
+        "LastUpdateTime": "2021-12-01T10:30:00Z"
+      },
+      "Accounts": [
+        {
+          "AccountId": "4ee1a8db-13af-44d7-b54b-e94dff3df548",
+          "OpenStatus": "CLOSED",
+          "AccountNumber": "1122334455",
+          "DisplayName": "ELECTRICITY ACCOUNT",
+          "CreationDate": "2020-01-01",
+          "AccountPlans": [
+            {
+              "AccountPlanId": "4ee1a8db-13af-44d7-b54b-e94dff3df549",
+              "PlanId": "f9bde9a1-9fef-4bd9-b7ef-877369e076e4",
+              "Nickname": "ELECTRICITY",
+              "ServicePoints": [
+                {
+                  "ServicePointId": "be36d5b8-8d92-4076-81c1-2260ba7e7272",
+                  "NationalMeteringId": "1d938d7a-97e3-42be-8db9-9fda37ee7afa",
+                  "ServicePointClassification": "EXTERNAL_PROFILE",
+                  "ServicePointStatus": "ACTIVE",
+                  "JurisdictionCode": "ALL",
+                  "IsGenerator": true,
+                  "ValidFromDate": "2020-01-01",
+                  "LastUpdateDateTime": "2021-04-30T08:00:00Z"
+                }
+              ],
+              "PlanOverview": {
+                "PlanOverviewId": "be36d5b8-8d92-4076-81c1-2260ba7e7273",
+                "DisplayName": "ENERGY PLAN",
+                "StartDate": "2020-01-01",
+                "EndDate": "2021-01-01"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "CustomerID": "367628b3-c96b-41d4-80e1-713c36750a50",
+      "CustomerUType": "person",
+      "LoginId": "jjohn",
+      "Person": {
+        "PersonID": "53ae2402-3e8a-47b0-94a2-3f40c711cf19",
+        "FirstName": "John",
+        "LastName": "Johnson",
+        "MiddleNames": "",
+        "Prefix": "Mr",
+        "Suffix": null,
+        "OccupationCode": null,
+        "OccupationCodeVersion": null,
+        "LastUpdateTime": "2021-07-01T10:30:00Z"
+      },
+      "Accounts": [
+        {
+          "AccountId": "07b02034-23ae-42b2-bfbb-b77806f4736a",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "2233445566",
+          "DisplayName": "ELECTRICITY ACCOUNT",
+          "CreationDate": "2020-06-01",
+          "AccountPlans": [
+            {
+              "AccountPlanId": "48d066fb-10eb-4d80-b85a-4aaf81b42207",
+              "PlanId": "cc4ca63d-7fe2-4138-ad11-e9000e72cace",
+              "Nickname": "ELECTRICITY",
+              "ServicePoints": [
+                {
+                  "ServicePointId": "0d46b175-7366-4318-a137-2b9c751d598a",
+                  "NationalMeteringId": "77aa0510-2583-4d9b-9bdd-1a15ad0afb8c",
+                  "ServicePointClassification": "EXTERNAL_PROFILE",
+                  "ServicePointStatus": "ACTIVE",
+                  "JurisdictionCode": "ALL",
+                  "IsGenerator": true,
+                  "ValidFromDate": "2020-06-01",
+                  "LastUpdateDateTime": "2020-08-30T08:00:00Z"
+                }
+              ],
+              "PlanOverview": {
+                "PlanOverviewId": "d886f181-3c74-46e1-8ad7-d23c013d5fc8",
+                "DisplayName": "HOME ENERGY SUPER SAVER",
+                "StartDate": "2020-06-01",
+                "EndDate": "2022-01-01"
+              }
+            }
+          ],
+          "AccountConcessions": [
+            {
+              "AccountConcessionId": "05bcdac2-f691-4181-8845-af53457d75a5",
+              "DisplayName": "Student",
+              "StartDate": "2020-06-01",
+              "EndDate": "2021-01-01",
+              "Type": "FIXED_AMOUNT",
+              "Amount": "0.13",
+              "DiscountFrequency": "P1D"
+            },
+            {
+              "AccountConcessionId": "f40834f4-22eb-4e53-86f2-cd48bf1a35a6",
+              "DisplayName": "Student Graduate",
+              "StartDate": "2021-01-01",
+              "EndDate": "2021-06-01",
+              "Type": "FIXED_AMOUNT",
+              "Amount": "0.11",
+              "DiscountFrequency": "P1D"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "CustomerID": "cb86c929-4891-468a-9a87-b9ab8c4a8746",
+      "CustomerUType": "person",
+      "LoginId": "wwils",
+      "Person": {
+        "PersonID": "0ba5b3d7-29f2-4dd3-a629-7522cba16a73",
+        "FirstName": "Will",
+        "LastName": "Wilson",
+        "MiddleNames": "",
+        "Prefix": "Mr",
+        "Suffix": null,
+        "OccupationCode": null,
+        "OccupationCodeVersion": null,
+        "LastUpdateTime": "2020-03-01T10:30:00Z"
+      },
+      "Accounts": [
+        {
+          "AccountId": "24b50999-c7d4-4eee-ba63-8e90e59c0096",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "3344556677",
+          "DisplayName": "ELECTRICITY ACCOUNT",
+          "CreationDate": "2020-02-01",
+          "AccountPlans": [
+            {
+              "AccountPlanId": "580511bf-a6dc-4c94-89ea-cf2b69ea195f",
+              "PlanId": "86843c0b-5107-4c4d-bf0d-db2669de7ef6",
+              "Nickname": "ELECTRICITY",
+              "ServicePoints": [
+                {
+                  "ServicePointId": "0d46b175-7366-4318-a137-2b9c751d598b",
+                  "NationalMeteringId": "314d1454-900c-4f4f-a29b-6ae7f863732c",
+                  "ServicePointClassification": "EXTERNAL_PROFILE",
+                  "ServicePointStatus": "ACTIVE",
+                  "JurisdictionCode": "ALL",
+                  "IsGenerator": true,
+                  "ValidFromDate": "2020-02-01",
+                  "LastUpdateDateTime": "2020-03-30T08:00:00Z"
+                }
+              ],
+              "PlanOverview": {
+                "PlanOverviewId": "559fdaee-a2e6-4fe9-9959-373bbb7fb2d4",
+                "DisplayName": "HOME ENERGY SUPER DUPER SAVER",
+                "StartDate": "2020-02-01",
+                "EndDate": "2021-02-01"
+              }
+            },
+            {
+              "AccountPlanId": "fb963f16-4c77-4785-9ef4-e62af72b04fd",
+              "PlanId": "17eae14b-a451-432c-b954-7da9b76e38b0",
+              "Nickname": "BUSINESS ELECTRICITY",
+              "ServicePoints": [
+                {
+                  "ServicePointId": "8394490c-48e3-42f3-ad62-01aa55a9b1b8",
+                  "NationalMeteringId": "2024407a-44d2-43e0-ac9a-d5c0fcb5858c",
+                  "ServicePointClassification": "EXTERNAL_PROFILE",
+                  "ServicePointStatus": "ACTIVE",
+                  "JurisdictionCode": "ALL",
+                  "IsGenerator": true,
+                  "ValidFromDate": "2021-01-01",
+                  "LastUpdateDateTime": "2021-01-30T08:00:00Z"
+                }
+              ],
+              "PlanOverview": {
+                "PlanOverviewId": "d669ca8d-841f-4fe3-bc03-c4ad3657ba70",
+                "DisplayName": "BUSINESS ENERGY SAVER",
+                "StartDate": "2021-01-01",
+                "EndDate": "2022-06-01"
+              }
+            }
+          ],
+          "AccountConcessions": [
+            {
+              "AccountConcessionId": "fe37cb46-2994-45f1-a508-f622920a5dbc",
+              "DisplayName": "Loyalty Bonus",
+              "StartDate": "2020-06-01",
+              "EndDate": "2022-01-01",
+              "Type": "FIXED_PERCENTAGE",
+              "Percentage": "7.5",
+              "DiscountFrequency": "P1M"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "CustomerID": "5b62f608-3b4b-4cdf-a52f-cec70f8e2079",
+      "CustomerUType": "person",
+      "LoginId": "brobb",
+      "Person": {
+        "PersonID": "bbb1f6ce-0e61-4f11-939f-385441965a8f",
+        "FirstName": "Bob",
+        "LastName": "Robertson",
+        "MiddleNames": "",
+        "Prefix": "Mr",
+        "Suffix": null,
+        "OccupationCode": null,
+        "OccupationCodeVersion": null,
+        "LastUpdateTime": "2020-05-01T10:30:00Z"
+      },
+      "Accounts": [
+        {
+          "AccountId": "02fd01b6-5309-43fa-8270-268d70a2df8d",
+          "OpenStatus": "OPEN",
+          "AccountNumber": "7788990011",
+          "DisplayName": "ELECTRICITY ACCOUNT",
+          "CreationDate": "2019-06-01",
+          "AccountPlans": [
+            {
+              "AccountPlanId": "00da1209-c42b-47e6-ab79-064ad73a48f3",
+              "PlanId": "b8fc92bc-f494-4cdb-a29a-a579dcde040e",
+              "Nickname": "ELECTRICITY",
+              "ServicePoints": [
+                {
+                  "ServicePointId": "27c1cc86-66b2-46b0-8313-e47db2411918",
+                  "NationalMeteringId": "003670e7-c009-457e-8c21-4bc37634a8f3",
+                  "ServicePointClassification": "EXTERNAL_PROFILE",
+                  "ServicePointStatus": "ACTIVE",
+                  "JurisdictionCode": "ALL",
+                  "IsGenerator": true,
+                  "ValidFromDate": "2019-06-01",
+                  "LastUpdateDateTime": "2020-05-30T08:00:00Z"
+                }
+              ],
+              "PlanOverview": {
+                "PlanOverviewId": "04b654c6-964f-4b73-9464-369682719489",
+                "DisplayName": "E SAVER PLAN",
+                "StartDate": "2019-06-01",
+                "EndDate": "2023-01-01"
+              }
+            },
+            {
+              "AccountPlanId": "1c986668-a7b3-4217-9d7a-caaae2404ba8",
+              "PlanId": "0d61a161-abca-420d-9d6b-b3baf1449ab2",
+              "Nickname": "ELECTRICITY",
+              "ServicePoints": [
+                {
+                  "ServicePointId": "0f62b11c-f846-4c28-8ae3-bf72fdefb03b",
+                  "NationalMeteringId": "55645257-aaef-4c5a-a9d3-5bb005fd2629",
+                  "ServicePointClassification": "EXTERNAL_PROFILE",
+                  "ServicePointStatus": "ACTIVE",
+                  "JurisdictionCode": "ALL",
+                  "IsGenerator": true,
+                  "ValidFromDate": "2020-06-01",
+                  "LastUpdateDateTime": "2020-05-30T08:00:00Z"
+                }
+              ],
+              "PlanOverview": {
+                "PlanOverviewId": "a8abe631-3415-4919-b8da-c555f7951851",
+                "DisplayName": "ENERGY PLAN ULTIMATE SAVER",
+                "StartDate": "2020-06-01",
+                "EndDate": "2022-06-01"
+              }
+            }
+          ],
+          "AccountConcessions": [
+            {
+              "AccountConcessionId": "be36d5b8-8d92-4076-81c1-2260ba7e7275",
+              "DisplayName": "Veteran",
+              "StartDate": "2019-06-01",
+              "EndDate": "2020-01-01",
+              "Type": "FIXED_PERCENTAGE",
+              "Percentage": "23",
+              "DiscountFrequency": "P1Y"
+            },
+            {
+              "AccountConcessionId": "0696ae92-f851-487b-8e34-50bbf9387aa9",
+              "DisplayName": "Pension",
+              "StartDate": "2019-06-01",
+              "EndDate": "2022-06-01",
+              "Type": "FIXED_AMOUNT",
+              "Amount": "0.29",
+              "DiscountFrequency": "P1D"
+            }
+          ]
+        }
+      ]
+    }
+
+  ],
+  "Plans": [
+    {
+      "PlanId": "d324b77c-8938-472d-8df9-5647eeded7d4",
+      "EffectiveFrom": "2019-01-30T08:00:00Z",
+      "EffectiveTo": "2023-01-30T08:00:00Z",
+      "LastUpdated": "2020-04-30T08:00:00Z",
+      "DisplayName": "HOME SAVER PLAN",
+      "Type": "STANDING",
+      "FuelType": "ELECTRICITY",
+      "Brand": "ffb1c8ba-279e-44d8-96f0-1bc34a6b436f",
+      "BrandName": "Mock Finance Tools",
+      "ApplicationUri": "https://mocksoftware.com/plans",
+      "CustomerType": "RESIDENTIAL"
+    },
+    {
+      "PlanId": "f9bde9a1-9fef-4bd9-b7ef-877369e076e4",
+      "EffectiveFrom": "2020-01-30T08:00:00Z",
+      "EffectiveTo": "2021-01-30T08:00:00Z",
+      "LastUpdated": "2020-09-30T08:00:00Z",
+      "DisplayName": "ENERGY PLAN",
+      "Type": "STANDING",
+      "FuelType": "ELECTRICITY",
+      "Brand": "ffb1c8ba-279e-44d8-96f0-1bc34a6b436f",
+      "BrandName": "Mock Finance Tools",
+      "ApplicationUri": "https://energycompanyxyz.com/plans",
+      "CustomerType": "RESIDENTIAL"
+    },
+    {
+      "PlanId": "cc4ca63d-7fe2-4138-ad11-e9000e72cace",
+      "EffectiveFrom": "2020-06-30T08:00:00Z",
+      "EffectiveTo": "2022-01-30T08:00:00Z",
+      "LastUpdated": "2020-08-30T08:00:00Z",
+      "DisplayName": "HOME ENERGY SUPER SAVER",
+      "Type": "STANDING",
+      "FuelType": "ELECTRICITY",
+      "Brand": "ffb1c8ba-279e-44d8-96f0-1bc34a6b436f",
+      "BrandName": "Mock Finance Tools",
+      "ApplicationUri": "https://energyco.com/plans",
+      "CustomerType": "RESIDENTIAL"
+    },
+    {
+      "PlanId": "86843c0b-5107-4c4d-bf0d-db2669de7ef6",
+      "EffectiveFrom": "2020-02-27T08:00:00Z",
+      "EffectiveTo": "2021-02-27T08:00:00Z",
+      "LastUpdated": "2020-03-30T08:00:00Z",
+      "DisplayName": "HOME ENERGY SUPER DUPER SAVER",
+      "Type": "STANDING",
+      "FuelType": "ELECTRICITY",
+      "Brand": "ffb1c8ba-279e-44d8-96f0-1bc34a6b436f",
+      "BrandName": "Mock Finance Tools",
+      "ApplicationUri": "https://energetics.com/plans",
+      "CustomerType": "RESIDENTIAL"
+    },
+    {
+      "PlanId": "17eae14b-a451-432c-b954-7da9b76e38b0",
+      "EffectiveFrom": "2021-01-30T08:00:00Z",
+      "EffectiveTo": "2022-06-30T08:00:00Z",
+      "LastUpdated": "2021-01-30T08:00:00Z",
+      "DisplayName": "BUSINESS ENERGY SAVER",
+      "Type": "STANDING",
+      "FuelType": "ELECTRICITY",
+      "Brand": "20c0864b-ceef-4de0-8944-eb0962f825eb",
+      "BrandName": "Finance X",
+      "ApplicationUri": "https://energetics.com/plans",
+      "CustomerType": "BUSINESS"
+    },
+    {
+      "PlanId": "b8fc92bc-f494-4cdb-a29a-a579dcde040e",
+      "EffectiveFrom": "2019-06-30T08:00:00Z",
+      "EffectiveTo": "2023-01-30T08:00:00Z",
+      "LastUpdated": "2021-01-30T08:00:00Z",
+      "DisplayName": "E SAVER PLAN",
+      "Type": "STANDING",
+      "FuelType": "ELECTRICITY",
+      "Brand": "20c0864b-ceef-4de0-8944-eb0962f825eb",
+      "BrandName": "Finance X",
+      "ApplicationUri": "https://energye.com/plans",
+      "CustomerType": "RESIDENTIAL"
+    },
+    {
+      "PlanId": "0d61a161-abca-420d-9d6b-b3baf1449ab2",
+      "EffectiveFrom": "2020-06-30T08:00:00Z",
+      "EffectiveTo": "2022-06-30T08:00:00Z",
+      "LastUpdated": "2021-01-30T08:00:00Z",
+      "DisplayName": "ENERGY PLAN ULTIMATE SAVER",
+      "Type": "STANDING",
+      "FuelType": "ELECTRICITY",
+      "Brand": "20c0864b-ceef-4de0-8944-eb0962f825eb",
+      "BrandName": "Finance X",
+      "ApplicationUri": "https://energye.com/plans",
+      "CustomerType": "RESIDENTIAL"
+    }
+  ],
+  "LegalEntities": [
+    {
+      "legalEntityId": "18b75a76-5821-4c9e-b465-4709291cf0f4",
+      "legalEntityName": "Mock Software Company",
+      "logoUri": "https://mocksoftware/img/logo.png",
+      "status": "ACTIVE",
+      "dataRecipientBrands": [
+        {
+          "dataRecipientBrandId": "ffb1c8ba-279e-44d8-96f0-1bc34a6b436f",
+          "brandName": "Mock Finance Tools",
+          "logoUri": "https://mocksoftware/img/logo.png",
+          "status": "ACTIVE",
+          "softwareProducts": [
+            {
+              "softwareProductId": "c6327f87-687a-4369-99a4-eaacd3bb8210",
+              "softwareProductName": "MyBudgetHelper",
+              "softwareProductDescription": "A product to help you manage your budget",
+              "logoUri": "https://mocksoftware/mybudgetapp/img/logo.png",
+              "status": "ACTIVE"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "legalEntityId": "9d34ede4-2c76-4ecc-a31e-ea8392d31cc9",
+      "legalEntityName": "FintechX",
+      "logoUri": "https://fintechx/logo.png",
+      "status": "ACTIVE",
+      "dataRecipientBrands": [
+        {
+          "dataRecipientBrandId": "20c0864b-ceef-4de0-8944-eb0962f825eb",
+          "brandName": "Finance X",
+          "logoUri": "https://fintechx/logo.png",
+          "status": "ACTIVE",
+          "softwareProducts": [
+            {
+              "softwareProductId": "9381dad2-6b68-4879-b496-c1319d7dfbc9",
+              "softwareProductName": "Track Xpense",
+              "softwareProductDescription": "Application to allow you to track your expenses",
+              "logoUri": "https://fintechx/products/trackxpense/logo.png",
+              "status": "ACTIVE"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

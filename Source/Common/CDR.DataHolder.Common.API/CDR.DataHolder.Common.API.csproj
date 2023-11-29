@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+	<Version>2.0.1</Version>
+	<FileVersion>2.0.1</FileVersion>
+	<AssemblyVersion>2.0.1</AssemblyVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
+    <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="6.3.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Energy\CDR.DataHolder.Energy.Repository\CDR.DataHolder.Energy.Repository.csproj" />
+    <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.API.Infrastructure\CDR.DataHolder.Shared.API.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Business\CDR.DataHolder.Shared.Business.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Certificates\tls-mock-data-holder.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

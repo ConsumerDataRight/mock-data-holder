@@ -31,6 +31,7 @@ services:
       - "8001:8001"
       - "8002:8002"
       - "8005:8005"
+      - "8006:8006"
       - "3000:3000"
     extra_hosts:
       - "mock-data-recipient:host-gateway"
@@ -54,6 +55,7 @@ services:
       - "8101:8101"
       - "8102:8102"
       - "8105:8105"
+      - "8106:8106"
       - "3100:3100"
     extra_hosts:
       - "mock-data-recipient:host-gateway"

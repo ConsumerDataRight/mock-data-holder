@@ -156,18 +156,18 @@ Data Holders require these core functions defined in the [Consumer Data Standard
 
 The Mock Data Holder combined with the [Authorisation Server](https://github.com/ConsumerDataRight/authorisation-server) provides all of these functions for the Banking and Energy industries. The below diagram provides a view of the Mock Data Holder and and Authorisation Server when opened in an integrated development environment.
 
-[<img src="./Assets/mock-data-holder-components.png?raw=true" height='600' width='500' alt="Mock Data Holder Components"/>](./Assets/mock-data-holder-components.png?raw=true)
+![Mock Data Holder Components](./Assets/mock-data-holder-components.PNG?raw=true)
 
 Switching between Banking and Energy is achieved by starting the projects needed for the given industry and using industry specific data and ports. The below diagrams diplay which projects are started depending on the industry profile. The diagrams also illustrate which of the Data Holder functions are shared across industries.
 
-[<img src="./Assets/mock-data-holder-banking-profile.png?raw=true" height='600' width='500' alt="Mock Data Holder Banking Profile"/>](./Assets/mock-data-holder-banking-profile.png?raw=true)
-[<img src="./Assets/mock-data-holder-energy-profile.png?raw=true" height='600' width='500' alt="Mock Data Holder Energy Profile"/>](./Assets/mock-data-holder-energy-profile.png?raw=true)
+![Mock Data Holder Banking Profile](./Assets/mock-data-holder-banking-profile.PNG?raw=true)
+![Mock Data Holder Energy Profile](./Assets/mock-data-holder-energy-profile.PNG?raw=true)
 
 ## Mock Data Holder - Architecture
 The following sections outline the high level architecture and components of the Mock Data Holder:
 
 ### Mock Data Holder with Banking Profile
-[<img src="./Assets/mock-data-holder-banking-architecture.png?raw=true" height='600' width='800' alt="Mock Data Holder Banking - Architecture"/>](./Assets/mock-data-holder-banking-architecture.png?raw=true)
+![Mock Data Holder Banking - Architecture](./Assets/mock-data-holder-banking-architecture.png?raw=true)
 
 ### Mock Data Holder with Banking Profile - Components
 The Mock Data Holder contains the following components:
@@ -198,7 +198,7 @@ The Mock Data Holder contains the following components:
 
   
 ### Mock Data Holder with Energy Profile
-[<img src="./Assets/mock-data-holder-energy-architecture.png?raw=true" height='600' width='800' alt="Mock Data Holder Energy - Architecture"/>](./Assets/mock-data-holder-energy-architecture.png?raw=true)
+![Mock Data Holder Energy - Architecture](./Assets/mock-data-holder-energy-architecture.png?raw=true)
 
 ### Mock Data Holder with Energy Profile - Components
 The Mock Data Holder contains the following components:

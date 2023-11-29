@@ -144,6 +144,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
         repository: ${{ env.DOCKER_BANKING_IMAGE }}
         enable-url-completion: true
+        readme-filepath: ./mock-data-holder/README.md
 
     - name: Docker Hub Energy Description
       if: ${{ github.repository_owner == 'ConsumerDataRight' && github.ref_name == 'main' }}
@@ -153,3 +154,4 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
         repository: ${{ env.DOCKER_ENERGY_IMAGE }}
         enable-url-completion: true
+        readme-filepath: ./mock-data-holder/README.md

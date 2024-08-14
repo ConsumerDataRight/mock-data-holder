@@ -41,6 +41,11 @@ An output window will be launched for the Authorisation Server project showing t
 
 ## Run solution using MS Visual Studio
 
+There are two Visual Studio solution files that are available for use:
+- DataHolder.sln - This is the default solution file that is used primarily for running and debugging the Mock Data Holder projects.
+- DataHolder_Shared.sln - In addition to the Mock Data Holder projects, this solution file also opens the [Mock Solutions Test Automation](https://github.com/ConsumerDataRight/mock-solution-test-automation) project. This is useful when wanting to debug or step through source code used in Mock Solution Test Automation project. Further information can be found in [Mock Data Holder Test Automation Execution Guide](../testing/HELP.md)
+
+
 ### Start the Mock Data Holder Banking
 To launch the Mock Data Holder Banking solution using MS Visual Studio, the following projects need to be started:
 ```
@@ -65,7 +70,7 @@ The following steps outline describe how to launch the Mock Data Holder solution
 
 1. Navigate to the solution properties and select a "Start" action for the required projects for Banking or Energy.
     1. Use the Start the Mock Data Holder Banking projects shown above as start up projects in Microsoft Visual Studio to start a Banking Mock Data Holder
-    2. Use the Start the Mock Data Holder Energy projects shwon above as start up projects in Microsoft Visual Studio to start an Energy Mock Data Holder
+    2. Use the Start the Mock Data Holder Energy projects shown above as start up projects in Microsoft Visual Studio to start an Energy Mock Data Holder
 
 2. Click "Start" to start the Mock Data Holder solution.
 

@@ -13,7 +13,7 @@ namespace CDR.DataHolder.Energy.Resource.API.Business
 	{
 		public MappingProfile()
 		{
-			CreateMap<Models.RequestAccountConsessions, AccountConsessionsFilter>();
+			CreateMap<Models.RequestAccountConcessions, AccountConcessionsFilter>();
 
 			CreateMap(typeof(Page<>), typeof(MetaPaginated))
 				.ReverseMap();

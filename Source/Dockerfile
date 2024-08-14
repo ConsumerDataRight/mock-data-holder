@@ -2,7 +2,7 @@
 ###############################################################################
 # Build base layer
 ###############################################################################
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 
 # Install nodejs, npm and live-server, which are needed by the auth UI
 RUN apt-get update
@@ -19,7 +19,7 @@ ENV ASPNETCORE_ENVIRONMENT=Release
 ###############################################################################
 # Build CdrAuthServer UI layer
 ###############################################################################
-FROM node:14-alpine AS ui-build
+FROM node:20-alpine AS ui-build
 WORKDIR /app
 
 ARG target_environment=production
@@ -46,7 +46,7 @@ COPY ./cdr-auth-server/Source/CdrAuthServer.UI/nginx/ssl/authserver-ui.key /etc/
 ###############################################################################
 # Build CdrAuthServer API layer
 ###############################################################################
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY . ./
@@ -60,6 +60,7 @@ COPY ./cdr-auth-server/Source/CdrAuthServer/. /app/CdrAuthServer
 COPY ./cdr-auth-server/Source/CdrAuthServer.Infrastructure/. /app/CdrAuthServer.Infrastructure
 COPY ./cdr-auth-server/Source/CdrAuthServer.API.Logger/. /app/CdrAuthServer.API.Logger
 
+COPY ./Directory.Build.props /app/Directory.Build.props
 COPY ./Shared/CDR.DataHolder.Admin.API/. /app/Shared/CDR.DataHolder.Admin.API
 COPY ./Shared/CDR.DataHolder.Shared.API.Gateway.mTLS/. /app/Shared/CDR.DataHolder.Shared.API.Gateway.mTLS
 COPY ./Shared/CDR.DataHolder.Shared.API.Infrastructure/. /app/Shared/CDR.DataHolder.Shared.API.Infrastructure
@@ -133,31 +134,28 @@ COPY --from=publish /app/publish/gateway-mtls ./gateway-mtls
 COPY --from=publish /app/publish/public ./public
 COPY --from=publish /app/publish/common ./common
 
-RUN apt-get update && apt-get install -y supervisor
-
-RUN apt-get update && apt-get install -y sudo
-
 # Install wget for use in health checks
-RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y supervisor \
+    && apt-get install -y sudo \
+    && apt-get install -y wget \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN sudo cp ./gateway-mtls/Certificates/ca.crt /usr/local/share/ca-certificates/ca.crt
-
-RUN sudo update-ca-certificates
+RUN sudo cp ./gateway-mtls/Certificates/ca.crt /usr/local/share/ca-certificates/ca.crt \
+    && sudo update-ca-certificates
 
 USER 0
 RUN setcap cap_net_bind_service=+ep /usr/sbin/nginx
 
 RUN addgroup --group appgroup --gid 2000 \
-&& adduser \
-    --uid 1000 \
-    --gid 2000 \
-    "appuser"
-RUN chown -R appuser:appgroup /app
-RUN chown -R appuser:appgroup /usr/bin
-RUN chown -R appuser:appgroup /usr/local
-RUN chown -R appuser:appgroup /tmp
-RUN chown -R appuser:appgroup /var/log/nginx
-RUN chown -R appuser:appgroup /var/lib/nginx
+    && adduser --uid 1000 --gid 2000 "appuser" \
+    && chown -R appuser:appgroup /app \
+    && chown -R appuser:appgroup /usr/bin \
+    && chown -R appuser:appgroup /usr/local \
+    && chown -R appuser:appgroup /tmp \
+	&& chown -R appuser:appgroup /var/log/nginx \
+	&& chown -R appuser:appgroup /var/lib/nginx
+
 RUN touch /run/nginx.pid \
  && chown -R appuser:appgroup /run/nginx.pid
 RUN touch /usr/share/nginx/html/ui/env.js \

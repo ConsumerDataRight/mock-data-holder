@@ -1,20 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-	<Version>2.0.1</Version>
-	<FileVersion>2.0.1</FileVersion>
-	<AssemblyVersion>2.0.1</AssemblyVersion>
-	<Nullable>enable</Nullable>
+	<TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
+	<Version>$(Version)</Version>
+	<FileVersion>$(Version)</FileVersion>
+	<AssemblyVersion>$(Version)</AssemblyVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Domain\CDR.DataHolder.Shared.Domain.csproj" />
-		<ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Repository\CDR.DataHolder.Shared.Repository.csproj" />
-	</ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Domain\CDR.DataHolder.Shared.Domain.csproj" />
+    <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Repository\CDR.DataHolder.Shared.Repository.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
 </Project>

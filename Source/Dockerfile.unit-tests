@@ -1,6 +1,6 @@
 # Dockerfile for running unit tests
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 EXPOSE 9999
 EXPOSE 9998
@@ -9,6 +9,9 @@ EXPOSE 9996
 
 # Default ASPNETCORE_ENVIRONMENT to Release
 ENV ASPNETCORE_ENVIRONMENT=Release
+
+RUN curl -L https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh  | sh
+
 
 # Copy source
 COPY . ./
@@ -20,7 +23,12 @@ RUN sudo update-ca-certificates
 
 # Build tests
 WORKDIR /src
+ARG FEED_ACCESSTOKEN
+ARG FEED_URI
+ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"${FEED_URI}\", \"username\":\"docker\", \"password\":\"${FEED_ACCESSTOKEN}\"}]}"
+RUN echo $VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
+RUN dotnet restore DataHolder.sln
 RUN dotnet build DataHolder.sln --configuration Release
 
 # Run tests
-ENTRYPOINT ["dotnet", "test", "DataHolder.sln", "--configuration", "Release", "--filter", "UnitTests", "--no-build", "--logger", "trx;verbosity=detailed", "-r", "/testresults"]
+ENTRYPOINT ["dotnet", "test", "DataHolder.sln", "--configuration", "Release", "--filter", "Category=UnitTests", "--no-build", "--logger", "trx;verbosity=detailed", "--results-directory", "/testresults"]

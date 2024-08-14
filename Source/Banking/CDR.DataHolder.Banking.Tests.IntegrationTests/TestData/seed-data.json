@@ -25,6 +25,7 @@
                     "MaskedName": "xxx-xxx xxxxx455",
                     "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
                     "ProductName": "Everyday Savings",
+                    "AccountOwnership": "UNKNOWN",
                     "Transactions": [
                         {
                             "TransactionId": "TRN12345",
@@ -136,588 +137,590 @@
                 "LastUpdateTime": "2021-01-01T18:30:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "98765987",
-                    "CreationDate": "2019-07-12",
-                    "DisplayName": "Personal Loan",
-                    "NickName": "My Loan",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx987",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-100",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "98765988",
-                    "CreationDate": "2019-07-12",
-                    "DisplayName": "Transactions and Savings Account",
-                    "NickName": "",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx988",
-                    "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
-                    "ProductName": "Everyday Transactions",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN001",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-05-25T09:04:00Z",
-                            "ValueDateTime": "2022-05-25T09:04:00Z",
-                            "ExecutionDateTime": "2022-05-25T09:04:00Z",
-                            "Amount": 151.00,
-                            "Currency": "AUD",
-                            "Reference": "REF 001",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00001",
-                            "BillerName": "Biller 1",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN002",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-05-25T09:04:00Z",
-                            "ValueDateTime": "2022-05-25T09:04:00Z",
-                            "ExecutionDateTime": "2022-05-25T09:04:00Z",
-                            "Amount": 152.00,
-                            "Currency": "AUD",
-                            "Reference": "REF 002",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00002",
-                            "BillerName": "Biller 2",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN003",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-03-01T09:04:00Z",
-                            "ValueDateTime": "2022-03-01T09:04:00Z",
-                            "ExecutionDateTime": "2022-03-01T09:04:00Z",
-                            "Amount": 153.00,
-                            "Currency": "AUD",
-                            "Reference": "REF 003",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00003",
-                            "BillerName": "Biller 3",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN004",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-03-01T09:04:00Z",
-                            "ValueDateTime": "2022-03-01T09:04:00Z",
-                            "ExecutionDateTime": "2022-03-01T09:04:00Z",
-                            "Amount": 154.00,
-                            "Currency": "AUD",
-                            "Reference": "REF 004",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00004",
-                            "BillerName": "Biller 4",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN005",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-05T09:04:00Z",
-                            "ValueDateTime": "2022-04-05T09:04:00Z",
-                            "ExecutionDateTime": "2022-04-05T09:04:00Z",
-                            "Amount": 10005.00,
-                            "Currency": "AUD",
-                            "Reference": "REF 005",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00005",
-                            "BillerName": "Biller 5",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN006",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-06T09:04:00Z",
-                            "ValueDateTime": "2022-04-06T09:04:00Z",
-                            "ExecutionDateTime": "2022-04-06T09:04:00Z",
-                            "Amount": 10006.00,
-                            "Currency": "AUD",
-                            "Reference": "REF 006",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00006",
-                            "BillerName": "Biller 6",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN007",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-07T09:04:00Z",
-                            "ValueDateTime": "2022-04-07T09:04:00Z",
-                            "ExecutionDateTime": "2022-04-07T09:04:00Z",
-                            "Amount": 10007.00,
-                            "Currency": "AUD",
-                            "Reference": "REF 007",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00007",
-                            "BillerName": "Biller 7",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN008",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-08T09:04:00Z",
-                            "ValueDateTime": "2022-04-08T09:04:00Z",
-                            "ExecutionDateTime": "2022-04-08T09:04:00Z",
-                            "Amount": 999.00,
-                            "Currency": "AUD",
-                            "Reference": "REF 008",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00008",
-                            "BillerName": "Biller 8",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN009",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-09T09:04:00Z",
-                            "ValueDateTime": "2022-04-09T09:04:00Z",
-                            "ExecutionDateTime": "2022-04-09T09:04:00Z",
-                            "Amount": 99.00,
-                            "Currency": "AUD",
-                            "Reference": "REF 009",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00009",
-                            "BillerName": "Biller 9",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN010",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-10T10:04:00Z",
-                            "ValueDateTime": "2022-04-10T10:04:00Z",
-                            "ExecutionDateTime": "2022-04-10T10:04:00Z",
-                            "Amount": 89.00,
-                            "Currency": "AUD",
-                            "Reference": "REF 010",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00010",
-                            "BillerName": "Biller 10",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN011",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-11T11:04:00Z",
-                            "ValueDateTime": "2022-04-11T11:04:00Z",
-                            "ExecutionDateTime": "2022-04-11T11:04:00Z",
-                            "Amount": 9.00,
-                            "Currency": "AUD",
-                            "Reference": "REF 011",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00011",
-                            "BillerName": "Biller 11",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN012",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-12T12:04:00Z",
-                            "ValueDateTime": "2022-04-12T12:04:00Z",
-                            "ExecutionDateTime": "2022-04-12T12:04:00Z",
-                            "Amount": 150.00,
-                            "Currency": "AUD",
-                            "Reference": "IOU 12",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00012",
-                            "BillerName": "Biller 12",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN013",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-13T13:04:00Z",
-                            "ValueDateTime": "2022-04-13T13:04:00Z",
-                            "ExecutionDateTime": "2022-04-13T13:04:00Z",
-                            "Amount": 153.00,
-                            "Currency": "AUD",
-                            "Reference": "13 IOU 13",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00013",
-                            "BillerName": "Biller 13",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN014",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-14T14:04:00Z",
-                            "ValueDateTime": "2022-04-14T14:04:00Z",
-                            "ExecutionDateTime": "2022-04-14T14:04:00Z",
-                            "Amount": 153.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 14",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00014",
-                            "BillerName": "Biller 14",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN015",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-15T15:04:00Z",
-                            "ValueDateTime": "2022-04-15T15:04:00Z",
-                            "ExecutionDateTime": "2022-04-15T15:04:00Z",
-                            "Amount": 153.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 15",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00015",
-                            "BillerName": "Biller 15",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN016",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-16T16:04:00Z",
-                            "ValueDateTime": "2022-04-16T16:04:00Z",
-                            "ExecutionDateTime": "2022-04-16T16:04:00Z",
-                            "Amount": 163.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 16",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00016",
-                            "BillerName": "Biller 16",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN017",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-17T17:04:00Z",
-                            "ValueDateTime": "2022-04-17T17:04:00Z",
-                            "ExecutionDateTime": "2022-04-17T17:04:00Z",
-                            "Amount": 173.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 17",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00017",
-                            "BillerName": "Biller 17",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN018",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-18T18:04:00Z",
-                            "ValueDateTime": "2022-04-18T18:04:00Z",
-                            "ExecutionDateTime": "2022-04-18T18:04:00Z",
-                            "Amount": 183.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 18",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00018",
-                            "BillerName": "Biller 18",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN019",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-19T19:04:00Z",
-                            "ValueDateTime": "2022-04-19T19:04:00Z",
-                            "ExecutionDateTime": "2022-04-19T19:04:00Z",
-                            "Amount": 193.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 19",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00019",
-                            "BillerName": "Biller 19",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN020",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-20T20:04:00Z",
-                            "ValueDateTime": "2022-04-20T20:04:00Z",
-                            "ExecutionDateTime": "2022-04-20T20:04:00Z",
-                            "Amount": 203.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 20",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00020",
-                            "BillerName": "Biller 20",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN021",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-21T21:04:00Z",
-                            "ValueDateTime": "2022-04-21T20:04:00Z",
-                            "ExecutionDateTime": "2022-04-21T20:04:00Z",
-                            "Amount": 203.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 21",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00021",
-                            "BillerName": "Biller 21",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN022",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-22T22:04:00Z",
-                            "ValueDateTime": "2022-04-22T20:04:00Z",
-                            "ExecutionDateTime": "2022-04-22T20:04:00Z",
-                            "Amount": 203.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 22",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00022",
-                            "BillerName": "Biller 22",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN023",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-23T23:04:00Z",
-                            "ValueDateTime": "2022-04-23T20:04:00Z",
-                            "ExecutionDateTime": "2022-04-23T20:04:00Z",
-                            "Amount": 203.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 23",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00023",
-                            "BillerName": "Biller 23",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN024",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-24T23:04:00Z",
-                            "ValueDateTime": "2022-04-24T20:04:00Z",
-                            "ExecutionDateTime": "2022-04-24T20:04:00Z",
-                            "Amount": 203.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 24",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00024",
-                            "BillerName": "Biller 24",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN025",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-25T23:04:00Z",
-                            "ValueDateTime": "2022-04-25T20:04:00Z",
-                            "ExecutionDateTime": "2022-04-25T20:04:00Z",
-                            "Amount": 203.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 25",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00025",
-                            "BillerName": "Biller 25",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN026",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-26T23:04:00Z",
-                            "ValueDateTime": "2022-04-26T20:04:00Z",
-                            "ExecutionDateTime": "2022-04-26T20:04:00Z",
-                            "Amount": 203.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 26",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00026",
-                            "BillerName": "Biller 26",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN027",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-27T23:04:00Z",
-                            "ValueDateTime": "2022-04-27T20:04:00Z",
-                            "ExecutionDateTime": "2022-04-27T20:04:00Z",
-                            "Amount": 203.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 27",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00027",
-                            "BillerName": "Biller 27",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN028",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-28T23:04:00Z",
-                            "ValueDateTime": "2022-04-28T20:04:00Z",
-                            "ExecutionDateTime": "2022-04-28T20:04:00Z",
-                            "Amount": 203.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 28",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00028",
-                            "BillerName": "Biller 28",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN029",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-29T23:04:00Z",
-                            "ValueDateTime": "2022-04-29T20:04:00Z",
-                            "ExecutionDateTime": "2022-04-29T20:04:00Z",
-                            "Amount": 203.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 29",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00029",
-                            "BillerName": "Biller 29",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        },
-                        {
-                            "TransactionId": "TRN030",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "BPAY",
-                            "PostingDateTime": "2022-04-30T23:04:00Z",
-                            "ValueDateTime": "2022-04-30T20:04:00Z",
-                            "ExecutionDateTime": "2022-04-30T20:04:00Z",
-                            "Amount": 203.00,
-                            "Currency": "AUD",
-                            "Reference": "Ref 30",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "00030",
-                            "BillerName": "Biller 30",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "98765987",
+                "CreationDate": "2019-07-12",
+                "DisplayName": "Personal Loan",
+                "NickName": "My Loan",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx987",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-100",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "98765988",
+                "CreationDate": "2019-07-12",
+                "DisplayName": "Transactions and Savings Account",
+                "NickName": "",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx988",
+                "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
+                "ProductName": "Everyday Transactions",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN001",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-05-25T09:04:00Z",
+                    "ValueDateTime": "2022-05-25T09:04:00Z",
+                    "ExecutionDateTime": "2022-05-25T09:04:00Z",
+                    "Amount": 151.00,
+                    "Currency": "AUD",
+                    "Reference": "REF 001",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00001",
+                    "BillerName": "Biller 1",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN002",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-05-25T09:04:00Z",
+                    "ValueDateTime": "2022-05-25T09:04:00Z",
+                    "ExecutionDateTime": "2022-05-25T09:04:00Z",
+                    "Amount": 152.00,
+                    "Currency": "AUD",
+                    "Reference": "REF 002",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00002",
+                    "BillerName": "Biller 2",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN003",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-03-01T09:04:00Z",
+                    "ValueDateTime": "2022-03-01T09:04:00Z",
+                    "ExecutionDateTime": "2022-03-01T09:04:00Z",
+                    "Amount": 153.00,
+                    "Currency": "AUD",
+                    "Reference": "REF 003",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00003",
+                    "BillerName": "Biller 3",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN004",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-03-01T09:04:00Z",
+                    "ValueDateTime": "2022-03-01T09:04:00Z",
+                    "ExecutionDateTime": "2022-03-01T09:04:00Z",
+                    "Amount": 154.00,
+                    "Currency": "AUD",
+                    "Reference": "REF 004",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00004",
+                    "BillerName": "Biller 4",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN005",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-05T09:04:00Z",
+                    "ValueDateTime": "2022-04-05T09:04:00Z",
+                    "ExecutionDateTime": "2022-04-05T09:04:00Z",
+                    "Amount": 10005.00,
+                    "Currency": "AUD",
+                    "Reference": "REF 005",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00005",
+                    "BillerName": "Biller 5",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN006",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-06T09:04:00Z",
+                    "ValueDateTime": "2022-04-06T09:04:00Z",
+                    "ExecutionDateTime": "2022-04-06T09:04:00Z",
+                    "Amount": 10006.00,
+                    "Currency": "AUD",
+                    "Reference": "REF 006",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00006",
+                    "BillerName": "Biller 6",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN007",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-07T09:04:00Z",
+                    "ValueDateTime": "2022-04-07T09:04:00Z",
+                    "ExecutionDateTime": "2022-04-07T09:04:00Z",
+                    "Amount": 10007.00,
+                    "Currency": "AUD",
+                    "Reference": "REF 007",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00007",
+                    "BillerName": "Biller 7",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN008",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-08T09:04:00Z",
+                    "ValueDateTime": "2022-04-08T09:04:00Z",
+                    "ExecutionDateTime": "2022-04-08T09:04:00Z",
+                    "Amount": 999.00,
+                    "Currency": "AUD",
+                    "Reference": "REF 008",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00008",
+                    "BillerName": "Biller 8",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN009",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-09T09:04:00Z",
+                    "ValueDateTime": "2022-04-09T09:04:00Z",
+                    "ExecutionDateTime": "2022-04-09T09:04:00Z",
+                    "Amount": 99.00,
+                    "Currency": "AUD",
+                    "Reference": "REF 009",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00009",
+                    "BillerName": "Biller 9",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN010",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-10T10:04:00Z",
+                    "ValueDateTime": "2022-04-10T10:04:00Z",
+                    "ExecutionDateTime": "2022-04-10T10:04:00Z",
+                    "Amount": 89.00,
+                    "Currency": "AUD",
+                    "Reference": "REF 010",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00010",
+                    "BillerName": "Biller 10",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN011",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-11T11:04:00Z",
+                    "ValueDateTime": "2022-04-11T11:04:00Z",
+                    "ExecutionDateTime": "2022-04-11T11:04:00Z",
+                    "Amount": 9.00,
+                    "Currency": "AUD",
+                    "Reference": "REF 011",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00011",
+                    "BillerName": "Biller 11",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN012",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-12T12:04:00Z",
+                    "ValueDateTime": "2022-04-12T12:04:00Z",
+                    "ExecutionDateTime": "2022-04-12T12:04:00Z",
+                    "Amount": 150.00,
+                    "Currency": "AUD",
+                    "Reference": "IOU 12",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00012",
+                    "BillerName": "Biller 12",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN013",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-13T13:04:00Z",
+                    "ValueDateTime": "2022-04-13T13:04:00Z",
+                    "ExecutionDateTime": "2022-04-13T13:04:00Z",
+                    "Amount": 153.00,
+                    "Currency": "AUD",
+                    "Reference": "13 IOU 13",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00013",
+                    "BillerName": "Biller 13",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN014",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-14T14:04:00Z",
+                    "ValueDateTime": "2022-04-14T14:04:00Z",
+                    "ExecutionDateTime": "2022-04-14T14:04:00Z",
+                    "Amount": 153.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 14",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00014",
+                    "BillerName": "Biller 14",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN015",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-15T15:04:00Z",
+                    "ValueDateTime": "2022-04-15T15:04:00Z",
+                    "ExecutionDateTime": "2022-04-15T15:04:00Z",
+                    "Amount": 153.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 15",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00015",
+                    "BillerName": "Biller 15",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN016",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-16T16:04:00Z",
+                    "ValueDateTime": "2022-04-16T16:04:00Z",
+                    "ExecutionDateTime": "2022-04-16T16:04:00Z",
+                    "Amount": 163.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 16",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00016",
+                    "BillerName": "Biller 16",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN017",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-17T17:04:00Z",
+                    "ValueDateTime": "2022-04-17T17:04:00Z",
+                    "ExecutionDateTime": "2022-04-17T17:04:00Z",
+                    "Amount": 173.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 17",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00017",
+                    "BillerName": "Biller 17",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN018",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-18T18:04:00Z",
+                    "ValueDateTime": "2022-04-18T18:04:00Z",
+                    "ExecutionDateTime": "2022-04-18T18:04:00Z",
+                    "Amount": 183.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 18",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00018",
+                    "BillerName": "Biller 18",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN019",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-19T19:04:00Z",
+                    "ValueDateTime": "2022-04-19T19:04:00Z",
+                    "ExecutionDateTime": "2022-04-19T19:04:00Z",
+                    "Amount": 193.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 19",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00019",
+                    "BillerName": "Biller 19",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN020",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-20T20:04:00Z",
+                    "ValueDateTime": "2022-04-20T20:04:00Z",
+                    "ExecutionDateTime": "2022-04-20T20:04:00Z",
+                    "Amount": 203.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 20",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00020",
+                    "BillerName": "Biller 20",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN021",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-21T21:04:00Z",
+                    "ValueDateTime": "2022-04-21T20:04:00Z",
+                    "ExecutionDateTime": "2022-04-21T20:04:00Z",
+                    "Amount": 203.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 21",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00021",
+                    "BillerName": "Biller 21",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN022",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-22T22:04:00Z",
+                    "ValueDateTime": "2022-04-22T20:04:00Z",
+                    "ExecutionDateTime": "2022-04-22T20:04:00Z",
+                    "Amount": 203.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 22",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00022",
+                    "BillerName": "Biller 22",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN023",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-23T23:04:00Z",
+                    "ValueDateTime": "2022-04-23T20:04:00Z",
+                    "ExecutionDateTime": "2022-04-23T20:04:00Z",
+                    "Amount": 203.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 23",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00023",
+                    "BillerName": "Biller 23",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN024",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-24T23:04:00Z",
+                    "ValueDateTime": "2022-04-24T20:04:00Z",
+                    "ExecutionDateTime": "2022-04-24T20:04:00Z",
+                    "Amount": 203.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 24",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00024",
+                    "BillerName": "Biller 24",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN025",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-25T23:04:00Z",
+                    "ValueDateTime": "2022-04-25T20:04:00Z",
+                    "ExecutionDateTime": "2022-04-25T20:04:00Z",
+                    "Amount": 203.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 25",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00025",
+                    "BillerName": "Biller 25",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN026",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-26T23:04:00Z",
+                    "ValueDateTime": "2022-04-26T20:04:00Z",
+                    "ExecutionDateTime": "2022-04-26T20:04:00Z",
+                    "Amount": 203.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 26",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00026",
+                    "BillerName": "Biller 26",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN027",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-27T23:04:00Z",
+                    "ValueDateTime": "2022-04-27T20:04:00Z",
+                    "ExecutionDateTime": "2022-04-27T20:04:00Z",
+                    "Amount": 203.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 27",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00027",
+                    "BillerName": "Biller 27",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN028",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-28T23:04:00Z",
+                    "ValueDateTime": "2022-04-28T20:04:00Z",
+                    "ExecutionDateTime": "2022-04-28T20:04:00Z",
+                    "Amount": 203.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 28",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00028",
+                    "BillerName": "Biller 28",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN029",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-29T23:04:00Z",
+                    "ValueDateTime": "2022-04-29T20:04:00Z",
+                    "ExecutionDateTime": "2022-04-29T20:04:00Z",
+                    "Amount": 203.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 29",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00029",
+                    "BillerName": "Biller 29",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  },
+                  {
+                    "TransactionId": "TRN030",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "BPAY",
+                    "PostingDateTime": "2022-04-30T23:04:00Z",
+                    "ValueDateTime": "2022-04-30T20:04:00Z",
+                    "ExecutionDateTime": "2022-04-30T20:04:00Z",
+                    "Amount": 203.00,
+                    "Currency": "AUD",
+                    "Reference": "Ref 30",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "00030",
+                    "BillerName": "Biller 30",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -736,36 +739,37 @@
                 "LastUpdateTime": "2021-03-01T18:30:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "1235782",
-                    "CreationDate": "2016-07-01",
-                    "DisplayName": "Personal Loan",
-                    "NickName": "My Loan",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx232",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-101",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "1235782",
+                "CreationDate": "2016-07-01",
+                "DisplayName": "Personal Loan",
+                "NickName": "My Loan",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx232",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "TWO_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-101",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -784,906 +788,936 @@
                 "LastUpdateTime": "2021-03-01T18:30:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "0000001",
-                    "CreationDate": "2016-07-01",
-                    "DisplayName": "Personal Loan",
-                    "NickName": "My Loan",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx001",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-102",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "0000002",
-                    "CreationDate": "2016-08-01",
-                    "DisplayName": "Personal Loan 2",
-                    "NickName": "My Loan 2",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx002",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-103",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "0000003",
-                    "CreationDate": "2016-09-01",
-                    "DisplayName": "Personal Loan 3",
-                    "NickName": "My Loan 3",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx003",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-104",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "0000004",
-                    "CreationDate": "2016-10-01",
-                    "DisplayName": "Personal Loan 4",
-                    "NickName": "My Loan 4",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx004",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-105",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "0000005",
-                    "CreationDate": "2016-11-01",
-                    "DisplayName": "Personal Loan 5",
-                    "NickName": "My Loan 5",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx005",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-106",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "0000006",
-                    "CreationDate": "2016-12-01",
-                    "DisplayName": "Personal Loan 6",
-                    "NickName": "My Loan 6",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx006",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-107",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "0000007",
-                    "CreationDate": "2017-01-01",
-                    "DisplayName": "Personal Loan 7",
-                    "NickName": "My Loan 7",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx007",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-108",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "0000008",
-                    "CreationDate": "2017-02-01",
-                    "DisplayName": "Personal Loan 8",
-                    "NickName": "My Loan 8",
-                    "OpenStatus": "CLOSED",
-                    "MaskedName": "xxx-xxx xxxxx008",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-109",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "0000009",
-                    "CreationDate": "2017-03-01",
-                    "DisplayName": "Personal Loan 9",
-                    "NickName": "My Loan 9",
-                    "OpenStatus": "CLOSED",
-                    "MaskedName": "xxx-xxx xxxxx009",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-110",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "0000010",
-                    "CreationDate": "2017-04-01",
-                    "DisplayName": "Personal Loan 10",
-                    "NickName": "My Loan 10",
-                    "OpenStatus": "CLOSED",
-                    "MaskedName": "xxx-xxx xxxxx010",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-111",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "1000001",
-                    "CreationDate": "2016-07-01",
-                    "DisplayName": "Savings",
-                    "NickName": "My Savings",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx001",
-                    "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
-                    "ProductName": "Everyday Savings",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-112",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "1000002",
-                    "CreationDate": "2016-08-01",
-                    "DisplayName": "Savings 2",
-                    "NickName": "My Savings 2",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx002",
-                    "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
-                    "ProductName": "Everyday Savings",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-113",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "1000003",
-                    "CreationDate": "2016-09-01",
-                    "DisplayName": "Savings 3",
-                    "NickName": "My Savings 3",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx003",
-                    "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
-                    "ProductName": "Everyday Savings",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-114",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "1000004",
-                    "CreationDate": "2016-10-01",
-                    "DisplayName": "Savings 4",
-                    "NickName": "My Savings 4",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx004",
-                    "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
-                    "ProductName": "Everyday Savings",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-115",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "1000005",
-                    "CreationDate": "2016-11-01",
-                    "DisplayName": "Savings 5",
-                    "NickName": "My Savings 5",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx005",
-                    "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
-                    "ProductName": "Everyday Savings",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-116",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "1000006",
-                    "CreationDate": "2016-12-01",
-                    "DisplayName": "Savings 6",
-                    "NickName": "My Savings 6",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx006",
-                    "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
-                    "ProductName": "Everyday Savings",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-117",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "1000007",
-                    "CreationDate": "2017-01-01",
-                    "DisplayName": "Savings 7",
-                    "NickName": "My Savings 7",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx007",
-                    "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
-                    "ProductName": "Everyday Savings",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-118",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "1000008",
-                    "CreationDate": "2017-02-01",
-                    "DisplayName": "Savings 8",
-                    "NickName": "My Savings 8",
-                    "OpenStatus": "CLOSED",
-                    "MaskedName": "xxx-xxx xxxxx008",
-                    "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
-                    "ProductName": "Everyday Savings",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-119",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "1000009",
-                    "CreationDate": "2017-03-01",
-                    "DisplayName": "Savings 9",
-                    "NickName": "My Savings 9",
-                    "OpenStatus": "CLOSED",
-                    "MaskedName": "xxx-xxx xxxxx009",
-                    "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
-                    "ProductName": "Everyday Savings",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-120",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "1000010",
-                    "CreationDate": "2017-04-01",
-                    "DisplayName": "Savings 10",
-                    "NickName": "My Savings 10",
-                    "OpenStatus": "CLOSED",
-                    "MaskedName": "xxx-xxx xxxxx010",
-                    "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
-                    "ProductName": "Everyday Savings",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-121",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "2000001",
-                    "CreationDate": "2016-07-01",
-                    "DisplayName": "Term Deposit",
-                    "NickName": "My Term Deposit",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx001",
-                    "ProductCategory": "TERM_DEPOSITS",
-                    "ProductName": "Everyday Term Deposit",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-122",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "2000002",
-                    "CreationDate": "2016-08-01",
-                    "DisplayName": "Term Deposit 2",
-                    "NickName": "My Term Deposit 2",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx002",
-                    "ProductCategory": "TERM_DEPOSITS",
-                    "ProductName": "Everyday Term Deposit",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-123",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "2000003",
-                    "CreationDate": "2016-09-01",
-                    "DisplayName": "Term Deposit 3",
-                    "NickName": "My Term Deposit 3",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx003",
-                    "ProductCategory": "TERM_DEPOSITS",
-                    "ProductName": "Everyday Term Deposit",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-124",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "2000004",
-                    "CreationDate": "2016-10-01",
-                    "DisplayName": "Term Deposit 4",
-                    "NickName": "My Term Deposit 4",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx004",
-                    "ProductCategory": "TERM_DEPOSITS",
-                    "ProductName": "Everyday Term Deposit",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-125",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "2000005",
-                    "CreationDate": "2016-11-01",
-                    "DisplayName": "Term Deposit 5",
-                    "NickName": "My Term Deposit 5",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx005",
-                    "ProductCategory": "TERM_DEPOSITS",
-                    "ProductName": "Everyday Term Deposit",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-126",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "2000006",
-                    "CreationDate": "2016-12-01",
-                    "DisplayName": "Term Deposit 6",
-                    "NickName": "My Term Deposit 6",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx006",
-                    "ProductCategory": "TERM_DEPOSITS",
-                    "ProductName": "Everyday Term Deposit",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-127",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "2000007",
-                    "CreationDate": "2017-01-01",
-                    "DisplayName": "Term Deposit 7",
-                    "NickName": "My Term Deposit 7",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx007",
-                    "ProductCategory": "TERM_DEPOSITS",
-                    "ProductName": "Everyday Term Deposit",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-128",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "2000008",
-                    "CreationDate": "2017-02-01",
-                    "DisplayName": "Term Deposit 8",
-                    "NickName": "My Term Deposit 8",
-                    "OpenStatus": "CLOSED",
-                    "MaskedName": "xxx-xxx xxxxx008",
-                    "ProductCategory": "TERM_DEPOSITS",
-                    "ProductName": "Everyday Term Deposit",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-129",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "2000009",
-                    "CreationDate": "2017-03-01",
-                    "DisplayName": "Term Deposit 9",
-                    "NickName": "My Term Deposit 9",
-                    "OpenStatus": "CLOSED",
-                    "MaskedName": "xxx-xxx xxxxx009",
-                    "ProductCategory": "TERM_DEPOSITS",
-                    "ProductName": "Everyday Term Deposit",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-130",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "2000010",
-                    "CreationDate": "2017-04-01",
-                    "DisplayName": "Term Deposit 10",
-                    "NickName": "My Term Deposit 10",
-                    "OpenStatus": "CLOSED",
-                    "MaskedName": "xxx-xxx xxxxx010",
-                    "ProductCategory": "TERM_DEPOSITS",
-                    "ProductName": "Everyday Term Deposit",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-131",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "0000001",
+                "CreationDate": "2016-07-01",
+                "DisplayName": "Personal Loan",
+                "NickName": "My Loan",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx001",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "MULTI_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-102",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "0000002",
+                "CreationDate": "2016-08-01",
+                "DisplayName": "Personal Loan 2",
+                "NickName": "My Loan 2",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx002",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "MULTI_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-103",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "0000003",
+                "CreationDate": "2016-09-01",
+                "DisplayName": "Personal Loan 3",
+                "NickName": "My Loan 3",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx003",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "MULTI_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-104",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "0000004",
+                "CreationDate": "2016-10-01",
+                "DisplayName": "Personal Loan 4",
+                "NickName": "My Loan 4",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx004",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "MULTI_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-105",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "0000005",
+                "CreationDate": "2016-11-01",
+                "DisplayName": "Personal Loan 5",
+                "NickName": "My Loan 5",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx005",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "MULTI_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-106",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "0000006",
+                "CreationDate": "2016-12-01",
+                "DisplayName": "Personal Loan 6",
+                "NickName": "My Loan 6",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx006",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "MULTI_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-107",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "0000007",
+                "CreationDate": "2017-01-01",
+                "DisplayName": "Personal Loan 7",
+                "NickName": "My Loan 7",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx007",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "MULTI_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-108",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "0000008",
+                "CreationDate": "2017-02-01",
+                "DisplayName": "Personal Loan 8",
+                "NickName": "My Loan 8",
+                "OpenStatus": "CLOSED",
+                "MaskedName": "xxx-xxx xxxxx008",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-109",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "0000009",
+                "CreationDate": "2017-03-01",
+                "DisplayName": "Personal Loan 9",
+                "NickName": "My Loan 9",
+                "OpenStatus": "CLOSED",
+                "MaskedName": "xxx-xxx xxxxx009",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "MULTI_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-110",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "0000010",
+                "CreationDate": "2017-04-01",
+                "DisplayName": "Personal Loan 10",
+                "NickName": "My Loan 10",
+                "OpenStatus": "CLOSED",
+                "MaskedName": "xxx-xxx xxxxx010",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "MULTI_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-111",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "1000001",
+                "CreationDate": "2016-07-01",
+                "DisplayName": "Savings",
+                "NickName": "My Savings",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx001",
+                "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
+                "ProductName": "Everyday Savings",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-112",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "1000002",
+                "CreationDate": "2016-08-01",
+                "DisplayName": "Savings 2",
+                "NickName": "My Savings 2",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx002",
+                "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
+                "ProductName": "Everyday Savings",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-113",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "1000003",
+                "CreationDate": "2016-09-01",
+                "DisplayName": "Savings 3",
+                "NickName": "My Savings 3",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx003",
+                "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
+                "ProductName": "Everyday Savings",
+                "AccountOwnership": "MULTI_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-114",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "1000004",
+                "CreationDate": "2016-10-01",
+                "DisplayName": "Savings 4",
+                "NickName": "My Savings 4",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx004",
+                "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
+                "ProductName": "Everyday Savings",
+                "AccountOwnership": "MULTI_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-115",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "1000005",
+                "CreationDate": "2016-11-01",
+                "DisplayName": "Savings 5",
+                "NickName": "My Savings 5",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx005",
+                "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
+                "ProductName": "Everyday Savings",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-116",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "1000006",
+                "CreationDate": "2016-12-01",
+                "DisplayName": "Savings 6",
+                "NickName": "My Savings 6",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx006",
+                "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
+                "ProductName": "Everyday Savings",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-117",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "1000007",
+                "CreationDate": "2017-01-01",
+                "DisplayName": "Savings 7",
+                "NickName": "My Savings 7",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx007",
+                "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
+                "ProductName": "Everyday Savings",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-118",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "1000008",
+                "CreationDate": "2017-02-01",
+                "DisplayName": "Savings 8",
+                "NickName": "My Savings 8",
+                "OpenStatus": "CLOSED",
+                "MaskedName": "xxx-xxx xxxxx008",
+                "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
+                "ProductName": "Everyday Savings",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-119",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "1000009",
+                "CreationDate": "2017-03-01",
+                "DisplayName": "Savings 9",
+                "NickName": "My Savings 9",
+                "OpenStatus": "CLOSED",
+                "MaskedName": "xxx-xxx xxxxx009",
+                "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
+                "ProductName": "Everyday Savings",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-120",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "1000010",
+                "CreationDate": "2017-04-01",
+                "DisplayName": "Savings 10",
+                "NickName": "My Savings 10",
+                "OpenStatus": "CLOSED",
+                "MaskedName": "xxx-xxx xxxxx010",
+                "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
+                "ProductName": "Everyday Savings",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-121",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "2000001",
+                "CreationDate": "2016-07-01",
+                "DisplayName": "Term Deposit",
+                "NickName": "My Term Deposit",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx001",
+                "ProductCategory": "TERM_DEPOSITS",
+                "ProductName": "Everyday Term Deposit",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-122",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "2000002",
+                "CreationDate": "2016-08-01",
+                "DisplayName": "Term Deposit 2",
+                "NickName": "My Term Deposit 2",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx002",
+                "ProductCategory": "TERM_DEPOSITS",
+                "ProductName": "Everyday Term Deposit",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-123",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "2000003",
+                "CreationDate": "2016-09-01",
+                "DisplayName": "Term Deposit 3",
+                "NickName": "My Term Deposit 3",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx003",
+                "ProductCategory": "TERM_DEPOSITS",
+                "ProductName": "Everyday Term Deposit",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-124",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "2000004",
+                "CreationDate": "2016-10-01",
+                "DisplayName": "Term Deposit 4",
+                "NickName": "My Term Deposit 4",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx004",
+                "ProductCategory": "TERM_DEPOSITS",
+                "ProductName": "Everyday Term Deposit",
+                "AccountOwnership": "TWO_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-125",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "2000005",
+                "CreationDate": "2016-11-01",
+                "DisplayName": "Term Deposit 5",
+                "NickName": "My Term Deposit 5",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx005",
+                "ProductCategory": "TERM_DEPOSITS",
+                "ProductName": "Everyday Term Deposit",
+                "AccountOwnership": "TWO_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-126",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "2000006",
+                "CreationDate": "2016-12-01",
+                "DisplayName": "Term Deposit 6",
+                "NickName": "My Term Deposit 6",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx006",
+                "ProductCategory": "TERM_DEPOSITS",
+                "ProductName": "Everyday Term Deposit",
+                "AccountOwnership": "TWO_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-127",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "2000007",
+                "CreationDate": "2017-01-01",
+                "DisplayName": "Term Deposit 7",
+                "NickName": "My Term Deposit 7",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx007",
+                "ProductCategory": "TERM_DEPOSITS",
+                "ProductName": "Everyday Term Deposit",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-128",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "2000008",
+                "CreationDate": "2017-02-01",
+                "DisplayName": "Term Deposit 8",
+                "NickName": "My Term Deposit 8",
+                "OpenStatus": "CLOSED",
+                "MaskedName": "xxx-xxx xxxxx008",
+                "ProductCategory": "TERM_DEPOSITS",
+                "ProductName": "Everyday Term Deposit",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-129",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "2000009",
+                "CreationDate": "2017-03-01",
+                "DisplayName": "Term Deposit 9",
+                "NickName": "My Term Deposit 9",
+                "OpenStatus": "CLOSED",
+                "MaskedName": "xxx-xxx xxxxx009",
+                "ProductCategory": "TERM_DEPOSITS",
+                "ProductName": "Everyday Term Deposit",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-130",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "2000010",
+                "CreationDate": "2017-04-01",
+                "DisplayName": "Term Deposit 10",
+                "NickName": "My Term Deposit 10",
+                "OpenStatus": "CLOSED",
+                "MaskedName": "xxx-xxx xxxxx010",
+                "ProductCategory": "TERM_DEPOSITS",
+                "ProductName": "Everyday Term Deposit",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-131",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -1702,36 +1736,37 @@
                 "LastUpdateTime": "2021-02-01T18:30:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "321562",
-                    "CreationDate": "2018-10-01",
-                    "DisplayName": "Personal Loan",
-                    "NickName": "My Loan",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx232",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-132",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "321562",
+                "CreationDate": "2018-10-01",
+                "DisplayName": "Personal Loan",
+                "NickName": "My Loan",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx232",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-132",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -1750,66 +1785,68 @@
                 "LastUpdateTime": "2018-03-01T18:30:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "112324",
-                    "CreationDate": "2018-11-01",
-                    "DisplayName": "Personal Loan",
-                    "NickName": "Loan",
-                    "OpenStatus": "CLOSED",
-                    "MaskedName": "xxx-xxx xxxxx232",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-133",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "4023452",
-                    "CreationDate": "2018-11-23",
-                    "DisplayName": "Personal Loan",
-                    "NickName": "Loan",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx364",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-134",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "112324",
+                "CreationDate": "2018-11-01",
+                "DisplayName": "Personal Loan",
+                "NickName": "Loan",
+                "OpenStatus": "CLOSED",
+                "MaskedName": "xxx-xxx xxxxx232",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-133",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "4023452",
+                "CreationDate": "2018-11-23",
+                "DisplayName": "Personal Loan",
+                "NickName": "Loan",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx364",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-134",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -1828,36 +1865,37 @@
                 "LastUpdateTime": "2019-03-01T18:30:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "2456654",
-                    "CreationDate": "2018-10-31",
-                    "DisplayName": "Personal Loan",
-                    "NickName": "Loan",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx157",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-135",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "2456654",
+                "CreationDate": "2018-10-31",
+                "DisplayName": "Personal Loan",
+                "NickName": "Loan",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx157",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-135",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -1876,36 +1914,37 @@
                 "LastUpdateTime": "2018-03-01T18:30:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "513452",
-                    "CreationDate": "2018-10-24",
-                    "DisplayName": "Personal Loan",
-                    "NickName": "Loan",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx254",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-136",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "513452",
+                "CreationDate": "2018-10-24",
+                "DisplayName": "Personal Loan",
+                "NickName": "Loan",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx254",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-136",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -1924,36 +1963,37 @@
                 "LastUpdateTime": "2020-03-01T09:30:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "123955",
-                    "CreationDate": "2016-10-24",
-                    "DisplayName": "Personal Loan",
-                    "NickName": "Loan",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx223",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-137",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "123955",
+                "CreationDate": "2016-10-24",
+                "DisplayName": "Personal Loan",
+                "NickName": "Loan",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx223",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-137",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -1972,36 +2012,37 @@
                 "LastUpdateTime": "2021-03-01T09:30:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "123935",
-                    "CreationDate": "2015-10-24",
-                    "DisplayName": "Personal Loan",
-                    "NickName": "Loan",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx297",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Everyday Personal Loan",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-138",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "123935",
+                "CreationDate": "2015-10-24",
+                "DisplayName": "Personal Loan",
+                "NickName": "Loan",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx297",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Everyday Personal Loan",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-138",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -2020,96 +2061,99 @@
                 "LastUpdateTime": "2021-01-01T18:30:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "96565987",
-                    "CreationDate": "2017-07-12",
-                    "DisplayName": "Credit",
-                    "NickName": "Credit",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx375",
-                    "ProductCategory": "CRED_AND_CHRG_CARDS",
-                    "ProductName": "Credit card",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-139",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "1100002",
-                    "CreationDate": "2017-02-01",
-                    "DisplayName": "Mortgage account",
-                    "NickName": "Mortgage",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx123",
-                    "ProductCategory": "PERS_LOANS",
-                    "ProductName": "Personal loan account",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-140",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                },
-                {
-                    "AccountId": "96534987",
-                    "CreationDate": "2017-07-12",
-                    "DisplayName": "Digital banking account",
-                    "NickName": "Digital",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx375",
-                    "ProductCategory": "TRAVEL_CARDS",
-                    "ProductName": "digital banking",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN11113",
-                            "TransactionType": "PAYMENT",
-                            "Status": "POSTED",
-                            "Description": "EFTPOS",
-                            "PostingDateTime": "2022-05-05T17:22:00Z",
-                            "ValueDateTime": "2022-05-05T17:22:00Z",
-                            "ExecutionDateTime": "2022-05-05T17:22:00Z",
-                            "Amount": 111.2,
-                            "Currency": "AUD",
-                            "Reference": "EFTPOS",
-                            "MerchantName": "Supermarket A",
-                            "MerchantCategoryCode": "5411",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "96565987",
+                "CreationDate": "2017-07-12",
+                "DisplayName": "Credit",
+                "NickName": "Credit",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx375",
+                "ProductCategory": "CRED_AND_CHRG_CARDS",
+                "ProductName": "Credit card",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-139",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "1100002",
+                "CreationDate": "2017-02-01",
+                "DisplayName": "Mortgage account",
+                "NickName": "Mortgage",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx123",
+                "ProductCategory": "PERS_LOANS",
+                "ProductName": "Personal loan account",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-140",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              },
+              {
+                "AccountId": "96534987",
+                "CreationDate": "2017-07-12",
+                "DisplayName": "Digital banking account",
+                "NickName": "Digital",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx375",
+                "ProductCategory": "TRAVEL_CARDS",
+                "ProductName": "digital banking",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN11113",
+                    "TransactionType": "PAYMENT",
+                    "Status": "POSTED",
+                    "Description": "EFTPOS",
+                    "PostingDateTime": "2022-05-05T17:22:00Z",
+                    "ValueDateTime": "2022-05-05T17:22:00Z",
+                    "ExecutionDateTime": "2022-05-05T17:22:00Z",
+                    "Amount": 111.2,
+                    "Currency": "AUD",
+                    "Reference": "EFTPOS",
+                    "MerchantName": "Supermarket A",
+                    "MerchantCategoryCode": "5411",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -2152,36 +2196,37 @@
                 "LastUpdateTime": "2021-01-01T00:00:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "54676423",
-                    "CreationDate": "2012-03-25",
-                    "DisplayName": "Business Loan",
-                    "NickName": "Business",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx422",
-                    "ProductCategory": "BUSINESS_LOANS",
-                    "ProductName": "Business Starter",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-141",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "54676423",
+                "CreationDate": "2012-03-25",
+                "DisplayName": "Business Loan",
+                "NickName": "Business",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx422",
+                "ProductCategory": "BUSINESS_LOANS",
+                "ProductName": "Business Starter",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-141",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -2207,36 +2252,37 @@
                 "LastUpdateTime": "2021-01-01T00:00:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "54676422",
-                    "CreationDate": "2015-03-25",
-                    "DisplayName": "Business Loan",
-                    "NickName": "Business",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx124",
-                    "ProductCategory": "BUSINESS_LOANS",
-                    "ProductName": "Business Starter",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-142",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "54676422",
+                "CreationDate": "2015-03-25",
+                "DisplayName": "Business Loan",
+                "NickName": "Business",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx124",
+                "ProductCategory": "BUSINESS_LOANS",
+                "ProductName": "Business Starter",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-142",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -2262,36 +2308,37 @@
                 "LastUpdateTime": "2021-01-01T00:00:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "95959332",
-                    "CreationDate": "2017-03-25",
-                    "DisplayName": "Business Loan",
-                    "NickName": "Business",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx422",
-                    "ProductCategory": "BUSINESS_LOANS",
-                    "ProductName": "Business Starter",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-143",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "95959332",
+                "CreationDate": "2017-03-25",
+                "DisplayName": "Business Loan",
+                "NickName": "Business",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx422",
+                "ProductCategory": "BUSINESS_LOANS",
+                "ProductName": "Business Starter",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-143",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -2341,36 +2388,37 @@
                 "LastUpdateTime": "2021-04-01T00:00:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "835672345",
-                    "CreationDate": "2019-03-25",
-                    "DisplayName": "Business Loan",
-                    "NickName": "Business",
-                    "OpenStatus": "CLOSED",
-                    "MaskedName": "xxx-xxx xxxxx442",
-                    "ProductCategory": "BUSINESS_LOANS",
-                    "ProductName": "Business Starter",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-144",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "835672345",
+                "CreationDate": "2019-03-25",
+                "DisplayName": "Business Loan",
+                "NickName": "Business",
+                "OpenStatus": "CLOSED",
+                "MaskedName": "xxx-xxx xxxxx442",
+                "ProductCategory": "BUSINESS_LOANS",
+                "ProductName": "Business Starter",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-144",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -2396,36 +2444,37 @@
                 "LastUpdateTime": "2019-04-01T00:00:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "85123425",
-                    "CreationDate": "2021-03-25",
-                    "DisplayName": "Business Loan",
-                    "NickName": "Business",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx112",
-                    "ProductCategory": "BUSINESS_LOANS",
-                    "ProductName": "Business Starter",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-145",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "85123425",
+                "CreationDate": "2021-03-25",
+                "DisplayName": "Business Loan",
+                "NickName": "Business",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx112",
+                "ProductCategory": "BUSINESS_LOANS",
+                "ProductName": "Business Starter",
+                "AccountOwnership": "ONE_PARTY",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-145",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -2451,36 +2500,37 @@
                 "LastUpdateTime": "2019-04-01T00:00:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "8123415",
-                    "CreationDate": "2011-03-25",
-                    "DisplayName": "Business Loan",
-                    "NickName": "Business",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx192",
-                    "ProductCategory": "BUSINESS_LOANS",
-                    "ProductName": "Business Starter",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-146",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "8123415",
+                "CreationDate": "2011-03-25",
+                "DisplayName": "Business Loan",
+                "NickName": "Business",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx192",
+                "ProductCategory": "BUSINESS_LOANS",
+                "ProductName": "Business Starter",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-146",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -2506,36 +2556,37 @@
                 "LastUpdateTime": "2019-02-01T00:00:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "4123455",
-                    "CreationDate": "2021-03-25",
-                    "DisplayName": "Business Loan",
-                    "NickName": "Business",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx132",
-                    "ProductCategory": "BUSINESS_LOANS",
-                    "ProductName": "Business Starter",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-147",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "4123455",
+                "CreationDate": "2021-03-25",
+                "DisplayName": "Business Loan",
+                "NickName": "Business",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx132",
+                "ProductCategory": "BUSINESS_LOANS",
+                "ProductName": "Business Starter",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-147",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         },
         {
@@ -2561,36 +2612,37 @@
                 "LastUpdateTime": "2019-02-01T00:00:00Z"
             },
             "Accounts": [
-                {
-                    "AccountId": "8982345",
-                    "CreationDate": "2020-03-25",
-                    "DisplayName": "Business Loan",
-                    "NickName": "Business",
-                    "OpenStatus": "OPEN",
-                    "MaskedName": "xxx-xxx xxxxx132",
-                    "ProductCategory": "BUSINESS_LOANS",
-                    "ProductName": "Business Starter",
-                    "Transactions": [
-                        {
-                            "TransactionId": "TRN-ID-148",
-                            "TransactionType": "TRANSFER_OUTGOING",
-                            "Status": "POSTED",
-                            "Description": "Pay anyone",
-                            "PostingDateTime": "2022-04-26T08:31:00Z",
-                            "ValueDateTime": "2022-04-26T08:31:00Z",
-                            "ExecutionDateTime": "2022-04-26T08:31:00Z",
-                            "Amount": 321.00,
-                            "Currency": "AUD",
-                            "Reference": "INV-12345",
-                            "MerchantName": "",
-                            "MerchantCategoryCode": "",
-                            "BillerCode": "",
-                            "BillerName": "",
-                            "CRN": "",
-                            "ApcaNumber": ""
-                        }
-                    ]
-                }
+              {
+                "AccountId": "8982345",
+                "CreationDate": "2020-03-25",
+                "DisplayName": "Business Loan",
+                "NickName": "Business",
+                "OpenStatus": "OPEN",
+                "MaskedName": "xxx-xxx xxxxx132",
+                "ProductCategory": "BUSINESS_LOANS",
+                "ProductName": "Business Starter",
+                "AccountOwnership": "UNKNOWN",
+                "Transactions": [
+                  {
+                    "TransactionId": "TRN-ID-148",
+                    "TransactionType": "TRANSFER_OUTGOING",
+                    "Status": "POSTED",
+                    "Description": "Pay anyone",
+                    "PostingDateTime": "2022-04-26T08:31:00Z",
+                    "ValueDateTime": "2022-04-26T08:31:00Z",
+                    "ExecutionDateTime": "2022-04-26T08:31:00Z",
+                    "Amount": 321.00,
+                    "Currency": "AUD",
+                    "Reference": "INV-12345",
+                    "MerchantName": "",
+                    "MerchantCategoryCode": "",
+                    "BillerCode": "",
+                    "BillerName": "",
+                    "CRN": "",
+                    "ApcaNumber": ""
+                  }
+                ]
+              }
             ]
         }
     ],

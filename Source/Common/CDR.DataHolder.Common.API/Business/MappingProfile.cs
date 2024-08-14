@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CDR.DataHolder.Common.API.Extensions;
 using CDR.DataHolder.Common.Resource.API.Business.Models;
 using CDR.DataHolder.Common.Resource.API.Business.Responses;
 
@@ -24,13 +25,13 @@ namespace CDR.DataHolder.Common.API.Business
 
             // Mapping from Person to ResponseCommonCustomer
             CreateMap<Banking.Domain.Entities.Person, ResponseCommonCustomer>()
-                .ForMember(dest => dest.Data, source => source.MapFrom(source => source))
-                .ForAllOtherMembers(dest => dest.Ignore());
+                .IgnoreAllMembers()
+                .ForMember(dest => dest.Data, source => source.MapFrom(source => source));
 
             // Mapping from Organisation to ResponseCommonCustomer
             CreateMap<Banking.Domain.Entities.Organisation, ResponseCommonCustomer>()
-                .ForMember(dest => dest.Data, source => source.MapFrom(source => source))
-                .ForAllOtherMembers(dest => dest.Ignore());
+                .IgnoreAllMembers()
+                .ForMember(dest => dest.Data, source => source.MapFrom(source => source));
 
             //Mappings for energy industry
             CreateMap<Energy.Domain.Entities.Person, CommonPerson>();
@@ -48,13 +49,13 @@ namespace CDR.DataHolder.Common.API.Business
 
             // Mapping from Person to ResponseCommonCustomer
             CreateMap<Energy.Domain.Entities.Person, ResponseCommonCustomer>()
-                .ForMember(dest => dest.Data, source => source.MapFrom(source => source))
-                .ForAllOtherMembers(dest => dest.Ignore());
+                .IgnoreAllMembers()
+                .ForMember(dest => dest.Data, source => source.MapFrom(source => source));
 
             // Mapping from Organisation to ResponseCommonCustomer
             CreateMap<Energy.Domain.Entities.Organisation, ResponseCommonCustomer>()
-                .ForMember(dest => dest.Data, source => source.MapFrom(source => source))
-                .ForAllOtherMembers(dest => dest.Ignore());
+                .IgnoreAllMembers()
+                .ForMember(dest => dest.Data, source => source.MapFrom(source => source));
         }
 
     }

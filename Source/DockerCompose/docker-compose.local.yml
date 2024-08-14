@@ -1,7 +1,6 @@
 # Docker compose for local development
 # - Uses pre-built images from consumerdataright for external services.
 # - Builds fresh images of data holders for each industry.
-version: '3.8'
 
 name: mock-data-holder-local
 services:

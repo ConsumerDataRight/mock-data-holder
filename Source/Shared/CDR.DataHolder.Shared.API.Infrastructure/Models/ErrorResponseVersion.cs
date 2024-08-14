@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using CDR.DataHolder.Shared.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 
@@ -11,7 +12,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Models
             // The version was not specified.
             if (context.ErrorCode == "ApiVersionUnspecified")
             {
-                return new ObjectResult(new ResponseErrorList(Error.MissingRequiredHeader("x-v")))
+                return new ObjectResult(new ResponseErrorList().AddMissingRequiredHeader("x-v")) //TODO: This isn't consistent with the new PT behaviour (or RAAP)
                 {
                     StatusCode = (int)HttpStatusCode.BadRequest
                 };
@@ -29,7 +30,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Models
 
             if (invalid_XV_Version)
             {
-                return new ObjectResult(new ResponseErrorList(Error.InvalidXVVersion()))
+                return new ObjectResult(new ResponseErrorList().AddInvalidXVInvalidVersion())
                 {
                     StatusCode = (int)HttpStatusCode.BadRequest
                 };
@@ -37,7 +38,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Models
 
             if (context.ErrorCode == "InvalidApiVersion")
             {
-                return new ObjectResult(new ResponseErrorList(Error.InvalidVersion()))
+                return new ObjectResult(new ResponseErrorList().AddInvalidXVInvalidVersion())
                 {
                     StatusCode = (int)HttpStatusCode.BadRequest
                 };
@@ -45,7 +46,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Models
 
             if (context.ErrorCode == "UnsupportedApiVersion")
             {
-                return new ObjectResult(new ResponseErrorList(Error.UnsupportedXVVersion()))
+                return new ObjectResult(new ResponseErrorList().AddInvalidXVUnsupportedVersion())
                 {
                     StatusCode = (int)HttpStatusCode.NotAcceptable
                 };

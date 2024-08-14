@@ -1,4 +1,3 @@
-using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using CDR.DataHolder.Shared.API.Gateway.mTLS.Certificates;
@@ -108,15 +107,15 @@ namespace CDR.DataHolder.Shared.API.Gateway.mTLS
                     // The thumbprint and common name from the client certificate are extracted and added as headers for the downstream services.
                     if (clientCert != null)
                     {
-                        httpContext.Request.Headers.Add("X-TlsClientCertThumbprint", clientCert.Thumbprint);
-                        httpContext.Request.Headers.Add("X-TlsClientCertCN", clientCert.GetNameInfo(X509NameType.SimpleName, false));
+                        httpContext.Request.Headers["X-TlsClientCertThumbprint"] = clientCert.Thumbprint;
+                        httpContext.Request.Headers["X-TlsClientCertCN"] = clientCert.GetNameInfo(X509NameType.SimpleName, false);
 
                         // Pass the client cert to downstream API for OCSP check                        
-                        httpContext.Request.Headers.Add("X-TlsClientCert", clientCert.ConvertToEncodedBase64String());
+                        httpContext.Request.Headers["X-TlsClientCert"] = clientCert.ConvertToEncodedBase64String();
                     }
 
                     // Send through the original host name to the backend service.
-                    httpContext.Request.Headers.Add("X-Forwarded-Host", httpContext.Request.Host.ToString());
+                    httpContext.Request.Headers["X-Forwarded-Host"] = httpContext.Request.Host.ToString();
 
                     await next.Invoke();
                 }

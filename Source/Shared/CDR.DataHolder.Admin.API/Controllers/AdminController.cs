@@ -1,5 +1,6 @@
 ﻿using CDR.DataHolder.Admin.API.Models;
 using CDR.DataHolder.Shared.API.Infrastructure;
+using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 using CDR.DataHolder.Shared.API.Infrastructure.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -31,42 +32,6 @@ namespace CDR.DataHolder.Admin.API.Controllers
         }
 
         [HttpGet("v1/admin/metrics")]
-        [ApiVersion("2")]
-        [HttpGet]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetMetricsV2()
-        {
-            var authorizationResult = await Authorize();
-            if (!authorizationResult.IsAuthorized)
-            {
-                return authorizationResult.SendError(Response);
-            }
-
-            // Read in the v2 data from the json file.
-            var jsonFileContents = await GetFileContents(_configuration.GetValue<string>("Data:MetricsV2FileLocation"));
-            Response.Headers.Add(Constants.CustomHeaders.ApiVersionHeaderKey, "2");
-            return Content(ReplacePlaceholders(jsonFileContents), "application/json");
-        }
-
-        [HttpGet("v1/admin/metrics")]
-        [ApiVersion("3")]
-        [HttpGet]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetMetricsV3()
-        {
-            var authorizationResult = await Authorize();
-            if (!authorizationResult.IsAuthorized)
-            {
-                return authorizationResult.SendError(Response);
-            }
-
-            // Read in the v3 data from the json file.
-            var jsonFileContents = await GetFileContents(_configuration.GetValue<string>("Data:MetricsV3FileLocation"));
-            Response.Headers.Add(Constants.CustomHeaders.ApiVersionHeaderKey, "3");
-            return Content(ReplacePlaceholders(jsonFileContents), "application/json");
-        }
-
-        [HttpGet("v1/admin/metrics")]
         [ApiVersion("4")]
         [HttpGet]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
@@ -79,8 +44,8 @@ namespace CDR.DataHolder.Admin.API.Controllers
             }
 
             // Read in the v4 data from the json file.
-            var jsonFileContents = await GetFileContents(_configuration.GetValue<string>("Data:MetricsV4FileLocation"));
-            Response.Headers.Add(Constants.CustomHeaders.ApiVersionHeaderKey, "4");
+            var jsonFileContents = await GetFileContents(_configuration.GetValue<string>("Data:MetricsV4FileLocation") ?? string.Empty);
+            Response.Headers[Constants.CustomHeaders.ApiVersionHeaderKey] = "4";
             return Content(ReplacePlaceholders(jsonFileContents), "application/json");
         }
 
@@ -97,8 +62,8 @@ namespace CDR.DataHolder.Admin.API.Controllers
             }
 
             // Read in the v4 data from the json file.
-            var jsonFileContents = await GetFileContents(_configuration.GetValue<string>("Data:MetricsV5FileLocation"));
-            Response.Headers.Add(Constants.CustomHeaders.ApiVersionHeaderKey, "5");
+            var jsonFileContents = await GetFileContents(_configuration.GetValue<string>("Data:MetricsV5FileLocation") ?? string.Empty);
+            Response.Headers[Constants.CustomHeaders.ApiVersionHeaderKey] = "5";
             return Content(ReplacePlaceholders(jsonFileContents), "application/json");
         }
 
@@ -179,7 +144,7 @@ namespace CDR.DataHolder.Admin.API.Controllers
             }
 
             // Validate the access token.
-            var dataHolderSigningKeys = await GetSigningKeys(_configuration.GetValue<string>("DataHolderJwksUri"));
+            var dataHolderSigningKeys = await GetSigningKeys(_configuration.GetValue<string>("DataHolderJwksUri") ?? string.Empty, _configuration);
             var dataHolderIssuer = _configuration.GetValue<string>("DataHolderIssuer");
             var tokenValidationParameters = new TokenValidationParameters()
             {
@@ -187,7 +152,7 @@ namespace CDR.DataHolder.Admin.API.Controllers
                 ValidateIssuer = true,
                 ValidIssuer = dataHolderIssuer,
                 ValidateAudience = true,
-                ValidAudiences = new string[] { _configuration.GetValue<string>("AdminBaseUri"), "cds-au" },
+                ValidAudiences = new string[] { _configuration.GetValue<string>("AdminBaseUri") ?? string.Empty, "cds-au" },
                 RequireAudience = true,
                 RequireExpirationTime = true,
                 RequireSignedTokens = true,
@@ -230,7 +195,7 @@ namespace CDR.DataHolder.Admin.API.Controllers
             }
 
             // Check the signature.
-            var registerSigningKeys = await GetSigningKeys(_configuration.GetValue<string>("RegisterJwksUri"));
+            var registerSigningKeys = await GetSigningKeys(_configuration.GetValue<string>("RegisterJwksUri") ?? string.Empty, _configuration);
             var tokenValidationParameters = new TokenValidationParameters()
             {
                 ValidateLifetime = true,
@@ -255,10 +220,10 @@ namespace CDR.DataHolder.Admin.API.Controllers
             return AuthorizationResult.Pass();
         }
 
-        private async Task<IEnumerable<SecurityKey>> GetSigningKeys(string jwksUri)
+        private async Task<IEnumerable<SecurityKey>> GetSigningKeys(string jwksUri, IConfiguration configuration)
         {
             var clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+            clientHandler.SetServerCertificateValidation(configuration);
 
             try
             {

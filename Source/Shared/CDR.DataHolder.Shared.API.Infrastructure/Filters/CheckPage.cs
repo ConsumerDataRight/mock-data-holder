@@ -1,4 +1,5 @@
 ﻿using CDR.DataHolder.Shared.API.Infrastructure.Models;
+using CDR.DataHolder.Shared.Domain.Models;
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -17,7 +18,7 @@ namespace CDR.DataHolder.Shared.Resource.API.Business.Filters
 
             if (!int.TryParse(value.ToString(), out int page) || page <= 0 || page > 1000)
             {
-                return new ValidationResult(JsonConvert.SerializeObject(Error.InvalidField("Page parameter is out of range. Minimum page is 1, maximum page is 1000")));
+                return new ValidationResult(JsonConvert.SerializeObject(ResponseErrorList.InvalidField("Page parameter is out of range. Minimum page is 1, maximum page is 1000")));
             }
 
             return ValidationResult.Success;

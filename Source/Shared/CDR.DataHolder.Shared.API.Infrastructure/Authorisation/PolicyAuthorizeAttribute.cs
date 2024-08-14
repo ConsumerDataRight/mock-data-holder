@@ -1,4 +1,5 @@
 ﻿using CDR.DataHolder.Shared.API.Infrastructure.Models;
+using CDR.DataHolder.Shared.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;

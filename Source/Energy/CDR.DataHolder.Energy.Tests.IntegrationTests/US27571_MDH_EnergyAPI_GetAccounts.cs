@@ -1,5 +1,6 @@
 using CDR.DataHolder.Energy.Tests.IntegrationTests.Models;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation;
+using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.APIs;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Enums;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Exceptions;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Exceptions.CdsExceptions;
@@ -12,10 +13,14 @@ using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Models.Op
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Services;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Jose;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Serilog;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
+using System.Web;
 using Xunit;
 using Xunit.DependencyInjection;
 
@@ -183,12 +188,12 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             CdrException expectedError = cdsError switch
             {
                 CdsError.InvalidPageSize => new InvalidPageSizeException("page-size pagination field is greater than the maximum 1000 allowed"),
-                CdsError.InvalidPage => new InvalidPageException("page parameter is out of range.  Maximum page is 1"),
+                CdsError.InvalidPage => new InvalidPageException("Page parameter is out of range.  Maximum page is 1"),
                 CdsError.InvalidField => new InvalidFieldException("Page parameter is out of range. Minimum page is 1, maximum page is 1000"),
                 _ => throw new InvalidOperationException($"The CdsError parameter is not handled within this test case: {cdsError}").Log()
             };
 
-            var errorList = new ResponseErrorListV2(expectedError);
+            var errorList = new ResponseErrorListV2(expectedError, string.Empty);
             var expectedContent = JsonConvert.SerializeObject(errorList);
 
             // Act
@@ -233,7 +238,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             }
             else if (cdsError == CdsError.MissingRequiredHeader)
             {
-                expectedError = new MissingRequiredHeaderException("An API version X-V Header is required but was not specified");
+                expectedError = new MissingRequiredHeaderException("An API version x-v header is required, but was not specified.");
             }
             else
             {
@@ -309,7 +314,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss, scope);
 
             CdrException expectedError = new InvalidConsentException();
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var response = await GetAccounts(accessToken, ENERGY_GET_ACCOUNTS_BASE_URL, apiVersion: apiVersion);
@@ -410,30 +415,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             }
         }
 
-
-
-        [Theory]
-        [InlineData("ACTIVE", HttpStatusCode.OK)]
-        [InlineData("INACTIVE", HttpStatusCode.OK)]
-        [InlineData("REMOVED", HttpStatusCode.OK)]
-        public async Task ACX08_Get_WithADRSoftwareProductNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, HttpStatusCode expectedStatusCode)
-        {
-            Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(status), status, nameof(expectedStatusCode), expectedStatusCode);
-
-            await Test_ACX08_ACX09(EntityType.SOFTWAREPRODUCT, Constants.SoftwareProducts.SoftwareProductId, status, expectedStatusCode, $"ERR-GEN-002: Software product status is {status}");
-        }
-
-        [Theory]
-        [InlineData("ACTIVE", HttpStatusCode.OK)]
-        [InlineData("INACTIVE", HttpStatusCode.OK)]
-        [InlineData("REMOVED", HttpStatusCode.OK)]
-        public async Task ACX09_Get_WithADRParticipationNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(string status, HttpStatusCode expectedStatusCode)
-        {
-            Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(status), status, nameof(expectedStatusCode), expectedStatusCode);
-
-            await Test_ACX08_ACX09(EntityType.LEGALENTITY, Constants.LegalEntities.LegalEntityId, status, expectedStatusCode, $"ERR-GEN-002: Software product status is {status}");
-        }
-
         [Theory]
         [InlineData("123", HttpStatusCode.OK, "1")]
         [InlineData("123", HttpStatusCode.OK, "2")]
@@ -490,7 +471,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss);
 
             CdrException expectedError = new InvalidTokenException();
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderEnergyGetAccountsAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"), certFileName: certificateFilename, certPassword: certificatePassword);
@@ -531,7 +512,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var authService = await new DataHolderAuthoriseService.DataHolderAuthoriseServiceBuilder(_options, _dataHolderParService, _apiServiceDirector)
           .WithUserId(userId)
           .WithSelectedAccountIds(consentedAccounts)
-          .WithResponseMode(ResponseMode.FormPost)
           .BuildAsync();
 
             (var authCode, _) = await authService.Authorise();
@@ -577,7 +557,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 var authService = await new DataHolderAuthoriseService.DataHolderAuthoriseServiceBuilder(_options, _dataHolderParService, _apiServiceDirector)
                     .WithUserId(userId)
                     .WithSelectedAccountIds(consentedAccounts)
-                    .WithResponseMode(ResponseMode.FormPost)
                     .BuildAsync();
 
                 (var authCode, _) = await authService.Authorise();
@@ -655,7 +634,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss);
 
             CdrException expectedError = new UnsupportedVersionException();
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderEnergyGetAccountsAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"), xv: apiVersion, xMinV: apiMinVersion);
@@ -855,57 +834,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             return query.Count > 0 ?
                 $"{baseUrl}?{query.Value}" :
                 baseUrl;
-        }
+        }  
 
-        private async Task Test_ACX08_ACX09(EntityType entityType, string id, string status, HttpStatusCode expectedStatusCode, string? expectedErrorResponse = null)
-        {
-            var saveStatus = _sqlQueryService.GetStatus(entityType, id);
-            _sqlQueryService.SetStatus(entityType, id, status);
-
-            try
-            {
-                var accessToken = string.Empty;
-                // Arrange
-                try
-                {
-                    accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss, useCache: false); // Ensure token cache is populated before changing status in case InlineData scenarios above are run/debugged out of order
-                }
-                catch (AuthoriseException ex)
-                {
-                    // Assert
-                    using (new AssertionScope(BaseTestAssertionStrategy))
-                    {
-                        // Assert - Check status code
-                        ex.StatusCode.Should().Be(expectedStatusCode);
-
-                        // Assert - Check error response
-                        ex.Error.Should().Be("urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive");
-                        ex.ErrorDescription.Should().Be(expectedErrorResponse);
-
-                        return;
-                    }
-                }
-
-                // Act
-                var response = await GetAccounts(accessToken, ENERGY_GET_ACCOUNTS_BASE_URL);
-
-                // Assert
-                using (new AssertionScope(BaseTestAssertionStrategy))
-                {
-                    // Assert - Check status code
-                    response.StatusCode.Should().Be(expectedStatusCode);
-
-                    // Assert - Check error response
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        await Assertions.AssertHasContentJson(expectedErrorResponse, response.Content);
-                    }
-                }
-            }
-            finally
-            {
-                _sqlQueryService.SetStatus(entityType, id, saveStatus);
-            }
-        }
     }
 }

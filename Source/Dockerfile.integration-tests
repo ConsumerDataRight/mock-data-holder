@@ -1,5 +1,6 @@
 # Dockerfile for running integration tests
-FROM mcr.microsoft.com/playwright/dotnet:v1.36.0-focal as build
+# playwright jammy for .Net 8
+FROM mcr.microsoft.com/playwright/dotnet:v1.43.0-jammy as build
 
 ARG INTEGRATION_TESTS_LOCATION
 
@@ -11,6 +12,9 @@ EXPOSE 9996
 
 # Default ASPNETCORE_ENVIRONMENT to Release
 ENV ASPNETCORE_ENVIRONMENT=Release
+
+# Credential provider tool
+RUN curl -L https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh  | sh
 
 # Copy source
 COPY . ./
@@ -25,6 +29,13 @@ RUN sudo update-ca-certificates
 
 # Run tests
 WORKDIR /src/${INTEGRATION_TESTS_LOCATION}
+
+ARG FEED_ACCESSTOKEN
+ARG FEED_URI
+ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"${FEED_URI}\", \"username\":\"docker\", \"password\":\"${FEED_ACCESSTOKEN}\"}]}"
+RUN echo $VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
+
+RUN dotnet restore
 RUN dotnet build --configuration Release
 
-ENTRYPOINT ["dotnet", "test", "--configuration", "Release", "--no-build", "--logger", "trx;verbosity=detailed;LogFileName=results.trx", "-r", "/testresults"]
+ENTRYPOINT dotnet test --configuration Release --no-build --logger "trx;verbosity=detailed;LogFileName=results.trx;" --results-directory /testresults

@@ -36,9 +36,7 @@ namespace CDR.DataHolder.Manage.API
                 .Build();
             
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-                .MinimumLevel.Override("System", LogEventLevel.Information)
+                .ReadFrom.Configuration(configuration)                
                 .Enrich.FromLogContext()
                 .Enrich.WithProcessId()
                 .Enrich.WithProcessName()

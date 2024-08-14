@@ -22,8 +22,9 @@ namespace CDR.DataHolder.Shared.API.Gateway.mTLS.Certificates
         }
 
         public void ValidateClientCertificate(X509Certificate2 clientCert)
-        {
-            _logger.LogInformation($"Validating certificate within the {nameof(CertificateValidator)}");
+        {            
+            _logger.LogInformation("Validating certificate within the {CertificateValidator}", nameof(CertificateValidator));
+
 
             if (clientCert == null)
             {
@@ -31,7 +32,7 @@ namespace CDR.DataHolder.Shared.API.Gateway.mTLS.Certificates
             }
 
             // Validate that the certificate has been issued by the Mock CDR CA.
-            var rootCACertificate = new X509Certificate2(_config.GetValue<string>("RootCACertificate:Path"));
+            var rootCACertificate = new X509Certificate2(_config.GetValue<string>("RootCACertificate:Path") ?? string.Empty);
             var ch = new X509Chain();
             ch.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
             ch.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;

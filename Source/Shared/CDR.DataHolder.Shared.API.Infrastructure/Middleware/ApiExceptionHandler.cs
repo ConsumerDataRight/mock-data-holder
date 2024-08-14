@@ -1,5 +1,6 @@
 ﻿using CDR.DataHolder.Shared.API.Infrastructure.Models;
 using CDR.DataHolder.Shared.API.Infrastructure.Versioning;
+using CDR.DataHolder.Shared.Domain.Models;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
@@ -20,32 +21,24 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Middleware
             {
                 var handledError = string.Empty;
                 var statusCode = (int)HttpStatusCode.BadRequest;
-                var jsonSerializerSettings = new JsonSerializerSettings()
-                {
-                    Formatting = Formatting.Indented,
-                    NullValueHandling = NullValueHandling.Ignore,
-                    ContractResolver = new DefaultContractResolver
-                    {
-                        NamingStrategy = new CamelCaseNamingStrategy()
-                    }
-                };
+                var jsonSerializerSettings = new CdrJsonSerializerSettings(); //TODO: This should be set as default through startup and we can remove this line
 
                 if (ex is InvalidVersionException)
                 {
                     statusCode = (int)HttpStatusCode.BadRequest;
-                    handledError = JsonConvert.SerializeObject(new ResponseErrorList(Error.InvalidXVVersion()), jsonSerializerSettings);
+                    handledError = JsonConvert.SerializeObject(new ResponseErrorList().AddInvalidXVInvalidVersion(), jsonSerializerSettings);
                 }
 
                 if (ex is UnsupportedVersionException)
                 {
                     statusCode = (int)HttpStatusCode.NotAcceptable;
-                    handledError = JsonConvert.SerializeObject(new ResponseErrorList(Error.UnsupportedXVVersion()), jsonSerializerSettings);
+                    handledError = JsonConvert.SerializeObject(new ResponseErrorList().AddInvalidXVUnsupportedVersion(), jsonSerializerSettings);
                 }
 
                 if (ex is MissingRequiredHeaderException)
                 {
                     statusCode = (int)HttpStatusCode.BadRequest;
-                    handledError = JsonConvert.SerializeObject(new ResponseErrorList(Error.MissingRequiredXVHeader()), jsonSerializerSettings);
+                    handledError = JsonConvert.SerializeObject(new ResponseErrorList().AddInvalidXVMissingRequiredHeader(), jsonSerializerSettings);
                 }
 
                 if (!string.IsNullOrEmpty(handledError))

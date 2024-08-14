@@ -28,11 +28,12 @@ namespace CDR.DataHolder.Admin.API
         {
             services.AddControllers();
 
+            var getMetricsSupportVersion = Configuration.GetValue<string>("GetMetricsSupportedVersions", "4,5") ?? string.Empty;
             var overrideMetricsVersions = new Dictionary<string, int[]> 
             {
                 { 
-                    @"\/cds-au\/v1\/admin\/metrics", 
-                    Configuration.GetValue<string>("GetMetricsSupportedVersions", "3,4,5")
+                    @"\/cds-au\/v1\/admin\/metrics",
+                        getMetricsSupportVersion
                         .Split(',')
                         .Select(x => Convert.ToInt32(x))
                         .ToArray() 

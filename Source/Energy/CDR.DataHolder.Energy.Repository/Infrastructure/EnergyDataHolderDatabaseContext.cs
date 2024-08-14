@@ -41,9 +41,6 @@ namespace CDR.DataHolder.Energy.Repository.Infrastructure
 				// Use the entity name instead of the Context.DbSet<T> name
 				// refs https://docs.microsoft.com/en-us/ef/core/modeling/entity-types?tabs=fluent-api#table-name
 				modelBuilder.Entity(entityType.ClrType).ToTable(entityType.ClrType.Name);
-				
-				// Convert all date time to UTC when saving and fetching.
-				ConvertDateTimePropertiesToUTc(entityType);
 			}
 
             // Configure 1-to-1 relationship.

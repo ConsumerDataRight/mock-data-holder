@@ -31,7 +31,7 @@ namespace CDR.DataHolder.Manage.API.Infrastructure
         private IIndustryDbContext CreateBankingDbContext(string connectionStringType)
         {
             var optionsBuilder = new DbContextOptionsBuilder<BankingDataHolderDatabaseContext>();
-            var bankingConnectionString = _configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.GetConnectionString(connectionStringType))
+            var bankingConnectionString = _configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.GetConnectionString(connectionStringType) ?? string.Empty)
                 ?? throw new System.Exception($"Connection string '{DbConstants.ConnectionStringNames.Resource.GetConnectionString(connectionStringType)}' not found");
 
             optionsBuilder.UseSqlServer(bankingConnectionString);
@@ -42,7 +42,7 @@ namespace CDR.DataHolder.Manage.API.Infrastructure
         private IIndustryDbContext CreateEnergyDbContext(string connectionStringType)
         {
             var optionsBuilder = new DbContextOptionsBuilder<EnergyDataHolderDatabaseContext>();
-            var energyConnectionString = _configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.GetConnectionString(connectionStringType))
+            var energyConnectionString = _configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.GetConnectionString(connectionStringType) ?? string.Empty)
                 ?? throw new System.Exception($"Connection string '{DbConstants.ConnectionStringNames.Resource.GetConnectionString(connectionStringType)}' not found");
 
             optionsBuilder.UseSqlServer(energyConnectionString);

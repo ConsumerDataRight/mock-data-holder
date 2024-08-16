@@ -46,7 +46,7 @@ COPY ./cdr-auth-server/Source/CdrAuthServer.UI/nginx/ssl/authserver-ui.key /etc/
 ###############################################################################
 # Build CdrAuthServer API layer
 ###############################################################################
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY . ./

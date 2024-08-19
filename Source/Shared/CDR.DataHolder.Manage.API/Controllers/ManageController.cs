@@ -25,7 +25,7 @@ namespace CDR.DataHolder.Manage.API.Controllers
                                 IConfiguration configuration)
         {
             _logger = logger;
-            var _industry = configuration.GetValue<string>("Industry");
+            var _industry = configuration.GetValue<string>("Industry") ?? string.Empty;
             
             _dbContext = (DbContext)dbContextFactory.Create(_industry, DbConstants.ConnectionStringType.Default);
             _healthCheckStatuses=healthCheckStatuses;

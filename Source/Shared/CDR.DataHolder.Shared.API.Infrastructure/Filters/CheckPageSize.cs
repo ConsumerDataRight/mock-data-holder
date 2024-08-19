@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using CDR.DataHolder.Shared.API.Infrastructure.Models;
+using CDR.DataHolder.Shared.Domain.Models;
 using Newtonsoft.Json;
 
 namespace CDR.DataHolder.Shared.Resource.API.Business.Filters
@@ -17,12 +18,12 @@ namespace CDR.DataHolder.Shared.Resource.API.Business.Filters
 
 			if (!int.TryParse(value.ToString(), out int pageSize) || pageSize <= 0)
 			{
-				return new ValidationResult(JsonConvert.SerializeObject(Error.InvalidPageSize()));
+				return new ValidationResult(JsonConvert.SerializeObject(ResponseErrorList.InvalidPageSize()));
 			}
 
 			if (pageSize > 1000)
 			{
-				return new ValidationResult(JsonConvert.SerializeObject(Error.PageSizeTooLarge()));
+				return new ValidationResult(JsonConvert.SerializeObject(ResponseErrorList.PageSizeTooLarge_MDH()));
 			}
 
 			return ValidationResult.Success;

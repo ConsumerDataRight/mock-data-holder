@@ -35,9 +35,6 @@ namespace CDR.DataHolder.Banking.Repository.Infrastructure
 				// Use the entity name instead of the Context.DbSet<T> name
 				// refs https://docs.microsoft.com/en-us/ef/core/modeling/entity-types?tabs=fluent-api#table-name
 				modelBuilder.Entity(entityType.ClrType).ToTable(entityType.ClrType.Name);
-				
-				// Convert all date time to UTC when saving and fetching.
-				ConvertDateTimePropertiesToUTc(entityType);
 			}
 
             // Configure 1-to-1 relationship.
@@ -59,34 +56,34 @@ namespace CDR.DataHolder.Banking.Repository.Infrastructure
         }
 
 		private static readonly ValueConverter<DateTime, DateTime> dateTimeConverter = new ValueConverter<DateTime, DateTime>(
-			v => v.ToUniversalTime(),
+			v => v.Kind.Equals(DateTimeKind.Utc)? v : v.ToUniversalTime(),
 			v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
 		private static readonly ValueConverter<DateTime?, DateTime?> nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
-			v => v.HasValue ? v.Value.ToUniversalTime() : v,
+			v => v.HasValue ? v.Value.Kind.Equals(DateTimeKind.Utc) ? v : v.Value.ToUniversalTime() : v,
 			v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
 		private static void ConvertDateTimePropertiesToUTc(Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType)
 		{
-			// Convert all DateTime(?) to UTC when saving and fetching back from the DB
-			foreach (var property in entityType.GetProperties())
-			{
-				if (property.ClrType == typeof(DateTime))
-				{
-					property.SetValueConverter(dateTimeConverter);
-				}
-				else if (property.ClrType == typeof(DateTime?))
-				{
-					property.SetValueConverter(nullableDateTimeConverter);
-				}
-			}
-		}
+            // Convert all DateTime(?) to UTC when saving and fetching back from the DB
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime))
+                {
+                    property.SetValueConverter(dateTimeConverter);
+                }
+                else if (property.ClrType == typeof(DateTime?))
+                {
+                    property.SetValueConverter(nullableDateTimeConverter);
+                }
+            }
+        }
 
         public async Task RemoveExistingData()
         {            
             // Remove all existing account data in the system
-            var existingTxns = await Transactions.AsNoTracking().ToListAsync();
-            var existingCustomers = await Customers.AsNoTracking().ToListAsync();
-            var existingPersons = await Persons.AsNoTracking().ToListAsync();
-            var existingOrgs = await Organisations.AsNoTracking().ToListAsync();
+            var existingTxns = await Transactions.ToListAsync();
+            var existingCustomers = await Customers.ToListAsync();
+            var existingPersons = await Persons.ToListAsync();
+            var existingOrgs = await Organisations.ToListAsync();
 
             RemoveRange(existingTxns);
             SaveChanges();

@@ -2,9 +2,9 @@
 
 namespace CDR.DataHolder.Banking.Resource.API.Business.Responses
 {
-    public class ResponseBankingAccountList
+    public class ResponseBankingAccountListV2
 	{
-		public BankingAccounts Data { get; set; } = new BankingAccounts();
+		public BankingAccountsV2 Data { get; set; } = new BankingAccountsV2();
 		public Shared.Business.Models.Links Links { get; set; } = new Shared.Business.Models.Links();
 		public Shared.Business.Models.MetaPaginated Meta { get; set; } = new Shared.Business.Models.MetaPaginated();
 	}

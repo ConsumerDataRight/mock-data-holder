@@ -427,7 +427,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var encryptedAccountId = Helpers.IdPermanenceEncrypt(Constants.Accounts.Banking.AccountIdJaneWilson, customerId, softwareProductId);
 
             var expectedError = new InvalidTokenException();
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderBankingGetTransactionsAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"), encryptedAccountId: encryptedAccountId, certFileName: certificateFilename, certPassword: certificatePassword);
@@ -456,7 +456,6 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var authService = await new DataHolderAuthoriseService.DataHolderAuthoriseServiceBuilder(_options, _dataHolderParService, _apiServiceDirector)
             .WithUserId(userId)
             .WithSelectedAccountIds(consentedAccounts)
-            .WithResponseMode(ResponseMode.FormPost)
             .BuildAsync();
 
             (var authCode, _) = await authService.Authorise();
@@ -492,7 +491,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             (var authCode, _) = await authService.Authorise();
 
             var expectedError = new UnavailableBankingAccountException(accountToRetrieve);
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act - Get token
             var tokenResponse = await _dataHolderTokenService.GetResponse(authCode);
@@ -826,7 +825,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 if (expectedError.GetType() != typeof(InvalidTokenException))
                 {
                     // Assert - Check error response content
-                    var errorList = new ResponseErrorListV2(expectedError.Code, expectedError.Title, expectedError.Detail, expectedError.Message);
+                    var errorList = new ResponseErrorListV2(expectedError, string.Empty);
                     var expectedContent = JsonConvert.SerializeObject(errorList);
                     await Assertions.AssertHasContentJson<ResponseErrorListV2>(expectedContent, response.Content);
                 }

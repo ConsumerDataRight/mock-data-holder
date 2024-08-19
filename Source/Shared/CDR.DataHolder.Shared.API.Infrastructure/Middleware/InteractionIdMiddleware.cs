@@ -27,7 +27,7 @@ namespace CDR.DataHolder.Shared.Resource.API.Business.Middleware
 			// Apply the interaction ID to the response header for client side tracking
 			context.Response.OnStarting(() =>
 			{
-				context.Response.Headers.Add(HEADER_NAME, new[] { interactionId });
+				context.Response.Headers[HEADER_NAME] = new[] { interactionId };
 				return Task.CompletedTask;
 			});
 

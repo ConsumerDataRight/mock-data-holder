@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using CDR.DataHolder.Shared.API.Infrastructure.Models;
+using CDR.DataHolder.Shared.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -31,7 +32,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Middleware
                         catch
                         {
                             // This is for default and unhandled model errors.
-                            responseErrorList.Errors.Add(Error.InvalidField($"The {modelStateEntry.Key} field is not valid"));
+                            responseErrorList.AddInvalidField($"The {modelStateEntry.Key} field is not valid"); //TODO: Inconsistent with standard, update when possible
                         }
                     }
                 }

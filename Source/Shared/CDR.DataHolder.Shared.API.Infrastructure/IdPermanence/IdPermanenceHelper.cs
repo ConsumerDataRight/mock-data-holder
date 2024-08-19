@@ -159,7 +159,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
 
         public static string GetPrivateKey(IConfiguration config)
         {
-            string privateKey = config["IdPermanence:PrivateKey"];
+            string privateKey = config["IdPermanence:PrivateKey"] ?? string.Empty;
 
             // Private key was found, so return.
             if (!string.IsNullOrEmpty(privateKey))

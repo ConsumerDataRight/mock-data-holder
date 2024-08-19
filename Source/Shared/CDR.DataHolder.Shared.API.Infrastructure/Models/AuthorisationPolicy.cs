@@ -5,7 +5,7 @@
         GetCustomersApi,
         GetAccountsApi,
         GetTransactionsApi,
-        GetConsessionsApi,
+        GetConcessionsApi,
         GetMetricsApi,
         DynamicClientRegistration
     }

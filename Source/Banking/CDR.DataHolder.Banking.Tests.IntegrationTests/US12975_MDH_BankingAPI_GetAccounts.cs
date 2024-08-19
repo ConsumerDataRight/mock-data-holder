@@ -56,7 +56,6 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         [Theory]
         [InlineData(TokenType.JaneWilson)]
         [InlineData(TokenType.KamillaSmith)]
-        [InlineData(TokenType.Beverage, Skip = "https://dev.azure.com/CDR-AU/Participant%20Tooling/_workitems/edit/51320")]
         public async Task AC01_Get_ShouldRespondWith_200OK_Accounts(TokenType tokenType)
         {
             Log.Information("Running test with Params: {P1}={V1}.", nameof(tokenType), tokenType);
@@ -145,7 +144,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.KamillaSmith, scope);
 
             CdrException expectedError = new InvalidConsentException();
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderBankingGetAccountsAPI(accessToken, xFapiAuthDate: DateTime.Now.ToUniversalTime().ToString("r"));
@@ -194,7 +193,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(tokenType);
 
             CdrException expectedError = new InvalidTokenException();
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderBankingGetAccountsAPI(accessToken, xFapiAuthDate: DateTime.Now.ToUniversalTime().ToString("r"));
@@ -253,30 +252,12 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             }
         }
 
-#pragma warning disable xUnit1004
-        [Theory(Skip = "Skipping this as the test (before refactoring) was giving false positives and we should reassess what this test should do")]
-        [InlineData(SoftwareProductStatus.INACTIVE)]
-        [InlineData(SoftwareProductStatus.REMOVED)]
-        public async Task AC12_Get_WithADRSoftwareProductNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(SoftwareProductStatus status)
+        [Theory]
+        [InlineData("1")]
+        [InlineData("3")]
+        public async Task AC15_Get_WithXV3_ShouldRespondWith_406NotAcceptable(string xv)
         {
-            //TODO: Reassess if this test is correct (also, why are we prefixing ERR-GEN-002?) - Bug 63710
-            await Test_AC12_AC13_AC14(EntityType.SOFTWAREPRODUCT, Constants.SoftwareProducts.SoftwareProductId, status.ToEnumMemberAttrValue(), new AdrStatusNotActiveException(status));
-        }
-
-        [Theory(Skip = "Skipping this as the test (before refactoring) was giving false positives and we should reassess what this test should do")]
-        [InlineData(LegalEntityStatus.INACTIVE)]
-        [InlineData(LegalEntityStatus.REMOVED)]
-        public async Task AC14_Get_WithADRParticipationNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(LegalEntityStatus status)
-        {
-            //TODO: Reassess if this test is correct (also, why are we prefixing ERR-GEN-002?..and does the message make sense when the Legal Entity is the non-active one?) - Bug 63710
-            await Test_AC12_AC13_AC14(EntityType.LEGALENTITY, Constants.LegalEntities.LegalEntityId, status.ToEnumMemberAttrValue(), new AdrStatusNotActiveException(status));
-        }
-#pragma warning restore xUnit1004
-
-        [Fact]
-        public async Task AC15_Get_WithXV2_ShouldRespondWith_406NotAcceptable()
-        {
-            await Test_AC15_AC16_AC17("2", new UnsupportedVersionException());
+            await Test_AC15_AC16_AC17(xv, new UnsupportedVersionException());
         }
 
         [Theory]
@@ -314,7 +295,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         //[InlineData("DateTime.Now.RFC1123", HttpStatusCode.OK)]
         [InlineData("DateTime.UtcNow")]
         [InlineData("foo")]
-        public async void AC19_Get_WithInvalidXFAPIAUTHDATE_ShouldRespondWith_400BadRequest(string xFapiAuthDate)
+        public async Task AC19_Get_WithInvalidXFAPIAUTHDATE_ShouldRespondWith_400BadRequest(string xFapiAuthDate)
         {
             Log.Information("Running test with Params: {P1}={V1}.", nameof(xFapiAuthDate), xFapiAuthDate);
 
@@ -333,7 +314,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.KamillaSmith);
 
             // Act
-            var api = _apiServiceDirector.BuildDataHolderBankingGetAccountsAPI(accessToken, xFapiAuthDate: DateTime.Now.ToUniversalTime().ToString("r"), "1", xFapiInteractionId: xFapiInteractionId);
+            var api = _apiServiceDirector.BuildDataHolderBankingGetAccountsAPI(accessToken, xFapiAuthDate: DateTime.Now.ToUniversalTime().ToString("r"), xFapiInteractionId: xFapiInteractionId);
             var response = await api.SendAsync();
 
             // Assert
@@ -357,7 +338,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.KamillaSmith);
 
             // Act
-            var api = _apiServiceDirector.BuildDataHolderBankingGetAccountsAPI(accessToken, xFapiAuthDate: DateTime.Now.ToUniversalTime().ToString("r"), xv: "1", certFileName: certificateFilename, certPassword: certificatePassword);
+            var api = _apiServiceDirector.BuildDataHolderBankingGetAccountsAPI(accessToken, xFapiAuthDate: DateTime.Now.ToUniversalTime().ToString("r"), certFileName: certificateFilename, certPassword: certificatePassword);
             var response = await api.SendAsync();
 
             // Assert
@@ -378,10 +359,10 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.KamillaSmith);
 
             var expectedError = new InvalidTokenException();
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
-            var api = _apiServiceDirector.BuildDataHolderBankingGetAccountsAPI(accessToken, xFapiAuthDate: DateTime.Now.ToUniversalTime().ToString("r"), xv: "1", certFileName: certificateFilename, certPassword: certificatePassword);
+            var api = _apiServiceDirector.BuildDataHolderBankingGetAccountsAPI(accessToken, xFapiAuthDate: DateTime.Now.ToUniversalTime().ToString("r"), certFileName: certificateFilename, certPassword: certificatePassword);
             var response = await api.SendAsync();
 
             // Assert
@@ -419,7 +400,6 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var authService = await new DataHolderAuthoriseService.DataHolderAuthoriseServiceBuilder(_options, _dataHolderParService, _apiServiceDirector)
               .WithUserId(userId)
               .WithSelectedAccountIds(consentedAccounts)
-              .WithResponseMode(ResponseMode.FormPost)
               .BuildAsync();
 
 
@@ -467,7 +447,6 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 var authService = await new DataHolderAuthoriseService.DataHolderAuthoriseServiceBuilder(_options, _dataHolderParService, _apiServiceDirector)
             .WithUserId(userId)
             .WithSelectedAccountIds(consentedAccounts)
-            .WithResponseMode(ResponseMode.FormPost)
             .BuildAsync();
 
                 (var authCode, _) = await authService.Authorise();
@@ -530,6 +509,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                     maskedNumber = account.MaskedName,
                     productCategory = account.ProductCategory,
                     productName = account.ProductName,
+                    accountOwnership = account.AccountOwnership
                 })
                 .ToList();
 
@@ -687,59 +667,14 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                     Assertions.AssertHasHeader(expectedWWWAuthenticateResponse, response.Headers, "WWW-Authenticate");
                 }
             }
-        }
-
-        private async Task Test_AC12_AC13_AC14(EntityType entityType, string id, string status, CdrException expectedError)
-        {
-            var saveStatus = _sqlQueryService.GetStatus(entityType, id);
-            _sqlQueryService.SetStatus(entityType, id, status);
-
-            try
-            {
-                var accessToken = string.Empty;
-
-                // Arrange
-                try
-                {
-                    accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.KamillaSmith); // Ensure token cache is populated before changing status in case InlineData scenarios above are run/debugged out of order
-                }
-                catch (AuthoriseException ex)
-                {
-                    // Assert
-                    using (new AssertionScope(BaseTestAssertionStrategy))
-                    {
-                        // Assert - Check error response
-                        ex.StatusCode.Should().Be(expectedError.StatusCode);
-                        ex.Error.Should().Be(expectedError.Code);
-                        ex.ErrorDescription.Should().Be(expectedError.Detail);
-
-                        return;
-                    }
-                }
-
-                // Act
-                var api = _apiServiceDirector.BuildDataHolderBankingGetAccountsAPI(accessToken, xFapiAuthDate: DateTime.Now.ToUniversalTime().ToString("r"));
-                var response = await api.SendAsync();
-
-                // Assert
-                using (new AssertionScope(BaseTestAssertionStrategy))
-                {
-                    // Assert - Check status code
-                    response.StatusCode.Should().Be(expectedError.StatusCode);
-                }
-            }
-            finally
-            {
-                _sqlQueryService.SetStatus(entityType, id, saveStatus);
-            }
-        }
+        }    
 
         private async Task Test_AC15_AC16_AC17(string xv, CdrException expectedError)
         {
             // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.KamillaSmith);
 
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderBankingGetAccountsAPI(accessToken, xFapiAuthDate: DateTime.Now.ToUniversalTime().ToString("r"), xv: xv);
@@ -768,7 +703,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.KamillaSmith);
 
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderBankingGetAccountsAPI(accessToken, xFapiAuthDate: xFapiAuthDate);

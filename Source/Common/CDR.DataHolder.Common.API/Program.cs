@@ -3,12 +3,12 @@ using CDR.DataHolder.Common.API.Infrastructure;
 using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 using CDR.DataHolder.Shared.API.Infrastructure.Filters;
 using CDR.DataHolder.Shared.API.Infrastructure.Models;
+using CDR.DataHolder.Shared.Business;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Serilog;
-using Serilog.Events;
 using System.Text.Json.Serialization;
-using CDR.DataHolder.Shared.Business;
+using static CDR.DataHolder.Shared.Domain.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +19,7 @@ var config = new ConfigurationBuilder()
                 .Build();
 
 // Get the value of the "industry" key from appsettings.json
-var industry = config["Industry"];
+var industry = config.GetValue<string>("Industry") ?? Industry.Banking;
 
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -29,16 +29,14 @@ builder.Configuration
                 .AddEnvironmentVariables()
                 .Build();
 
-var logger = new LoggerConfiguration()    
+var logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
-    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-    .MinimumLevel.Override("System", LogEventLevel.Information)
     .Enrich.FromLogContext()
     .Enrich.WithProcessId()
     .Enrich.WithProcessName()
     .Enrich.WithThreadId()
     .Enrich.WithThreadName()
-    .Enrich.WithProperty("Environment", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?? "Release")
+    .Enrich.WithProperty("Environment", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Release")
     .CreateLogger();
 
 builder.Logging.ClearProviders();
@@ -49,11 +47,7 @@ builder.Services.ConfigureWebServer(builder.Configuration, logger);
 // Add services to the container.
 builder.Services.AddScoped<LogActionEntryAttribute>();
 
-builder.Services.AddAutoMapper((config)=> {
-    config.Advanced.AllowAdditiveTypeMapCreation = true;
-}, typeof(Program));
-
-builder.Services.AddIndustryDBContext(builder.Configuration);
+builder.Services.AddIndustryDBContext(builder.Configuration); //includes adding automapper, as it needs to register the industry-specific dbcontext
 builder.Services.AddScoped<ICommonRepositoryFactory, CommonRepositoryFactory>();
 
 builder.Services

@@ -85,12 +85,16 @@
                                 {{
                                 ""code"": ""401"",
                                 ""title"": ""Unauthorized"",
-                                ""detail"": ""ErrorDetail"",
-                                ""meta"": {{}}
+                                ""detail"": ""ErrorDetail""
                                 }}
                             ]
                         }}";
             public const string ErrorMessageDetailReplace = "ErrorDetail";
+        }
+        
+        public static class ConfigurationKeys
+        {
+            public const string IsServerCertificateValidationEnabled = "EnableServerCertificateValidation";
         }
     }
 }

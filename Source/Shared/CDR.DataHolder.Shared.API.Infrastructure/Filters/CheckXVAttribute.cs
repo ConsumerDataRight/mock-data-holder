@@ -1,11 +1,12 @@
-﻿using System;
-using System.Net;
-using CDR.DataHolder.Shared.API.Infrastructure.Models;
+﻿using CDR.DataHolder.Shared.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System;
+using System.Net;
 
 namespace CDR.DataHolder.Shared.Resource.API.Infrastructure.Filters
 {
+    //TODO: Swap this attribute out for CdrVersionReader
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
     public class CheckXVAttribute : ActionFilterAttribute
     {
@@ -25,17 +26,17 @@ namespace CDR.DataHolder.Shared.Resource.API.Infrastructure.Filters
 
             if (string.IsNullOrEmpty(versionHeaderValue))
             {
-                context.Result = new BadRequestObjectResult(new ResponseErrorList(Error.MissingRequiredHeader("x-v")));
+                context.Result = new BadRequestObjectResult(new ResponseErrorList().AddMissingRequiredHeader("x-v"));
             }
             else
             {
                 // If the x-v is set, check that it is a postive integer.
                 if (int.TryParse(versionHeaderValue, out int version) && version > 0)
-                {                    
+                {
                     if (version < _minVersion)
                     {
                         // return a 406 Not Accepted as the version is not supported.
-                        context.Result = new ObjectResult(new ResponseErrorList(Error.UnsupportedVersion()))
+                        context.Result = new ObjectResult(new ResponseErrorList().AddInvalidXVUnsupportedVersion())
                         {
                             StatusCode = (int)HttpStatusCode.NotAcceptable
                         };
@@ -44,7 +45,7 @@ namespace CDR.DataHolder.Shared.Resource.API.Infrastructure.Filters
                 else
                 {
                     // Return a 400 bad request.
-                    context.Result = new BadRequestObjectResult(new ResponseErrorList(Error.InvalidVersion()));
+                    context.Result = new BadRequestObjectResult(new ResponseErrorList().AddInvalidXVInvalidVersion());
                 }
             }
 

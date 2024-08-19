@@ -127,13 +127,49 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 
         [Theory]
         [InlineData(TokenType.JaneWilson)]
-        [InlineData(TokenType.Beverage, Skip = "https://dev.azure.com/CDR-AU/Participant%20Tooling/_workitems/edit/51320")]
+        [InlineData(TokenType.KamillaSmith)]
         public async Task AC01_ShouldRespondWith_200OK_Customers(TokenType tokenType)
         {
             Log.Information("Running test with Params: {P1}={V1}.", nameof(tokenType), tokenType);
 
             // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(tokenType);
+
+            var expectedResponse = GetExpectedResponse(accessToken, _options.DH_MTLS_GATEWAY_URL);
+
+            // Act
+            var api = _apiServiceDirector.BuildDataHolderCommonGetCustomerAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"));
+            var response = await api.SendAsync();
+
+            // Assert
+            using (new AssertionScope(BaseTestAssertionStrategy))
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+                // Assert - Check content type
+                Assertions.AssertHasContentTypeApplicationJson(response.Content);
+
+                // Assert - Check XV
+                Assertions.AssertHasHeader(api.XV, response.Headers, "x-v");
+
+                // Assert - Check x-fapi-interaction-id
+                Assertions.AssertHasHeader(null, response.Headers, "x-fapi-interaction-id");
+
+                // Assert - Check json
+                await Assertions.AssertHasContentJson(expectedResponse, response.Content);
+            }
+        }
+
+        [Theory]
+        [InlineData(TokenType.JaneWilson)]
+        [InlineData(TokenType.KamillaSmith)]
+        public async Task AC01_ShouldRespondWith_200OK_Customers_UsingHybridFlow(TokenType tokenType)
+        {
+            Log.Information("Running test with Params: {P1}={V1}.", nameof(tokenType), tokenType);
+
+            // Arrange
+            var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(tokenType, responseType: ResponseType.CodeIdToken, responseMode: ResponseMode.FormPost);
 
             var expectedResponse = GetExpectedResponse(accessToken, _options.DH_MTLS_GATEWAY_URL);
 
@@ -192,7 +228,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.JaneWilson, scope);
 
             CdrException expectedError = new InvalidConsentException();
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderCommonGetCustomerAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"));
@@ -240,7 +276,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.JaneWilson);
 
             CdrException expectedError = new UnsupportedVersionException();
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderCommonGetCustomerAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"), xv: xv);
@@ -272,7 +308,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.JaneWilson);
 
             CdrException expectedError = new InvalidVersionException();
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderCommonGetCustomerAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"), xv: xv);
@@ -303,7 +339,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.JaneWilson);
 
             CdrException expectedError = new MissingRequiredHeaderException("x-v");
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderCommonGetCustomerAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"), xv: xv);
@@ -354,7 +390,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             xFapiAuthDate = DateTimeExtensions.GetDateFromFapiDate(xFapiAuthDate);
 
             CdrException expectedError = new MissingRequiredHeaderException("x-fapi-auth-date");
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderCommonGetCustomerAPI(accessToken, xFapiAuthDate);
@@ -406,7 +442,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             xFapiAuthDate = DateTimeExtensions.GetDateFromFapiDate(xFapiAuthDate);
 
             CdrException expectedError = new InvalidHeaderException("x-fapi-auth-date");
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderCommonGetCustomerAPI(accessToken, xFapiAuthDate);
@@ -557,74 +593,6 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData(SoftwareProductStatus.ACTIVE)]
-        public async Task AC11_Get_Success(SoftwareProductStatus status)
-        {
-            Log.Information("Running test with Params: {P1}={V1}.", nameof(status), status);
-
-            var saveStatus = _sqlQueryService.GetStatus(EntityType.SOFTWAREPRODUCT, Constants.SoftwareProducts.SoftwareProductId);
-            _sqlQueryService.SetStatus(EntityType.SOFTWAREPRODUCT, Constants.SoftwareProducts.SoftwareProductId, status.ToEnumMemberAttrValue());
-            try
-            {
-                // Arrange
-                var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.JaneWilson);
-
-                // Act
-                var api = _apiServiceDirector.BuildDataHolderCommonGetCustomerAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"));
-                var response = await api.SendAsync();
-
-                // Assert
-                using (new AssertionScope(BaseTestAssertionStrategy))
-                {
-                    // Assert - Check status code
-                    response.StatusCode.Should().Be(HttpStatusCode.OK);
-                }
-            }
-            finally
-            {
-                _sqlQueryService.SetStatus(EntityType.SOFTWAREPRODUCT, Constants.SoftwareProducts.SoftwareProductId, saveStatus);
-            }
-        }
-
-#pragma warning disable xUnit1004
-        [Theory(Skip = "This test is accurate but is failing due to a bug. Prefer to skip it for now rather than test for incorrect behaviour")]
-        [InlineData(SoftwareProductStatus.INACTIVE)]
-        [InlineData(SoftwareProductStatus.REMOVED)]
-        public async Task AC11_Get_WithADRSoftwareProductNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(SoftwareProductStatus status)
-        {
-            //TODO: This is failing, but the test is correct. The old test checked for a 200Ok and we may need to do that in the short term to get the test passing (or skip it). Bug 63708
-            var saveStatus = _sqlQueryService.GetStatus(EntityType.SOFTWAREPRODUCT, Constants.SoftwareProducts.SoftwareProductId);
-            _sqlQueryService.SetStatus(EntityType.SOFTWAREPRODUCT, Constants.SoftwareProducts.SoftwareProductId, status.ToEnumMemberAttrValue());
-
-            // Arrange
-            try
-            {
-                var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.JaneWilson);
-            }
-            catch (AuthoriseException ex)
-            {
-                CdrException expectedError = new AdrStatusNotActiveException(status);
-                var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
-
-                // Assert
-                using (new AssertionScope(BaseTestAssertionStrategy))
-                {
-                    // Assert - Check status code
-                    ex.StatusCode.Should().Be(expectedError.StatusCode);
-
-                    // Assert - Check error response
-                    ex.Error.Should().Be(expectedError.Code);
-                    ex.ErrorDescription.Should().Be(expectedError.Detail);
-                }
-            }
-            finally
-            {
-                _sqlQueryService.SetStatus(EntityType.SOFTWAREPRODUCT, Constants.SoftwareProducts.SoftwareProductId, saveStatus);
-            }
-        }
-#pragma warning restore xUnit1004
-
-        [Theory]
         [InlineData(Constants.Certificates.CertificateFilename, Constants.Certificates.CertificatePassword)]
         public async Task AC12_Get_Success(string certificateFilename, string certificatePassword)
         {
@@ -655,7 +623,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.JaneWilson);
 
             CdrException expectedError = new InvalidTokenException();
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderCommonGetCustomerAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"), certFileName: certificateFilename, certPassword: certificatePassword);

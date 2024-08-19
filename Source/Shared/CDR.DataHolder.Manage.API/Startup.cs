@@ -1,6 +1,6 @@
-using CDR.DataHolder.Shared.API.Infrastructure.HealthChecks;
 using CDR.DataHolder.Manage.API.Infrastructure;
 using CDR.DataHolder.Shared.API.Infrastructure.Filters;
+using CDR.DataHolder.Shared.API.Infrastructure.HealthChecks;
 using CDR.DataHolder.Shared.API.Infrastructure.Middleware;
 using CDR.DataHolder.Shared.Domain.Repositories;
 using CDR.DataHolder.Shared.Repository;
@@ -30,7 +30,7 @@ namespace CDR.DataHolder.Manage.API
         public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
-            _industry = configuration.GetValue<string>("Industry");
+            _industry = configuration.GetValue<string>("Industry") ?? string.Empty;
         }
 
         public IConfiguration _configuration { get; }
@@ -92,35 +92,36 @@ namespace CDR.DataHolder.Manage.API
         }
 
         private async Task EnsureDatabase(IApplicationBuilder app, ILogger<Startup> logger, HealthCheckStatuses healthCheckStatuses, IWebHostEnvironment  webHostEnvironment)
-        {
-            logger.LogInformation($"DataHolder is being configured for the industry of {_industry}");
+        {            
+            logger.LogInformation("DataHolder is being configured for the industry of {Industry}", _industry);
 
-            using var serviceScope = app.ApplicationServices.CreateScope();
-            var dbContextFactory = serviceScope.ServiceProvider.GetRequiredService<IndustryDbContextFactory>();
-            
-            if (RunMigrations())
+            using (var serviceScope = app.ApplicationServices.CreateScope())
             {
-                IIndustryDbContext industryMigrationDbContext = dbContextFactory.Create(_industry, DbConstants.ConnectionStringType.Migrations);
-                logger.LogInformation("Running migrations");
-                await (industryMigrationDbContext as DbContext)!.Database.MigrateAsync().ConfigureAwait(false);
-            }
+                var dbContextFactory = serviceScope.ServiceProvider.GetRequiredService<IndustryDbContextFactory>();
+                if (RunMigrations())
+                {
+                    IIndustryDbContext industryMigrationDbContext = dbContextFactory.Create(_industry, DbConstants.ConnectionStringType.Migrations);
+                    logger.LogInformation("Running migrations");
+                    await (industryMigrationDbContext as DbContext)!.Database.MigrateAsync().ConfigureAwait(false);
+                }
 
-            // Seed the database using the sample data JSON.
-            var seedFilePath = _configuration.GetValue<string>("SeedData:FilePath");
-            var seedDataOverwrite = _configuration.GetValue<bool>("SeedData:OverwriteExistingData", false);
-            var offsetDates = _configuration.GetValue<bool>("SeedData:OffsetDates", true);
+                // Seed the database using the sample data JSON.
+                var seedFilePath = _configuration.GetValue<string>("SeedData:FilePath");
+                var seedDataOverwrite = _configuration.GetValue<bool>("SeedData:OverwriteExistingData", false);
+                var offsetDates = _configuration.GetValue<bool>("SeedData:OffsetDates", true);
 
-            if (!string.IsNullOrEmpty(seedFilePath))
-            {
-                logger.LogInformation("Seed data file found within configuration, and the industry is {_industry}. Attempting to seed the repository from the seed data...", _industry);
+                if (!string.IsNullOrEmpty(seedFilePath))
+                {
+                    logger.LogInformation("Seed data file found within configuration, and the industry is {_industry}. Attempting to seed the repository from the seed data...", _industry);
 
-                IIndustryDbContext industryDbContext = dbContextFactory.Create(_industry, DbConstants.ConnectionStringType.Default);
-                await (industryDbContext as DbContext)!.SeedDatabaseFromJsonFile(Path.Combine(webHostEnvironment.ContentRootPath, seedFilePath), logger, healthCheckStatuses, seedDataOverwrite, offsetDates).ConfigureAwait(false);
-            }
-            else
-            {
-                logger.LogInformation("Seed data file {seedFilePath} not configured for {_industry}", _industry, seedFilePath);
-                healthCheckStatuses.SeedingStatus = SeedingStatus.NotConfigured;
+                    IIndustryDbContext industryDbContext = dbContextFactory.Create(_industry, DbConstants.ConnectionStringType.Default);
+                    await (industryDbContext as DbContext)!.SeedDatabaseFromJsonFile(Path.Combine(webHostEnvironment.ContentRootPath, seedFilePath), logger, healthCheckStatuses, seedDataOverwrite, offsetDates).ConfigureAwait(false);
+                }
+                else
+                {
+                    logger.LogInformation("Seed data file {seedFilePath} not configured for {_industry}", _industry, seedFilePath);
+                    healthCheckStatuses.SeedingStatus = SeedingStatus.NotConfigured;
+                }
             }
         }
 

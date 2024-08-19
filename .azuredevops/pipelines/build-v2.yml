@@ -1,4 +1,10 @@
-# Build pipeline v2 (Containerised)
+schedules:
+- cron: '0 4 * * 0'
+  displayName: 'Run at 4:00 AM every Sunday (UTC)'
+  always: true
+  branches:
+    include:
+    - develop
 
 resources:
   repositories:
@@ -21,8 +27,10 @@ trigger:
   - develop
   - main
 
-variables:  
-  baseSourceDirectory: $(Build.SourcesDirectory)/sb-mock-data-holder/Source
+variables:
+- group: artifacts
+- name: baseSourceDirectory
+  value: $(Build.SourcesDirectory)/sb-mock-data-holder/Source
 
 
 pool:
@@ -46,14 +54,14 @@ jobs:
               Write-Host "##vso[task.setvariable variable=ObligationDateTag]$DataHolderObligationDate"
             }
             else {
-              Write-Host "##vso[task.setvariable variable=ObligationDateTag]22-4"
+              Write-Host "##vso[task.setvariable variable=ObligationDateTag]23-3"
             }
             $EnergyDataHolderObligationDate = "$(EnergyObligationDate)"
             if (-not [string]::IsNullOrWhiteSpace( $EnergyDataHolderObligationDate )) {
               Write-Host "##vso[task.setvariable variable=EnergyObligationDateTag]$EnergyDataHolderObligationDate"
             }
             else {
-              Write-Host "##vso[task.setvariable variable=EnergyObligationDateTag]22-4"
+              Write-Host "##vso[task.setvariable variable=EnergyObligationDateTag]23-3"
             }
       # Set release version variables for release tags
       - task: PowerShell@2        
@@ -78,6 +86,41 @@ jobs:
       - checkout: self
       - checkout: git://cdr-auth-server@refs/heads/develop
         persistCredentials: true
+
+      ###################################################################################################
+      # Unit tests
+      ###################################################################################################
+      # Authenticate to the Azure DevOps artifacts feed. The VSS_NUGET_ACCESSTOKEN environment variable is set from this task.
+      - task: NuGetAuthenticate@1
+        displayName: 'Authenticate to NuGet'
+
+      # Build mock-data-holder-unit-tests
+      # Pass in two build arguments:
+      # 1. FEED_ACCESSTOKEN = VSS_NUGET_ACCESSTOKEN
+      # 2. FEED_URI = Azure DevOps Artifacts Repository URI sourced from 'artifacts' variable group.      
+      - script: |
+          docker build $(baseSourceDirectory) --file $(baseSourceDirectory)/Dockerfile.unit-tests -t mock-data-holder-unit-tests --build-arg INTEGRATION_TESTS_LOCATION=Banking/CDR.DataHolder.Banking.Tests.IntegrationTests --build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN) --build-arg FEED_URI=$(azdo_artifact_feed_uri)
+        displayName: Create Unit tests Image
+        condition: always()
+
+      # Run unit tests
+      - script: |
+          docker compose --file $(baseSourceDirectory)/DockerCompose/docker-compose.UnitTests.yml up --abort-on-container-exit --exit-code-from mock-data-holder-unit-tests
+        displayName: Unit Tests - Up
+        condition: always()
+
+      # Remove unit tests
+      - script: |
+          docker compose --file $(baseSourceDirectory)/DockerCompose/docker-compose.UnitTests.yml down 
+        displayName: 'Unit Tests - Down' 
+        condition: always()      
+
+      # Remove the mock-data-holder-unit-tests container image.
+      - script: |
+          echo "Delete image:"
+          docker image rm mock-data-holder-unit-tests -f
+        displayName: 'Remove mock-data-holder-unit-tests container image' 
+        condition: always()         
 
       ################################################################################################
         # Swith AuthServer to required branch.
@@ -184,24 +227,16 @@ jobs:
           command: images
 
       ###################################################################################################
-      # Unit tests
-      ###################################################################################################
-
-      # Run unit tests
-      - script: |
-          docker compose --file $(baseSourceDirectory)/DockerCompose/docker-compose.UnitTests.yml up --abort-on-container-exit --exit-code-from mock-data-holder-unit-tests
-        displayName: Unit Tests - Up
-        condition: always()
-
-      # Remove unit tests
-      - script: |
-          docker compose --file $(baseSourceDirectory)/DockerCompose/docker-compose.UnitTests.yml down 
-        displayName: 'Unit Tests - Down' 
-        condition: always()        
-
-      ###################################################################################################
       # Integration tests - Banking
       ###################################################################################################
+
+      # Build Banking integration tests docker image
+      - script: |
+          docker build $(baseSourceDirectory) --file $(baseSourceDirectory)/Dockerfile.integration-tests -t mock-data-holder-integration-tests-banking \
+                  --build-arg INTEGRATION_TESTS_LOCATION=Banking/CDR.DataHolder.Banking.Tests.IntegrationTests \
+                  --build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN) --build-arg FEED_URI=$(azdo_artifact_feed_uri)           
+        displayName: Create Integration tests Banking Image
+        condition: always()
 
       # Run Banking integration tests
       - script: |
@@ -222,11 +257,26 @@ jobs:
       - script: |
           docker compose --file $(baseSourceDirectory)/DockerCompose/docker-compose.IntegrationTests.Banking.yml down 
         displayName: 'Integration Tests - Banking - Down' 
-        condition: always()        
+        condition: always()     
+
+      # Remove the mock-data-holder-integration-tests-banking container image.
+      - script: |
+          echo "Delete image:"
+          docker image rm mock-data-holder-integration-tests-banking -f
+        displayName: 'Remove mock-data-holder-integration-tests-banking container image' 
+        condition: always()         
 
       ###################################################################################################
       # Integration tests - Energy
       ###################################################################################################
+      
+      # Build Energy integration tests docker image
+      - script: |
+          docker build  $(baseSourceDirectory) --file $(baseSourceDirectory)/Dockerfile.integration-tests -t mock-data-holder-integration-tests-energy \
+                  --build-arg INTEGRATION_TESTS_LOCATION=Energy/CDR.DataHolder.Energy.Tests.IntegrationTests \
+                  --build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN) --build-arg FEED_URI=$(azdo_artifact_feed_uri)           
+        displayName: Create Integration tests Energy Image
+        condition: always()
 
       # Run Energy integration tests
       - script: |
@@ -247,22 +297,35 @@ jobs:
       - script: |
           docker compose --file $(baseSourceDirectory)/DockerCompose/docker-compose.IntegrationTests.Energy.yml down 
         displayName: 'Integration Tests - Energy - Down'  
-        condition: always()        
+        condition: always()         
+
+      # Remove the mock-data-holder-integration-tests-energy container image.
+      - script: |
+          echo "Delete image:"
+          docker image rm mock-data-holder-integration-tests-energy -f
+        displayName: 'Remove mock-data-holder-integration-tests-energy container image' 
+        condition: always()     
 
       ###################################################################################################
-      # Remove Redundant Docker Images to Reclaim Disk Space
+      # Remove images and clear build cache
       ###################################################################################################
 
       - script: |
-          docker rmi mock-data-holder-unit-tests
-          docker rmi mock-register
-          docker rmi $(AcrBaseUrl).azurecr.io/mock-register:$(mockRegisterContainerTag)
-          docker rmi mock-data-holder-integration-tests-banking          
-          docker rmi mock-data-holder-integration-tests-energy
-          docker rmi mcr.microsoft.com/mssql/server:2019-latest
-          docker image prune -f
-        displayName: 'Remove Redundant Docker Images'  
-        condition: always()    
+          echo "Docker images before delete:"
+          docker image ls
+
+          echo "Clear docker build cache"
+          docker builder prune -a -f
+
+          echo "Delete images:"
+          docker image rm mcr.microsoft.com/mssql/server:2022-latest -f
+          docker image rm mock-register  -f
+
+          echo "Docker images after delete:"
+          docker image ls
+          docker system df
+        displayName: 'Remove container images that are no longer needed' 
+        condition: always() 
 
       ###################################################################################################
       # Publish images
@@ -347,18 +410,18 @@ jobs:
       ###################################################################################################
 
       - task: UseDotNet@2
-        displayName: 'Use .NET 6 sdk'
+        displayName: 'Use .NET 8 sdk'
         condition: always()
         inputs:
           packageType: sdk
-          version: '6.0.x'
+          version: '8.0.x'
           performMultiLevelLookup: true
 
       - task: CmdLine@2
         displayName: 'Install dotnet-ef'
         condition: always()
         inputs:
-          script: 'dotnet tool install --version 7.0.13 --global dotnet-ef'
+          script: 'dotnet tool install --version 8.0.4 --global dotnet-ef'
 
       - task: CmdLine@2
         displayName: 'Check dotnet-ef version'
@@ -396,7 +459,7 @@ jobs:
       # CdrAuthServer
       - script: |
           cd $(Build.SourcesDirectory)/sb-mock-data-holder/Source/cdr-auth-server/Source/CdrAuthServer.Repository
-          dotnet ef migrations bundle --context CdrAuthServervDatabaseContext --verbose --self-contained
+          dotnet ef migrations bundle --context CdrAuthServerDatabaseContext --verbose --self-contained
           ls
         displayName: 'Run EF Migrations bundle (CdrAuthServer)'
         condition: always()

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -34,7 +35,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Authorisation
 
             // Check if the access token has been revoked.
             _logger.LogInformation($"{nameof(AccessTokenHandler)}.{nameof(HandleRequirementAsync)} - Checking the access token...");
-
+            
             // Call the Mock Data Holder's idp to introspect the access token.
             var success = await CheckAccessToken();
 
@@ -71,10 +72,8 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Authorisation
             var accessToken = authHeader.ToString().Replace("Bearer ", "");
             var endpoint = _config["AccessTokenIntrospectionEndpoint"];
 
-            var handler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (a, b, c, d) => true
-            };
+            var handler = new HttpClientHandler();
+            handler.SetServerCertificateValidation(_config);
             var httpClient = new HttpClient(handler);
 
             var formFields = new List<KeyValuePair<string, string>>();

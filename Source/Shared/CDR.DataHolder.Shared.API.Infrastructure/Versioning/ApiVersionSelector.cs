@@ -13,7 +13,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Versioning
         private readonly ApiVersion _defaultVersion;
         private readonly Dictionary<string, int[]> _supportedApiVersions = new()
         {
-            { @"\/cds-au\/v1\/admin\/metrics", new int[] { 3 } },
+            { @"\/cds-au\/v1\/admin\/metrics", new int[] { 4, 5 } },
             { @"\/cds-au\/v1\/common\/customer", new int[] { 1 } },
             { @"\/cds-au\/v1\/energy\/accounts", new int[] { 1, 2 } },
             { @"\/cds-au\/v1\/energy\/accounts\/[A-Za-z0-9\-]*\/concessions", new int[] { 1 } },

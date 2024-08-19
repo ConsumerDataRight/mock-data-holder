@@ -22,9 +22,11 @@ using Xunit;
 
 namespace CDR.DataHolder.Banking.Resource.API.UnitTests
 {
+    [Trait("Category", "UnitTests")] //TODO: These are not actually unit tests and should be changed in future. Kept like this for consistency of behaviour for now.
     public class AccountTransactionsTests
     {
         readonly IServiceProvider _serviceProvider;
+        private static readonly string[] transactions = ["TRN12345"];
 
         public AccountTransactionsTests()
         {
@@ -108,7 +110,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
             //Assert
             Assert.NotNull(response);
             Assert.Single(response.Data.Transactions);
-            Assert.True(IsValid(accountId, new string[] { "TRN12345" }, response.Data, idPermanenceManager, idParameters));
+            Assert.True(IsValid(accountId, transactions, response.Data, idPermanenceManager, idParameters));
             Assert.Equal(1, response.Meta.TotalRecords);
             Assert.Equal(1, response.Meta.TotalPages);
         }
@@ -187,7 +189,8 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
             //Assert
             Assert.NotNull(response);
             Assert.Equal(4, response.Data.Transactions.Length);
-            Assert.True(IsValid(accountId, new string[] { "TRN11112", "TRN98765", "TRN11111", "TRN99999" }, response.Data, idPermanenceManager, idParameters));
+            string[] transactionIds = ["TRN11112", "TRN98765", "TRN11111", "TRN99999"];
+            Assert.True(IsValid(accountId, transactionIds, response.Data, idPermanenceManager, idParameters));
             Assert.Equal(4, response.Meta.TotalRecords);
             Assert.Equal(1, response.Meta.TotalPages);
             Assert.Equal($"{resourceBaseUri}/cds-au/v1/banking/accounts/{accountPermanenceId}/transactions?oldest-time=2021-04-01T00:00:00Z&newest-time=2021-06-01T00:00:00Z&page=1&page-size=10", response.Links.Self.ToString());

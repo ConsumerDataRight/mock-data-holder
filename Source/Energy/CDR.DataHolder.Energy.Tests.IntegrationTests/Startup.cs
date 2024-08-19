@@ -3,6 +3,7 @@ using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Extension
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using CDR.DataHolder.Shared.Domain.Extensions;
 
 namespace CDR.DataHolder.Energy.Tests.IntegrationTests
 {
@@ -29,6 +30,8 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 .CreateBootstrapLogger();
 
             Log.Information($"---Logger has been configured within {nameof(Startup.ConfigureServices)}.---");
+
+            services.AddMvc().AddCdrNewtonsoftJson();
 
             services.AddTestAutomationServices(configuration);
             services.AddTestAutomationSettings(opt =>

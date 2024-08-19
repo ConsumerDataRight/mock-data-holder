@@ -47,6 +47,7 @@ namespace CDR.DataHolder.Shared.Repository.Infrastructure
             if (hasExistingData && !overwriteExistingData)
             {
                 logger.LogInformation("Seed-Data:not-imported");
+                healthStatuses.SeedingStatus = SeedingStatus.Succeeded;
                 return;
             }
 
@@ -69,8 +70,8 @@ namespace CDR.DataHolder.Shared.Repository.Infrastructure
                 logger.LogInformation("Removing the existing data from the repository...");
 
                 if (dataHolderDatabaseContext is not IIndustryDbContext industryDbContext)
-                {
-                    logger.LogInformation($"Unable to get {nameof(IIndustryDbContext)}");
+                {                    
+                    logger.LogInformation("Unable to get {IndustryDbContext}", nameof(IIndustryDbContext));
                     return;
                 }
 
@@ -92,7 +93,7 @@ namespace CDR.DataHolder.Shared.Repository.Infrastructure
                 var allData = JsonConvert.DeserializeObject<JObject>(json);
                 if(allData == null)
                 {
-                    logger.LogInformation($"No seed data to be imported.");
+                    logger.LogInformation("No seed data to be imported.");
                     return;
                 }
 

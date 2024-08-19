@@ -71,7 +71,7 @@ namespace CDR.DataHolder.Energy.Repository
 			};
 
 			// If none of the account ids are allowed, return empty list
-			if (filter.AllowedAccountIds == null || !filter.AllowedAccountIds.Any())
+			if (filter.AllowedAccountIds == null || filter.AllowedAccountIds.Length == 0)
 			{
 				return result;
 			}
@@ -120,7 +120,7 @@ namespace CDR.DataHolder.Energy.Repository
 		/// </summary>
 		/// <param name="filter">Query filter</param>
 		/// <returns></returns>
-		public async Task<EnergyAccountConcession[]> GetEnergyAccountConcessions(AccountConsessionsFilter filter)
+		public async Task<EnergyAccountConcession[]> GetEnergyAccountConcessions(AccountConcessionsFilter filter)
 		{
 			IQueryable<Entities.AccountConcession> accountTransactionsQuery = _dataHolderDatabaseContext.AccountConcessions.AsNoTracking()
 				.Where(accountConcession => accountConcession.AccountId == filter.AccountId);

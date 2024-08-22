@@ -4,6 +4,7 @@ using CDR.DataHolder.Banking.Repository.Infrastructure;
 using CDR.DataHolder.Banking.Resource.API.Business.Services;
 using CDR.DataHolder.Shared.API.Infrastructure.Authorisation;
 using CDR.DataHolder.Shared.API.Infrastructure.Authorization;
+using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 using CDR.DataHolder.Shared.API.Infrastructure.Filters;
 using CDR.DataHolder.Shared.API.Infrastructure.IdPermanence;
 using CDR.DataHolder.Shared.API.Infrastructure.Middleware;
@@ -102,7 +103,7 @@ namespace CDR.DataHolder.Banking.Resource.API
         private static void AddAuthenticationAuthorization(IServiceCollection services, IConfiguration configuration)
         {
             var identityServerUrl = configuration.GetValue<string>("IdentityServerUrl");
-            var identityServerIssuer = configuration.GetValue<string>("IdentityServerIssuerUri");
+            var identityServerIssuer = configuration.GetValue<string>("IdentityServerIssuerUri") ?? string.Empty;
 
             services.AddHttpContextAccessor();
 
@@ -125,11 +126,9 @@ namespace CDR.DataHolder.Banking.Resource.API
                     ValidateLifetime = true,
                 };
 
-                // Ignore server certificate issues when retrieving OIDC configuration and JWKS.
-                options.BackchannelHttpHandler = new HttpClientHandler
-                {
-                    ServerCertificateCustomValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
-                };
+                var handler = new HttpClientHandler();
+                handler.SetServerCertificateValidation(configuration);
+                options.BackchannelHttpHandler = handler;
             });
 
             // Authorization

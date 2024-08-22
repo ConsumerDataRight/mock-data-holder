@@ -2,6 +2,7 @@ using CDR.DataHolder.Energy.Domain.Repositories;
 using CDR.DataHolder.Energy.Repository.Infrastructure;
 using CDR.DataHolder.Shared.API.Infrastructure.Authorisation;
 using CDR.DataHolder.Shared.API.Infrastructure.Authorization;
+using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 using CDR.DataHolder.Shared.API.Infrastructure.Filters;
 using CDR.DataHolder.Shared.API.Infrastructure.IdPermanence;
 using CDR.DataHolder.Shared.API.Infrastructure.Middleware;
@@ -98,7 +99,7 @@ namespace CDR.DataHolder.Energy.Resource.API
         private static void AddAuthenticationAuthorization(IServiceCollection services, IConfiguration configuration)
         {
             var identityServerUrl = configuration.GetValue<string>("IdentityServerUrl");
-            var identityServerIssuer = configuration.GetValue<string>("IdentityServerIssuerUri");
+            var identityServerIssuer = configuration.GetValue<string>("IdentityServerIssuerUri") ?? string.Empty;
 
             services.AddHttpContextAccessor();
 
@@ -121,11 +122,9 @@ namespace CDR.DataHolder.Energy.Resource.API
                     ValidateLifetime = true,
                 };
 
-                // Ignore server certificate issues when retrieving OIDC configuration and JWKS.
-                options.BackchannelHttpHandler = new HttpClientHandler
-                {
-                    ServerCertificateCustomValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
-                };
+                var handler = new HttpClientHandler();
+                handler.SetServerCertificateValidation(configuration);
+                options.BackchannelHttpHandler = handler;
             });
 
             // Authorization
@@ -145,7 +144,7 @@ namespace CDR.DataHolder.Energy.Resource.API
                     policy.Requirements.Add(new AccessTokenRequirement());
                 });
 
-                options.AddPolicy(AuthorisationPolicy.GetConsessionsApi.ToString(), policy =>
+                options.AddPolicy(AuthorisationPolicy.GetConcessionsApi.ToString(), policy =>
                 {
                     policy.Requirements.Add(new ScopeRequirement(CDR.DataHolder.Shared.API.Infrastructure.Constants.ApiScopes.Energy.ConcessionsRead, identityServerIssuer));
                     policy.Requirements.Add(new MtlsRequirement());

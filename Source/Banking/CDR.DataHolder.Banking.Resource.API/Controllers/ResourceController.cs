@@ -10,6 +10,7 @@ using CDR.DataHolder.Shared.API.Infrastructure.Filters;
 using CDR.DataHolder.Shared.API.Infrastructure.IdPermanence;
 using CDR.DataHolder.Shared.API.Infrastructure.Models;
 using CDR.DataHolder.Shared.Business;
+using CDR.DataHolder.Shared.Domain.Models;
 using CDR.DataHolder.Shared.Domain.ValueObjects;
 using CDR.DataHolder.Shared.Resource.API.Business.Filters;
 using CDR.DataHolder.Shared.Resource.API.Infrastructure.Filters;
@@ -53,63 +54,64 @@ namespace CDR.DataHolder.Banking.Resource.API.Controllers
 			_idPermanenceManager = idPermanenceManager;
 		}
 
-		[PolicyAuthorize(AuthorisationPolicy.GetAccountsApi)]
-		[HttpGet("v1/banking/accounts", Name = nameof(GetAccounts))]
-		[CheckScope(ApiScopes.Banking.AccountsBasicRead)]
-		[CheckXV(1, 1)]
-		[CheckAuthDate]
-		[ApiVersion("1")]
+        [PolicyAuthorize(AuthorisationPolicy.GetAccountsApi)]
+        [HttpGet("v1/banking/accounts", Name = nameof(GetAccountsV2))]
+        [CheckScope(ApiScopes.Banking.AccountsBasicRead)]
+        [CheckXV(2, 2)]
+        [CheckAuthDate]
+        [ApiVersion("2")]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
-		public async Task<IActionResult> GetAccounts(
-			[FromQuery(Name = "is-owned")] bool? isOwned,
-			[FromQuery(Name = "open-status"), CheckOpenStatus] string? openStatus,
-			[FromQuery(Name = "product-category"), CheckProductCategory] string? productCategory,
-			[FromQuery(Name = "page"), CheckPage] string? page,
-			[FromQuery(Name = "page-size"), CheckPageSize] string? pageSize)
-		{
-			// Each customer id is different for each ADR based on PPID.
-			// Therefore we need to look up the CustomerClient table to find the actual customer id.
-			// This can be done once we have a client id (Registration) and a valid access token.
-			var loginId = User.GetCustomerLoginId();
-			if (string.IsNullOrEmpty(loginId))
-			{
-				return new BadRequestObjectResult(new ResponseErrorList(Error.UnknownError()));
-			}
+        public async Task<IActionResult> GetAccountsV2(
+            [FromQuery(Name = "is-owned")] bool? isOwned,
+            [FromQuery(Name = "open-status"), CheckOpenStatus] string? openStatus,
+            [FromQuery(Name = "product-category"), CheckProductCategory] string? productCategory,
+            [FromQuery(Name = "page"), CheckPage] string? page,
+            [FromQuery(Name = "page-size"), CheckPageSize] string? pageSize)
+        {
 
-			// Get accounts
+            // Each customer id is different for each ADR based on PPID.
+            // Therefore we need to look up the CustomerClient table to find the actual customer id.
+            // This can be done once we have a client id (Registration) and a valid access token.
+            var loginId = User.GetCustomerLoginId();
+            if (string.IsNullOrEmpty(loginId))
+            {
+                return new BadRequestObjectResult(new ResponseErrorList().AddUnexpectedError());
+            }
+
+            // Get accounts
             var accountFilter = new AccountFilter(User.GetAccountIds())
-			{                                
+            {
                 IsOwned = isOwned,
-				ProductCategory = productCategory,
-				OpenStatus = (openStatus != null && openStatus.Equals(OpenStatus.All.ToString(), StringComparison.OrdinalIgnoreCase)) ? null : openStatus,
-			};
-			int pageNumber = string.IsNullOrEmpty(page) ? 1 : int.Parse(page);
-			int pageSizeNumber = string.IsNullOrEmpty(pageSize) ? 25 : int.Parse(pageSize);
-			var accounts = await _resourceRepository.GetAllAccounts(accountFilter, pageNumber, pageSizeNumber);
-			var response = _mapper.Map<ResponseBankingAccountList>(accounts);
+                ProductCategory = productCategory,
+                OpenStatus = (openStatus != null && openStatus.Equals(OpenStatus.All.ToString(), StringComparison.OrdinalIgnoreCase)) ? null : openStatus,
+            };
+            int pageNumber = string.IsNullOrEmpty(page) ? 1 : int.Parse(page);
+            int pageSizeNumber = string.IsNullOrEmpty(pageSize) ? 25 : int.Parse(pageSize);
+            var accounts = await _resourceRepository.GetAllAccounts(accountFilter, pageNumber, pageSizeNumber);
+            var response = _mapper.Map<ResponseBankingAccountListV2>(accounts);
 
-			// Check if the given page number is out of range
-			if (pageNumber != 1 && pageNumber > response.Meta.TotalPages.GetValueOrDefault())
-			{
-				return new BadRequestObjectResult(new ResponseErrorList(Error.PageOutOfRange()));
-			}
+            // Check if the given page number is out of range
+            if (pageNumber != 1 && pageNumber > response.Meta.TotalPages.GetValueOrDefault())
+            {
+                return new BadRequestObjectResult(new ResponseErrorList().AddPageOutOfRange());
+            }
 
-			var softwareProductId = this.User.FindFirst(TokenClaimTypes.SoftwareId)?.Value;
-			var idParameters = new IdPermanenceParameters
-			{
-				SoftwareProductId = softwareProductId ?? string.Empty,                
+            var softwareProductId = this.User.FindFirst(TokenClaimTypes.SoftwareId)?.Value;
+            var idParameters = new IdPermanenceParameters
+            {
+                SoftwareProductId = softwareProductId ?? string.Empty,
                 CustomerId = loginId
-			};
+            };
 
-			_idPermanenceManager.EncryptIds(response.Data.Accounts, idParameters, a => a.AccountId);
+            _idPermanenceManager.EncryptIds(response.Data.Accounts, idParameters, a => a.AccountId);
 
-			// Set pagination meta data
-			response.Links = this.GetLinks(_config, pageNumber, response.Meta.TotalPages.GetValueOrDefault(), pageSizeNumber);
+            // Set pagination meta data
+            response.Links = this.GetLinks(_config, pageNumber, response.Meta.TotalPages.GetValueOrDefault(), pageSizeNumber);
 
-			return Ok(response);
-		}
+            return Ok(response);
+        }
 
-		[PolicyAuthorize(AuthorisationPolicy.GetTransactionsApi)]
+        [PolicyAuthorize(AuthorisationPolicy.GetTransactionsApi)]
 		[HttpGet("v1/banking/accounts/{accountId}/transactions", Name = nameof(GetTransactions))]
 		[CheckScope(ApiScopes.Banking.TransactionsRead)]
 		[CheckXV(1, 1)]
@@ -125,7 +127,7 @@ namespace CDR.DataHolder.Banking.Resource.API.Controllers
                         
             if (string.IsNullOrEmpty(loginId))
             {
-                return new BadRequestObjectResult(new ResponseErrorList(Error.UnknownError()));
+                return new BadRequestObjectResult(new ResponseErrorList().AddUnexpectedError());
             }
 			            
 			var softwareProductId = this.User.FindFirst(TokenClaimTypes.SoftwareId)?.Value;
@@ -145,7 +147,7 @@ namespace CDR.DataHolder.Banking.Resource.API.Controllers
 				{
 					_logger.LogError("Account Id could not be retrieved from request.");
 				}
-				return new NotFoundObjectResult(new ResponseErrorList(Error.NotFound("Account ID could not be found for the customer")));
+				return new NotFoundObjectResult(new ResponseErrorList().AddResourceNotFound("Account ID could not be found for the customer"));
 			}
 			else
 			{
@@ -157,7 +159,7 @@ namespace CDR.DataHolder.Banking.Resource.API.Controllers
 					{
 						_logger.LogInformation("Customer does not have access to this Account Id. Account Id: {accountId}", request.AccountId);
 					}
-					return new NotFoundObjectResult(new ResponseErrorList(Error.NotFound("Account ID could not be found for the customer")));
+					return new NotFoundObjectResult(new ResponseErrorList().AddResourceNotFound("Account ID could not be found for the customer"));
 				}
 
 				if (!User.GetAccountIds().Contains(request.AccountId))
@@ -169,7 +171,7 @@ namespace CDR.DataHolder.Banking.Resource.API.Controllers
 						_logger.LogInformation("Consent has not been granted for this Account Id: {accountId}", request.AccountId);
 					}
 
-                    return new NotFoundObjectResult(new ResponseErrorList(Error.ConsentNotFound(_config.GetValue<string>("Industry"))));
+                    return new NotFoundObjectResult(new ResponseErrorList().AddConsentNotFound(_config.GetValue<string>("Industry")));
 				}
 			}
 

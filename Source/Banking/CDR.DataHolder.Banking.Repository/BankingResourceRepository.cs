@@ -88,7 +88,7 @@ namespace CDR.DataHolder.Banking.Repository
 			}
 
 			// If none of the account ids are allowed, return empty list
-			if (filter.AllowedAccountIds == null || !filter.AllowedAccountIds.Any())
+			if (filter.AllowedAccountIds == null || filter.AllowedAccountIds.Length == 0)
 			{
 				return result;
 			}

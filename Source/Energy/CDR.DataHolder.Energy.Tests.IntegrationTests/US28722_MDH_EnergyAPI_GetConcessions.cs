@@ -204,7 +204,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var accountId = Constants.Accounts.Energy.AccountIdMaryMoss;
 
             CdrException expectedError = new InvalidHeaderException("x-fapi-auth-date");
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderEnergyGetConcessionsAPI(accessToken!, xFapiAuthDate, encryptedAccountId: accountId);
@@ -233,7 +233,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var accountId = Constants.Accounts.Energy.AccountIdMaryMoss;
 
             CdrException expectedError = new InvalidVersionException();
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderEnergyGetConcessionsAPI(accessToken!, DateTime.Now.ToUniversalTime().ToString("r"), encryptedAccountId: accountId, xv: xv);
@@ -264,7 +264,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var accountId = Constants.Accounts.Energy.AccountIdMaryMoss;
 
             CdrException expectedError = new UnsupportedVersionException();
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderEnergyGetConcessionsAPI(accessToken!, DateTime.Now.ToUniversalTime().ToString("r"), encryptedAccountId: accountId, xv: xv);
@@ -293,7 +293,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss);
 
             CdrException expectedError = new InvalidEnergyAccountException(accountId);
-            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError));
+            var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderEnergyGetConcessionsAPI(accessToken!, DateTime.Now.ToUniversalTime().ToString("r"), encryptedAccountId: accountId);

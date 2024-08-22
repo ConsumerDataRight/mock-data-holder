@@ -1,6 +1,5 @@
 ﻿using CDR.DataHolder.Banking.Repository.Infrastructure;
 using CDR.DataHolder.Energy.Repository.Infrastructure;
-using CDR.DataHolder.Shared.Domain;
 using CDR.DataHolder.Shared.Repository.Infrastructure;
 using CDR.DataHolder.Shared.Repository;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +19,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using static CDR.DataHolder.Shared.API.Infrastructure.Constants;
 using CDR.DataHolder.Shared.API.Infrastructure.Exceptions;
+using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
+using static CDR.DataHolder.Shared.Domain.Constants;
+using CDR.DataHolder.Shared.Domain.Extensions;
 
 namespace CDR.DataHolder.Common.API.Infrastructure
 {
@@ -27,18 +29,18 @@ namespace CDR.DataHolder.Common.API.Infrastructure
     {
         public static void AddIndustryDBContext(this IServiceCollection services, IConfiguration configuration)
         {
-            var industry = configuration.GetValue<string>("Industry");
+            var industry = configuration.GetValue<string>("Industry") ?? Industry.Banking;
             string defaultConnectionString = configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Default) 
                 ?? throw new InvalidOperationException($"{nameof(defaultConnectionString)} is not set");
 
-            if (industry!= null && industry.IsBanking())
+            if (industry.IsBanking())
             {
                 services.AddScoped<IBankingResourceRepository, BankingResourceRepository>();
                 services.AddScoped<IIndustryDbContext, BankingDataHolderDatabaseContext>();
                 services.AddDbContext<BankingDataHolderDatabaseContext>(options => options.UseSqlServer(defaultConnectionString));
                 services.AddAutoMapper(typeof(Program), typeof(BankingDataHolderDatabaseContext));
             }
-            if (industry!= null && industry.IsEnergy())
+            else if (industry.IsEnergy())
             {
                 services.AddScoped<IEnergyResourceRepository, EnergyResourceRepository>();
                 services.AddDbContext<EnergyDataHolderDatabaseContext>(options => options.UseSqlServer(defaultConnectionString));
@@ -101,11 +103,9 @@ namespace CDR.DataHolder.Common.API.Infrastructure
                     ValidateLifetime = true,
                 };
 
-                // Ignore server certificate issues when retrieving OIDC configuration and JWKS.
-                options.BackchannelHttpHandler = new HttpClientHandler
-                {
-                    ServerCertificateCustomValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
-                };
+                var handler = new HttpClientHandler();
+                handler.SetServerCertificateValidation(configuration);
+                options.BackchannelHttpHandler = handler;
             });
 
             // Authorization

@@ -31,17 +31,17 @@ namespace CDR.DataHolder.Banking.Resource.API.Business
             CreateMap(typeof(Shared.Domain.ValueObjects.Page<>), typeof(MetaPaginated))
 				.ReverseMap();
 
-            CreateMap<Account, BankingAccount>()
-				.ForMember(dest => dest.MaskedNumber, source => source.MapFrom(source => source.MaskedName))
-				.ForMember(dest => dest.CreationDate, source => source.MapFrom(source => 
-					source.CreationDate.HasValue ? source.CreationDate.Value.ToString("yyyy-MM-dd") : null))
-				.ForMember(dest => dest.IsOwned, source => source.MapFrom(source => true))
-				.ReverseMap();
+            CreateMap<Account, BankingAccountV2>()
+               .ForMember(dest => dest.MaskedNumber, source => source.MapFrom(source => source.MaskedName))
+               .ForMember(dest => dest.CreationDate, source => source.MapFrom(source =>
+                   source.CreationDate.HasValue ? source.CreationDate.Value.ToString("yyyy-MM-dd") : null))
+               .ForMember(dest => dest.IsOwned, source => source.MapFrom(source => true))
+               .ReverseMap();
 
-			CreateMap<Shared.Domain.ValueObjects.Page<Account[]>, ResponseBankingAccountList>()
-				.ForPath(dest => dest.Data.Accounts, source => source.MapFrom(source => source.Data))
-				.ForMember(dest => dest.Meta, source => source.MapFrom(source => source))
-				.ReverseMap();
-		}
+            CreateMap<Shared.Domain.ValueObjects.Page<Account[]>, ResponseBankingAccountListV2>()
+                .ForPath(dest => dest.Data.Accounts, source => source.MapFrom(source => source.Data))
+                .ForMember(dest => dest.Meta, source => source.MapFrom(source => source))
+                .ReverseMap();
+        }
 	}
 }

@@ -23,7 +23,7 @@ namespace CDR.DataHolder.Shared.API.Gateway.mTLS
                 .Build();
 
             // Get the value of the "industry" key from appsettings.json
-            var industry = config["Industry"];
+            var industry = config["Industry"] ?? string.Empty;
 
             var configuration = new ConfigurationBuilder()
                             .SetBasePath(Directory.GetCurrentDirectory())
@@ -35,9 +35,7 @@ namespace CDR.DataHolder.Shared.API.Gateway.mTLS
                             .Build();
 
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-                .MinimumLevel.Override("System", LogEventLevel.Information)
+                .ReadFrom.Configuration(configuration)                
                 .Enrich.FromLogContext()
                 .Enrich.WithProcessId()
                 .Enrich.WithProcessName()

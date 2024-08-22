@@ -1,7 +1,6 @@
 # Docker compose file used to execute Energy sector integration test suite.
 # It extends docker-compose.IntegrationTests.Base.yml which contains sector agnotsic services.
 
-version: '3.8'
 name: mock-data-holder-integration-tests-energy
 
 services:
@@ -48,6 +47,8 @@ services:
       dockerfile: Dockerfile.integration-tests
       args:
         INTEGRATION_TESTS_LOCATION: Energy/CDR.DataHolder.Energy.Tests.IntegrationTests
+        FEED_URI: ${FEED_URI}
+        FEED_ACCESSTOKEN: ${FEED_ACCESSTOKEN}
     volumes:
       - "./_temp/mock-data-holder-energy-integration-tests/testresults:/testresults"
 

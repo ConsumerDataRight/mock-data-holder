@@ -19,6 +19,9 @@ namespace CDR.DataHolder.Banking.Repository.Entities
         [Required, MaxLength(100)]
         public string MaskedName { get; set; } = string.Empty;
 
+        [Required, MaxLength(20)]
+        public string? AccountOwnership { get; set; } = string.Empty;
+
         public virtual Customer Customer { get; set; } = new Customer();
 
         public virtual ICollection<Transaction>? Transactions { get; set; }

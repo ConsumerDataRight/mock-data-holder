@@ -5,6 +5,7 @@ using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 
 namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
 {
+    [Trait("Category", "UnitTests")]
     public class StringExtensionsTests
     {
 

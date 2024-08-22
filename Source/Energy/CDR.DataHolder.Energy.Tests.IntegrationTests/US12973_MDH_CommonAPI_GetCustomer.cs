@@ -78,6 +78,45 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             }
         }
 
+
+        [Theory]
+        [InlineData(TokenType.MaryMoss)]
+        [InlineData(TokenType.HeddaHare)]
+        public async Task AC01_ShouldRespondWith_200OK_Customers__UsingHybridFlow(TokenType tokenType)
+        {
+            Log.Information("Running test with Params: {P1}={V1}.", nameof(tokenType), tokenType);
+
+            // Arrange
+            string? accessToken = await _dataHolderAccessTokenCache.GetAccessToken(tokenType, responseType: ResponseType.CodeIdToken, responseMode: ResponseMode.FormPost);
+
+            accessToken = accessToken ?? throw new InvalidOperationException($"{nameof(accessToken)} is null.");
+
+            var expectedResponse = GetExpectedResponse(_options.DH_MTLS_GATEWAY_URL, tokenType.GetUserIdByTokenType());
+
+            // Act
+            var api = _apiServiceDirector.BuildDataHolderCommonGetCustomerAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"));
+            var response = await api.SendAsync();
+
+            // Assert
+            using (new AssertionScope(BaseTestAssertionStrategy))
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+                // Assert - Check content type
+                Assertions.AssertHasContentTypeApplicationJson(response.Content);
+
+                // Assert - Check XV
+                Assertions.AssertHasHeader(api.XV, response.Headers, "x-v");
+
+                // Assert - Check x-fapi-interaction-id
+                Assertions.AssertHasHeader(null, response.Headers, "x-fapi-interaction-id");
+
+                // Assert - Check json
+                await Assertions.AssertHasContentJson(expectedResponse, response.Content);
+            }
+        }
+
         private static string GetExpectedResponse(string dhMtlsGatewayUrl, string loginId)
         {
             string seedDataJson = File.ReadAllText("TestData/seed-data.json");

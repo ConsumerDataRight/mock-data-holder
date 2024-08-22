@@ -1,4 +1,4 @@
-﻿using CDR.DataHolder.Shared.API.Infrastructure.Models;
+﻿using CDR.DataHolder.Shared.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,27 +1,24 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<Version>2.0.1</Version>
-		<FileVersion>2.0.1</FileVersion>
-		<AssemblyVersion>2.0.1</AssemblyVersion>
-		<Nullable>enable</Nullable>
-	</PropertyGroup>
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	<TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
+	<Version>$(Version)</Version>
+	<FileVersion>$(Version)</FileVersion>
+	<AssemblyVersion>$(Version)</AssemblyVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="10.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.9">
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.9" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.7" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Repository\CDR.DataHolder.Shared.Repository.csproj" />
     <ProjectReference Include="..\CDR.DataHolder.Banking.Domain\CDR.DataHolder.Banking.Domain.csproj" />
   </ItemGroup>
-
 </Project>

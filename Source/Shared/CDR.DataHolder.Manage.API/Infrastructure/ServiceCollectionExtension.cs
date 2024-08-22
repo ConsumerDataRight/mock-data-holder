@@ -4,9 +4,9 @@ using CDR.DataHolder.Shared.Repository.Infrastructure;
 using CDR.DataHolder.Shared.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using CDR.DataHolder.Shared.Domain;
 using Microsoft.Extensions.Configuration;
 using System.Configuration;
+using CDR.DataHolder.Shared.Domain.Extensions;
 
 namespace CDR.DataHolder.Manage.API.Infrastructure
 {
@@ -14,7 +14,7 @@ namespace CDR.DataHolder.Manage.API.Infrastructure
     {
         public static void AddIndustryDBContext(this IServiceCollection services, IConfiguration configuration)
         {
-            var industry = configuration.GetValue<string>("Industry");
+            var industry = configuration.GetValue<string>("Industry") ?? string.Empty;
 
             if (industry.IsBanking())
             {

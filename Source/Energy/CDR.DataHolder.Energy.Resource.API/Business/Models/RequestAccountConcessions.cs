@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CDR.DataHolder.Energy.Resource.API.Business.Models
 {
-    public class RequestAccountConsessions : IValidatableObject
+    public class RequestAccountConcessions : IValidatableObject
     {
         [FromRoute(Name = "accountId")]
         public string AccountId { get; set; } = string.Empty;

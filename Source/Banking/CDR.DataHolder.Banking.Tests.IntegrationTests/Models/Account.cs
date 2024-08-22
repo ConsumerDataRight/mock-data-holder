@@ -11,6 +11,7 @@
         public string MaskedName { get; set; } = null!;
         public string? ProductCategory { get; set; }
         public string ProductName { get; set; } = null!;
+        public string AccountOwnership { get; set; } = null!;
         public List<Transaction>? Transactions { get; set; }
     }
 }

@@ -22,7 +22,6 @@ on:
       - '.github/pull_request_template.md'
       - '.github/stale.yml'
       - 'LICENSE'
-      - 'Postman/**'
       - 'Help/**'
       - 'CertificateManagement/**'
   pull_request:
@@ -36,7 +35,6 @@ on:
       - '.github/pull_request_template.md'
       - '.github/stale.yml'
       - 'LICENSE'
-      - 'Postman/**'
       - 'Help/**'
       - 'CertificateManagement/**'
   schedule:

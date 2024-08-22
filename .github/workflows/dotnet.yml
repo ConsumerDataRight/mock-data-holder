@@ -11,7 +11,6 @@ on:
       - '.github/pull_request_template.md'
       - '.github/stale.yml'
       - 'LICENSE'
-      - 'Postman/**'
       - 'Help/**'
       - 'CertificateManagement/**'
   pull_request:
@@ -25,7 +24,6 @@ on:
       - '.github/pull_request_template.md'
       - '.github/stale.yml'
       - 'LICENSE'
-      - 'Postman/**'
       - 'Help/**'
       - 'CertificateManagement/**'
     
@@ -123,12 +121,12 @@ jobs:
     # Run unit tests
     - name: Run unit tests
       run: |
-        docker-compose -f './mock-data-holder/Source/DockerCompose/docker-compose.UnitTests.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-unit-tests
+        docker compose -f './mock-data-holder/Source/DockerCompose/docker-compose.UnitTests.yml' up --abort-on-container-exit --exit-code-from mock-data-holder-unit-tests
 
     # Remove unit tests
     - name: Remove unit tests
       run: |
-        docker-compose -f './mock-data-holder/Source/DockerCompose/docker-compose.UnitTests.yml' down
+        docker compose -f './mock-data-holder/Source/DockerCompose/docker-compose.UnitTests.yml' down
 
     # Run banking integration tests
     - name: Run banking integration tests

@@ -62,7 +62,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests.Fixtures
             loggerFactory.AddSerilog();
 
             context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
+            context.Database.Migrate();
 
             // Seed the database using the sample data JSON.
             var seedDataFilePath = configuration.GetValue<string>("SeedData:FilePath");

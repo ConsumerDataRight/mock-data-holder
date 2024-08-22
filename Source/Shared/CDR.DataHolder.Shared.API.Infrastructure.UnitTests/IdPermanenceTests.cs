@@ -4,6 +4,7 @@ using Xunit;
 
 namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
 {
+    [Trait("Category", "UnitTests")]
     public class IdPermanenceTests
     {
         [Fact]

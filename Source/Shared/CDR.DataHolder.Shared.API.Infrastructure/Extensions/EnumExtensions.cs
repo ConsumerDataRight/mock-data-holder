@@ -19,7 +19,8 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
                 {
                     if (val == e.ToInt32(CultureInfo.InvariantCulture))
                     {
-                        var memInfo = type.GetMember(type.GetEnumName(val)!);
+                        var enumName = type.GetEnumName(val);
+                        var memInfo = type.GetMember(enumName!);
                         var descriptionAttribute = memInfo[0]
                             .GetCustomAttributes(typeof(DescriptionAttribute), false)
                             .FirstOrDefault() as DescriptionAttribute;

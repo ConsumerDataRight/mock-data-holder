@@ -1,12 +1,10 @@
 ﻿using System.Linq;
-using CDR.DataHolder.Shared.API.Infrastructure.Models;
 using CDR.DataHolder.Shared.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace CDR.DataHolder.Shared.API.Infrastructure.Middleware
 {
-
     public static class ModelStateErrorMiddleware
     {
         public static IActionResult ExecuteResult(ActionContext context)
@@ -24,7 +22,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Middleware
                         try
                         {
                             var error = JsonConvert.DeserializeObject<Error>(modelStateError.ErrorMessage);
-                            if(error != null)
+                            if (error != null)
                             {
                                 responseErrorList.Errors.Add(error);
                             }
@@ -32,7 +30,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Middleware
                         catch
                         {
                             // This is for default and unhandled model errors.
-                            responseErrorList.AddInvalidField($"The {modelStateEntry.Key} field is not valid"); //TODO: Inconsistent with standard, update when possible
+                            responseErrorList.AddInvalidField($"The {modelStateEntry.Key} field is not valid");
                         }
                     }
                 }

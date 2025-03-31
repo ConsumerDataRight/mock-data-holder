@@ -1,12 +1,12 @@
-﻿using CDR.DataHolder.Banking.Repository.Infrastructure;
+﻿using System.Configuration;
+using CDR.DataHolder.Banking.Repository.Infrastructure;
 using CDR.DataHolder.Energy.Repository.Infrastructure;
-using CDR.DataHolder.Shared.Repository.Infrastructure;
-using CDR.DataHolder.Shared.Repository;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using System.Configuration;
 using CDR.DataHolder.Shared.Domain.Extensions;
+using CDR.DataHolder.Shared.Repository;
+using CDR.DataHolder.Shared.Repository.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CDR.DataHolder.Manage.API.Infrastructure
 {
@@ -22,6 +22,7 @@ namespace CDR.DataHolder.Manage.API.Infrastructure
                 services.AddDbContext<BankingDataHolderDatabaseContext>(options => options.UseSqlServer(configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Default)));
                 services.AddAutoMapper(typeof(Startup), typeof(BankingDataHolderDatabaseContext));
             }
+
             if (industry.IsEnergy())
             {
                 services.AddDbContext<EnergyDataHolderDatabaseContext>(options => options.UseSqlServer(configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Default)));

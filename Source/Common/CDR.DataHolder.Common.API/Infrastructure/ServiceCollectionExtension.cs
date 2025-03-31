@@ -1,27 +1,27 @@
-﻿using CDR.DataHolder.Banking.Repository.Infrastructure;
-using CDR.DataHolder.Energy.Repository.Infrastructure;
-using CDR.DataHolder.Shared.Repository.Infrastructure;
-using CDR.DataHolder.Shared.Repository;
-using Microsoft.EntityFrameworkCore;
-using CDR.DataHolder.Banking.Domain.Repositories;
+﻿using CDR.DataHolder.Banking.Domain.Repositories;
 using CDR.DataHolder.Banking.Repository;
+using CDR.DataHolder.Banking.Repository.Infrastructure;
 using CDR.DataHolder.Energy.Domain.Repositories;
 using CDR.DataHolder.Energy.Repository;
+using CDR.DataHolder.Energy.Repository.Infrastructure;
 using CDR.DataHolder.Shared.API.Infrastructure.Authorisation;
 using CDR.DataHolder.Shared.API.Infrastructure.Authorization;
+using CDR.DataHolder.Shared.API.Infrastructure.Exceptions;
+using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 using CDR.DataHolder.Shared.API.Infrastructure.IdPermanence;
 using CDR.DataHolder.Shared.API.Infrastructure.Models;
 using CDR.DataHolder.Shared.Business.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using CDR.DataHolder.Shared.Domain.Extensions;
+using CDR.DataHolder.Shared.Repository;
+using CDR.DataHolder.Shared.Repository.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using static CDR.DataHolder.Shared.API.Infrastructure.Constants;
-using CDR.DataHolder.Shared.API.Infrastructure.Exceptions;
-using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 using static CDR.DataHolder.Shared.Domain.Constants;
-using CDR.DataHolder.Shared.Domain.Extensions;
 
 namespace CDR.DataHolder.Common.API.Infrastructure
 {
@@ -30,7 +30,7 @@ namespace CDR.DataHolder.Common.API.Infrastructure
         public static void AddIndustryDBContext(this IServiceCollection services, IConfiguration configuration)
         {
             var industry = configuration.GetValue<string>("Industry") ?? Industry.Banking;
-            string defaultConnectionString = configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Default) 
+            string defaultConnectionString = configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Default)
                 ?? throw new InvalidOperationException($"{nameof(defaultConnectionString)} is not set");
 
             if (industry.IsBanking())
@@ -65,7 +65,6 @@ namespace CDR.DataHolder.Common.API.Infrastructure
             {
                 throw new InvalidIndustryException();
             }
-           
 
             if (commonRepository == null)
             {
@@ -96,7 +95,7 @@ namespace CDR.DataHolder.Common.API.Infrastructure
                 options.Audience = "cds-au";
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
-                    ClockSkew =TimeSpan.FromMinutes(1),
+                    ClockSkew = TimeSpan.FromMinutes(1),
                     RequireAudience = true,
                     RequireExpirationTime = true,
                     ValidateIssuer = true,
@@ -146,7 +145,6 @@ namespace CDR.DataHolder.Common.API.Infrastructure
                     }
                     });
             });
-
         }
     }
 }

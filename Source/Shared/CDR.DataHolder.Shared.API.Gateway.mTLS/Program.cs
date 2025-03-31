@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Security.Authentication;
 using Microsoft.AspNetCore.Builder;
@@ -7,13 +7,11 @@ using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using Serilog.Events;
 
-namespace CDR.DataHolder.Shared.API.Gateway.mTLS
+namespace CDR.DataHolder.Shared.API.Gateway.Mtls
 {
     public static class Program
     {
-
         public static int Main(string[] args)
         {
             var config = new ConfigurationBuilder()
@@ -28,14 +26,14 @@ namespace CDR.DataHolder.Shared.API.Gateway.mTLS
             var configuration = new ConfigurationBuilder()
                             .SetBasePath(Directory.GetCurrentDirectory())
                             .AddJsonFile("appsettings.json")
-                            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)                            
+                            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)
                             .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.{industry}.json", optional: true, reloadOnChange: true)
                             .AddJsonFile($"gateway-config.{industry.ToLower()}.json", false, true)
                             .AddEnvironmentVariables()
                             .Build();
 
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)                
+                .ReadFrom.Configuration(configuration)
                 .Enrich.FromLogContext()
                 .Enrich.WithProcessId()
                 .Enrich.WithProcessName()

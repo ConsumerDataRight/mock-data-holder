@@ -1,4 +1,5 @@
-﻿using CDR.DataHolder.Banking.Repository.Infrastructure;
+﻿using System;
+using CDR.DataHolder.Banking.Repository.Infrastructure;
 using CDR.DataHolder.Energy.Repository.Infrastructure;
 using CDR.DataHolder.Shared.API.Infrastructure.Exceptions;
 using CDR.DataHolder.Shared.Domain;
@@ -32,7 +33,7 @@ namespace CDR.DataHolder.Manage.API.Infrastructure
         {
             var optionsBuilder = new DbContextOptionsBuilder<BankingDataHolderDatabaseContext>();
             var bankingConnectionString = _configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.GetConnectionString(connectionStringType) ?? string.Empty)
-                ?? throw new System.Exception($"Connection string '{DbConstants.ConnectionStringNames.Resource.GetConnectionString(connectionStringType)}' not found");
+                ?? throw new InvalidOperationException($"Connection string '{DbConstants.ConnectionStringNames.Resource.GetConnectionString(connectionStringType)}' not found");
 
             optionsBuilder.UseSqlServer(bankingConnectionString);
 
@@ -43,7 +44,7 @@ namespace CDR.DataHolder.Manage.API.Infrastructure
         {
             var optionsBuilder = new DbContextOptionsBuilder<EnergyDataHolderDatabaseContext>();
             var energyConnectionString = _configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.GetConnectionString(connectionStringType) ?? string.Empty)
-                ?? throw new System.Exception($"Connection string '{DbConstants.ConnectionStringNames.Resource.GetConnectionString(connectionStringType)}' not found");
+                ?? throw new InvalidOperationException($"Connection string '{DbConstants.ConnectionStringNames.Resource.GetConnectionString(connectionStringType)}' not found");
 
             optionsBuilder.UseSqlServer(energyConnectionString);
 

@@ -17,6 +17,8 @@ ENV ASPNETCORE_ENVIRONMENT=Release
 RUN curl -L https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh  | sh
 
 # Copy source
+COPY ./Directory.Build.props ./Directory.Build.props
+COPY ./.editorconfig ./.editorconfig
 COPY . ./
 
 # Install developer certificate

@@ -13,14 +13,14 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.HealthChecks
 
         public SqlServerHealthCheck(IIndustryDbContext dbContext)
         {
-            _dbContext=dbContext;
+            _dbContext = dbContext;
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
             try
             {
-                if( await ((DbContext)_dbContext).Database.CanConnectAsync(cancellationToken))
+                if (await ((DbContext)_dbContext).Database.CanConnectAsync(cancellationToken))
                 {
                     return HealthCheckResult.Healthy("SQL Server connection successful");
                 }

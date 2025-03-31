@@ -1,14 +1,13 @@
-using System;
-using Xunit;
+﻿using System;
 using System.Collections.Generic;
 using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
+using Xunit;
 
 namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
 {
     [Trait("Category", "UnitTests")]
     public class StringExtensionsTests
     {
-
         [Fact]
         public void IsMissing_StringIsNull_ReturnsTrue()
         {
@@ -27,7 +26,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
         public void IsMissing_StringIsEmpty_ReturnsTrue()
         {
             // Arrange.
-            string value = "";
+            string value = string.Empty;
             var expected = true;
 
             // Act.
@@ -83,7 +82,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
         public void IsPresent_StringIsEmpty_ReturnsFalse()
         {
             // Arrange.
-            string value = "";
+            string value = string.Empty;
             var expected = false;
 
             // Act.
@@ -139,7 +138,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
         public void FromSpaceSeparatedString_EmptyString_ReturnsEmptyList()
         {
             // Arrange.
-            string value = "";
+            string value = string.Empty;
             var expected = new List<string>(Array.Empty<string>());
 
             // Act.
@@ -196,7 +195,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
         {
             // Arrange.
             List<string> values = new List<string>(Array.Empty<string>());
-            var expected = "";
+            var expected = string.Empty;
 
             // Act.
             var actual = values.ToSpaceSeparatedString();
@@ -210,7 +209,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
         {
             // Arrange.
             List<string>? values = null;
-            var expected = "";
+            var expected = string.Empty;
 
             // Act.
             var actual = values.ToSpaceSeparatedString();
@@ -223,7 +222,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
         public void ToSpaceSeparatedString_OneItem_ReturnsItemAsString()
         {
             // Arrange.
-            List<string> values = new List<string>(new string[] { "test1" }); ;
+            List<string> values = new List<string>(new string[] { "test1" });
             var expected = "test1";
 
             // Act.
@@ -237,7 +236,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
         public void ToSpaceSeparatedString_MultipleItems_ReturnsItemsAsString()
         {
             // Arrange.
-            List<string> values = new List<string>(new string[] { "test1", "test2", "test3" }); ;
+            List<string> values = new List<string>(new string[] { "test1", "test2", "test3" });
             var expected = "test1 test2 test3";
 
             // Act.
@@ -265,7 +264,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
         public void IsMissingOrTooLong_StringIsEmpty_ReturnsTrue()
         {
             // Arrange.
-            string value = "";
+            string value = string.Empty;
             var expected = true;
 
             // Act.
@@ -335,7 +334,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
         public void EnsureTrailingSlash_EmptyString_ReturnsTrailingSlash()
         {
             // Arrange.
-            string value = "";
+            string value = string.Empty;
             string expected = "/";
 
             // Act.
@@ -462,7 +461,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
         {
             // Arrange.
             string url = "/path";
-            string name = "";
+            string name = string.Empty;
             string value = "b";
 
             // Act + Assert.
@@ -607,7 +606,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
         public void ParseScopesString_WithEmptyScopes_ReturnsEmptyCollection()
         {
             // Arrange.
-            string scopes = "";
+            string scopes = string.Empty;
             List<string> expected = new List<string>();
 
             // Act.

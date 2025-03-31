@@ -12,9 +12,11 @@ namespace CDR.DataHolder.Energy.Resource.API.Business.Models
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             var results = new List<ValidationResult>();
-            
+
             if (string.IsNullOrEmpty(this.AccountId))
+            {
                 results.Add(new ValidationResult("Invalid account id.", new List<string> { "accountId" }));
+            }
 
             return results;
         }

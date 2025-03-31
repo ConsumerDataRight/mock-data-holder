@@ -11,7 +11,8 @@ Visit our [Responsible disclosure of security vulnerabilities policy](https://ww
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 3.1.x   | :white_check_mark: |
+| 4.0.x   | :white_check_mark: |
+| 3.x.x   | :x: |
 | 2.x.x   | :x: |
 | 1.x.x   | :x: |
 

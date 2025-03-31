@@ -13,6 +13,7 @@ namespace CDR.DataHolder.Shared.Domain.Extensions
         {
             return industry.CompareTo(Constants.Industry.Energy) == 0;
         }
+
         public static bool IsNullOrWhiteSpace(this string str)
         {
             return string.IsNullOrWhiteSpace(str);

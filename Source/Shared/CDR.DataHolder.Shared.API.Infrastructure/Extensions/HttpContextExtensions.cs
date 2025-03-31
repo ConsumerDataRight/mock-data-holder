@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -24,9 +24,15 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
         }
 
         public static string? LastPathSegment(this HttpContext httpContext)
-            => httpContext.Request.Path.HasValue
-                ? httpContext.Request.Path!.Value.Split('/')?.Last()
-                : string.Empty;
+        {
+            if (!httpContext.Request.Path.HasValue)
+            {
+                return string.Empty;
+            }
+
+            var pathValues = httpContext.Request.Path!.Value.Split('/');
+            return pathValues[pathValues.Length - 1];
+        }
 
         public static string? FirstPathSegment(this HttpContext httpContext)
             => httpContext.Request.Path.HasValue

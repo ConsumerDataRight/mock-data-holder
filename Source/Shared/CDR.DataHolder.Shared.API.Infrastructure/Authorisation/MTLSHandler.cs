@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -27,17 +26,15 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Authorization
                 return Task.CompletedTask;
             }
 
-            //
-            //  Check that the thumprint of the client cert used for TLS MA is the same
-            //  as the one expected by the cnf:x5t#S256 claim in the access token 
-            //
+            // Check that the thumprint of the client cert used for TLS MA is the same
+            // as the one expected by the cnf:x5t#S256 claim in the access token.
             string? requestHeaderClientCertThumprint = null;
             if (_httpContextAccessor.HttpContext!.Request.Headers.TryGetValue("X-TlsClientCertThumbprint", out StringValues headerThumbprints))
             {
                 requestHeaderClientCertThumprint = headerThumbprints[0];
             }
 
-            _logger.LogDebug("{class}.{method} - X-TlsClientCertThumbprint: {thumbprint}", nameof(MtlsHandler), nameof(HandleRequirementAsync), headerThumbprints);
+            _logger.LogDebug("{Class}.{Method} - X-TlsClientCertThumbprint: {Thumbprint}", nameof(MtlsHandler), nameof(HandleRequirementAsync), headerThumbprints);
 
             if (string.IsNullOrWhiteSpace(requestHeaderClientCertThumprint))
             {
@@ -61,7 +58,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Authorization
 
             if (!accessTokenClientCertThumbprint.Equals(requestHeaderClientCertThumprint, System.StringComparison.OrdinalIgnoreCase))
             {
-                _logger.LogError("Unauthorized request. X-TlsClientCertThumbprint request header value '{requestHeaderClientCertThumprint}' does not match access token cnf:x5t#S256 claim value '{accessTokenClientCertThumbprint}'", requestHeaderClientCertThumprint, accessTokenClientCertThumbprint);
+                _logger.LogError("Unauthorized request. X-TlsClientCertThumbprint request header value '{RequestHeaderClientCertThumprint}' does not match access token cnf:x5t#S256 claim value '{AccessTokenClientCertThumbprint}'", requestHeaderClientCertThumprint, accessTokenClientCertThumbprint);
                 return Task.CompletedTask;
             }
 

@@ -6,11 +6,15 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Versioning
     {
         public string? HeaderName { get; set; }
 
-        public MissingRequiredHeaderException() : base() { }
+        public MissingRequiredHeaderException()
+            : base()
+        {
+        }
 
-        public MissingRequiredHeaderException(string headerName) : base()
+        public MissingRequiredHeaderException(string headerName)
+            : base()
         {
             this.HeaderName = headerName;
-        }        
+        }
     }
 }

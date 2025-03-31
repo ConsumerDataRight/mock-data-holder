@@ -1,6 +1,5 @@
-using CDR.DataHolder.Energy.Tests.IntegrationTests.Models;
+﻿using CDR.DataHolder.Energy.Tests.IntegrationTests.Models;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation;
-using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.APIs;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Enums;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Exceptions;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Exceptions.CdsExceptions;
@@ -13,46 +12,40 @@ using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Models.Op
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Services;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Jose;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Serilog;
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
-using System.Web;
 using Xunit;
 using Xunit.DependencyInjection;
 
 namespace CDR.DataHolder.Energy.Tests.IntegrationTests
 {
-    public class US27571_MDH_EnergyAPI_GetAccounts : BaseTest, IClassFixture<RegisterSoftwareProductFixture>
+    public class US27571_Mdh_EnergyApi_GetAccounts : BaseTest, IClassFixture<RegisterSoftwareProductFixture>
     {
-        const string SCOPE_ACCOUNTS_BASIC_READ = "openid profile common:customer.basic:read energy:accounts.basic:read";
-        const string SCOPE_WITHOUT_ACCOUNTS_BASIC_READ = "openid profile common:customer.basic:read";
+        private const string SCOPE_ACCOUNTS_BASIC_READ = "openid profile common:customer.basic:read energy:accounts.basic:read";
+        private const string SCOPE_WITHOUT_ACCOUNTS_BASIC_READ = "openid profile common:customer.basic:read";
 
-        private readonly ISqlQueryService _sqlQueryService;
         private readonly IDataHolderParService _dataHolderParService;
         private readonly IDataHolderTokenService _dataHolderTokenService;
         private readonly IDataHolderAccessTokenCache _dataHolderAccessTokenCache;
         private readonly IApiServiceDirector _apiServiceDirector;
         private readonly TestAutomationOptions _options;
 
-        private readonly string ENERGY_GET_ACCOUNTS_BASE_URL;
+        private readonly string energy_Get_Accounts_Base_Url;
 
-        public US27571_MDH_EnergyAPI_GetAccounts(
+        public US27571_Mdh_EnergyApi_GetAccounts(
             IOptions<TestAutomationOptions> options,
             ISqlQueryService sqlQueryService,
-           IDataHolderParService dataHolderParService,
-           IDataHolderTokenService dataHolderTokenService,
-           IDataHolderAccessTokenCache dataHolderAccessTokenCache,
-           IApiServiceDirector apiServiceDirector,
+            IDataHolderParService dataHolderParService,
+            IDataHolderTokenService dataHolderTokenService,
+            IDataHolderAccessTokenCache dataHolderAccessTokenCache,
+            IApiServiceDirector apiServiceDirector,
             ITestOutputHelperAccessor testOutputHelperAccessor,
             Microsoft.Extensions.Configuration.IConfiguration config,
             RegisterSoftwareProductFixture registerSoftwareProductFixture)
             : base(testOutputHelperAccessor, config)
         {
-            _sqlQueryService = sqlQueryService ?? throw new ArgumentNullException(nameof(sqlQueryService));
             _dataHolderParService = dataHolderParService ?? throw new ArgumentNullException(nameof(dataHolderParService));
             _dataHolderTokenService = dataHolderTokenService ?? throw new ArgumentNullException(nameof(dataHolderTokenService));
             _dataHolderAccessTokenCache = dataHolderAccessTokenCache ?? throw new ArgumentNullException(nameof(dataHolderAccessTokenCache));
@@ -63,7 +56,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 throw new ArgumentNullException(nameof(registerSoftwareProductFixture));
             }
 
-            ENERGY_GET_ACCOUNTS_BASE_URL = $"{_options.DH_MTLS_GATEWAY_URL}/cds-au/v1/energy/accounts";
+            energy_Get_Accounts_Base_Url = $"{_options.DH_MTLS_GATEWAY_URL}/cds-au/v1/energy/accounts";
         }
 
         [Theory]
@@ -96,7 +89,8 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
           string apiVersion)
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(xFapiAuthDate), xFapiAuthDate, nameof(apiVersion), apiVersion);
-            // Arrange 
+
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss);
 
             // Act
@@ -131,7 +125,8 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             CdsError cdsError)
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}, {P3}={V3}.", nameof(xFapiAuthDate), xFapiAuthDate, nameof(apiVersion), apiVersion, nameof(cdsError), cdsError);
-            // Arrange 
+
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss);
 
             CdrException expectedError;
@@ -179,10 +174,10 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}, {P3}={V3}, {P4}={V4}.", nameof(page), page, nameof(pageSize), pageSize, nameof(cdsError), cdsError, nameof(apiVersion), apiVersion);
 
-            // Arrange 
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss);
 
-            var baseUrl = ENERGY_GET_ACCOUNTS_BASE_URL;
+            var baseUrl = energy_Get_Accounts_Base_Url;
             var url = GetUrl(baseUrl, queryPageSize: pageSize, queryPage: page);
 
             CdrException expectedError = cdsError switch
@@ -224,7 +219,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(apiVersion), apiVersion, nameof(cdsError), cdsError);
 
-            // Arrange 
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss);
 
             CdrException expectedError;
@@ -249,7 +244,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var expectedContent = JsonConvert.SerializeObject(errorList);
 
             // Act
-            var response = await GetAccounts(accessToken, ENERGY_GET_ACCOUNTS_BASE_URL, apiVersion: apiVersion);
+            var response = await GetAccounts(accessToken, energy_Get_Accounts_Base_Url, apiVersion: apiVersion);
 
             // Assert
             using (new AssertionScope(BaseTestAssertionStrategy))
@@ -289,11 +284,11 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(scope), scope, nameof(apiVersion), apiVersion);
 
-            // Arrange 
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss, scope);
 
             // Act
-            var response = await GetAccounts(accessToken, ENERGY_GET_ACCOUNTS_BASE_URL, apiVersion: apiVersion);
+            var response = await GetAccounts(accessToken, energy_Get_Accounts_Base_Url, apiVersion: apiVersion);
 
             // Assert
             using (new AssertionScope(BaseTestAssertionStrategy))
@@ -310,14 +305,14 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(scope), scope, nameof(apiVersion), apiVersion);
 
-            // Arrange 
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss, scope);
 
             CdrException expectedError = new InvalidConsentException();
             var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
-            var response = await GetAccounts(accessToken, ENERGY_GET_ACCOUNTS_BASE_URL, apiVersion: apiVersion);
+            var response = await GetAccounts(accessToken, energy_Get_Accounts_Base_Url, apiVersion: apiVersion);
 
             // Assert
             using (new AssertionScope(BaseTestAssertionStrategy))
@@ -345,7 +340,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(tokenType);
 
             // Act
-            var response = await GetAccounts(accessToken, ENERGY_GET_ACCOUNTS_BASE_URL, apiVersion: apiVersion);
+            var response = await GetAccounts(accessToken, energy_Get_Accounts_Base_Url, apiVersion: apiVersion);
 
             // Assert
             using (new AssertionScope(BaseTestAssertionStrategy))
@@ -367,7 +362,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(tokenType);
 
             // Act
-            var response = await GetAccounts(accessToken, ENERGY_GET_ACCOUNTS_BASE_URL);
+            var response = await GetAccounts(accessToken, energy_Get_Accounts_Base_Url);
 
             // Assert
             using (new AssertionScope(BaseTestAssertionStrategy))
@@ -378,11 +373,10 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 // Assert - Check error response
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    // Assert - Check error response 
+                    // Assert - Check error response
                     Assertions.AssertHasHeader("Bearer", response.Headers, "WWW-Authenticate");
                 }
             }
-
         }
 
         [Theory]
@@ -395,7 +389,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var accessToken = Constants.AccessTokens.ConsumerAccessTokenEnergyExpired;
 
             // Act
-            var response = await GetAccounts(accessToken, ENERGY_GET_ACCOUNTS_BASE_URL);
+            var response = await GetAccounts(accessToken, energy_Get_Accounts_Base_Url);
 
             // Assert
             using (new AssertionScope(BaseTestAssertionStrategy))
@@ -407,7 +401,8 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
                     // Assert - Check error response
-                    Assertions.AssertHasHeader(@"Bearer error=""invalid_token"", error_description=""The token expired at ",
+                    Assertions.AssertHasHeader(
+                        @"Bearer error=""invalid_token"", error_description=""The token expired at ",
                         response.Headers,
                         "WWW-Authenticate",
                         true); // starts with
@@ -462,7 +457,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData(Constants.Certificates.AdditionalCertificateFilename, Constants.Certificates.AdditionalCertificatePassword)]  // Different holder of key
+        [InlineData(Constants.Certificates.AdditionalCertificateFilename, Constants.Certificates.AdditionalCertificatePassword)] // Different holder of key
         public async Task ACX11_Get_WithDifferentHolderOfKey_401Unauthorized(string certificateFilename, string certificatePassword)
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(certificateFilename), certificateFilename, nameof(certificatePassword), certificatePassword);
@@ -495,9 +490,12 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         {
             async Task<ResponseEnergyAccountListV2?> GetAccounts2(string? accessToken)
             {
-                var response = await GetAccounts(accessToken, ENERGY_GET_ACCOUNTS_BASE_URL);
+                var response = await GetAccounts(accessToken, energy_Get_Accounts_Base_Url);
 
-                if (response.StatusCode != HttpStatusCode.OK) throw new Exception("Error getting accounts").Log();
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new Exception("Error getting accounts").Log();
+                }
 
                 var json = await response.Content.ReadAsStringAsync();
 
@@ -544,7 +542,10 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                     var api = _apiServiceDirector.BuildDataHolderEnergyGetAccountsAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"));
                     var response = await api.SendAsync();
 
-                    if (response.StatusCode != HttpStatusCode.OK) throw new Exception("Error getting accounts").Log();
+                    if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        throw new Exception("Error getting accounts").Log();
+                    }
 
                     var json = await response.Content.ReadAsStringAsync();
 
@@ -591,12 +592,12 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData("1", "1", "1")]  //Valid. Should return v1
-        [InlineData("1", "2", "1")]  //Valid. Should return v1 - x-min-v is ignored when > x-v
-        [InlineData("2", "1", "2")]  //Valid. Should return v2 - x-v is supported and higher than x-min-v 
-        [InlineData("2", "2", "2")]  //Valid. Should return v2 - x-v is supported equal to x-min-v        
-        [InlineData("3", "2", "2")]  //Valid. Should return v2 - x-v is NOT supported and x-min-v is supported
-        [InlineData("2", "3", "2")]  //Valid. Should return v2 - x-min-v is ignored when > x-v (test using highest supported version)
+        [InlineData("1", "1", "1")] // Valid. Should return v1
+        [InlineData("1", "2", "1")] // Valid. Should return v1 - x-min-v is ignored when > x-v
+        [InlineData("2", "1", "2")] // Valid. Should return v2 - x-v is supported and higher than x-min-v
+        [InlineData("2", "2", "2")] // Valid. Should return v2 - x-v is supported equal to x-min-v
+        [InlineData("3", "2", "2")] // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported
+        [InlineData("2", "3", "2")] // Valid. Should return v2 - x-min-v is ignored when > x-v (test using highest supported version)
         public async Task ACX14_ApiVersionAndMinimumSupportedVersionScenarios_Success(
             string apiVersion,
             string apiMinVersion,
@@ -604,7 +605,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(apiVersion), apiVersion, nameof(apiMinVersion), apiMinVersion, nameof(expectedApiVersionResponse), expectedApiVersionResponse);
 
-            // Arrange 
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss);
 
             // Act
@@ -623,14 +624,14 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData("3", "3")] //Invalid. Both x-v and x-min-v exceed MDHE supported version of 2
+        [InlineData("3", "3")] // Invalid. Both x-v and x-min-v exceed MDHE supported version of 2
         public async Task ACX14_ApiVersionAndMinimumSupportedVersionScenarios_406NotAcceptable(
            string apiVersion,
            string apiMinVersion)
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(apiVersion), apiVersion, nameof(apiMinVersion), apiMinVersion);
 
-            // Arrange 
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss);
 
             CdrException expectedError = new UnsupportedVersionException();
@@ -660,19 +661,30 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
 
         private async Task Test_ValidGetAccountsScenario(
            TokenType tokenType,
-           bool? isOwned = null, string? openStatus = null, string? productCategory = null,
-           int? queryPage = null, int? queryPageSize = null,
-           int? expectedRecordCount = null, string apiVersion = "1")
+           bool? isOwned = null,
+           string? openStatus = null,
+           string? productCategory = null,
+           int? queryPage = null,
+           int? queryPageSize = null,
+           int? expectedRecordCount = null,
+           string apiVersion = "1")
         {
             // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(tokenType, scope: SCOPE_ACCOUNTS_BASIC_READ);
 
-            var baseUrl = ENERGY_GET_ACCOUNTS_BASE_URL;
+            var baseUrl = energy_Get_Accounts_Base_Url;
             var url = GetUrl(baseUrl, isOwned, openStatus, productCategory, queryPage, queryPageSize);
 
-            (var expectedResponse, var totalRecords) = GetExpectedResponse(accessToken, baseUrl, url,
-                isOwned, openStatus, productCategory,
-                queryPage, queryPageSize, apiVersion: apiVersion);
+            (var expectedResponse, var totalRecords) = GetExpectedResponse(
+                accessToken,
+                baseUrl,
+                url,
+                isOwned,
+                openStatus,
+                productCategory,
+                queryPage,
+                queryPageSize,
+                apiVersion: apiVersion);
 
             // Act
             var response = await GetAccounts(accessToken, url, apiVersion);
@@ -708,10 +720,16 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             return dateTime?.ToString("yyyy-MM-dd");
         }
 
-        private static (string, int) GetExpectedResponse(string? accessToken,
-            string baseUrl, string selfUrl,
-            bool? isOwned = null, string? openStatus = null, string? productCategory = null,
-            int? page = null, int? pageSize = null, string? apiVersion = null)
+        private static (string, int) GetExpectedResponse(
+            string? accessToken,
+            string baseUrl,
+            string selfUrl,
+            bool? isOwned = null,
+            string? openStatus = null,
+            string? productCategory = null,
+            int? page = null,
+            int? pageSize = null,
+            string? apiVersion = null)
         {
             Helpers.ExtractClaimsFromToken(accessToken, out var loginId, out var softwareProductId);
 
@@ -721,10 +739,10 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             string seedDataJson = File.ReadAllText("TestData/seed-data.json");
             var seedData = JsonConvert.DeserializeObject<EnergySeedData>(seedDataJson);
 
-            var currentCustomer = seedData?.Customers.Where(c => c.LoginId == loginId).FirstOrDefault();
+            var currentCustomer = seedData?.Customers.FirstOrDefault(c => c.LoginId == loginId);
 
             var accounts = currentCustomer?.Accounts?
-                .Where(account => account.OpenStatus == openStatus || (String.IsNullOrEmpty(openStatus) || openStatus.Equals("ALL", StringComparison.OrdinalIgnoreCase)))
+                .Where(account => account.OpenStatus == openStatus || (string.IsNullOrEmpty(openStatus) || openStatus.Equals("ALL", StringComparison.OrdinalIgnoreCase)))
                 .Select(account => new
                 {
                     accountId = Helpers.IdPermanenceEncrypt(account.AccountId, loginId, softwareProductId),
@@ -746,7 +764,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 })
                 .ToList();
 
-
             var totalRecords = accounts == null ? 0 : accounts.Count;
 
             // Paging
@@ -763,6 +780,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             {
                 throw new Exception($"Page {page} out of range. Min Page is {MINPAGE}").Log();
             }
+
             var maxPage = ((totalRecords - 1) / pageSize) + 1;
             if (page > maxPage)
             {
@@ -795,14 +813,16 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                 }),
-
-                totalRecords
-            );
+                totalRecords);
         }
 
-        private static string GetUrl(string baseUrl,
-            bool? isOwned = null, string? openStatus = null, string? productCategory = null,
-            int? queryPage = null, int? queryPageSize = null)
+        private static string GetUrl(
+            string baseUrl,
+            bool? isOwned = null,
+            string? openStatus = null,
+            string? productCategory = null,
+            int? queryPage = null,
+            int? queryPageSize = null)
         {
             var query = new KeyValuePairBuilder();
 
@@ -834,7 +854,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             return query.Count > 0 ?
                 $"{baseUrl}?{query.Value}" :
                 baseUrl;
-        }  
-
+        }
     }
 }

@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Configuration;
 
 namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
 {
     /// <summary>
-    /// Id Permanence Manager
+    /// Id Permanence Manager.
     /// </summary>
     public class IdPermanenceManager : IIdPermanenceManager
     {
-        private string? _privateKey;
         private readonly IConfiguration _config;
+        private string? _privateKey;
 
         public IdPermanenceManager(IConfiguration config)
         {
@@ -23,13 +21,13 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
         }
 
         /// <summary>
-        /// Method to create permanence ids for specified properties in a list of objects
+        /// Method to create permanence ids for specified properties in a list of objects.
         /// </summary>
-        /// <typeparam name="T">The type of list</typeparam>
-        /// <param name="list">The list</param>
-        /// <param name="idParameters">The permanence id parameters</param>
-        /// <param name="idProperties">The specified id properties to create permanence ids for</param>
-        /// <returns>The list with permanence ids set</returns>
+        /// <typeparam name="T">The type of list.</typeparam>
+        /// <param name="list">The list.</param>
+        /// <param name="idParameters">The permanence id parameters.</param>
+        /// <param name="idProperties">The specified id properties to create permanence ids for.</param>
+        /// <returns>The list with permanence ids set.</returns>
         public IEnumerable<T> EncryptIds<T>(IEnumerable<T> list, IdPermanenceParameters idParameters, params Expression<Func<T, string>>[] idProperties)
         {
             var privateKey = GetPrivateKey();
@@ -39,7 +37,8 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
                 idProperties.ToList().ForEach(idProperty =>
                 {
                     var id = idProperty.Compile()(item);
-                    //Generate Permanence Id
+
+                    // Generate Permanence Id
                     id = IdPermanenceManager.EncryptId(id, idParameters, privateKey);
 
                     var memberSelectorExpression = idProperty.Body as MemberExpression;
@@ -60,9 +59,9 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
         /// <summary>
         /// Encrypt an ID to meet ID Permanence rules.
         /// </summary>
-        /// <param name="internalId">Internal ID (i.e. accountId, transactionId) to encrypt</param>
-        /// <param name="idParameters">IdPermanenceParameters</param>
-        /// <returns>Encrypted ID</returns>
+        /// <param name="internalId">Internal ID (i.e. accountId, transactionId) to encrypt.</param>
+        /// <param name="idParameters">IdPermanenceParameters.</param>
+        /// <returns>Encrypted ID.</returns>
         public string EncryptId(string internalId, IdPermanenceParameters idParameters)
         {
             var privateKey = GetPrivateKey();
@@ -77,9 +76,9 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
         /// <summary>
         /// Decrypt an encrypted ID back to the internal value.
         /// </summary>
-        /// <param name="encryptedId">Encrypted ID to decrypt back to internal value</param>
-        /// <param name="idParameters">IdPermanenceParameters</param>
-        /// <returns>Internal ID</returns>
+        /// <param name="encryptedId">Encrypted ID to decrypt back to internal value.</param>
+        /// <param name="idParameters">IdPermanenceParameters.</param>
+        /// <returns>Internal ID.</returns>
         public string DecryptId(string encryptedId, IdPermanenceParameters idParameters)
         {
             var privateKey = GetPrivateKey();
@@ -89,9 +88,9 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
         /// <summary>
         /// Encrypt the internal customer id for inclusion as the "sub" claim in id_token and access_token.
         /// </summary>
-        /// <param name="customerId">Internal Customer Id</param>
-        /// <param name="subParameters">SubPermanenceParameters</param>
-        /// <returns>Encrypted customer id to be included in sub claim</returns>
+        /// <param name="customerId">Internal Customer Id.</param>
+        /// <param name="subParameters">SubPermanenceParameters.</param>
+        /// <returns>Encrypted customer id to be included in sub claim.</returns>
         public string EncryptSub(string customerId, SubPermanenceParameters subParameters)
         {
             var privateKey = GetPrivateKey();
@@ -101,9 +100,9 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
         /// <summary>
         /// Decrypt the encrypted sub claim value from the access_token into the internal customer id.
         /// </summary>
-        /// <param name="sub">Encrypted Customer Id found in sub claim of the access_token</param>
-        /// <param name="subParameters">SubPermanenceParameters</param>
-        /// <returns>Internal Customer Id</returns>
+        /// <param name="sub">Encrypted Customer Id found in sub claim of the access_token.</param>
+        /// <param name="subParameters">SubPermanenceParameters.</param>
+        /// <returns>Internal Customer Id.</returns>
         public string DecryptSub(string sub, SubPermanenceParameters subParameters)
         {
             var privateKey = GetPrivateKey();

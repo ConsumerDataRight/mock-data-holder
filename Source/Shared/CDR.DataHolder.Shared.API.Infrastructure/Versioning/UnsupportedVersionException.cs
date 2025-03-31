@@ -8,13 +8,15 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Versioning
 
         public int MaxVersion { get; set; }
 
-        public UnsupportedVersionException() : base() 
+        public UnsupportedVersionException()
+            : base()
         {
             this.MinVersion = 1;
             this.MaxVersion = 1;
         }
 
-        public UnsupportedVersionException(string message) : base(message) 
+        public UnsupportedVersionException(string message)
+            : base(message)
         {
             this.MinVersion = 1;
             this.MaxVersion = 1;

@@ -14,6 +14,6 @@ namespace CDR.DataHolder.Banking.Domain.ValueObjects
 
         public decimal? MaxAmount { get; set; }
 
-        public string? Text { get; set; }        
+        public string? Text { get; set; }
     }
 }

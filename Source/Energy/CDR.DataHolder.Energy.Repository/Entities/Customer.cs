@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CDR.DataHolder.Energy.Repository.Entities
 {
@@ -26,7 +26,7 @@ namespace CDR.DataHolder.Energy.Repository.Entities
                     return this.Organisation.BusinessName;
                 }
 
-                return "";
+                return string.Empty;
             }
         }
 
@@ -45,7 +45,7 @@ namespace CDR.DataHolder.Energy.Repository.Entities
                     return this.Organisation.AgentFirstName;
                 }
 
-                return "";
+                return string.Empty;
             }
         }
 
@@ -64,7 +64,7 @@ namespace CDR.DataHolder.Energy.Repository.Entities
                     return this.Organisation.AgentLastName;
                 }
 
-                return "";
+                return string.Empty;
             }
         }
 

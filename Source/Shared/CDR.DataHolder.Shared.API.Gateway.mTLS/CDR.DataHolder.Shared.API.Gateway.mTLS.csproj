@@ -1,50 +1,59 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-  <PropertyGroup>
-    <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
-	<TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
-	<Version>$(Version)</Version>
-	<FileVersion>$(Version)</FileVersion>
-	<AssemblyVersion>$(Version)</AssemblyVersion>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Certificates\ca.crt" />
-    <None Remove="Certificates\mtls-server.pfx" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Certificates\ca.crt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Certificates\mtls-server.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Ocelot" Version="23.2.2" />
-    <PackageReference Include="Serilog" Version="4.0.0" />
-    <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
-    <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
-    <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
-    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
-    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-	<PackageReference Include="Serilog.Sinks.MSSqlServer" Version="6.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="8.0.4" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CDR.DataHolder.Shared.API.Infrastructure\CDR.DataHolder.Shared.API.Infrastructure.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Certificates\mtls-server.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Update="gateway-config.Banking.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Update="gateway-config.Energy.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+    <PropertyGroup>
+        <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
+        <TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
+        <Version>$(Version)</Version>
+        <FileVersion>$(Version)</FileVersion>
+        <AssemblyVersion>$(Version)</AssemblyVersion>
+        <Nullable>enable</Nullable>
+	<GenerateDocumentationFile>True</GenerateDocumentationFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Remove="Certificates\ca.crt" />
+        <None Remove="Certificates\mtls-server.pfx" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="Certificates\ca.crt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Certificates\mtls-server.pfx">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Ocelot" Version="23.2.2" />
+        <PackageReference Include="Serilog" Version="4.0.0" />
+        <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+        <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
+        <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
+        <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
+        <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+        <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="7.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="8.0.4" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="10.5.0.109200">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\CDR.DataHolder.Shared.API.Infrastructure\CDR.DataHolder.Shared.API.Infrastructure.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Resource Include="Certificates\mtls-server.pfx">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Resource>
+    </ItemGroup>
+    <ItemGroup>
+        <Content Update="gateway-config.Banking.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="gateway-config.Energy.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
 </Project>

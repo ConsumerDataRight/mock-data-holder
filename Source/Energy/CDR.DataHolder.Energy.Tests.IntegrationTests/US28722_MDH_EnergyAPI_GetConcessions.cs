@@ -1,4 +1,4 @@
-using CDR.DataHolder.Energy.Tests.IntegrationTests.Models;
+﻿using CDR.DataHolder.Energy.Tests.IntegrationTests.Models;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Enums;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Exceptions;
@@ -18,15 +18,15 @@ using Xunit.DependencyInjection;
 
 namespace CDR.DataHolder.Energy.Tests.IntegrationTests
 {
-    public class US28722_MDH_EnergyAPI_GetConcessions : BaseTest, IClassFixture<RegisterSoftwareProductFixture>
+    public class US28722_Mdh_EnergyApi_GetConcessions : BaseTest, IClassFixture<RegisterSoftwareProductFixture>
     {
-        const string SCOPE_ACCOUNTS_CONCESSIONS_READ = "openid energy:accounts.concessions:read";
+        private const string SCOPE_ACCOUNTS_CONCESSIONS_READ = "openid energy:accounts.concessions:read";
 
         private readonly TestAutomationOptions _options;
         private readonly IDataHolderAccessTokenCache _dataHolderAccessTokenCache;
         private readonly IApiServiceDirector _apiServiceDirector;
 
-        public US28722_MDH_EnergyAPI_GetConcessions(
+        public US28722_Mdh_EnergyApi_GetConcessions(
             IOptions<TestAutomationOptions> options,
             IDataHolderAccessTokenCache dataHolderAccessTokenCache,
             IApiServiceDirector apiServiceDirector,
@@ -51,7 +51,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             int? page = null,
             int? pageSize = null)
         {
-            Helpers.ExtractClaimsFromToken(accessToken, out var customerId, out var softwareProductId);
+            Helpers.ExtractClaimsFromToken(accessToken, out var customerId, out var _);
 
             var effectivePage = page ?? 1;
             var effectivePageSize = pageSize ?? 25;
@@ -59,21 +59,21 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             string seedDataJson = File.ReadAllText("TestData/seed-data.json");
             var seedData = JsonConvert.DeserializeObject<EnergySeedData>(seedDataJson);
 
-            var currentCustomer = seedData?.Customers.Where(c => c.LoginId == customerId).FirstOrDefault();
+            var currentCustomer = seedData?.Customers.FirstOrDefault(c => c.LoginId == customerId);
 
-            var currentAccount = currentCustomer?.Accounts?.Where(account => account.AccountId == accountId).FirstOrDefault();
+            var currentAccount = currentCustomer?.Accounts?.FirstOrDefault(account => account.AccountId == accountId);
 
             var concessions = currentAccount?.AccountConcessions
                 .Select(accountConcession => new
                 {
                     type = accountConcession.Type,
                     displayName = accountConcession.DisplayName,
-                    startDate = (accountConcession.StartDate ?? DateTime.MinValue).ToString("yyyy-MM-dd") ?? "",
-                    endDate = (accountConcession.EndDate ?? DateTime.MinValue).ToString("yyyy-MM-dd") ?? "",
+                    startDate = (accountConcession.StartDate ?? DateTime.MinValue).ToString("yyyy-MM-dd") ?? string.Empty,
+                    endDate = (accountConcession.EndDate ?? DateTime.MinValue).ToString("yyyy-MM-dd") ?? string.Empty,
                     discountFrequency = accountConcession.DiscountFrequency,
                     amount = accountConcession.Amount,
                     percentage = accountConcession.Percentage,
-                    appliedTo = (accountConcession.AppliedTo ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries),
+                    appliedTo = (accountConcession.AppliedTo ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries),
                 })
                 .ToList();
 
@@ -85,8 +85,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 .Skip((effectivePage - 1) * effectivePageSize)
                 .Take(effectivePageSize)
                 .ToList();
-
-            var totalPages = (int)Math.Ceiling((double)totalRecords / effectivePageSize);
 
             var expectedResponse = new
             {
@@ -109,12 +107,10 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                     NullValueHandling = NullValueHandling.Ignore,
                     Formatting = Formatting.Indented
                 }),
-
-                totalRecords
-            );
+                totalRecords);
         }
 
-        static string GetUrl(string baseUrl, int? queryPage = null, int? queryPageSize = null)
+        private static string GetUrl(string baseUrl, int? queryPage = null, int? queryPageSize = null)
         {
             var query = new KeyValuePairBuilder();
 
@@ -136,7 +132,8 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         private async Task Test_AC01(
            TokenType tokenType,
            string accountId,
-           int? queryPage = null, int? queryPageSize = null,
+           int? queryPage = null,
+           int? queryPageSize = null,
            int? expectedRecordCount = null)
         {
             // Arrange
@@ -147,10 +144,12 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var baseUrl = $"{_options.DH_MTLS_GATEWAY_URL}/cds-au/v1/energy/accounts/{encryptedAccountId}/concessions";
             var url = GetUrl(baseUrl, queryPage, queryPageSize);
 
-            (var expectedResponse, var totalRecords) = GetExpectedResponse(accessToken,
+            (var expectedResponse, var totalRecords) = GetExpectedResponse(
+                accessToken,
                 accountId,
                 url,
-                queryPage, queryPageSize);
+                queryPage,
+                queryPageSize);
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderEnergyGetConcessionsAPI(accessToken!, DateTime.Now.ToUniversalTime().ToString("r"), url: url);
@@ -199,7 +198,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         {
             Log.Information("Running test with Params: {P1}={V1}.", nameof(xFapiAuthDate), xFapiAuthDate);
 
-            // Arrange 
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss);
             var accountId = Constants.Accounts.Energy.AccountIdMaryMoss;
 
@@ -228,7 +227,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         {
             Log.Information("Running test with Params: {P1}={V1}.", nameof(xv), xv);
 
-            // Arrange 
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss);
             var accountId = Constants.Accounts.Energy.AccountIdMaryMoss;
 
@@ -252,14 +251,13 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             }
         }
 
-
         [Theory]
         [InlineData("2")]
         public async Task AC04_Get_WithUnsupportedXV_ShouldRespondWith_406NotAcceptable(string xv)
         {
             Log.Information("Running test with Params: {P1}={V1}.", nameof(xv), xv);
 
-            // Arrange 
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss);
             var accountId = Constants.Accounts.Energy.AccountIdMaryMoss;
 
@@ -289,7 +287,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         {
             Log.Information("Running test with Params: {P1}={V1}.", nameof(accountId), accountId);
 
-            // Arrange 
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss);
 
             CdrException expectedError = new InvalidEnergyAccountException(accountId);

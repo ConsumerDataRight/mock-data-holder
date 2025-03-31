@@ -19,7 +19,7 @@ namespace CDR.DataHolder.Shared.Resource.API.Business.Filters
             }
 
             if (authDateValue.Count > 0 &&
-                !DateTime.TryParseExact(authDateValue, CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, CultureInfo.CurrentCulture.DateTimeFormat, DateTimeStyles.None, out DateTime authDate))
+                !DateTime.TryParseExact(authDateValue, CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, CultureInfo.CurrentCulture.DateTimeFormat, DateTimeStyles.None, out DateTime _))
             {
                 context.Result = new BadRequestObjectResult(new ResponseErrorList().AddInvalidHeader("x-fapi-auth-date"));
             }

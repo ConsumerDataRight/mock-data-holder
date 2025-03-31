@@ -11,12 +11,13 @@ using Xunit.DependencyInjection;
 
 namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 {
-    public class US17613_MDH_DiscoveryAPI_GetOutages : BaseTest, IClassFixture<BaseFixture>
+    public class US17613_Mdh_DiscoveryApi_GetOutages : BaseTest, IClassFixture<BaseFixture>
     {
         private readonly TestAutomationOptions _options;
         private readonly IApiServiceDirector _apiServiceDirector;
 
-        public US17613_MDH_DiscoveryAPI_GetOutages(IOptions<TestAutomationOptions> options,
+        public US17613_Mdh_DiscoveryApi_GetOutages(
+            IOptions<TestAutomationOptions> options,
             IApiServiceDirector apiServiceDirector,
             ITestOutputHelperAccessor testOutputHelperAccessor,
             Microsoft.Extensions.Configuration.IConfiguration config,

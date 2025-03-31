@@ -1,8 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
@@ -18,15 +17,15 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
     public class HttpClientHandlerExtensionsTests
     {
         private readonly IConfiguration _configuration;
-        private readonly HttpClientHandler _handler = null!;
+        private readonly HttpClientHandler _handler;
 
         public HttpClientHandlerExtensionsTests()
         {
             var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
-                                .AddInMemoryCollection(new Dictionary<string, string>()
+                                .AddInMemoryCollection(new Dictionary<string, string?>()
                                 {
-                                    { "EnableServerCertificateValidation", "True"},
+                                    { "EnableServerCertificateValidation", "True" },
                                 })
                                 .Build();
             _configuration = configuration;
@@ -42,7 +41,10 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
         public async Task ServerCertificates_ValidationEnabled_ShouldValidateSslConnection(
             string certName, string certPassword, bool expected, string reason)
         {
-            await using (var mockEndpoint = new MockEndpoint("https://localhost:9990",
+            Log.Information("Executing test case: {Reason}", reason);
+
+            await using (var mockEndpoint = new MockEndpoint(
+                "https://localhost:9990",
                 Path.Combine(Directory.GetCurrentDirectory(), "Certificates", certName),
                 certPassword))
             {
@@ -57,6 +59,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
                 {
                     await Assert.ThrowsAsync<HttpRequestException>(async () => await client.GetAsync("https://localhost:9990"));
                 }
+
                 await mockEndpoint.Stop();
             }
         }
@@ -71,8 +74,11 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
             }
 
             public string Url { get; init; }
+
             private int UrlPort => new Uri(Url).Port;
+
             public string CertificatePath { get; init; }
+
             public string CertificatePassword { get; init; }
 
             private IWebHost? _host;
@@ -84,7 +90,8 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
                 _host = new WebHostBuilder()
                     .UseKestrel(opts =>
                     {
-                        opts.ListenAnyIP(UrlPort,
+                        opts.ListenAnyIP(
+                            UrlPort,
                             opts => opts.UseHttps(new X509Certificate2(CertificatePath, CertificatePassword, X509KeyStorageFlags.Exportable)));
                     })
                    .UseStartup(_ => new MockEndpointStartup())
@@ -103,7 +110,8 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
                 }
             }
 
-            bool _disposed;
+            private bool _disposed;
+
             public async ValueTask DisposeAsync()
             {
                 Log.Information("Calling {FUNCTION} in {ClassName}.", nameof(DisposeAsync), nameof(MockEndpoint));
@@ -117,7 +125,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
                 GC.SuppressFinalize(this);
             }
 
-            class MockEndpointStartup
+            private class MockEndpointStartup
             {
                 public void Configure(IApplicationBuilder app)
                 {

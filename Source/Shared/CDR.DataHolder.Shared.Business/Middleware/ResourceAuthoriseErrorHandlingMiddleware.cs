@@ -27,7 +27,7 @@ namespace CDR.DataHolder.Shared.Business.Middleware
                     try
                     {
                         context.Request.Headers.TryGetValue("Authorization", out StringValues authHeader);
-                        var accessToken = authHeader.ToString().Replace("Bearer ", "");
+                        var accessToken = authHeader.ToString().Replace("Bearer ", string.Empty);
                         var jwt = accessToken;
 
                         // Try to get the token. Will fail if the token is invalid
@@ -43,7 +43,7 @@ namespace CDR.DataHolder.Shared.Business.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error processing the Resource Middleware {ExceptionMessage} {StackTrace}", ex.Message, ex.StackTrace);
+                _logger.LogError(ex, "Error processing the Resource Middleware {ExceptionMessage} {StackTrace}", ex.Message, ex.StackTrace);
             }
         }
 
@@ -61,8 +61,8 @@ namespace CDR.DataHolder.Shared.Business.Middleware
 
             var memoryStreamModified = new MemoryStream();
             var sw = new StreamWriter(memoryStreamModified);
-            sw.Write(responseBody);
-            sw.Flush();
+            await sw.WriteAsync(responseBody);
+            await sw.FlushAsync();
             memoryStreamModified.Position = 0;
 
             await memoryStreamModified.CopyToAsync(originBody).ConfigureAwait(false);

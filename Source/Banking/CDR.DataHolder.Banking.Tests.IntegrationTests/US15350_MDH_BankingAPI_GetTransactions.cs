@@ -1,4 +1,4 @@
-#undef DEBUG_WRITE_EXPECTED_AND_ACTUAL_JSON
+﻿#undef DEBUG_WRITE_EXPECTED_AND_ACTUAL_JSON
 
 using CDR.DataHolder.Banking.Tests.IntegrationTests.Models;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation;
@@ -16,6 +16,7 @@ using FluentAssertions.Execution;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Serilog;
+using System.Globalization;
 using System.Net;
 using Xunit;
 using Xunit.DependencyInjection;
@@ -23,13 +24,14 @@ using TokenType = ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomati
 
 namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 {
-    public class US15350_MDH_BankingAPI_GetTransactions : BaseTest, IClassFixture<RegisterSoftwareProductFixture>
+    public class US15350_Mdh_BankingApi_GetTransactions : BaseTest, IClassFixture<RegisterSoftwareProductFixture>
     {
         private const string SCOPE_WITHOUT_TRANSACTIONSREAD = "openid common:customer.basic:read bank:accounts.basic:read";
         private const string FOO_GUID = "F0000000-F000-F000-F000-F00000000000";
 
         // Note: These default dates are based on the current seed-data.json file to select a valid data set.
         private static string DEFAULT_EFFECTIVENEWESTTIME => "2022-06-01T00:00:00Z";
+
         private static string DEFAULT_EFFECTIVEOLDESTTIME => "2022-03-01T00:00:00Z";
 
         private readonly TestAutomationOptions _options;
@@ -39,7 +41,8 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         private readonly IDataHolderParService _dataHolderParService;
         private readonly IApiServiceDirector _apiServiceDirector;
 
-        public US15350_MDH_BankingAPI_GetTransactions(IOptions<TestAutomationOptions> options,
+        public US15350_Mdh_BankingApi_GetTransactions(
+            IOptions<TestAutomationOptions> options,
             IDataHolderAccessTokenCache dataHolderAccessTokenCache,
             ISqlQueryService sqlQueryService,
             IDataHolderTokenService dataHolderTokenService,
@@ -86,12 +89,12 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             await TestForSuccess(TokenType.JaneWilson, Constants.Accounts.Banking.AccountIdJaneWilson, new TransactionFilterParameters { Page = 5, PageSize = 5 });
         }
 
-        [Theory]
-        [InlineData("2022-05-25T00:00:00.000Z", 2)]
-        [InlineData("2022-05-26T00:00:00.000Z", 0)]
         // NB: If the appsettings.ENV.json > SeedData > OffsetDates = true - then the reference date of 2022-05-01 for the data seeded into the database will be moved to now
         //     SO THE ABOVE TEST DATES MUST ALSO BE MOVED as per the OffsetDates as set in 010 Repository > ...\Repository\Infrastructure\Extensions.cs
         //     else this test will FAIL.
+        [Theory]
+        [InlineData("2022-05-25T00:00:00.000Z", 2)]
+        [InlineData("2022-05-26T00:00:00.000Z", 0)]
         public async Task AC05_Get_WithOldestTime_ShouldRespondWith_200OK_FilteredRecords(string oldestTime, int expectedRecordCount)
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(oldestTime), oldestTime, nameof(expectedRecordCount), expectedRecordCount);
@@ -99,12 +102,12 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             await TestForSuccess(TokenType.JaneWilson, Constants.Accounts.Banking.AccountIdJaneWilson, new TransactionFilterParameters { OldestTime = oldestTime }, expectedRecordCount);
         }
 
-        [Theory]
-        [InlineData("2022-03-01T00:00:00.000Z", 0)]
-        [InlineData("2022-03-02T00:00:00.000Z", 2)]
         // NB: If the appsettings.ENV.json > SeedData > OffsetDates = true - then the reference date of 2022-05-01 for the data seeded into the database will be moved to now
         //     SO THE ABOVE TEST DATES MUST ALSO BE MOVED as per the OffsetDates as set in 010 Repository > ...\Repository\Infrastructure\Extensions.cs
         //     else this test will FAIL.
+        [Theory]
+        [InlineData("2022-03-01T00:00:00.000Z", 0)]
+        [InlineData("2022-03-02T00:00:00.000Z", 2)]
         public async Task AC05b_Get_WithNewestTime_ShouldRespondWith_200OK_FilteredRecords(string newestTime, int expectedRecordCount)
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(newestTime), newestTime, nameof(expectedRecordCount), expectedRecordCount);
@@ -123,20 +126,20 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 
         [Theory]
         [InlineData("50000")]
-        public async Task AC07_Get_WithMinAmount_ShouldRespondWith_200OK_FilteredRecords(string minAmount)
+        public async Task AC07_Get_WithMinAmount_ShouldRespondWith_200OK_FilteredRecords(string minFilterAmount)
         {
-            Log.Information("Running test with Params: {P1}={V1}.", nameof(minAmount), minAmount);
+            Log.Information("Running test with Params: {P1}={V1}.", nameof(minFilterAmount), minFilterAmount);
 
-            await TestForSuccess(TokenType.JaneWilson, Constants.Accounts.Banking.AccountIdJaneWilson, new TransactionFilterParameters { MinAmount = minAmount });
+            await TestForSuccess(TokenType.JaneWilson, Constants.Accounts.Banking.AccountIdJaneWilson, new TransactionFilterParameters { MinAmount = minFilterAmount });
         }
 
         [Theory]
         [InlineData("100")]
-        public async Task AC08_Get_WithMaxAmount_ShouldRespondWith_200OK_FilteredRecords(string maxAmount)
+        public async Task AC08_Get_WithMaxAmount_ShouldRespondWith_200OK_FilteredRecords(string maxFilterAmount)
         {
-            Log.Information("Running test with Params: {P1}={V1}.", nameof(maxAmount), maxAmount);
+            Log.Information("Running test with Params: {P1}={V1}.", nameof(maxFilterAmount), maxFilterAmount);
 
-            await TestForSuccess(TokenType.JaneWilson, Constants.Accounts.Banking.AccountIdJaneWilson, new TransactionFilterParameters { MaxAmount = maxAmount });
+            await TestForSuccess(TokenType.JaneWilson, Constants.Accounts.Banking.AccountIdJaneWilson, new TransactionFilterParameters { MaxAmount = maxFilterAmount });
         }
 
         [Theory]
@@ -148,11 +151,11 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             await TestForSuccess(TokenType.JaneWilson, Constants.Accounts.Banking.AccountIdJaneWilson, new TransactionFilterParameters { MaxAmount = maxAmount });
         }
 
+        // NB: If the appsettings.ENV.json > SeedData > OffsetDates = true - then the reference date of 2022-05-01 for the data seeded into the database will be moved to now
+        //     THIS TEST WILL FAIL.
         [Theory]
         [InlineData("IOU", 2)]
         [InlineData("iou", 2)]
-        // NB: If the appsettings.ENV.json > SeedData > OffsetDates = true - then the reference date of 2022-05-01 for the data seeded into the database will be moved to now
-        //     THIS TEST WILL FAIL.
         public async Task AC10_Get_WithText_ShouldRespondWith_200OK_FilteredRecords(string text, int expectedRecordCount)
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(text), text, nameof(expectedRecordCount), expectedRecordCount);
@@ -162,11 +165,11 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 
         [Theory]
         [InlineData("FOO", 0)]
-        public async Task AC11_Get_WithText_ShouldRespondWith_200OK_FilteredRecords(string text, int expectedRecordCount)
+        public async Task AC11_Get_WithText_ShouldRespondWith_200OK_FilteredRecords(string text, int expectedRecords)
         {
-            Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(text), text, nameof(expectedRecordCount), expectedRecordCount);
+            Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(text), text, nameof(expectedRecords), expectedRecords);
 
-            await TestForSuccess(TokenType.JaneWilson, Constants.Accounts.Banking.AccountIdJaneWilson, new TransactionFilterParameters { Text = text }, expectedRecordCount);
+            await TestForSuccess(TokenType.JaneWilson, Constants.Accounts.Banking.AccountIdJaneWilson, new TransactionFilterParameters { Text = text }, expectedRecords);
         }
 
         [Fact]
@@ -248,11 +251,11 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 
         [Theory]
         [InlineData(TokenType.InvalidFoo, @"Bearer error=""invalid_token""")]
-        public async Task AC17_Get_WithInvalidAccessToken_ShouldRespondWith_401Unauthorised(TokenType tokenType, string? expectedWWWAuthenticate = null)
+        public async Task AC17_Get_WithInvalidAccessToken_ShouldRespondWith_401Unauthorised(TokenType tokenType, string? expectedWWWAuthenticateError = null)
         {
-            Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(tokenType), tokenType, nameof(expectedWWWAuthenticate), expectedWWWAuthenticate);
+            Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(tokenType), tokenType, nameof(expectedWWWAuthenticateError), expectedWWWAuthenticateError);
 
-            await TestForError(tokenType, Constants.Accounts.Banking.AccountIdJaneWilson, new InvalidTokenException(), new TransactionFilterParameters(), expectedWWWAuthenticate: expectedWWWAuthenticate);
+            await TestForError(tokenType, Constants.Accounts.Banking.AccountIdJaneWilson, new InvalidTokenException(), new TransactionFilterParameters(), expectedWWWAuthenticate: expectedWWWAuthenticateError);
         }
 
         [Theory]
@@ -286,13 +289,12 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         [InlineData(SoftwareProductStatus.REMOVED)]
         public async Task AC21_Get_WithADRSoftwareProductNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(SoftwareProductStatus status)
         {
-            //TODO: This is failing, but the test is correct. The old test checked for a 200Ok and we may need to do that in the short term to get the test passing (or skip it). Bug 63702
+            // TODO: This is failing, but the test is correct. The old test checked for a 200Ok and we may need to do that in the short term to get the test passing (or skip it). Bug 63702
             var saveStatus = _sqlQueryService.GetStatus(EntityType.SOFTWAREPRODUCT, Constants.SoftwareProducts.SoftwareProductId);
             _sqlQueryService.SetStatus(EntityType.SOFTWAREPRODUCT, Constants.SoftwareProducts.SoftwareProductId, status.ToEnumMemberAttrValue());
             try
             {
                 await TestForError(TokenType.JaneWilson, Constants.Accounts.Banking.AccountIdJaneWilson, new AdrStatusNotActiveException(status), new TransactionFilterParameters(), useCache: false);
-                //await Test(Constants.Accounts.Banking.ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON, expectedStatusCode: HttpStatusCode.OK, expectedErrorResponse: $"ERR-GEN-002: Software product status is {status}", useCache: false);
             }
             finally
             {
@@ -301,8 +303,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         }
 #pragma warning restore xUnit1004
 
-        //TODO: AC22 is missing tests
-
+        // TODO: AC22 is missing tests
         [Theory]
         [InlineData(LegalEntityStatus.ACTIVE)]
         public async Task AC23_Get_WithADRParticipationActive_Success(LegalEntityStatus status)
@@ -327,13 +328,12 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         [InlineData(LegalEntityStatus.REMOVED)]
         public async Task AC23_Get_WithADRParticipationNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(LegalEntityStatus status)
         {
-            //TODO: This is failing, but the test is correct. Raise a bug
+            // TODO: This is failing, but the test is correct. Raise a bug
             var saveStatus = _sqlQueryService.GetStatus(EntityType.LEGALENTITY, Constants.LegalEntities.LegalEntityId);
             _sqlQueryService.SetStatus(EntityType.LEGALENTITY, Constants.LegalEntities.LegalEntityId, status.ToEnumMemberAttrValue());
             try
             {
                 await TestForError(TokenType.JaneWilson, Constants.Accounts.Banking.AccountIdJaneWilson, new AdrStatusNotActiveException(status), new TransactionFilterParameters(), useCache: false);
-                //await Test(Constants.Accounts.Banking.ACCOUNTID_JANE_WILSON, TokenType.JANE_WILSON, expectedErrorResponse: $"ERR-GEN-002: Software product status is {status}", useCache: false);
             }
             finally
             {
@@ -415,7 +415,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData(Constants.Certificates.AdditionalCertificateFilename, Constants.Certificates.AdditionalCertificatePassword)]  // Different holder of key
+        [InlineData(Constants.Certificates.AdditionalCertificateFilename, Constants.Certificates.AdditionalCertificatePassword)] // Different holder of key
         public async Task AC30_Get_WithDifferentHolderOfKey_ShouldRespondWith_401Unauthorized(string certificateFilename, string certificatePassword)
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(certificateFilename), certificateFilename, nameof(certificatePassword), certificatePassword);
@@ -446,9 +446,10 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 
         [Theory]
         [InlineData(Constants.Users.Banking.UserIdJaneWilson, "98765988", "98765988")] // Retrieving account that has been consented to, should succeed
-        public async Task ACX01_Get_WhenConsumerDidGrantConsentToAccount_Success(string userId,
-           string consentedAccounts,
-           string accountToRetrieve)
+        public async Task ACX01_Get_WhenConsumerDidGrantConsentToAccount_Success(
+            string userId,
+            string consentedAccounts,
+            string accountToRetrieve)
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}, {P3}={V3}.", nameof(userId), userId, nameof(consentedAccounts), consentedAccounts, nameof(accountToRetrieve), accountToRetrieve);
 
@@ -473,13 +474,14 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 #pragma warning disable xUnit1004
         [Theory(Skip = "This test case matches current requirements but has identified a bug, so we are skipping it until the bug is resolved")]
         [InlineData(Constants.Users.Banking.UserIdJaneWilson, "98765988", "98765987")] // Retrieving account that has not been consented to, should fail
-        public async Task ACX01_Get_WhenConsumerDidNotGrantConsentToAccount_ShouldRespondWith_404NotFound(string userId,
+        public async Task ACX01_Get_WhenConsumerDidNotGrantConsentToAccount_ShouldRespondWith_404NotFound(
+            string userId,
             string consentedAccounts,
             string accountToRetrieve)
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}, {P3}={V3}.", nameof(userId), userId, nameof(consentedAccounts), consentedAccounts, nameof(accountToRetrieve), accountToRetrieve);
 
-            //TODO: This is failing but the test is correct. Fails as it gets a 404 Notfound when it shold be a 422 UnprocessableEntity. Bug 63707
+            // TODO: This is failing but the test is correct. Fails as it gets a 404 Notfound when it shold be a 422 UnprocessableEntity. Bug 63707
 
             // Arrange - Get authcode
             var authService = await new DataHolderAuthoriseService.DataHolderAuthoriseServiceBuilder(_options, _dataHolderParService, _apiServiceDirector)
@@ -520,20 +522,28 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         private class TransactionFilterParameters
         {
             public string? OldestTime { get; init; }
+
             public string? NewestTime { get; init; }
+
             public string? MinAmount { get; init; }
+
             public string? MaxAmount { get; init; }
+
             public int? Page { get; init; } = 1;
+
             public int? PageSize { get; init; }
+
             public string? Text { get; init; }
         }
 
         private static (string, int) GetExpectedResponse(
-           string accountId, string? accessToken,
-           string baseUrl, string selfUrl,
+           string accountId,
+           string? accessToken,
+           string baseUrl,
+           string selfUrl,
            TransactionFilterParameters filterParams)
         {
-            //calculate defaults to use for filtering if some required params are missing (don't make the properties required, as we want to know they were defaulted so we can exclude them from response url)
+            // calculate defaults to use for filtering if some required params are missing (don't make the properties required, as we want to know they were defaulted so we can exclude them from response url)
             var effectivePage = filterParams.Page ?? 1;
             var effectivePageSize = filterParams.PageSize ?? 25;
             var effectiveNewestTime = filterParams.NewestTime ?? DEFAULT_EFFECTIVENEWESTTIME;
@@ -541,14 +551,12 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 
             Helpers.ExtractClaimsFromToken(accessToken, out var loginId, out var softwareProductId);
 
-            //using var dbContext = new DataHolderDatabaseContext(new DbContextOptionsBuilder<DataHolderDatabaseContext>().UseSqlServer(_options.DATAHOLDER_CONNECTIONSTRING).Options);
-
             string seedDataJson = File.ReadAllText("TestData/seed-data.json");
             var seedData = JsonConvert.DeserializeObject<BankingSeedData>(seedDataJson);
 
             // NB: This has to compare decrypted Id's as AES Encryption now uses a Random IV,
             //     using encrypted ID's in the response and expected content WILL NEVER MATCH
-            var currentCustomer = seedData?.Customers.Where(c => c.LoginId == loginId).FirstOrDefault();
+            var currentCustomer = seedData?.Customers.FirstOrDefault(c => c.LoginId == loginId);
             var accounts = currentCustomer?.Accounts?.Where(account => account.AccountId == accountId);
 
             var transactions = accounts?.FirstOrDefault()?.Transactions?
@@ -577,10 +585,10 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 
             // Filter
             transactions = transactions?
-                .Where(transaction => (transaction.postingDateTime ?? transaction.executionDateTime) >= DateTime.Parse(effectiveOldestTime).ToUniversalTime())
-                .Where(transaction => (transaction.postingDateTime ?? transaction.executionDateTime) <= DateTime.Parse(effectiveNewestTime).ToUniversalTime())
-                .Where(transaction => filterParams.MinAmount == null || Decimal.Parse(transaction.amount) >= Decimal.Parse(filterParams.MinAmount))
-                .Where(transaction => filterParams.MaxAmount == null || Decimal.Parse(transaction.amount) <= Decimal.Parse(filterParams.MaxAmount))
+                .Where(transaction => (transaction.postingDateTime ?? transaction.executionDateTime) >= DateTime.Parse(effectiveOldestTime, CultureInfo.InvariantCulture).ToUniversalTime())
+                .Where(transaction => (transaction.postingDateTime ?? transaction.executionDateTime) <= DateTime.Parse(effectiveNewestTime, CultureInfo.InvariantCulture).ToUniversalTime())
+                .Where(transaction => filterParams.MinAmount == null || decimal.Parse(transaction.amount) >= decimal.Parse(filterParams.MinAmount))
+                .Where(transaction => filterParams.MaxAmount == null || decimal.Parse(transaction.amount) <= decimal.Parse(filterParams.MaxAmount))
                 .Where(transaction => filterParams.Text == null ||
                     transaction.description.Contains(filterParams.Text, StringComparison.InvariantCultureIgnoreCase) ||
                     transaction.reference.Contains(filterParams.Text, StringComparison.InvariantCultureIgnoreCase))
@@ -624,14 +632,18 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                     NullValueHandling = NullValueHandling.Ignore,
                     Formatting = Formatting.Indented
                 }),
-
-                totalRecords
-            );
+                totalRecords);
         }
 
-        static string GetUrl(string baseUrl,
-            string? oldestTime = null, string? newestTime = null, string? minAmount = null, string? maxAmount = null, string? text = null,
-            int? queryPage = null, int? queryPageSize = null,
+        private static string GetUrl(
+            string baseUrl,
+            string? oldestTime = null,
+            string? newestTime = null,
+            string? minAmount = null,
+            string? maxAmount = null,
+            string? text = null,
+            int? queryPage = null,
+            int? queryPageSize = null,
             bool isLink = false)
         {
             var query = new KeyValuePairBuilder();
@@ -682,7 +694,8 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 baseUrl;
         }
 
-        static string GetUrl(string baseUrl,
+        private static string GetUrl(
+            string baseUrl,
             TransactionFilterParameters filterParams,
             bool isLink = false)
         {
@@ -695,18 +708,17 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             TransactionFilterParameters filterParams,
             int? expectedRecordCount = null,
             string? scope = null,
-            string? xFapiInteractionId = null
-            )
+            string? xFapiInteractionId = null)
         {
             var tokenScope = scope ?? _options.SCOPE;
 
-            //Get token
-            var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(tokenType, tokenScope); ;
+            // Get token
+            var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(tokenType, tokenScope);
 
-            //Get claims from token
-            Helpers.ExtractClaimsFromToken(accessToken, out var _loginId, out var softwareProductId);
+            // Get claims from token
+            Helpers.ExtractClaimsFromToken(accessToken, out var loginId, out var softwareProductId);
 
-            var encryptedAccountId = Helpers.IdPermanenceEncrypt(accountId, _loginId, softwareProductId);
+            var encryptedAccountId = Helpers.IdPermanenceEncrypt(accountId, loginId, softwareProductId);
             var xFapiAuthDate = DateTime.Now.ToUniversalTime().ToString("r");
 
             var baseUrl = $"{_options.DH_MTLS_GATEWAY_URL}/cds-au/v1/banking/accounts/{encryptedAccountId}/transactions";
@@ -744,7 +756,8 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             }
         }
 
-        private async Task TestForError(TokenType tokenType,
+        private async Task TestForError(
+            TokenType tokenType,
             string accountId,
             CdrException expectedError,
             TransactionFilterParameters filterParams,
@@ -762,9 +775,10 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             string? accessToken;
             try
             {
-                accessToken = tokenExpired ?
-                Constants.AccessTokens.ConsumerAccessTokenBankingExpired :
-                accessToken = await _dataHolderAccessTokenCache.GetAccessToken(tokenType, tokenScope, useCache);
+                accessToken =
+                    tokenExpired ?
+                    Constants.AccessTokens.ConsumerAccessTokenBankingExpired :
+                    await _dataHolderAccessTokenCache.GetAccessToken(tokenType, tokenScope, useCache);
             }
             catch (AuthoriseException ex)
             {
@@ -779,7 +793,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 
             // we need encrypted account id to make api call
             string encryptedAccountId;
-            if (accessToken == null || accessToken == "" || accessToken == "foo")
+            if (accessToken == null || accessToken == string.Empty || accessToken == "foo")
             {
                 encryptedAccountId = Helpers.IdPermanenceEncrypt(accountId, FOO_GUID, FOO_GUID);
             }
@@ -821,7 +835,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                     Assertions.AssertHasHeader(expectedWWWAuthenticate, response.Headers, "WWW-Authenticate", expectedWWWAuthenticateStartsWith);
                 }
 
-                //InvalidTokenException doesn't include content, so we don't compare the respnse content
+                // InvalidTokenException doesn't include content, so we don't compare the respnse content
                 if (expectedError.GetType() != typeof(InvalidTokenException))
                 {
                     // Assert - Check error response content

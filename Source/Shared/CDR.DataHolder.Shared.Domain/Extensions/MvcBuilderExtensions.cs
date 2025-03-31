@@ -18,8 +18,7 @@ namespace CDR.DataHolder.Shared.Domain.Extensions
                 options.SerializerSettings.NullValueHandling = defaultSettings.NullValueHandling;
                 options.SerializerSettings.Formatting = defaultSettings.Formatting;
                 options.SerializerSettings.Converters = defaultSettings.Converters;
-            }
-            );
+            });
         }
     }
 }

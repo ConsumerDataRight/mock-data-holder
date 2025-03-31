@@ -7,7 +7,8 @@ namespace CDR.DataHolder.Shared.Repository.Entities
         [Key]
         public Guid CustomerId { get; set; } = Guid.NewGuid();
 
-        [Required, MaxLength(8)]
+        [Required]
+        [MaxLength(8)]
         public string LoginId { get; set; } = string.Empty;
 
         public string? CustomerUType { get; set; }

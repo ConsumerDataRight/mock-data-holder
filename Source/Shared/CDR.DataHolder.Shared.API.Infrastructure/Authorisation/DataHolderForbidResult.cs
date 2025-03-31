@@ -6,12 +6,14 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Authorization
 {
     public class DataHolderForbidResult : ObjectResult
     {
-        public DataHolderForbidResult(ResponseErrorList errorList) : base(errorList)
+        public DataHolderForbidResult(ResponseErrorList errorList)
+            : base(errorList)
         {
             this.StatusCode = StatusCodes.Status403Forbidden;
         }
 
-        public DataHolderForbidResult(Error error) : this(new ResponseErrorList(error))
+        public DataHolderForbidResult(Error error)
+            : this(new ResponseErrorList(error))
         {
         }
     }

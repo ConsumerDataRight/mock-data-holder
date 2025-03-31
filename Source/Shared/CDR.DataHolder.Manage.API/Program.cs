@@ -1,4 +1,4 @@
-using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
+﻿using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
+using Serilog.Settings.Configuration;
 using System;
 using System.IO;
 using System.Security.Authentication;
@@ -14,10 +15,12 @@ namespace CDR.DataHolder.Manage.API
 {
     public sealed class Program
     {
-        private Program() { }
+        private Program()
+        {
+        }
 
         public static int Main(string[] args)
-        {            
+        {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
@@ -34,16 +37,7 @@ namespace CDR.DataHolder.Manage.API
                 .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.{industry}.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .Build();
-            
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)                
-                .Enrich.FromLogContext()
-                .Enrich.WithProcessId()
-                .Enrich.WithProcessName()
-                .Enrich.WithThreadId()
-                .Enrich.WithThreadName()
-                .Enrich.WithProperty("Environment", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? string.Empty)
-                .CreateLogger();
+            ConfigureSerilog(configuration);
 
             try
             {
@@ -70,9 +64,34 @@ namespace CDR.DataHolder.Manage.API
             }
         }
 
+        /// <summary>
+        /// Configure Serilog logging.
+        /// </summary>
+        /// <param name="configuration">App configuration.</param>
+        /// <param name="isDatabaseReady">Set to True if the database is ready and the MSSqlServer sink will be configured.</param>
+        public static void ConfigureSerilog(IConfiguration configuration, bool isDatabaseReady = false)
+        {
+            var loggerConfiguration = new LoggerConfiguration()
+                 .ReadFrom.Configuration(configuration)
+                 .Enrich.FromLogContext()
+                 .Enrich.WithProcessId()
+                 .Enrich.WithProcessName()
+                 .Enrich.WithThreadId()
+                 .Enrich.WithThreadName()
+                 .Enrich.WithProperty("Environment", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? string.Empty);
+
+            // If the database is ready, configure the SQL Server sink
+            if (isDatabaseReady)
+            {
+                loggerConfiguration.ReadFrom.Configuration(configuration, new ConfigurationReaderOptions() { SectionName = "SerilogMSSqlServerWriteTo" });
+            }
+
+            Log.Logger = loggerConfiguration.CreateLogger();
+        }
+
         public static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration, Serilog.ILogger logger) =>
             Host.CreateDefaultBuilder(args)
-                .UseSerilog()                
+                .UseSerilog()
                 .ConfigureAppConfiguration(builder =>
                 {
                     builder.Sources.Clear();
@@ -83,7 +102,7 @@ namespace CDR.DataHolder.Manage.API
                     webBuilder.UseKestrel((context, serverOptions) =>
                     {
                         var industry = context.Configuration.GetValue<string>("Industry");
-                        logger.Information("Industry is set to {industry}", industry);
+                        logger.Information("Industry is set to {Industry}", industry);
                         serverOptions.Configure(context.Configuration.GetSection("Kestrel"))
                                         .Endpoint("HTTPS", listenOptions =>
                                         {
@@ -92,7 +111,7 @@ namespace CDR.DataHolder.Manage.API
                                             var tlsCertOverride = configuration.GetTlsCertificateOverride(logger);
                                             if (tlsCertOverride != null)
                                             {
-                                                logger.Information("TLS Certificate Override - {thumbprint}", tlsCertOverride.Thumbprint);
+                                                logger.Information("TLS Certificate Override - {Thumbprint}", tlsCertOverride.Thumbprint);
                                                 listenOptions.HttpsOptions.ServerCertificate = tlsCertOverride;
                                             }
                                         });
@@ -102,7 +121,7 @@ namespace CDR.DataHolder.Manage.API
                             options.SslProtocols = SslProtocols.Tls12;
                         });
                     })
-                    .UseIIS()                    
+                    .UseIIS()
                     .UseStartup<Startup>();
                 });
     }

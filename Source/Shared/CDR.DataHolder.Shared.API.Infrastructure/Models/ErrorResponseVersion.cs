@@ -12,7 +12,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Models
             // The version was not specified.
             if (context.ErrorCode == "ApiVersionUnspecified")
             {
-                return new ObjectResult(new ResponseErrorList().AddMissingRequiredHeader("x-v")) //TODO: This isn't consistent with the new PT behaviour (or RAAP)
+                return new ObjectResult(new ResponseErrorList().AddMissingRequiredHeader("x-v")) // Note: This isn't consistent with the new PT behaviour (or RAAP)
                 {
                     StatusCode = (int)HttpStatusCode.BadRequest
                 };

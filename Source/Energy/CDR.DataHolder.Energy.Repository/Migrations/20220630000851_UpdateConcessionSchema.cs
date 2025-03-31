@@ -58,7 +58,7 @@ namespace CDR.DataHolder.Repository.Migrations
                 type: "nvarchar(1000)",
                 maxLength: 1000,
                 nullable: false,
-                defaultValue: "");
+                defaultValue: string.Empty);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

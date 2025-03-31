@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -36,10 +36,12 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
             {
                 return true;
             }
+
             if (value.Length > maxLength)
             {
                 return true;
             }
+
             return false;
         }
 
@@ -49,6 +51,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
             {
                 return url + "/";
             }
+
             return url;
         }
 

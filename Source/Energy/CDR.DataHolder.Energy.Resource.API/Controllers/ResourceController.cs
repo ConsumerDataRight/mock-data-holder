@@ -69,8 +69,8 @@ namespace CDR.DataHolder.Energy.Resource.API.Controllers
             return await GetPagedEnergyAccountsForFilter<EnergyAccount>(page, pageSize, accountFilter);
         }
 
-        private async Task<IActionResult> GetPagedEnergyAccountsForFilter<T>
-            (string? page, string? pageSize, AccountFilter accountFilter) where T : BaseEnergyAccount
+        private async Task<IActionResult> GetPagedEnergyAccountsForFilter<T>(string? page, string? pageSize, AccountFilter accountFilter)
+            where T : BaseEnergyAccount
         {
             // Each customer id is different for each ADR based on PPID.
             // Therefore we need to look up the CustomerClient table to find the actual customer id.
@@ -175,6 +175,7 @@ namespace CDR.DataHolder.Energy.Resource.API.Controllers
                 {
                     _logger.LogError("Account Id could not be retrieved from request.");
                 }
+
                 return new NotFoundObjectResult(new ResponseErrorList().AddInvalidEnergyAccount(accountId));
             }
             else
@@ -187,6 +188,7 @@ namespace CDR.DataHolder.Energy.Resource.API.Controllers
                     {
                         _logger.LogInformation("Customer does not have access to this Account Id. Account Id: {AccountId}", request.AccountId);
                     }
+
                     return new NotFoundObjectResult(new ResponseErrorList().AddInvalidEnergyAccount(accountId));
                 }
 
@@ -198,6 +200,7 @@ namespace CDR.DataHolder.Energy.Resource.API.Controllers
                     {
                         _logger.LogInformation("Consent has not been granted for this Account Id: {AccountId}", request.AccountId);
                     }
+
                     return new NotFoundObjectResult(new ResponseErrorList().AddConsentNotFound(_config.GetValue<string>("Industry")));
                 }
             }
@@ -231,6 +234,5 @@ namespace CDR.DataHolder.Energy.Resource.API.Controllers
 
             return accountId;
         }
-
     }
 }

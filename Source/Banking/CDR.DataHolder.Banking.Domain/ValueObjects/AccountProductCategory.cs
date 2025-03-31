@@ -6,6 +6,7 @@ namespace CDR.DataHolder.Banking.Domain.ValueObjects
     public class AccountProductCategory : ReferenceType<ProductCategory, string>
     {
         public ProductCategory Id { get; set; }
+
         public string? Code { get; set; }
 
         public static IDictionary<ProductCategory, string> Values
@@ -14,18 +15,18 @@ namespace CDR.DataHolder.Banking.Domain.ValueObjects
             {
                 return new Dictionary<ProductCategory, string>
                 {
-                    {ProductCategory.BusinessLoans, "BUSINESS_LOANS" },
-                    {ProductCategory.CredAndChrgCards, "CRED_AND_CHRG_CARDS" },
-                    {ProductCategory.Leases, "LEASES" },
-                    {ProductCategory.MarginLoans, "MARGIN_LOANS" },
-                    {ProductCategory.Overdrafts, "OVERDRAFTS" },
-                    {ProductCategory.PersLoans, "PERS_LOANS" },
-                    {ProductCategory.RegulatedTrustAccounts, "REGULATED_TRUST_ACCOUNTS" },
-                    {ProductCategory.ResidentialMortgages, "RESIDENTIAL_MORTGAGES" },
-                    {ProductCategory.TermDeposits, "TERM_DEPOSITS" },
-                    {ProductCategory.TradeFinance, "TRADE_FINANCE" },
-                    {ProductCategory.TransAndSavingsAccounts, "TRANS_AND_SAVINGS_ACCOUNTS" },
-                    {ProductCategory.TravelCards, "TRAVEL_CARDS" },
+                    { ProductCategory.BusinessLoans, "BUSINESS_LOANS" },
+                    { ProductCategory.CredAndChrgCards, "CRED_AND_CHRG_CARDS" },
+                    { ProductCategory.Leases, "LEASES" },
+                    { ProductCategory.MarginLoans, "MARGIN_LOANS" },
+                    { ProductCategory.Overdrafts, "OVERDRAFTS" },
+                    { ProductCategory.PersLoans, "PERS_LOANS" },
+                    { ProductCategory.RegulatedTrustAccounts, "REGULATED_TRUST_ACCOUNTS" },
+                    { ProductCategory.ResidentialMortgages, "RESIDENTIAL_MORTGAGES" },
+                    { ProductCategory.TermDeposits, "TERM_DEPOSITS" },
+                    { ProductCategory.TradeFinance, "TRADE_FINANCE" },
+                    { ProductCategory.TransAndSavingsAccounts, "TRANS_AND_SAVINGS_ACCOUNTS" },
+                    { ProductCategory.TravelCards, "TRAVEL_CARDS" },
                 };
             }
         }

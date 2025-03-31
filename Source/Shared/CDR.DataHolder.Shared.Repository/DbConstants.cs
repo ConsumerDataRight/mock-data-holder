@@ -10,7 +10,7 @@
                 public const string Migrations = "DataHolder_Migrations_DB";
                 public const string Logging = "DataHolder_Logging_DB";
 
-                private static readonly Dictionary<string, string> ConnectionStrings = new()
+                private static readonly Dictionary<string, string> ConnectionStrings = new Dictionary<string, string>()
                 {
                     { "Default", Default },
                     { "Migrations", Migrations },
@@ -23,9 +23,10 @@
                     {
                         return connectionString;
                     }
+
                     throw new ArgumentOutOfRangeException($"Invalid key '{key}' for connection string");
                 }
-            }           
+            }
         }
 
         public static class ConnectionStringType

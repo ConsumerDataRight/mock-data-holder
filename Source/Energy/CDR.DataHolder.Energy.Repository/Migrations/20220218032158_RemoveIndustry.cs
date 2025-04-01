@@ -21,7 +21,7 @@ namespace CDR.DataHolder.Repository.Migrations
                 type: "nvarchar(10)",
                 maxLength: 10,
                 nullable: false,
-                defaultValue: "");
+                defaultValue: string.Empty);
         }
     }
 }

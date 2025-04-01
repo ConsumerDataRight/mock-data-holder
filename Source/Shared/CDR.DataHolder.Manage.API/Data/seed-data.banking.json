@@ -797,7 +797,7 @@
                 "MaskedName": "xxx-xxx xxxxx001",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": [
                   {
                     "TransactionId": "TRN-ID-102",
@@ -828,7 +828,7 @@
                 "MaskedName": "xxx-xxx xxxxx002",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": [
                   {
                     "TransactionId": "TRN-ID-103",
@@ -859,7 +859,7 @@
                 "MaskedName": "xxx-xxx xxxxx003",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": [
                   {
                     "TransactionId": "TRN-ID-104",
@@ -890,7 +890,7 @@
                 "MaskedName": "xxx-xxx xxxxx004",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": [
                   {
                     "TransactionId": "TRN-ID-105",
@@ -921,7 +921,7 @@
                 "MaskedName": "xxx-xxx xxxxx005",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": [
                   {
                     "TransactionId": "TRN-ID-106",
@@ -952,7 +952,7 @@
                 "MaskedName": "xxx-xxx xxxxx006",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": [
                   {
                     "TransactionId": "TRN-ID-107",
@@ -983,7 +983,7 @@
                 "MaskedName": "xxx-xxx xxxxx007",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": [
                   {
                     "TransactionId": "TRN-ID-108",
@@ -1045,7 +1045,7 @@
                 "MaskedName": "xxx-xxx xxxxx009",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": [
                   {
                     "TransactionId": "TRN-ID-110",
@@ -1076,7 +1076,7 @@
                 "MaskedName": "xxx-xxx xxxxx010",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": [
                   {
                     "TransactionId": "TRN-ID-111",
@@ -1169,7 +1169,7 @@
                 "MaskedName": "xxx-xxx xxxxx003",
                 "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
                 "ProductName": "Everyday Savings",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": [
                   {
                     "TransactionId": "TRN-ID-114",
@@ -1200,7 +1200,7 @@
                 "MaskedName": "xxx-xxx xxxxx004",
                 "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
                 "ProductName": "Everyday Savings",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": [
                   {
                     "TransactionId": "TRN-ID-115",

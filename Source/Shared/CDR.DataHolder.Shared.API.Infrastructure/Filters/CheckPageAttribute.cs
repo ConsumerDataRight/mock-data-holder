@@ -1,5 +1,4 @@
-﻿using CDR.DataHolder.Shared.API.Infrastructure.Models;
-using CDR.DataHolder.Shared.Domain.Models;
+﻿using CDR.DataHolder.Shared.Domain.Models;
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;

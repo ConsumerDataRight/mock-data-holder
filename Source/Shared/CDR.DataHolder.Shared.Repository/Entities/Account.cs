@@ -4,7 +4,8 @@ namespace CDR.DataHolder.Shared.Repository.Entities
 {
     public class Account
     {
-        [Key, MaxLength(100)]
+        [Key]
+        [MaxLength(100)]
         public string AccountId { get; set; } = string.Empty;
 
         public DateTime? CreationDate { get; set; }
@@ -12,6 +13,6 @@ namespace CDR.DataHolder.Shared.Repository.Entities
         [MaxLength(100)]
         public string? OpenStatus { get; set; }
 
-        public Guid CustomerId { get; set; }   
+        public Guid CustomerId { get; set; }
     }
 }

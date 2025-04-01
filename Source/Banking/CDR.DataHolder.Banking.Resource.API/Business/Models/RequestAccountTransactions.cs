@@ -33,20 +33,25 @@ namespace CDR.DataHolder.Banking.Resource.API.Business.Models
         [FromQuery(Name = "page-size")]
         [CheckPageSize]
         public string? PageSize { get; set; }
-        
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             var results = new List<ValidationResult>();
-            
+
             if (string.IsNullOrEmpty(this.AccountId))
+            {
                 results.Add(new ValidationResult("Invalid account id.", new List<string> { "accountId" }));
+            }
 
             if (OldestTime.HasValue && NewestTime.HasValue && NewestTime < OldestTime)
+            {
                 results.Add(new ValidationResult("Invalid time range.", new List<string> { "oldest-time", "newest-time" }));
+            }
 
             if (MaxAmount.HasValue && MinAmount.HasValue && MaxAmount < MinAmount)
+            {
                 results.Add(new ValidationResult("Invalid amount range.", new List<string> { "min-amount", "max-amount" }));
+            }
 
             return results;
         }

@@ -1,4 +1,4 @@
-using CDR.DataHolder.Energy.Domain.Repositories;
+﻿using CDR.DataHolder.Energy.Domain.Repositories;
 using CDR.DataHolder.Energy.Repository.Infrastructure;
 using CDR.DataHolder.Shared.API.Infrastructure.Authorisation;
 using CDR.DataHolder.Shared.API.Infrastructure.Authorization;
@@ -74,7 +74,7 @@ namespace CDR.DataHolder.Energy.Resource.API
             services.AddApiVersioning(options =>
             {
                 options.DefaultApiVersion = new ApiVersion(1, 0);
-                options.AssumeDefaultVersionWhenUnspecified = true;                
+                options.AssumeDefaultVersionWhenUnspecified = true;
                 options.ApiVersionSelector = new ApiVersionSelector(options);
                 options.ErrorResponses = new ErrorResponseVersion();
             });
@@ -115,7 +115,7 @@ namespace CDR.DataHolder.Energy.Resource.API
                 options.Audience = "cds-au";
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
-                    ClockSkew =TimeSpan.FromMinutes(1),
+                    ClockSkew = TimeSpan.FromMinutes(1),
                     RequireAudience = true,
                     RequireExpirationTime = true,
                     ValidateIssuer = true,
@@ -183,7 +183,7 @@ namespace CDR.DataHolder.Energy.Resource.API
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {            
+        {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -194,7 +194,7 @@ namespace CDR.DataHolder.Energy.Resource.API
 
             // ExceptionHandlingMiddleware must be first in the line, so it will catch all unhandled exceptions.
             app.UseMiddleware<ResourceAuthoriseErrorHandlingMiddleware>();
-            
+
             app.UseExceptionHandler(exceptionHandlerApp =>
             {
                 exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));

@@ -22,14 +22,17 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Authorization
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            var authorizationService = (IAuthorizationService)context.HttpContext.RequestServices.GetService(typeof(IAuthorizationService))!;
+            var requestService = context.HttpContext.RequestServices.GetService(typeof(IAuthorizationService));
+            var authorizationService = (IAuthorizationService)requestService!;
             var authorizationResult = await authorizationService.AuthorizeAsync(context.HttpContext.User, policy.ToString());
 
             bool validAccessToken = false;
             var ctxItems = context.HttpContext.Items;
             var accessTknItem = ctxItems.FirstOrDefault(g => g.Key.ToString() == "ValidAccessToken");
             if (accessTknItem.Key != null && accessTknItem.Value != null)
+            {
                 validAccessToken = (bool)accessTknItem.Value;
+            }
 
             if (accessTknItem.Key != null && !validAccessToken)
             {
@@ -41,11 +44,13 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Authorization
                 {
                     return;
                 }
+
                 if (authorizationResult.Failure!.FailedRequirements.Any(r => r.GetType() == typeof(MtlsRequirement)))
                 {
                     context.Result = new DataHolderUnauthorizedResult(new ResponseErrorList(StatusCodes.Status401Unauthorized.ToString(), HttpStatusCode.Unauthorized.ToString(), "invalid_token"));
                     return;
                 }
+
                 context.Result = new DataHolderForbidResult(new ResponseErrorList("urn:au-cds:error:cds-all:Authorisation/InvalidConsent", "Consent Is Invalid", "The authorised consumer's consent is insufficient to execute the resource"));
             }
         }

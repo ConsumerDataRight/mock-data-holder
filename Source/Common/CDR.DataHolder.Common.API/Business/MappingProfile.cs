@@ -9,8 +9,9 @@ namespace CDR.DataHolder.Common.API.Business
     {
         public MappingProfile()
         {
-            //Mappings for banking industry
+            // Mappings for banking industry
             CreateMap<Banking.Domain.Entities.Person, CommonPerson>();
+
             CreateMap<Banking.Domain.Entities.Organisation, CommonOrganisation>();
 
             // Mapping from Person to CustomerModel
@@ -33,8 +34,9 @@ namespace CDR.DataHolder.Common.API.Business
                 .IgnoreAllMembers()
                 .ForMember(dest => dest.Data, source => source.MapFrom(source => source));
 
-            //Mappings for energy industry
+            // Mappings for energy industry
             CreateMap<Energy.Domain.Entities.Person, CommonPerson>();
+
             CreateMap<Energy.Domain.Entities.Organisation, CommonOrganisation>();
 
             // Mapping from Person to CustomerModel
@@ -57,6 +59,5 @@ namespace CDR.DataHolder.Common.API.Business
                 .IgnoreAllMembers()
                 .ForMember(dest => dest.Data, source => source.MapFrom(source => source));
         }
-
     }
 }

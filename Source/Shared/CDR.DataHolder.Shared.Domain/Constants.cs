@@ -11,7 +11,7 @@
         public static class ErrorCodes
         {
             /// <summary>
-            /// The error codes in this class area defined by the CDR program (not CDS)
+            /// The error codes in this class area defined by the CDR program (not CDS).
             /// </summary>
             public static class Generic
             {
@@ -30,8 +30,9 @@
                 public const string InvalidSoftwareStatement = "invalid_software_statement";
                 public const string UnapprovedSoftwareStatement = "unapproved_software_statement";
             }
+
             /// <summary>
-            /// The error codes in this class must match the definition in CDS
+            /// The error codes in this class must match the definition in CDS.
             /// </summary>
             public static class Cds
             {

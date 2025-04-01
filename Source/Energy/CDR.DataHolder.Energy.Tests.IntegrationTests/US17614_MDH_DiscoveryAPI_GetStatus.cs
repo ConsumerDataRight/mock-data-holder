@@ -1,4 +1,4 @@
-using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation;
+﻿using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Fixtures;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Interfaces;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Models.Options;
@@ -11,12 +11,12 @@ using Xunit.DependencyInjection;
 
 namespace CDR.DataHolder.Energy.Tests.IntegrationTests
 {
-    public class US17614_MDH_DiscoveryAPI_GetStatus : BaseTest, IClassFixture<BaseFixture>
+    public class US17614_Mdh_DiscoveryApi_GetStatus : BaseTest, IClassFixture<BaseFixture>
     {
         private readonly TestAutomationOptions _options;
         private readonly IApiServiceDirector _apiServiceDirector;
 
-        public US17614_MDH_DiscoveryAPI_GetStatus(
+        public US17614_Mdh_DiscoveryApi_GetStatus(
             IOptions<TestAutomationOptions> options,
             IApiServiceDirector apiServiceDirector,
             ITestOutputHelperAccessor testOutputHelperAccessor,
@@ -31,7 +31,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 throw new ArgumentNullException(nameof(baseFixture));
             }
         }
-
 
         [Fact]
         public async Task AC01_Get_ShouldRespondWith_200OK_Status()

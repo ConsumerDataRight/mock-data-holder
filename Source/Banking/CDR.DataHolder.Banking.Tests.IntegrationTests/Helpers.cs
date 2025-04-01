@@ -8,7 +8,10 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests;
 public static class Helpers
 {
     /// <summary>
-    /// Extract loginId (by decrypting "sub" claim). TODO: Currently duplicated between DHB and DHE testing projects due to reliance on IdPermanence in Infrastructure project. Can resolve when we have a Nuget Package used across Implementation and Testing (currently only test automation package)
+    /// Extract loginId (by decrypting "sub" claim).
+    /// Note:
+    /// Currently duplicated between DHB and DHE testing projects due to reliance on IdPermanence in Infrastructure project.
+    /// Can resolve when we have a Nuget Package used across Implementation and Testing (currently only test automation package).
     /// </summary>
     public static void ExtractClaimsFromToken(string? accessToken, out string loginId, out string softwareProductId)
     {
@@ -25,12 +28,14 @@ public static class Helpers
                 SoftwareProductId = softwareProductId,
                 SectorIdentifierUri = Constants.SoftwareProducts.SoftwareProductSectorIdentifierUri
             },
-            Constants.IdPermanence.IdPermanencePrivateKey
-        );
+            Constants.IdPermanence.IdPermanencePrivateKey);
     }
 
     /// <summary>
-    /// IdPermanence encryption TODO: Currently duplicated between DHB and DHE testing projects due to reliance on IdPermanence in Infrastructure project. Can resolve when we have a Nuget Package used across Implementation and Testing (currently only test automation package)
+    /// IdPermanence encryption
+    /// Note:
+    /// Currently duplicated between DHB and DHE testing projects due to reliance on IdPermanence in Infrastructure project.
+    /// Can resolve when we have a Nuget Package used across Implementation and Testing (currently only test automation package).
     /// </summary>
     public static string IdPermanenceEncrypt(string plainText, string loginId, string softwareProductId)
     {

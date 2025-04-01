@@ -11,14 +11,12 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
         public static void ConfigureWebServer(
             this IServiceCollection services,
             IConfiguration configuration,
-            ILogger logger
-            )
+            ILogger logger)
         {
-            
             services.Configure<KestrelServerOptions>(options =>
             {
                 var industry = configuration.GetValue<string>("Industry");
-                logger.Information("Industry is set to {industry}", industry);
+                logger.Information("Industry is set to {Industry}", industry);
 
                 options.Configure(configuration.GetSection("Kestrel"))
                    .Endpoint("HTTPS", listenOptions =>
@@ -28,7 +26,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
                        var tlsCertOverride = configuration.GetTlsCertificateOverride(logger);
                        if (tlsCertOverride != null)
                        {
-                           logger.Information("TLS Certificate Override - {thumbprint}", tlsCertOverride.Thumbprint);
+                           logger.Information("TLS Certificate Override - {Thumbprint}", tlsCertOverride.Thumbprint);
                            listenOptions.HttpsOptions.ServerCertificate = tlsCertOverride;
                        }
                    });

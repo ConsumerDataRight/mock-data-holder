@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
 
 namespace CDR.DataHolder.Shared.Domain.Models
 {
@@ -30,7 +29,7 @@ namespace CDR.DataHolder.Shared.Domain.Models
         }
 
         /// <summary>
-        /// Add unexpected error to the response error list
+        /// Add unexpected error to the response error list.
         /// </summary>
         public ResponseErrorList AddUnexpectedError(string message)
         {
@@ -38,8 +37,14 @@ namespace CDR.DataHolder.Shared.Domain.Models
             return this;
         }
 
+        public ResponseErrorList AddUnexpectedError()
+        {
+            Errors.Add(new Error(Constants.ErrorCodes.Cds.UnexpectedError, Constants.ErrorTitles.UnexpectedError, "An unexpected exception occurred while processing the request."));
+            return this;
+        }
+
         /// <summary>
-        /// Add invalid industry error to the response error list
+        /// Add invalid industry error to the response error list.
         /// </summary>
         public ResponseErrorList AddInvalidIndustry()
         {
@@ -64,12 +69,6 @@ namespace CDR.DataHolder.Shared.Domain.Models
         public ResponseErrorList AddInvalidXVMissingRequiredHeader()
         {
             Errors.Add(new Error(Constants.ErrorCodes.Cds.MissingRequiredHeader, Constants.ErrorTitles.MissingRequiredHeader, "An API version x-v header is required, but was not specified."));
-            return this;
-        }
-
-        public ResponseErrorList AddUnexpectedError()
-        {
-            Errors.Add(new Error(Constants.ErrorCodes.Cds.UnexpectedError, Constants.ErrorTitles.UnexpectedError, "An unexpected exception occurred while processing the request."));
             return this;
         }
 
@@ -115,7 +114,7 @@ namespace CDR.DataHolder.Shared.Domain.Models
             return this;
         }
 
-        public ResponseErrorList AddPageOutOfRange(int lastPage) //This matches CDS better
+        public ResponseErrorList AddPageOutOfRange(int lastPage) // This matches CDS better
         {
             Errors.Add(new Error(Constants.ErrorCodes.Cds.InvalidPage, Constants.ErrorTitles.InvalidPage, $"Page parameter is out of range.  Maximum page is {(lastPage == 0 ? lastPage + 1 : lastPage)}"));
             return this;
@@ -136,12 +135,12 @@ namespace CDR.DataHolder.Shared.Domain.Models
             return new Error(Constants.ErrorCodes.Cds.InvalidPageSize, Constants.ErrorTitles.InvalidPageSize, "Page size not a positive Integer");
         }
 
-        public static Error PageSizeTooLarge() //TODO: Check CDS/RAAP for consistency with standards
+        public static Error PageSizeTooLarge()
         {
             return new Error(Constants.ErrorCodes.Cds.InvalidField, Constants.ErrorTitles.InvalidField, "Page size too large");
         }
 
-        public static Error PageSizeTooLarge_MDH() //TODO: Check CDS/RAAP for consistency with standards
+        public static Error PageSizeTooLarge_MDH()
         {
             return new Error("urn:au-cds:error:cds-all:Field/InvalidPageSize", "Invalid Page Size", "page-size pagination field is greater than the maximum 1000 allowed");
         }
@@ -189,7 +188,6 @@ namespace CDR.DataHolder.Shared.Domain.Models
 
         public ResponseErrorList AddConsentNotFound(string? industry)
         {
-            //TODO: Improve this later
             Errors.Add(new Error()
             {
                 Code = $"urn:au-cds:error:cds-all:Authorisation/Unavailable{industry}Account",
@@ -201,14 +199,12 @@ namespace CDR.DataHolder.Shared.Domain.Models
 
         public ResponseErrorList AddUnknownError()
         {
-            //TODO: Improve this later (should be unexpected error)
             Errors.Add(new Error("Unknown", "Unknown error", string.Empty));
             return this;
         }
 
         public ResponseErrorList AddInvalidEnergyAccount(string accountId)
         {
-            //TODO: Improve this later
             Errors.Add(new Error()
             {
                 Code = "urn:au-cds:error:cds-energy:Authorisation/InvalidEnergyAccount",
@@ -218,12 +214,12 @@ namespace CDR.DataHolder.Shared.Domain.Models
             return this;
         }
 
-        public static Error InvalidOpenStatus() //TODO: Improve later
+        public static Error InvalidOpenStatus()
         {
             return new Error("urn:au-cds:error:cds-all:Field/InvalidOpenStatus", "Invalid Open Status", string.Empty);
         }
 
-        public static Error InvalidProductCategory() //TODO: Improve later
+        public static Error InvalidProductCategory()
         {
             return new Error("urn:au-cds:error:cds-all:Field/InvalidProductCategory", "Invalid Product Category", string.Empty);
         }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace CDR.DataHolder.Public.API.Controllers
 {
     [ApiController]
-	[Route("cds-au")]
+    [Route("cds-au")]
     public class DiscoveryController : ControllerBase
     {
         private readonly IConfiguration _configuration;

@@ -31,7 +31,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
             // Arrange.
             var softwareProductId = Guid.NewGuid().ToString();
             var customerId = Guid.NewGuid().ToString();
-            string internalId = "";
+            string internalId = string.Empty;
             var privateKey = Guid.NewGuid().ToString();
             var idParameters = new IdPermanenceParameters
             {
@@ -68,7 +68,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
             var softwareProductId = Guid.NewGuid().ToString();
             var customerId = Guid.NewGuid().ToString();
             string internalId = "123";
-            string privateKey = "";
+            string privateKey = string.Empty;
             var idParameters = new IdPermanenceParameters
             {
                 SoftwareProductId = softwareProductId,
@@ -83,8 +83,6 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
         public void IdPermanenceHelper_EncryptId_IdParametersIsNull_ThrowsArgumentNullException()
         {
             // Arrange.
-            var softwareProductId = Guid.NewGuid().ToString();
-            var customerId = Guid.NewGuid().ToString();
             string internalId = "123";
             string privateKey = Guid.NewGuid().ToString();
             IdPermanenceParameters? idParameters = null;
@@ -97,7 +95,6 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
         public void IdPermanenceHelper_EncryptId_IdParameters_SoftwareProductIdIsNull_ThrowsArgumentException()
         {
             // Arrange.
-            var softwareProductId = Guid.NewGuid().ToString();
             var customerId = Guid.NewGuid().ToString();
             string internalId = "123";
             string privateKey = Guid.NewGuid().ToString();
@@ -114,13 +111,12 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
         public void IdPermanenceHelper_EncryptId_IdParameters_SoftwareProductIdIsEmpty_ThrowsArgumentException()
         {
             // Arrange.
-            var softwareProductId = Guid.NewGuid().ToString();
             var customerId = Guid.NewGuid().ToString();
             string internalId = "123";
             string privateKey = Guid.NewGuid().ToString();
             var idParameters = new IdPermanenceParameters
             {
-                SoftwareProductId = "",
+                SoftwareProductId = string.Empty,
                 CustomerId = customerId,
             };
 
@@ -132,8 +128,6 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
         public void IdPermanenceHelper_EncryptId_IdParameters_CustomerIdIsNull_ThrowsArgumentException()
         {
             // Arrange.
-            var softwareProductId = Guid.NewGuid().ToString();
-            var customerId = Guid.NewGuid().ToString();
             string internalId = "123";
             string privateKey = Guid.NewGuid().ToString();
             var idParameters = new IdPermanenceParameters
@@ -150,14 +144,12 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
         public void IdPermanenceHelper_EncryptId_IdParameters_CustomerIdIsEmpty_ThrowsArgumentException()
         {
             // Arrange.
-            var softwareProductId = Guid.NewGuid().ToString();
-            var customerId = Guid.NewGuid().ToString();
             string internalId = "123";
             string privateKey = Guid.NewGuid().ToString();
             var idParameters = new IdPermanenceParameters
             {
                 SoftwareProductId = Guid.NewGuid().ToString(),
-                CustomerId = "",
+                CustomerId = string.Empty,
             };
 
             // Act and Assert.
@@ -169,7 +161,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
         {
             // Arrange.
             var softwareProductId = Guid.NewGuid().ToString();
-            string? customerId =null;
+            string? customerId = null;
             var privateKey = Guid.NewGuid().ToString();
             var subParameters = new SubPermanenceParameters
             {
@@ -185,7 +177,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
         {
             // Arrange.
             var softwareProductId = Guid.NewGuid().ToString();
-            string customerId = "";
+            string customerId = string.Empty;
             var privateKey = Guid.NewGuid().ToString();
             var subParameters = new SubPermanenceParameters
             {
@@ -218,7 +210,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
             // Arrange.
             var softwareProductId = Guid.NewGuid().ToString();
             var customerId = Guid.NewGuid().ToString();
-            string privateKey = "";
+            string privateKey = string.Empty;
             var subParameters = new SubPermanenceParameters
             {
                 SoftwareProductId = softwareProductId,
@@ -232,7 +224,6 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
         public void IdPermanenceHelper_EncryptSub_IdParametersIsNull_ThrowsArgumentNullException()
         {
             // Arrange.
-            var softwareProductId = Guid.NewGuid().ToString();
             var customerId = Guid.NewGuid().ToString();
             string privateKey = Guid.NewGuid().ToString();
             SubPermanenceParameters? subParameters = null;
@@ -245,7 +236,6 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
         public void IdPermanenceHelper_EncryptSub_IdParameters_SoftwareProductIdIsNull_ThrowsArgumentException()
         {
             // Arrange.
-            var softwareProductId = Guid.NewGuid().ToString();
             var customerId = Guid.NewGuid().ToString();
             string privateKey = Guid.NewGuid().ToString();
             var subParameters = new SubPermanenceParameters
@@ -260,12 +250,11 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
         public void IdPermanenceHelper_EncryptSub_IdParameters_SoftwareProductIdIsEmpty_ThrowsArgumentException()
         {
             // Arrange.
-            var softwareProductId = Guid.NewGuid().ToString();
             var customerId = Guid.NewGuid().ToString();
             string privateKey = Guid.NewGuid().ToString();
             var idParameters = new IdPermanenceParameters
             {
-                SoftwareProductId = "",
+                SoftwareProductId = string.Empty,
             };
 
             // Act and Assert.
@@ -381,9 +370,9 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests
 
             try
             {
-                var decrypted = IdPermanenceHelper.DecryptId(idPermanence, idParameters, invalidPrivateKey);
+                IdPermanenceHelper.DecryptId(idPermanence, idParameters, invalidPrivateKey);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 // Assert.
                 Assert.NotNull(ex);

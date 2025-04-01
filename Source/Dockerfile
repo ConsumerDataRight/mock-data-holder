@@ -54,13 +54,16 @@ COPY . ./
 FROM build AS publish
 
 # cdr-auth-server code
-COPY ./cdr-auth-server/Source/CdrAuthServer.Domain/. /app/CdrAuthServer.Domain
-COPY ./cdr-auth-server/Source/CdrAuthServer.Repository/. /app/CdrAuthServer.Repository
-COPY ./cdr-auth-server/Source/CdrAuthServer/. /app/CdrAuthServer
-COPY ./cdr-auth-server/Source/CdrAuthServer.Infrastructure/. /app/CdrAuthServer.Infrastructure
-COPY ./cdr-auth-server/Source/CdrAuthServer.API.Logger/. /app/CdrAuthServer.API.Logger
+COPY ./cdr-auth-server/Source/Directory.Build.props /app/AuthServer/Directory.Build.props
+COPY ./cdr-auth-server/Source/.editorconfig /app/AuthServer/.editorconfig
+COPY ./cdr-auth-server/Source/CdrAuthServer.Domain/. /app/AuthServer/CdrAuthServer.Domain
+COPY ./cdr-auth-server/Source/CdrAuthServer.Repository/. /app/AuthServer/CdrAuthServer.Repository
+COPY ./cdr-auth-server/Source/CdrAuthServer/. /app/AuthServer/CdrAuthServer
+COPY ./cdr-auth-server/Source/CdrAuthServer.Infrastructure/. /app/AuthServer/CdrAuthServer.Infrastructure
+COPY ./cdr-auth-server/Source/CdrAuthServer.API.Logger/. /app/AuthServer/CdrAuthServer.API.Logger
 
 COPY ./Directory.Build.props /app/Directory.Build.props
+COPY ./.editorconfig /app/.editorconfig
 COPY ./Shared/CDR.DataHolder.Admin.API/. /app/Shared/CDR.DataHolder.Admin.API
 COPY ./Shared/CDR.DataHolder.Shared.API.Gateway.mTLS/. /app/Shared/CDR.DataHolder.Shared.API.Gateway.mTLS
 COPY ./Shared/CDR.DataHolder.Shared.API.Infrastructure/. /app/Shared/CDR.DataHolder.Shared.API.Infrastructure
@@ -84,7 +87,7 @@ COPY ./Energy/CDR.DataHolder.Energy.Resource.API/. /app/Energy/CDR.DataHolder.En
 COPY ./Energy/CDR.DataHolder.Energy.Resource.API.UnitTests/. /app/Energy/CDR.DataHolder.Energy.Resource.API.UnitTests
 
 
-WORKDIR /app/CdrAuthServer
+WORKDIR /app/AuthServer/CdrAuthServer
 RUN dotnet publish -c Release -o /app/publish/cdrauthserver
 
 WORKDIR /app/Shared/CDR.DataHolder.Admin.API

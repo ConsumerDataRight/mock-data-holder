@@ -1,9 +1,8 @@
-using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
+﻿using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using Serilog.Events;
 using System;
 using System.IO;
 using System.Security.Authentication;
@@ -12,7 +11,9 @@ namespace CDR.DataHolder.Banking.Resource.API
 {
     public sealed class Program
     {
-        private Program() { }
+        private Program()
+        {
+        }
 
         public static int Main(string[] args)
         {
@@ -24,7 +25,7 @@ namespace CDR.DataHolder.Banking.Resource.API
                 .Build();
 
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)                
+                .ReadFrom.Configuration(configuration)
                 .Enrich.FromLogContext()
                 .Enrich.WithProcessId()
                 .Enrich.WithProcessName()
@@ -67,7 +68,7 @@ namespace CDR.DataHolder.Banking.Resource.API
                                                     var tlsCertOverride = configuration.GetTlsCertificateOverride(logger);
                                                     if (tlsCertOverride != null)
                                                     {
-                                                        logger.Information("TLS Certificate Override - {thumbprint}", tlsCertOverride.Thumbprint);
+                                                        logger.Information("TLS Certificate Override - {Thumbprint}", tlsCertOverride.Thumbprint);
                                                         listenOptions.HttpsOptions.ServerCertificate = tlsCertOverride;
                                                     }
                                                 });

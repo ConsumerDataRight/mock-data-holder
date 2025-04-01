@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using CDR.DataHolder.Common.API.Infrastructure;
 using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 using CDR.DataHolder.Shared.API.Infrastructure.Filters;
@@ -40,6 +40,7 @@ var logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Logging.ClearProviders();
+
 builder.Logging.AddSerilog(logger);
 
 builder.Services.ConfigureWebServer(builder.Configuration, logger);
@@ -47,7 +48,8 @@ builder.Services.ConfigureWebServer(builder.Configuration, logger);
 // Add services to the container.
 builder.Services.AddScoped<LogActionEntryAttribute>();
 
-builder.Services.AddIndustryDBContext(builder.Configuration); //includes adding automapper, as it needs to register the industry-specific dbcontext
+builder.Services.AddIndustryDBContext(builder.Configuration); // includes adding automapper, as it needs to register the industry-specific dbcontext
+
 builder.Services.AddScoped<ICommonRepositoryFactory, CommonRepositoryFactory>();
 
 builder.Services
@@ -63,6 +65,7 @@ builder.Services.AddApiVersioning(options =>
 });
 
 builder.Services.AddAuthenticationAuthorization(builder.Configuration);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -75,12 +78,14 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.UseInteractionId();
 
-//assert Automapper configuration is valid.
+// assert Automapper configuration is valid.
 app.Services.GetService<IMapper>()?.ConfigurationProvider.AssertConfigurationIsValid();
+
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

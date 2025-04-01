@@ -1,7 +1,7 @@
 ![Consumer Data Right Logo](./Assets/cdr-logo.png?raw=true) 
 
-[![Consumer Data Standards v1.31.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.31.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#introduction)
-[![Conformance Test Suite Data Holders 5.0.0](https://img.shields.io/badge/Conformance%20Test%20Suite%20Data%20Holders-v5.0.0-darkblue.svg)](https://www.cdr.gov.au/for-providers/conformance-test-suite-data-holders)
+[![Consumer Data Standards v1.33.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.33.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.33.0/#introduction)
+[![Conformance Test Suite Data Holders 5.2.0](https://img.shields.io/badge/Conformance%20Test%20Suite%20Data%20Holders-v5.2.0-darkblue.svg)](https://www.cdr.gov.au/for-providers/conformance-test-suite-data-holders)
 [![FAPI 1.0 Advanced Profile](https://img.shields.io/badge/FAPI%201.0-orange.svg)](https://openid.net/specs/openid-financial-api-part-2-1_0.html)
 [![made-with-dotnet](https://img.shields.io/badge/Made%20with-.NET-1f425Ff.svg)](https://dotnet.microsoft.com/)
 [![made-with-csharp](https://img.shields.io/badge/Made%20with-C%23-1f425Ff.svg)](https://docs.microsoft.com/en-us/dotnet/csharp/)
@@ -17,8 +17,8 @@ The Mock Data Holder solution can be configured for Banking or Energy industries
 
 ## Mock Data Holder - Alignment
 The Mock Data Holder:
-* aligns to [v1.31.0](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#introduction) in particular [FAPI 1.0 Migration Phase 3](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#introduction) with backwards compatibility to Migration Phase 2;
-* has passed v5.0.0 of the [Conformance Test Suite for Data Holders](https://www.cdr.gov.au/for-providers/conformance-test-suite-data-holders); and
+* aligns to [v1.33.0](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.33.0/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.33.0/#introduction) in particular [FAPI 1.0 Migration Phase 3](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.33.0/#introduction) with backwards compatibility to Migration Phase 2;
+* has passed v5.2.0 of the [Conformance Test Suite for Data Holders](https://www.cdr.gov.au/for-providers/conformance-test-suite-data-holders); and
 * is compliant with the [FAPI 1.0 Advanced Profile](https://openid.net/specs/openid-financial-api-part-2-1_0.html).
 
 ## Getting Started
@@ -138,16 +138,16 @@ The [docker compose file](./Source/DockerCompose/docker-compose.yml) can be used
 To get help on launching and debugging the solutions as containers and switching out your solution(s), see the [help guide](./Help/container/HELP.md).
 
 ## Mock Data Holder - Requirements
-Data Holders require these core functions defined in the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#introduction) to operate in the [Consumer Data Right](https://www.cdr.gov.au/):
-- Identity Provider for [authentication and authorisation](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#security-profile). Compliant with OAuth and [FAPI 1.0 Advanced Profile](https://openid.net/specs/openid-financial-api-part-2-1_0.html).
-- [Dynamic Client Registration](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#dcr-apis) to allow clients to register their Software Products.
-- Data Recipient and Software Product metadata updates using the [Register APIs](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#register-apis).
+Data Holders require these core functions defined in the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.33.0/#introduction) to operate in the [Consumer Data Right](https://www.cdr.gov.au/):
+- Identity Provider for [authentication and authorisation](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.33.0/#security-profile). Compliant with OAuth and [FAPI 1.0 Advanced Profile](https://openid.net/specs/openid-financial-api-part-2-1_0.html).
+- [Dynamic Client Registration](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.33.0/#dcr-apis) to allow clients to register their Software Products.
+- Data Recipient and Software Product metadata updates using the [Register APIs](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.33.0/#register-apis).
 - Industry specific data (one of)
-  - [Banking APIs](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#banking-apis).
-  - [Energy APIs](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#energy-apis)
+  - [Banking APIs](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.33.0/#banking-apis).
+  - [Energy APIs](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.33.0/#energy-apis)
 - Industry agnostic data
-  - [Common APIs](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#common-apis).
-- [Metrics and metadata update requests](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#admin-apis).
+  - [Common APIs](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.33.0/#common-apis).
+- [Metrics and metadata update requests](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.33.0/#admin-apis).
 
 The Mock Data Holder combined with the [Authorisation Server](https://github.com/ConsumerDataRight/authorisation-server) provides all of these functions for the Banking and Energy industries. The below diagram provides a view of the Mock Data Holder and and Authorisation Server when opened in an integrated development environment.
 

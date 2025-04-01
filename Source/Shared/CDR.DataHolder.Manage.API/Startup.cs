@@ -1,4 +1,4 @@
-using CDR.DataHolder.Manage.API.Infrastructure;
+﻿using CDR.DataHolder.Manage.API.Infrastructure;
 using CDR.DataHolder.Shared.API.Infrastructure.Filters;
 using CDR.DataHolder.Shared.API.Infrastructure.HealthChecks;
 using CDR.DataHolder.Shared.API.Infrastructure.Middleware;
@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Serilog;
 using System;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,13 +28,14 @@ namespace CDR.DataHolder.Manage.API
     public class Startup
     {
         private readonly string _industry;
+
         public Startup(IConfiguration configuration)
         {
-            _configuration = configuration;
+            Configuration = configuration;
             _industry = configuration.GetValue<string>("Industry") ?? string.Empty;
         }
 
-        public IConfiguration _configuration { get; }
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -45,8 +47,7 @@ namespace CDR.DataHolder.Manage.API
                     options.InvalidModelStateResponseFactory = ModelStateErrorMiddleware.ExecuteResult;
                 });
 
-
-            services.AddIndustryDBContext(_configuration);
+            services.AddIndustryDBContext(Configuration);
 
             services.AddScoped<IStatusRepository, StatusRepository>();
             services.AddScoped<LogActionEntryAttribute>();
@@ -55,7 +56,7 @@ namespace CDR.DataHolder.Manage.API
 
             services.AddHealthChecks()
                     .AddCheck<ApplicationHealthCheck>("Application Check", HealthStatus.Unhealthy, new[] { "AppStatus" }, TimeSpan.FromSeconds(3))
-                    .AddTypeActivatedCheck<SqlServerHealthCheck>($"{_industry} SQLServer", HealthStatus.Unhealthy, new[] { "DatabaseStatus" }, TimeSpan.FromSeconds(10))                    
+                    .AddTypeActivatedCheck<SqlServerHealthCheck>($"{_industry} SQLServer", HealthStatus.Unhealthy, new[] { "DatabaseStatus" }, TimeSpan.FromSeconds(10))
                     .AddCheck<DatabaseMigrationHealthCheck>("Migrations Check", HealthStatus.Unhealthy, new[] { "Migrations" }, TimeSpan.FromSeconds(10))
                     .AddCheck<DatabaseSeedingHealthCheck>("Seeding Check", HealthStatus.Unhealthy, new[] { "Seeding" }, TimeSpan.FromSeconds(3));
         }
@@ -68,8 +69,8 @@ namespace CDR.DataHolder.Manage.API
                 app.UseDeveloperExceptionPage();
             }
 
-            applicationLifetime.ApplicationStarted.Register(() => { healthStatuses.AppStatus = AppStatus.Started;});
-            applicationLifetime.ApplicationStopping.Register(() => { healthStatuses.AppStatus = AppStatus.Shutdown;});
+            applicationLifetime.ApplicationStarted.Register(() => { healthStatuses.AppStatus = AppStatus.Started; });
+            applicationLifetime.ApplicationStopping.Register(() => { healthStatuses.AppStatus = AppStatus.Shutdown; });
 
             app.UseSerilogRequestLogging();
 
@@ -91,8 +92,8 @@ namespace CDR.DataHolder.Manage.API
             EnsureDatabase(app, logger, healthStatuses, webHostEnvironment).Wait();
         }
 
-        private async Task EnsureDatabase(IApplicationBuilder app, ILogger<Startup> logger, HealthCheckStatuses healthCheckStatuses, IWebHostEnvironment  webHostEnvironment)
-        {            
+        private async Task EnsureDatabase(IApplicationBuilder app, ILogger<Startup> logger, HealthCheckStatuses healthCheckStatuses, IWebHostEnvironment webHostEnvironment)
+        {
             logger.LogInformation("DataHolder is being configured for the industry of {Industry}", _industry);
 
             using (var serviceScope = app.ApplicationServices.CreateScope())
@@ -102,24 +103,29 @@ namespace CDR.DataHolder.Manage.API
                 {
                     IIndustryDbContext industryMigrationDbContext = dbContextFactory.Create(_industry, DbConstants.ConnectionStringType.Migrations);
                     logger.LogInformation("Running migrations");
-                    await (industryMigrationDbContext as DbContext)!.Database.MigrateAsync().ConfigureAwait(false);
+                    var dbContext = industryMigrationDbContext as DbContext;
+                    await dbContext!.Database.MigrateAsync().ConfigureAwait(false);
                 }
 
+                // Configure logger with the DB
+                Program.ConfigureSerilog(Configuration, true);
+
                 // Seed the database using the sample data JSON.
-                var seedFilePath = _configuration.GetValue<string>("SeedData:FilePath");
-                var seedDataOverwrite = _configuration.GetValue<bool>("SeedData:OverwriteExistingData", false);
-                var offsetDates = _configuration.GetValue<bool>("SeedData:OffsetDates", true);
+                var seedFilePath = Configuration.GetValue<string>("SeedData:FilePath");
+                var seedDataOverwrite = Configuration.GetValue<bool>("SeedData:OverwriteExistingData", false);
+                var offsetDates = Configuration.GetValue<bool>("SeedData:OffsetDates", true);
 
                 if (!string.IsNullOrEmpty(seedFilePath))
                 {
-                    logger.LogInformation("Seed data file found within configuration, and the industry is {_industry}. Attempting to seed the repository from the seed data...", _industry);
+                    logger.LogInformation("Seed data file found within configuration, and the industry is {Industry}. Attempting to seed the repository from the seed data...", _industry);
 
                     IIndustryDbContext industryDbContext = dbContextFactory.Create(_industry, DbConstants.ConnectionStringType.Default);
-                    await (industryDbContext as DbContext)!.SeedDatabaseFromJsonFile(Path.Combine(webHostEnvironment.ContentRootPath, seedFilePath), logger, healthCheckStatuses, seedDataOverwrite, offsetDates).ConfigureAwait(false);
+                    var dbContext = industryDbContext as DbContext;
+                    await dbContext!.SeedDatabaseFromJsonFile(Path.Combine(webHostEnvironment.ContentRootPath, seedFilePath), logger, healthCheckStatuses, seedDataOverwrite, offsetDates).ConfigureAwait(false);
                 }
                 else
                 {
-                    logger.LogInformation("Seed data file {seedFilePath} not configured for {_industry}", _industry, seedFilePath);
+                    logger.LogInformation("Seed data file {SeedFilePath} not configured for {Industry}", seedFilePath, _industry);
                     healthCheckStatuses.SeedingStatus = SeedingStatus.NotConfigured;
                 }
             }
@@ -131,7 +137,7 @@ namespace CDR.DataHolder.Manage.API
         private bool RunMigrations()
         {
             // Run migrations if the DBO connection string is set.
-            var dbo = _configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Migrations);
+            var dbo = Configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Migrations);
             return !string.IsNullOrEmpty(dbo);
         }
 

@@ -6,7 +6,6 @@ using System.Net;
 
 namespace CDR.DataHolder.Shared.Resource.API.Infrastructure.Filters
 {
-    //TODO: Swap this attribute out for CdrVersionReader
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
     public class CheckXVAttribute : ActionFilterAttribute
     {

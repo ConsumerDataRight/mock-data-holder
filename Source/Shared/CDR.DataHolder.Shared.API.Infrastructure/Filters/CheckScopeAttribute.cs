@@ -9,8 +9,8 @@ namespace CDR.DataHolder.Shared.Resource.API.Business.Filters
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
     public class CheckScopeAttribute : ActionFilterAttribute
     {
-        private readonly string _scope;
         private const string SCOPE_CLAIM_NAME = "scope";
+        private readonly string _scope;
 
         public CheckScopeAttribute(string scope)
         {
@@ -29,7 +29,7 @@ namespace CDR.DataHolder.Shared.Resource.API.Business.Filters
             else
             {
                 // Split the scopes string into an array
-                var scopes = user.FindAll(c => c.Type == SCOPE_CLAIM_NAME).Select(c=>c.Value);
+                var scopes = user.FindAll(c => c.Type == SCOPE_CLAIM_NAME).Select(c => c.Value);
 
                 // Succeed if the scope array contains the required scope
                 if (!scopes.Any(s => s == _scope))

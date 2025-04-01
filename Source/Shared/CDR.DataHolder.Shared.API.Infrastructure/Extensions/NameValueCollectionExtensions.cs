@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
         {
             if (collection.Count == 0)
             {
-                return String.Empty;
+                return string.Empty;
             }
 
             var builder = new StringBuilder(128);
@@ -23,7 +23,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
                 var values = collection.GetValues(name);
                 if (values == null || values.Length == 0)
                 {
-                    first = AppendNameValuePair(builder, first, true, name, String.Empty);
+                    first = AppendNameValuePair(builder, first, true, name, string.Empty);
                 }
                 else
                 {
@@ -94,23 +94,22 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
             return dict;
         }
 
-
         internal static string? ConvertFormUrlEncodedSpacesToUrlEncodedSpaces(string str)
         {
             if (str != null && str.Contains('+'))
             {
                 str = str.Replace("+", "%20");
             }
+
             return str;
         }
 
-
         private static bool AppendNameValuePair(StringBuilder builder, bool first, bool urlEncode, string name, string value)
         {
-            var effectiveName = name ?? String.Empty;
+            var effectiveName = name ?? string.Empty;
             var encodedName = urlEncode ? UrlEncoder.Default.Encode(effectiveName) : effectiveName;
 
-            var effectiveValue = value ?? String.Empty;
+            var effectiveValue = value ?? string.Empty;
             var encodedValue = urlEncode ? UrlEncoder.Default.Encode(effectiveValue) : effectiveValue;
             encodedValue = ConvertFormUrlEncodedSpacesToUrlEncodedSpaces(encodedValue);
 
@@ -125,10 +124,11 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
 
             builder.Append(encodedName);
             builder.Append('=');
-            if (!String.IsNullOrEmpty(encodedValue))
+            if (!string.IsNullOrEmpty(encodedValue))
             {
                 builder.Append(encodedValue);
             }
+
             return first;
         }
     }

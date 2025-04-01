@@ -14,6 +14,7 @@
         Shutdown,
         NotStarted
     }
+
     public class HealthCheckStatuses
     {
         public bool IsMigrationDone { get; set; } = false;

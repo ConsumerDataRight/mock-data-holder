@@ -1,4 +1,4 @@
-using CDR.DataHolder.Banking.Tests.IntegrationTests.Models;
+﻿using CDR.DataHolder.Banking.Tests.IntegrationTests.Models;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Enums;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Exceptions;
@@ -21,17 +21,18 @@ using Xunit.DependencyInjection;
 
 namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 {
-    public class US12975_MDH_BankingAPI_GetAccounts : BaseTest, IClassFixture<RegisterSoftwareProductFixture>
+    public class US12975_Mdh_BankingApi_GetAccounts
+        : BaseTest, IClassFixture<RegisterSoftwareProductFixture>
     {
         protected const string SCOPE_WITHOUT_ACCOUNTSBASICREAD = "openid common:customer.basic:read bank:transactions:read";
         private readonly TestAutomationOptions _options;
         private readonly IDataHolderAccessTokenCache _dataHolderAccessTokenCache;
-        private readonly ISqlQueryService _sqlQueryService;
         private readonly IDataHolderTokenService _dataHolderTokenService;
         private readonly IDataHolderParService _dataHolderParService;
         private readonly IApiServiceDirector _apiServiceDirector;
 
-        public US12975_MDH_BankingAPI_GetAccounts(IOptions<TestAutomationOptions> options,
+        public US12975_Mdh_BankingApi_GetAccounts(
+            IOptions<TestAutomationOptions> options,
             IDataHolderAccessTokenCache dataHolderAccessTokenCache,
             ISqlQueryService sqlQueryService,
             IDataHolderTokenService dataHolderTokenService,
@@ -39,11 +40,11 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             IApiServiceDirector apiServiceDirector,
             ITestOutputHelperAccessor testOutputHelperAccessor,
             Microsoft.Extensions.Configuration.IConfiguration config,
-            RegisterSoftwareProductFixture registerSoftwareProductFixture) : base(testOutputHelperAccessor, config)
+            RegisterSoftwareProductFixture registerSoftwareProductFixture)
+            : base(testOutputHelperAccessor, config)
         {
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
             _dataHolderAccessTokenCache = dataHolderAccessTokenCache ?? throw new ArgumentNullException(nameof(dataHolderAccessTokenCache));
-            _sqlQueryService = sqlQueryService ?? throw new ArgumentNullException(nameof(sqlQueryService));
             _dataHolderTokenService = dataHolderTokenService ?? throw new ArgumentNullException(nameof(dataHolderTokenService));
             _dataHolderParService = dataHolderParService ?? throw new ArgumentNullException(nameof(dataHolderParService));
             _apiServiceDirector = apiServiceDirector ?? throw new ArgumentNullException(nameof(apiServiceDirector));
@@ -114,7 +115,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         [Fact]
         public async Task AC08_Get_WithBankAccountsReadScope_Success()
         {
-            // Arrange 
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.KamillaSmith, _options.SCOPE);
 
             // Act
@@ -135,12 +136,12 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         {
             Log.Information("Running test with Params: {P1}={V1}.", nameof(scope), scope);
 
-            if (String.IsNullOrEmpty(scope))
+            if (string.IsNullOrEmpty(scope))
             {
                 scope = _options.SCOPE;
             }
 
-            // Arrange 
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.KamillaSmith, scope);
 
             CdrException expectedError = new InvalidConsentException();
@@ -155,13 +156,12 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             {
                 // Assert - Check status code
                 response.StatusCode.Should().Be(expectedError.StatusCode);
-                {
-                    // Assert - Check application/json
-                    Assertions.AssertHasContentTypeApplicationJson(response.Content);
 
-                    // Assert - Check error response
-                    await Assertions.AssertHasContentJson(expectedContent, response.Content);
-                }
+                // Assert - Check application/json
+                Assertions.AssertHasContentTypeApplicationJson(response.Content);
+
+                // Assert - Check error response
+                await Assertions.AssertHasContentJson(expectedContent, response.Content);
             }
         }
 
@@ -244,7 +244,8 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
                     // Assert - Check error response
-                    Assertions.AssertHasHeader(@"Bearer error=""invalid_token"", error_description=""The token expired at ",
+                    Assertions.AssertHasHeader(
+                        @"Bearer error=""invalid_token"", error_description=""The token expired at ",
                         response.Headers,
                         "WWW-Authenticate",
                         true); // starts with
@@ -281,9 +282,9 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             await Test_AC15_AC16_AC17(xv, new MissingRequiredHeaderException("x-v"));
         }
 
+        // [InlineData("DateTime.Now.RFC1123", HttpStatusCode.OK)]
         [Theory]
-        //[InlineData("DateTime.Now.RFC1123", HttpStatusCode.OK)]
-        [InlineData(null)]  // omit xfapiauthdate
+        [InlineData(null)] // omit xfapiauthdate
         public async Task AC18_Get_WithMissingXFAPIAUTHDATE_ShouldRespondWith_400BadRequest(string xFapiAuthDate)
         {
             Log.Information("Running test with Params: {P1}={V1}.", nameof(xFapiAuthDate), xFapiAuthDate);
@@ -291,8 +292,8 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             await Test_AC18_AC19(DateTimeExtensions.GetDateFromFapiDate(xFapiAuthDate), new MissingRequiredHeaderException("x-fapi-auth-date"));
         }
 
+        // [InlineData("DateTime.Now.RFC1123", HttpStatusCode.OK)]
         [Theory]
-        //[InlineData("DateTime.Now.RFC1123", HttpStatusCode.OK)]
         [InlineData("DateTime.UtcNow")]
         [InlineData("foo")]
         public async Task AC19_Get_WithInvalidXFAPIAUTHDATE_ShouldRespondWith_400BadRequest(string xFapiAuthDate)
@@ -350,7 +351,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData(Constants.Certificates.AdditionalCertificateFilename, Constants.Certificates.AdditionalCertificatePassword)]  // Different holder of key
+        [InlineData(Constants.Certificates.AdditionalCertificateFilename, Constants.Certificates.AdditionalCertificatePassword)] // Different holder of key
         public async Task AC21_Get_WithDifferentHolderOfKey_ShouldRespondWith_401Unauthorized(string certificateFilename, string certificatePassword)
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(certificateFilename), certificateFilename, nameof(certificatePassword), certificatePassword);
@@ -386,7 +387,10 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 var api = _apiServiceDirector.BuildDataHolderBankingGetAccountsAPI(accessToken, xFapiAuthDate: DateTime.Now.ToUniversalTime().ToString("r"));
                 var response = await api.SendAsync();
 
-                if (response.StatusCode != HttpStatusCode.OK) throw new Exception("Error getting accounts");
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new Exception("Error getting accounts");
+                }
 
                 var json = await response.Content.ReadAsStringAsync();
 
@@ -401,7 +405,6 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
               .WithUserId(userId)
               .WithSelectedAccountIds(consentedAccounts)
               .BuildAsync();
-
 
             (var authCode, _) = await authService.Authorise();
 
@@ -434,7 +437,10 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                     var api = _apiServiceDirector.BuildDataHolderBankingGetAccountsAPI(accessToken, xFapiAuthDate: DateTime.Now.ToUniversalTime().ToString("r"));
                     var response = await api.SendAsync();
 
-                    if (response.StatusCode != HttpStatusCode.OK) throw new Exception("Error getting accounts");
+                    if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        throw new Exception("Error getting accounts");
+                    }
 
                     var json = await response.Content.ReadAsStringAsync();
 
@@ -445,9 +451,9 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 
                 // Get authcode
                 var authService = await new DataHolderAuthoriseService.DataHolderAuthoriseServiceBuilder(_options, _dataHolderParService, _apiServiceDirector)
-            .WithUserId(userId)
-            .WithSelectedAccountIds(consentedAccounts)
-            .BuildAsync();
+                    .WithUserId(userId)
+                    .WithSelectedAccountIds(consentedAccounts)
+                    .BuildAsync();
 
                 (var authCode, _) = await authService.Authorise();
 
@@ -480,10 +486,15 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             }
         }
 
-        private static (string, int) GetExpectedResponse(string? accessToken,
-            string baseUrl, string selfUrl,
-            bool? isOwned = null, string? openStatus = null, string? productCategory = null,
-            int? page = null, int? pageSize = null)
+        private static (string, int) GetExpectedResponse(
+            string? accessToken,
+            string baseUrl,
+            string selfUrl,
+            bool? isOwned = null,
+            string? openStatus = null,
+            string? productCategory = null,
+            int? page = null,
+            int? pageSize = null)
         {
             Helpers.ExtractClaimsFromToken(accessToken, out var loginId, out var softwareProductId);
 
@@ -495,7 +506,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 
             // NB: This has to compare decrypted Id's as AES Encryption now uses a Random IV,
             //     using encrypted ID's in the response and expected content WILL NEVER MATCH
-            var currentCustomer = seedData?.Customers.Where(c => c.LoginId == loginId).FirstOrDefault();
+            var currentCustomer = seedData?.Customers.FirstOrDefault(c => c.LoginId == loginId);
 
             var accounts = currentCustomer?.Accounts?
                 .Select(account => new
@@ -558,14 +569,16 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                     NullValueHandling = NullValueHandling.Ignore,
                     Formatting = Formatting.Indented
                 }),
-
-                totalRecords
-            );
+                totalRecords);
         }
 
-        static string GetUrl(string baseUrl,
-            bool? isOwned = null, string? openStatus = null, string? productCategory = null,
-            int? queryPage = null, int? queryPageSize = null)
+        private static string GetUrl(
+            string baseUrl,
+            bool? isOwned = null,
+            string? openStatus = null,
+            string? productCategory = null,
+            int? queryPage = null,
+            int? queryPageSize = null)
         {
             var query = new KeyValuePairBuilder();
 
@@ -600,10 +613,13 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         }
 
         private async Task Test_AC01_AC02_AC04_AC04_AC05_AC06_AC07(
-         TokenType tokenType,
-         bool? isOwned = null, string? openStatus = null, string? productCategory = null,
-         int? queryPage = null, int? queryPageSize = null,
-         int? expectedRecordCount = null)
+            TokenType tokenType,
+            bool? isOwned = null,
+            string? openStatus = null,
+            string? productCategory = null,
+            int? queryPage = null,
+            int? queryPageSize = null,
+            int? expectedRecordCount = null)
         {
             // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(tokenType);
@@ -611,9 +627,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var baseUrl = $"{_options.DH_MTLS_GATEWAY_URL}/cds-au/v1/banking/accounts";
             var url = GetUrl(baseUrl, isOwned, openStatus, productCategory, queryPage, queryPageSize);
 
-            (var expectedResponse, var totalRecords) = GetExpectedResponse(accessToken, baseUrl, url,
-                isOwned, openStatus, productCategory,
-                queryPage, queryPageSize);
+            (var expectedResponse, var totalRecords) = GetExpectedResponse(accessToken, baseUrl, url, isOwned, openStatus, productCategory, queryPage, queryPageSize);
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderBankingGetAccountsAPI(accessToken, xFapiAuthDate: DateTime.Now.ToUniversalTime().ToString("r"), url: url);
@@ -663,11 +677,11 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 // Assert - Check error response
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    // Assert - Check error response 
+                    // Assert - Check error response
                     Assertions.AssertHasHeader(expectedWWWAuthenticateResponse, response.Headers, "WWW-Authenticate");
                 }
             }
-        }    
+        }
 
         private async Task Test_AC15_AC16_AC17(string xv, CdrException expectedError)
         {
@@ -689,7 +703,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 // Assert - Check error response
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    // Assert - Check content type 
+                    // Assert - Check content type
                     Assertions.AssertHasContentTypeApplicationJson(response.Content);
 
                     // Assert - Check error response
@@ -718,7 +732,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 // Assert - Check error response
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    // Assert - Check content type 
+                    // Assert - Check content type
                     Assertions.AssertHasContentTypeApplicationJson(response.Content);
 
                     // Assert - Check error response

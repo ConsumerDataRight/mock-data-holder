@@ -35,7 +35,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Authorisation
 
             // Check if the access token has been revoked.
             _logger.LogInformation($"{nameof(AccessTokenHandler)}.{nameof(HandleRequirementAsync)} - Checking the access token...");
-            
+
             // Call the Mock Data Holder's idp to introspect the access token.
             var success = await CheckAccessToken();
 
@@ -69,7 +69,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Authorisation
             }
 
             // Introspect the access token.
-            var accessToken = authHeader.ToString().Replace("Bearer ", "");
+            var accessToken = authHeader.ToString().Replace("Bearer ", string.Empty);
             var endpoint = _config["AccessTokenIntrospectionEndpoint"];
 
             var handler = new HttpClientHandler();

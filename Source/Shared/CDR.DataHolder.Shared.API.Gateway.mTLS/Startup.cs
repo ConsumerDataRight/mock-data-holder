@@ -1,6 +1,6 @@
-using System.Security.Cryptography.X509Certificates;
+﻿using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using CDR.DataHolder.Shared.API.Gateway.mTLS.Certificates;
+using CDR.DataHolder.Shared.API.Gateway.Mtls.Certificates;
 using CDR.DataHolder.Shared.API.Infrastructure.Exceptions;
 using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authentication.Certificate;
@@ -17,7 +17,7 @@ using Ocelot.Middleware;
 using Serilog;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace CDR.DataHolder.Shared.API.Gateway.mTLS
+namespace CDR.DataHolder.Shared.API.Gateway.Mtls
 {
     public class Startup
     {
@@ -45,11 +45,11 @@ namespace CDR.DataHolder.Shared.API.Gateway.mTLS
                  {
                      OnCertificateValidated = context =>
                      {
-                         var logger = context.HttpContext.RequestServices.GetService<ILogger<Startup>>()!;
-                         logger.LogInformation("OnCertificateValidated...");
+                         var logger = context.HttpContext.RequestServices.GetService<ILogger<Startup>>();
+                         logger?.LogInformation("OnCertificateValidated...");
 
-                         var certValidator = context.HttpContext.RequestServices.GetService<ICertificateValidator>()!;
-                         certValidator.ValidateClientCertificate(context.ClientCertificate);
+                         var certValidator = context.HttpContext.RequestServices.GetService<ICertificateValidator>();
+                         certValidator?.ValidateClientCertificate(context.ClientCertificate);
                          context.Success();
                          return Task.CompletedTask;
                      },
@@ -60,6 +60,7 @@ namespace CDR.DataHolder.Shared.API.Gateway.mTLS
                      }
                  };
              })
+
              // Adding an ICertificateValidationCache results in certificate auth caching the results.
              // The default implementation uses a memory cache.
              .AddCertificateCache();
@@ -88,7 +89,7 @@ namespace CDR.DataHolder.Shared.API.Gateway.mTLS
                     {
                         context.Response.StatusCode = StatusCodes.Status502BadGateway;
                     }
-                    
+
                     context.Response.ContentType = Text.Plain;
                     await context.Response.WriteAsync($"An error occurred handling the request: {ex?.Message}");
                 });
@@ -110,7 +111,7 @@ namespace CDR.DataHolder.Shared.API.Gateway.mTLS
                         httpContext.Request.Headers["X-TlsClientCertThumbprint"] = clientCert.Thumbprint;
                         httpContext.Request.Headers["X-TlsClientCertCN"] = clientCert.GetNameInfo(X509NameType.SimpleName, false);
 
-                        // Pass the client cert to downstream API for OCSP check                        
+                        // Pass the client cert to downstream API for OCSP check
                         httpContext.Request.Headers["X-TlsClientCert"] = clientCert.ConvertToEncodedBase64String();
                     }
 

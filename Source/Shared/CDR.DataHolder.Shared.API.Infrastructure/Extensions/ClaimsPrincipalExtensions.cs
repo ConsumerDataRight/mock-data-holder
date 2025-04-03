@@ -50,8 +50,8 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
         }
 
         public static string? GetSoftwareProductId(this ClaimsPrincipal claimsPrincipal)
-        {            
-            return claimsPrincipal.GetClaimValue("software_id");                        
+        {
+            return claimsPrincipal.GetClaimValue("software_id");
         }
 
         public static string GetCustomerLoginId(this ClaimsPrincipal principal)
@@ -61,6 +61,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
             {
                 return string.Empty;
             }
+
             return loginId;
         }
 

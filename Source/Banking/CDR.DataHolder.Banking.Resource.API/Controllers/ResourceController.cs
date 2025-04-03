@@ -27,32 +27,32 @@ using static CDR.DataHolder.Shared.API.Infrastructure.Constants;
 namespace CDR.DataHolder.Banking.Resource.API.Controllers
 {
     [Route("cds-au")]
-	[ApiController]
-	[Authorize]
-	public class ResourceController : ControllerBase
-	{
-		private readonly IBankingResourceRepository _resourceRepository;
-		private readonly IConfiguration _config;
-		private readonly IMapper _mapper;
-		private readonly ILogger<ResourceController> _logger;
-		private readonly ITransactionsService _transactionsService;
-		private readonly IIdPermanenceManager _idPermanenceManager;
+    [ApiController]
+    [Authorize]
+    public class ResourceController : ControllerBase
+    {
+        private readonly IBankingResourceRepository _resourceRepository;
+        private readonly IConfiguration _config;
+        private readonly IMapper _mapper;
+        private readonly ILogger<ResourceController> _logger;
+        private readonly ITransactionsService _transactionsService;
+        private readonly IIdPermanenceManager _idPermanenceManager;
 
-		public ResourceController(
+        public ResourceController(
             IBankingResourceRepository resourceRepository,
-			IConfiguration config,
-			IMapper mapper,
-			ILogger<ResourceController> logger,
-			ITransactionsService transactionsService,
-			IIdPermanenceManager idPermanenceManager)
-		{
-			_resourceRepository = resourceRepository;
-			_config = config;
-			_mapper = mapper;
-			_logger = logger;
-			_transactionsService = transactionsService;
-			_idPermanenceManager = idPermanenceManager;
-		}
+            IConfiguration config,
+            IMapper mapper,
+            ILogger<ResourceController> logger,
+            ITransactionsService transactionsService,
+            IIdPermanenceManager idPermanenceManager)
+        {
+            _resourceRepository = resourceRepository;
+            _config = config;
+            _mapper = mapper;
+            _logger = logger;
+            _transactionsService = transactionsService;
+            _idPermanenceManager = idPermanenceManager;
+        }
 
         [PolicyAuthorize(AuthorisationPolicy.GetAccountsApi)]
         [HttpGet("v1/banking/accounts", Name = nameof(GetAccountsV2))]
@@ -68,7 +68,6 @@ namespace CDR.DataHolder.Banking.Resource.API.Controllers
             [FromQuery(Name = "page"), CheckPage] string? page,
             [FromQuery(Name = "page-size"), CheckPageSize] string? pageSize)
         {
-
             // Each customer id is different for each ADR based on PPID.
             // Therefore we need to look up the CustomerClient table to find the actual customer id.
             // This can be done once we have a client id (Registration) and a valid access token.
@@ -112,99 +111,101 @@ namespace CDR.DataHolder.Banking.Resource.API.Controllers
         }
 
         [PolicyAuthorize(AuthorisationPolicy.GetTransactionsApi)]
-		[HttpGet("v1/banking/accounts/{accountId}/transactions", Name = nameof(GetTransactions))]
-		[CheckScope(ApiScopes.Banking.TransactionsRead)]
-		[CheckXV(1, 1)]
-		[CheckAuthDate]
-		[ApiVersion("1")]
+        [HttpGet("v1/banking/accounts/{accountId}/transactions", Name = nameof(GetTransactions))]
+        [CheckScope(ApiScopes.Banking.TransactionsRead)]
+        [CheckXV(1, 1)]
+        [CheckAuthDate]
+        [ApiVersion("1")]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
-		public async Task<IActionResult> GetTransactions([FromQuery] RequestAccountTransactions request)
-		{  
+        public async Task<IActionResult> GetTransactions([FromQuery] RequestAccountTransactions request)
+        {
             // Each customer id is different for each ADR based on PPID.
             // customer id is not required for account when account id is available
-            // This can be done once we have a client id (Registration) and a valid access token.            
+            // This can be done once we have a client id (Registration) and a valid access token.
             var loginId = User.GetCustomerLoginId();
-                        
+
             if (string.IsNullOrEmpty(loginId))
             {
                 return new BadRequestObjectResult(new ResponseErrorList().AddUnexpectedError());
             }
-			            
-			var softwareProductId = this.User.FindFirst(TokenClaimTypes.SoftwareId)?.Value;
 
-			// Decrypt the incoming account id (ID Permanence rules).
-			var idParameters = new IdPermanenceParameters
-			{
-				SoftwareProductId = softwareProductId ?? string.Empty,
-				CustomerId = loginId
-			};
-			
-			request.AccountId = DecryptAccountId(request.AccountId, idParameters);
+            var softwareProductId = this.User.FindFirst(TokenClaimTypes.SoftwareId)?.Value;
 
-			if (string.IsNullOrEmpty(request.AccountId))
-			{
-				using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"]?.ToString()))
-				{
-					_logger.LogError("Account Id could not be retrieved from request.");
-				}
-				return new NotFoundObjectResult(new ResponseErrorList().AddResourceNotFound("Account ID could not be found for the customer"));
-			}
-			else
-			{
-				if (!(await _resourceRepository.CanAccessAccount(request.AccountId)))
-				{
-					// A valid consent exists with bank:transactions:read scope but this Account Id could not be found for the supplied Customer Id.
-					// This scenario will take precedence
-					using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"]?.ToString()))
-					{
-						_logger.LogInformation("Customer does not have access to this Account Id. Account Id: {accountId}", request.AccountId);
-					}
-					return new NotFoundObjectResult(new ResponseErrorList().AddResourceNotFound("Account ID could not be found for the customer"));
-				}
+            // Decrypt the incoming account id (ID Permanence rules).
+            var idParameters = new IdPermanenceParameters
+            {
+                SoftwareProductId = softwareProductId ?? string.Empty,
+                CustomerId = loginId
+            };
 
-				if (!User.GetAccountIds().Contains(request.AccountId))
-				{
-					// A valid consent exists with bank:transactions:read scope and the Account Id can be found for the supplied customer
-					// but this Account Id is not in the list of consented Account Ids
-					using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"]?.ToString()))
-					{
-						_logger.LogInformation("Consent has not been granted for this Account Id: {accountId}", request.AccountId);
-					}
+            request.AccountId = DecryptAccountId(request.AccountId, idParameters);
+
+            if (string.IsNullOrEmpty(request.AccountId))
+            {
+                using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"]?.ToString()))
+                {
+                    _logger.LogError("Account Id could not be retrieved from request.");
+                }
+
+                return new NotFoundObjectResult(new ResponseErrorList().AddResourceNotFound("Account ID could not be found for the customer"));
+            }
+            else
+            {
+                if (!(await _resourceRepository.CanAccessAccount(request.AccountId)))
+                {
+                    // A valid consent exists with bank:transactions:read scope but this Account Id could not be found for the supplied Customer Id.
+                    // This scenario will take precedence
+                    using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"]?.ToString()))
+                    {
+                        _logger.LogInformation("Customer does not have access to this Account Id. Account Id: {AccountId}", request.AccountId);
+                    }
+
+                    return new NotFoundObjectResult(new ResponseErrorList().AddResourceNotFound("Account ID could not be found for the customer"));
+                }
+
+                if (!User.GetAccountIds().Contains(request.AccountId))
+                {
+                    // A valid consent exists with bank:transactions:read scope and the Account Id can be found for the supplied customer
+                    // but this Account Id is not in the list of consented Account Ids
+                    using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"]?.ToString()))
+                    {
+                        _logger.LogInformation("Consent has not been granted for this Account Id: {AccountId}", request.AccountId);
+                    }
 
                     return new NotFoundObjectResult(new ResponseErrorList().AddConsentNotFound(_config.GetValue<string>("Industry")));
-				}
-			}
+                }
+            }
 
-			var page = string.IsNullOrEmpty(request.Page) ? 1 : int.Parse(request.Page);
-			var pageSize = string.IsNullOrEmpty(request.PageSize) ? 25 : int.Parse(request.PageSize);
-			var response = await _transactionsService.GetAccountTransactions(request, page, pageSize);
+            var page = string.IsNullOrEmpty(request.Page) ? 1 : int.Parse(request.Page);
+            var pageSize = string.IsNullOrEmpty(request.PageSize) ? 25 : int.Parse(request.PageSize);
+            var response = await _transactionsService.GetAccountTransactions(request, page, pageSize);
 
-			_idPermanenceManager.EncryptIds(response.Data.Transactions, idParameters, t => t.AccountId, t => t.TransactionId);
+            _idPermanenceManager.EncryptIds(response.Data.Transactions, idParameters, t => t.AccountId, t => t.TransactionId);
 
-			// Set pagination meta data
-			response.Links = this.GetLinks(_config, page, response.Meta.TotalPages.GetValueOrDefault(), pageSize);
+            // Set pagination meta data
+            response.Links = this.GetLinks(_config, page, response.Meta.TotalPages.GetValueOrDefault(), pageSize);
 
-			return new OkObjectResult(await Task.FromResult(response));
-		}
+            return new OkObjectResult(await Task.FromResult(response));
+        }
 
-		private string DecryptAccountId(string encryptedAccountId, IdPermanenceParameters idParameters)
-		{
-			string accountId = string.Empty;
+        private string DecryptAccountId(string encryptedAccountId, IdPermanenceParameters idParameters)
+        {
+            string accountId = string.Empty;
 
-			try
-			{
-				// Get the underlying Account Id from the Account Permanence Id in the request.
-				accountId = _idPermanenceManager.DecryptId(encryptedAccountId, idParameters);
-			}
-			catch (Exception ex)
-			{
-				using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"]?.ToString()))
-				{
-					_logger.LogError(ex, "Could not decrypt account id.");
-				}
-			}
+            try
+            {
+                // Get the underlying Account Id from the Account Permanence Id in the request.
+                accountId = _idPermanenceManager.DecryptId(encryptedAccountId, idParameters);
+            }
+            catch (Exception ex)
+            {
+                using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"]?.ToString()))
+                {
+                    _logger.LogError(ex, "Could not decrypt account id.");
+                }
+            }
 
-			return accountId;
-		}
-	}
+            return accountId;
+        }
+    }
 }

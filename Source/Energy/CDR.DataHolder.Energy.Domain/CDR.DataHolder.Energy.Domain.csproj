@@ -1,16 +1,25 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-	<TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
-	<Version>$(Version)</Version>
-	<FileVersion>$(Version)</FileVersion>
-	<AssemblyVersion>$(Version)</AssemblyVersion>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Domain\CDR.DataHolder.Shared.Domain.csproj" />
-    <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Repository\CDR.DataHolder.Shared.Repository.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
+        <Version>$(Version)</Version>
+        <FileVersion>$(Version)</FileVersion>
+        <AssemblyVersion>$(Version)</AssemblyVersion>
+        <Nullable>enable</Nullable>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Domain\CDR.DataHolder.Shared.Domain.csproj" />
+        <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Repository\CDR.DataHolder.Shared.Repository.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="10.5.0.109200">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
 </Project>

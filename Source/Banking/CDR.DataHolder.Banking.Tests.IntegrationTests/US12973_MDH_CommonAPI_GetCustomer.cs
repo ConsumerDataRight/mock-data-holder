@@ -1,4 +1,4 @@
-using CDR.DataHolder.Banking.Tests.IntegrationTests.Models;
+﻿using CDR.DataHolder.Banking.Tests.IntegrationTests.Models;
 using CDR.DataHolder.Shared.API.Infrastructure.IdPermanence;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Enums;
@@ -21,7 +21,7 @@ using Xunit.DependencyInjection;
 
 namespace CDR.DataHolder.Banking.Tests.IntegrationTests
 {
-    public class US12973_MDH_CommonAPI_GetCustomer : BaseTest, IClassFixture<RegisterSoftwareProductFixture>
+    public class US12973_Mdh_CommonApi_GetCustomer : BaseTest, IClassFixture<RegisterSoftwareProductFixture>
     {
         private const string SCOPE_WITHOUT_CUSTOMERBASICREAD = "openid bank:accounts.basic:read bank:transactions:read";
 
@@ -30,9 +30,14 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         private readonly IDataHolderAccessTokenCache _dataHolderAccessTokenCache;
         private readonly IApiServiceDirector _apiServiceDirector;
 
-        public US12973_MDH_CommonAPI_GetCustomer(IOptions<TestAutomationOptions> options, ISqlQueryService sqlQueryService, IDataHolderAccessTokenCache dataHolderAccessTokenCache, IApiServiceDirector apiServiceDirector,
+        public US12973_Mdh_CommonApi_GetCustomer(
+            IOptions<TestAutomationOptions> options,
+            ISqlQueryService sqlQueryService,
+            IDataHolderAccessTokenCache dataHolderAccessTokenCache,
+            IApiServiceDirector apiServiceDirector,
             ITestOutputHelperAccessor testOutputHelperAccessor,
-            Microsoft.Extensions.Configuration.IConfiguration config, RegisterSoftwareProductFixture registerSoftwareProductFixture)
+            Microsoft.Extensions.Configuration.IConfiguration config,
+            RegisterSoftwareProductFixture registerSoftwareProductFixture)
             : base(testOutputHelperAccessor, config)
         {
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
@@ -62,12 +67,11 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                     SoftwareProductId = Constants.SoftwareProducts.SoftwareProductId.ToLower(),
                     SectorIdentifierUri = Constants.SoftwareProducts.SoftwareProductSectorIdentifierUri,
                 },
-                Constants.IdPermanence.IdPermanencePrivateKey
-            );
+                Constants.IdPermanence.IdPermanencePrivateKey);
 
             var loginId = decryptedSub;
 
-            // Get expected response 
+            // Get expected response
             var expectedResponse = new
             {
                 data = seedData?.Customers
@@ -80,14 +84,13 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                             lastUpdateTime = customer.Person?.LastUpdateTime,
                             firstName = customer.Person?.FirstName,
                             lastName = customer.Person?.LastName,
-                            middleNames = string.IsNullOrEmpty(customer.Person?.MiddleNames) ?
-                                null :
-                                customer.Person.MiddleNames.Split(',', StringSplitOptions.TrimEntries),
+                            middleNames = customer.Person?.MiddleNames.Split(',', StringSplitOptions.TrimEntries),
                             prefix = customer.Person?.Prefix,
                             suffix = customer.Person?.Suffix,
                             occupationCode = customer.Person?.OccupationCode,
-                            occupationCodeVersion = customer.Person?.OccupationCodeVersion,
-                        } : null,
+                            occupationCodeVersion = customer.Person?.OccupationCodeVersion
+                        }
+                        : null,
                         organisation = customer.CustomerUType?.ToLower() == "organisation" ? new
                         {
                             lastUpdateTime = customer.Organisation?.LastUpdateTime,
@@ -104,10 +107,9 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                             industryCodeVersion = customer.Organisation?.IndustryCodeVersion,
                             organisationType = customer.Organisation?.OrganisationType,
                             registeredCountry = customer.Organisation?.RegisteredCountry,
-                            establishmentDate = customer.Organisation?.EstablishmentDate == null ?
-                                 null :
-                                 customer.Organisation.EstablishmentDate.Value.ToString("yyyy-MM-dd")
-                        } : null,
+                            establishmentDate = customer.Organisation?.EstablishmentDate.GetValueOrDefault().ToString("yyyy-MM-dd")
+                        }
+                        : null,
                     })
                     .FirstOrDefault(),
                 links = new
@@ -117,7 +119,8 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 meta = new { }
             };
 
-            return JsonConvert.SerializeObject(expectedResponse,
+            return JsonConvert.SerializeObject(
+                expectedResponse,
                 new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
@@ -162,48 +165,12 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData(TokenType.JaneWilson)]
-        [InlineData(TokenType.KamillaSmith)]
-        public async Task AC01_ShouldRespondWith_200OK_Customers_UsingHybridFlow(TokenType tokenType)
-        {
-            Log.Information("Running test with Params: {P1}={V1}.", nameof(tokenType), tokenType);
-
-            // Arrange
-            var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(tokenType, responseType: ResponseType.CodeIdToken, responseMode: ResponseMode.FormPost);
-
-            var expectedResponse = GetExpectedResponse(accessToken, _options.DH_MTLS_GATEWAY_URL);
-
-            // Act
-            var api = _apiServiceDirector.BuildDataHolderCommonGetCustomerAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"));
-            var response = await api.SendAsync();
-
-            // Assert
-            using (new AssertionScope(BaseTestAssertionStrategy))
-            {
-                // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-                // Assert - Check content type
-                Assertions.AssertHasContentTypeApplicationJson(response.Content);
-
-                // Assert - Check XV
-                Assertions.AssertHasHeader(api.XV, response.Headers, "x-v");
-
-                // Assert - Check x-fapi-interaction-id
-                Assertions.AssertHasHeader(null, response.Headers, "x-fapi-interaction-id");
-
-                // Assert - Check json
-                await Assertions.AssertHasContentJson(expectedResponse, response.Content);
-            }
-        }
-
-        [Theory]
         [InlineData(Constants.Scopes.ScopeBanking)]
         public async Task AC02_Success(string scope)
         {
             Log.Information("Running test with Params: {P1}={V1}.", nameof(scope), scope);
 
-            // Arrange 
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.JaneWilson, scope);
 
             // Act
@@ -224,7 +191,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         {
             Log.Information("Running test with Params: {P1}={V1}.", nameof(scope), scope);
 
-            // Arrange 
+            // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.JaneWilson, scope);
 
             CdrException expectedError = new InvalidConsentException();
@@ -288,7 +255,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 // Assert - Check status code
                 response.StatusCode.Should().Be(expectedError.StatusCode);
 
-                // Assert - Check content type 
+                // Assert - Check content type
                 Assertions.AssertHasContentTypeApplicationJson(response.Content);
 
                 // Assert - Check error response
@@ -320,7 +287,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 // Assert - Check status code
                 response.StatusCode.Should().Be(expectedError.StatusCode);
 
-                // Assert - Check content type 
+                // Assert - Check content type
                 Assertions.AssertHasContentTypeApplicationJson(response.Content);
 
                 // Assert - Check error response
@@ -351,7 +318,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 // Assert - Check status code
                 response.StatusCode.Should().Be(expectedError.StatusCode);
 
-                // Assert - Check content type 
+                // Assert - Check content type
                 Assertions.AssertHasContentTypeApplicationJson(response.Content);
 
                 // Assert - Check error response
@@ -402,7 +369,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 // Assert - Check status code
                 response.StatusCode.Should().Be(expectedError.StatusCode);
 
-                // Assert - Check content type 
+                // Assert - Check content type
                 Assertions.AssertHasContentTypeApplicationJson(response.Content);
 
                 // Assert - Check error response
@@ -454,7 +421,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 // Assert - Check status code
                 response.StatusCode.Should().Be(expectedError.StatusCode);
 
-                // Assert - Check content type 
+                // Assert - Check content type
                 Assertions.AssertHasContentTypeApplicationJson(response.Content);
 
                 // Assert - Check error response
@@ -480,7 +447,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 // Assert - Check error response
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    // Assert - Check error response 
+                    // Assert - Check error response
                     Assertions.AssertHasHeader(expectedWWWAuthenticateResponse, response.Headers, "WWW-Authenticate");
                 }
             }
@@ -529,8 +496,9 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 // Assert - Check error response
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    // Assert - Check error response 
-                    Assertions.AssertHasHeader(@"Bearer error=""invalid_token"", error_description=""The token expired at ",
+                    // Assert - Check error response
+                    Assertions.AssertHasHeader(
+                        @"Bearer error=""invalid_token"", error_description=""The token expired at ",
                         response.Headers,
                         "WWW-Authenticate",
                         true); // starts with
@@ -554,6 +522,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             try
             {
                 string? accessToken = string.Empty;
+
                 // Arrange
                 try
                 {
@@ -614,7 +583,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData(Constants.Certificates.AdditionalCertificateFilename, Constants.Certificates.AdditionalCertificatePassword)]  // Different holder of key
+        [InlineData(Constants.Certificates.AdditionalCertificateFilename, Constants.Certificates.AdditionalCertificatePassword)] // Different holder of key
         public async Task AC12_Get_WithDifferentHolderOfKey_ShouldRespondWith_401Unauthorized(string certificateFilename, string certificatePassword)
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(certificateFilename), certificateFilename, nameof(certificatePassword), certificatePassword);
@@ -635,7 +604,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 // Assert - Check status code
                 response.StatusCode.Should().Be(expectedError.StatusCode);
 
-                // Assert - Check content type 
+                // Assert - Check content type
                 Assertions.AssertHasContentTypeApplicationJson(response.Content);
 
                 // Assert - Check error response

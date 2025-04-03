@@ -69,7 +69,7 @@ namespace CDR.DataHolder.Admin.API.Controllers
 
         private async Task<string> GetFileContents(string fileLocation)
         {
-            _logger.LogDebug("Retrieving get metrics data from {fileLocation}", fileLocation);
+            _logger.LogDebug("Retrieving get metrics data from {FileLocation}", fileLocation);
 
             // Download the file contents from remote location.
             if (fileLocation.StartsWith("https://"))
@@ -81,7 +81,7 @@ namespace CDR.DataHolder.Admin.API.Controllers
             }
 
             // Read the file contents from local disk.
-            var fileContents = System.IO.File.ReadAllText(fileLocation);
+            var fileContents = await System.IO.File.ReadAllTextAsync(fileLocation);
             return fileContents;
         }
 
@@ -89,7 +89,6 @@ namespace CDR.DataHolder.Admin.API.Controllers
         /// The Get Metrics endpoint can accept either:
         /// - an Access Token issued by the DH's auth server
         /// - a self signed JWT issued by the Register.
-        /// 
         /// This method supports switching between the two auth methods using
         /// configuration, for testing purposes.
         /// </summary>
@@ -111,7 +110,7 @@ namespace CDR.DataHolder.Admin.API.Controllers
             }
 
             // Bearer token needs to be a JWT.
-            var token = authHeaderValue.Replace("Bearer ", "");
+            var token = authHeaderValue.Replace("Bearer ", string.Empty);
             var jwtTokenHandler = new JwtSecurityTokenHandler();
 
             if (!jwtTokenHandler.CanReadToken(token))
@@ -125,11 +124,11 @@ namespace CDR.DataHolder.Admin.API.Controllers
             // Self Signed JWT Authentication.
             if (jwt.Issuer == "cdr-register")
             {
-                _logger.LogDebug("GetMetrics.Authorize: Self Signed JWT - {jwt}", jwt.RawData);
+                _logger.LogDebug("GetMetrics.Authorize: Self Signed JWT - {Jwt}", jwt.RawData);
                 return await SelfSignedJwtAuthorization(jwt);
             }
 
-            _logger.LogDebug("GetMetrics.Authorize: Access Token JWT - {jwt}", jwt.RawData);
+            _logger.LogDebug("GetMetrics.Authorize: Access Token JWT - {Jwt}", jwt.RawData);
             return await AccessTokenAuthorization(jwt);
         }
 
@@ -227,18 +226,18 @@ namespace CDR.DataHolder.Admin.API.Controllers
 
             try
             {
-                _logger.LogDebug("Retrieving JWKS from {jwksUri}", jwksUri);
+                _logger.LogDebug("Retrieving JWKS from {JwksUri}", jwksUri);
                 var jwksClient = new HttpClient(clientHandler);
                 var jwksResponse = await jwksClient.GetAsync(jwksUri);
                 var jwks = await jwksResponse.Content.ReadAsStringAsync();
 
-                _logger.LogDebug("JWKS: {jwks}", jwks);
+                _logger.LogDebug("JWKS: {Jwks}", jwks);
                 return new JsonWebKeySet(jwks).Keys;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred retrieving signing keys from jwks_uri");
-                throw;
+                throw new InvalidOperationException("An error occurred retrieving signing keys from jwks_uri");
             }
         }
 

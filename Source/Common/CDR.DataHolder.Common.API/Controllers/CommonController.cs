@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using CDR.DataHolder.Common.API.Infrastructure;
 using CDR.DataHolder.Common.Resource.API.Business.Responses;
 using CDR.DataHolder.Shared.API.Infrastructure.Authorization;
@@ -27,13 +27,12 @@ namespace CDR.DataHolder.Common.API.Controllers
         public CommonController(
             IMapper mapper,
             IConfiguration config,
-            IServiceProvider serviceProvider
-            )
+            IServiceProvider serviceProvider)
         {
             _mapper = mapper;
             _config = config;
-            _serviceProvider=serviceProvider;
-            _industry = config.GetValue<string>("Industry")?? Industry.Banking;
+            _serviceProvider = serviceProvider;
+            _industry = config.GetValue<string>("Industry") ?? Industry.Banking;
         }
 
         [PolicyAuthorize(AuthorisationPolicy.GetCustomersApi)]
@@ -45,7 +44,6 @@ namespace CDR.DataHolder.Common.API.Controllers
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetCustomer()
         {
-
             // Each customer id is different for each ADR based on PPID.
             // Therefore we need to look up the CustomerClient table to find the actual customer id.
             // This can be done once we have a client id (Registration) and a valid access token.
@@ -68,7 +66,7 @@ namespace CDR.DataHolder.Common.API.Controllers
                 return BadRequest();
             }
 
-            response.Links = this.GetLinks(_config);            
+            response.Links = this.GetLinks(_config);
 
             return Ok(response);
         }

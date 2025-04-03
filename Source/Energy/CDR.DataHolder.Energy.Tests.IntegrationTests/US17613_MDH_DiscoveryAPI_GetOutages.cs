@@ -11,12 +11,12 @@ using Xunit.DependencyInjection;
 
 namespace CDR.DataHolder.Energy.Tests.IntegrationTests
 {
-    public class US17613_MDH_DiscoveryAPI_GetOutages : BaseTest, IClassFixture<BaseFixture>
+    public class US17613_Mdh_DiscoveryApi_GetOutages : BaseTest, IClassFixture<BaseFixture>
     {
         private readonly TestAutomationOptions _options;
         private readonly IApiServiceDirector _apiServiceDirector;
 
-        public US17613_MDH_DiscoveryAPI_GetOutages(
+        public US17613_Mdh_DiscoveryApi_GetOutages(
             IOptions<TestAutomationOptions> options,
             IApiServiceDirector apiServiceDirector,
             ITestOutputHelperAccessor testOutputHelperAccessor,

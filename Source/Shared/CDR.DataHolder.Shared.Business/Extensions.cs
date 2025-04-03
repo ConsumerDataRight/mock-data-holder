@@ -13,7 +13,7 @@ namespace CDR.DataHolder.Shared.Business
     {
         public static string GetHostName(this string url)
         {
-            return url.Replace("https://", "").Replace("http://", "").Split('/')[0];
+            return url.Replace("https://", string.Empty).Replace("http://", string.Empty).Split('/')[0];
         }
 
         public static Shared.Business.Models.Links GetLinks(this ControllerBase controller, IConfiguration configuration, int? currentPage = null, int totalPages = 0, int? pageSize = null)
@@ -101,7 +101,7 @@ namespace CDR.DataHolder.Shared.Business
             var uriBuilder = new UriBuilder(url);
             if (!string.IsNullOrEmpty(newHost))
             {
-                var segments = newHost.Replace("https://", "").Split(':');
+                var segments = newHost.Replace("https://", string.Empty).Split(':');
                 uriBuilder.Host = segments[0];
 
                 if (segments.Length > 1)
@@ -121,6 +121,7 @@ namespace CDR.DataHolder.Shared.Business
             {
                 return softwareProductId;
             }
+
             return null;
         }
 

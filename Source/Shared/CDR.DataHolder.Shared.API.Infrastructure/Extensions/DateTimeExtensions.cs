@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 
 namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
 {
     public static class DateTimeExtensions
     {
-        private static readonly DateTime _epochTime = new DateTime(1970, 1, 1);
+        private static readonly DateTime _epochTime = DateTime.UnixEpoch;
 
         public static bool HasExpired(this DateTime creationTime, int seconds, DateTime now)
             => creationTime.AddSeconds(seconds) < now;

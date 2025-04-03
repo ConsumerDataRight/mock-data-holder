@@ -15,7 +15,6 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
 
             // Encode the string
             return WebUtility.UrlEncode(base64Cert);
-
         }
     }
 }

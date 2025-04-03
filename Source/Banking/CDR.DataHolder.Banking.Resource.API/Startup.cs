@@ -1,4 +1,4 @@
-using CDR.DataHolder.Banking.Domain.Repositories;
+﻿using CDR.DataHolder.Banking.Domain.Repositories;
 using CDR.DataHolder.Banking.Repository;
 using CDR.DataHolder.Banking.Repository.Infrastructure;
 using CDR.DataHolder.Banking.Resource.API.Business.Services;
@@ -119,7 +119,7 @@ namespace CDR.DataHolder.Banking.Resource.API
                 options.Audience = "cds-au";
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
-                    ClockSkew =TimeSpan.FromMinutes(1),
+                    ClockSkew = TimeSpan.FromMinutes(1),
                     RequireAudience = true,
                     RequireExpirationTime = true,
                     ValidateIssuer = true,
@@ -183,7 +183,6 @@ namespace CDR.DataHolder.Banking.Resource.API
                     }
                 });
             });
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -197,10 +196,9 @@ namespace CDR.DataHolder.Banking.Resource.API
             app.UseSerilogRequestLogging();
 
             app.UseMiddleware<RequestResponseLoggingMiddleware>();
+
             // ExceptionHandlingMiddleware must be first in the line, so it will catch all unhandled exceptions.
             app.UseMiddleware<ResourceAuthoriseErrorHandlingMiddleware>();
-            
-
 
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mock Data Holder Discovery API v1"));
@@ -211,8 +209,6 @@ namespace CDR.DataHolder.Banking.Resource.API
 
             app.UseAuthentication();
             app.UseAuthorization();
-
-            
 
             // Add custom middleware
             app.UseInteractionId();

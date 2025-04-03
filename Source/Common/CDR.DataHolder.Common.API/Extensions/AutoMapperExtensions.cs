@@ -9,7 +9,9 @@ namespace CDR.DataHolder.Common.API.Extensions
             var destinationType = typeof(TDestination);
 
             foreach (var property in destinationType.GetProperties())
+            {
                 expr.ForMember(property.Name, opt => opt.Ignore());
+            }
 
             return expr;
         }

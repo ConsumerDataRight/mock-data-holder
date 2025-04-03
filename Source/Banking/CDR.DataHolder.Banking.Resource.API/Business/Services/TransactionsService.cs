@@ -1,12 +1,12 @@
-﻿using CDR.DataHolder.Banking.Resource.API.Business.Models;
+﻿using System.Threading.Tasks;
 using CDR.DataHolder.Banking.Domain.Repositories;
 using CDR.DataHolder.Banking.Domain.ValueObjects;
-using System.Threading.Tasks;
+using CDR.DataHolder.Banking.Resource.API.Business.Models;
 using CDR.DataHolder.Shared.Business.Models;
 
 namespace CDR.DataHolder.Banking.Resource.API.Business.Services
 {
-    public class TransactionsService: ITransactionsService
+    public class TransactionsService : ITransactionsService
     {
         private readonly IBankingResourceRepository _resourceRepository;
         private readonly AutoMapper.IMapper _mapper;

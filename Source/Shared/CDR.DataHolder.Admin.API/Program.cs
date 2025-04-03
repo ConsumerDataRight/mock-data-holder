@@ -1,10 +1,9 @@
-using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
+﻿using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Events;
 using System;
 using System.IO;
 using System.Security.Authentication;
@@ -13,7 +12,9 @@ namespace CDR.DataHolder.Admin.API
 {
     public sealed class Program
     {
-        private Program() { }
+        private Program()
+        {
+        }
 
         public static int Main(string[] args)
         {
@@ -35,7 +36,7 @@ namespace CDR.DataHolder.Admin.API
                 .Build();
 
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)                
+                .ReadFrom.Configuration(configuration)
                 .Enrich.FromLogContext()
                 .Enrich.WithProcessId()
                 .Enrich.WithProcessName()
@@ -63,7 +64,7 @@ namespace CDR.DataHolder.Admin.API
 
         public static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration, Serilog.ILogger logger) =>
             Host.CreateDefaultBuilder(args)
-                .UseSerilog()                
+                .UseSerilog()
                 .ConfigureAppConfiguration(builder =>
                 {
                     builder.Sources.Clear();
@@ -74,7 +75,7 @@ namespace CDR.DataHolder.Admin.API
                     webBuilder.UseKestrel((context, serverOptions) =>
                     {
                         var industry = context.Configuration.GetValue<string>("Industry");
-                        logger.Information("Industry is set to {industry}", industry);
+                        logger.Information("Industry is set to {Industry}", industry);
                         serverOptions.Configure(context.Configuration.GetSection("Kestrel"))
                                         .Endpoint("HTTPS", listenOptions =>
                                         {
@@ -83,18 +84,18 @@ namespace CDR.DataHolder.Admin.API
                                             var tlsCertOverride = configuration.GetTlsCertificateOverride(logger);
                                             if (tlsCertOverride != null)
                                             {
-                                                logger.Information("TLS Certificate Override - {thumbprint}", tlsCertOverride.Thumbprint);
+                                                logger.Information("TLS Certificate Override - {Thumbprint}", tlsCertOverride.Thumbprint);
                                                 listenOptions.HttpsOptions.ServerCertificate = tlsCertOverride;
                                             }
                                         });
 
-                            serverOptions.ConfigureHttpsDefaults(options =>
-                            {
-                                options.SslProtocols = SslProtocols.Tls12;
-                            });
-                        })
-                        .UseIIS()                        
+                        serverOptions.ConfigureHttpsDefaults(options =>
+                        {
+                            options.SslProtocols = SslProtocols.Tls12;
+                        });
+                    })
+                        .UseIIS()
                         .UseStartup<Startup>();
-                    });
+                });
     }
 }

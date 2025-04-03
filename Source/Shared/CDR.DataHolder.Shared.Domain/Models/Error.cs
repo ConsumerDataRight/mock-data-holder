@@ -6,14 +6,13 @@ namespace CDR.DataHolder.Shared.Domain.Models
     public class Error
     {
         public Error()
+            : this(string.Empty, string.Empty, string.Empty, string.Empty)
         {
         }
 
         public Error(string code, string title, string detail)
+            : this(code, title, detail, string.Empty)
         {
-            Code = code;
-            Title = title;
-            Detail = detail;
         }
 
         public Error(string code, string title, string detail, string metaUrn)
@@ -25,26 +24,26 @@ namespace CDR.DataHolder.Shared.Domain.Models
         }
 
         /// <summary>
-        /// Error code
+        /// Error code.
         /// </summary>
         [Required]
         public string Code { get; set; }
 
         /// <summary>
-        /// Error title
+        /// Error title.
         /// </summary>
         [Required]
         public string Title { get; set; }
 
         /// <summary>
-        /// Error detail
+        /// Error detail.
         /// </summary>
         [Required]
         public string Detail { get; set; }
 
         /// <summary>
-        /// Optional additional data for specific error types
+        /// Optional additional data for specific error types.
         /// </summary>
-        public MetaError Meta { get; set; }
+        public MetaError? Meta { get; set; }
     }
 }

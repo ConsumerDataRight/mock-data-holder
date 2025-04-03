@@ -42,13 +42,13 @@ jobs:
 
     steps:
     - name: Checkout Data Holder
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         path: ./mock-data-holder    
     
     - name: Checkout Authorisation Server (main)
       if: ${{ github.ref == 'refs/heads/main' }}
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: consumerdataright/authorisation-server
         ref:  'refs/heads/main'
@@ -56,7 +56,7 @@ jobs:
 
     - name: Checkout Authorisation Server (develop)
       if: ${{ github.ref != 'refs/heads/main' }}
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: consumerdataright/authorisation-server
         ref: 'refs/heads/develop'
@@ -150,7 +150,7 @@ jobs:
 
     # Archive unit test results
     - name: Archive unit test results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: unit-test-results
@@ -158,7 +158,7 @@ jobs:
 
     # Archive banking integration test results
     - name: Archive banking integration test results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: banking-integration-test-results
@@ -166,7 +166,7 @@ jobs:
         
     # Archive energy integration test results
     - name: Archive energy integration test results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: energy-integration-test-results

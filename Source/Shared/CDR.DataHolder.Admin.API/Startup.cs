@@ -1,4 +1,4 @@
-using CDR.DataHolder.Shared.API.Infrastructure.Filters;
+﻿using CDR.DataHolder.Shared.API.Infrastructure.Filters;
 using CDR.DataHolder.Shared.API.Infrastructure.Middleware;
 using CDR.DataHolder.Shared.API.Infrastructure.Versioning;
 using Microsoft.AspNetCore.Builder;
@@ -29,14 +29,14 @@ namespace CDR.DataHolder.Admin.API
             services.AddControllers();
 
             var getMetricsSupportVersion = Configuration.GetValue<string>("GetMetricsSupportedVersions", "4,5") ?? string.Empty;
-            var overrideMetricsVersions = new Dictionary<string, int[]> 
+            var overrideMetricsVersions = new Dictionary<string, int[]>
             {
-                { 
+                {
                     @"\/cds-au\/v1\/admin\/metrics",
-                        getMetricsSupportVersion
+                    getMetricsSupportVersion
                         .Split(',')
                         .Select(x => Convert.ToInt32(x))
-                        .ToArray() 
+                        .ToArray()
                 }
             };
 

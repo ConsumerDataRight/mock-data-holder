@@ -16,7 +16,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.HealthChecks
         public DatabaseMigrationHealthCheck(IIndustryDbContext dbContext, HealthCheckStatuses healthCheckStatuses)
         {
             _dbContext = dbContext;
-            _healthCheckStatuses=healthCheckStatuses;
+            _healthCheckStatuses = healthCheckStatuses;
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
@@ -39,7 +39,6 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.HealthChecks
                 _healthCheckStatuses.IsMigrationDone = false;
                 return HealthCheckResult.Unhealthy($"Error. {e.Message}");
             }
-
         }
     }
 }

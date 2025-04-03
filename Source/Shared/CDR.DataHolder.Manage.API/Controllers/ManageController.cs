@@ -19,16 +19,17 @@ namespace CDR.DataHolder.Manage.API.Controllers
         private readonly DbContext _dbContext;
         private readonly HealthCheckStatuses _healthCheckStatuses;
 
-        public ManageController(ILogger<ManageController> logger,
-                                IndustryDbContextFactory dbContextFactory,                                 
-                                HealthCheckStatuses healthCheckStatuses,
-                                IConfiguration configuration)
+        public ManageController(
+            ILogger<ManageController> logger,
+            IndustryDbContextFactory dbContextFactory,
+            HealthCheckStatuses healthCheckStatuses,
+            IConfiguration configuration)
         {
             _logger = logger;
-            var _industry = configuration.GetValue<string>("Industry") ?? string.Empty;
-            
-            _dbContext = (DbContext)dbContextFactory.Create(_industry, DbConstants.ConnectionStringType.Default);
-            _healthCheckStatuses=healthCheckStatuses;
+            var industry = configuration.GetValue<string>("Industry") ?? string.Empty;
+
+            _dbContext = (DbContext)dbContextFactory.Create(industry, DbConstants.ConnectionStringType.Default);
+            _healthCheckStatuses = healthCheckStatuses;
         }
 
         [HttpPost]
@@ -50,6 +51,6 @@ namespace CDR.DataHolder.Manage.API.Controllers
             }
 
             return Ok();
-        }            
+        }
     }
 }

@@ -1,10 +1,8 @@
-﻿using CDR.DataHolder.Shared.API.Infrastructure.Models;
-using CDR.DataHolder.Shared.API.Infrastructure.Versioning;
+﻿using CDR.DataHolder.Shared.API.Infrastructure.Versioning;
 using CDR.DataHolder.Shared.Domain.Models;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -12,7 +10,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Middleware
 {
     public static class ApiExceptionHandler
     {
-        public async static Task Handle(HttpContext context)
+        public static async Task Handle(HttpContext context)
         {
             var exceptionDetails = context.Features.Get<IExceptionHandlerFeature>();
             var ex = exceptionDetails?.Error;
@@ -21,7 +19,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Middleware
             {
                 var handledError = string.Empty;
                 var statusCode = (int)HttpStatusCode.BadRequest;
-                var jsonSerializerSettings = new CdrJsonSerializerSettings(); //TODO: This should be set as default through startup and we can remove this line
+                var jsonSerializerSettings = new CdrJsonSerializerSettings();
 
                 if (ex is InvalidVersionException)
                 {

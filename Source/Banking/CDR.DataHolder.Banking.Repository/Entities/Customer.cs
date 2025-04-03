@@ -15,7 +15,7 @@ namespace CDR.DataHolder.Banking.Repository.Entities
         {
             get
             {
-                if (this.Person != null && !string.IsNullOrEmpty(this.CustomerUType) 
+                if (this.Person != null && !string.IsNullOrEmpty(this.CustomerUType)
                     && this.CustomerUType.Equals("person", StringComparison.OrdinalIgnoreCase))
                 {
                     return $"{this.Person.FirstName} {this.Person.LastName}".Trim();
@@ -26,7 +26,7 @@ namespace CDR.DataHolder.Banking.Repository.Entities
                     return this.Organisation.BusinessName;
                 }
 
-                return "";
+                return string.Empty;
             }
         }
 
@@ -34,7 +34,7 @@ namespace CDR.DataHolder.Banking.Repository.Entities
         {
             get
             {
-                if (this.Person != null && !string.IsNullOrEmpty(this.CustomerUType) 
+                if (this.Person != null && !string.IsNullOrEmpty(this.CustomerUType)
                     && this.CustomerUType.Equals("person", StringComparison.OrdinalIgnoreCase))
                 {
                     return this.Person.FirstName;
@@ -45,7 +45,7 @@ namespace CDR.DataHolder.Banking.Repository.Entities
                     return this.Organisation.AgentFirstName;
                 }
 
-                return "";
+                return string.Empty;
             }
         }
 
@@ -53,7 +53,7 @@ namespace CDR.DataHolder.Banking.Repository.Entities
         {
             get
             {
-                if (this.Person != null && !string.IsNullOrEmpty(this.CustomerUType) 
+                if (this.Person != null && !string.IsNullOrEmpty(this.CustomerUType)
                     && this.CustomerUType.Equals("person", StringComparison.OrdinalIgnoreCase))
                 {
                     return this.Person.LastName;
@@ -64,7 +64,7 @@ namespace CDR.DataHolder.Banking.Repository.Entities
                     return this.Organisation.AgentLastName;
                 }
 
-                return "";
+                return string.Empty;
             }
         }
 
@@ -72,7 +72,7 @@ namespace CDR.DataHolder.Banking.Repository.Entities
         {
             get
             {
-                if (this.Person != null && !string.IsNullOrEmpty(this.CustomerUType) 
+                if (this.Person != null && !string.IsNullOrEmpty(this.CustomerUType)
                     && this.CustomerUType.Equals("person", StringComparison.OrdinalIgnoreCase))
                 {
                     return this.Person.LastUpdateTime;

@@ -8,9 +8,11 @@ using Bank = CDR.DataHolder.Banking.Domain.Entities;
 namespace CDR.DataHolder.Banking.Domain.Repositories
 {
     public interface IBankingResourceRepository : ICommonRepository
-    {                
+    {
         Task<Page<Entities.Account[]>> GetAllAccounts(AccountFilter filter, int page, int pageSize);
+
         Task<Entities.Account[]> GetAllAccountsByCustomerIdForConsent(Guid customerId);
+
         Task<Page<Bank.AccountTransaction[]>> GetAccountTransactions(AccountTransactionsFilter transactionsFilter, int page, int pageSize);
     }
 }

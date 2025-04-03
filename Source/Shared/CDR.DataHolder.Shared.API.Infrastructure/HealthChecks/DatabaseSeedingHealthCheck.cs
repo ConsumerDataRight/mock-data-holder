@@ -11,11 +11,11 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.HealthChecks
 
         public DatabaseSeedingHealthCheck(HealthCheckStatuses healthCheckStatuses)
         {
-            _healthCheckStatuses=healthCheckStatuses;
+            _healthCheckStatuses = healthCheckStatuses;
         }
 
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
-        {           
+        {
             if (_healthCheckStatuses.SeedingStatus == SeedingStatus.NotStarted)
             {
                 return Task.FromResult(HealthCheckResult.Unhealthy("Database seeding not started"));

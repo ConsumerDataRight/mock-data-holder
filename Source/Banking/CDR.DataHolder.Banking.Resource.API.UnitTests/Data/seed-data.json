@@ -781,7 +781,7 @@
                 "MaskedName": "xxx-xxx xxxxx001",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": []
               },
               {
@@ -793,7 +793,7 @@
                 "MaskedName": "xxx-xxx xxxxx002",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": []
               },
               {
@@ -805,7 +805,7 @@
                 "MaskedName": "xxx-xxx xxxxx003",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": []
               },
               {
@@ -817,7 +817,7 @@
                 "MaskedName": "xxx-xxx xxxxx004",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": []
               },
               {
@@ -829,7 +829,7 @@
                 "MaskedName": "xxx-xxx xxxxx005",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": []
               },
               {
@@ -841,7 +841,7 @@
                 "MaskedName": "xxx-xxx xxxxx006",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": []
               },
               {
@@ -853,7 +853,7 @@
                 "MaskedName": "xxx-xxx xxxxx007",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": []
               },
               {
@@ -877,7 +877,7 @@
                 "MaskedName": "xxx-xxx xxxxx009",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": []
               },
               {
@@ -889,7 +889,7 @@
                 "MaskedName": "xxx-xxx xxxxx010",
                 "ProductCategory": "PERS_LOANS",
                 "ProductName": "Everyday Personal Loan",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": []
               },
               {
@@ -925,7 +925,7 @@
                 "MaskedName": "xxx-xxx xxxxx003",
                 "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
                 "ProductName": "Everyday Savings",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": []
               },
               {
@@ -937,7 +937,7 @@
                 "MaskedName": "xxx-xxx xxxxx004",
                 "ProductCategory": "TRANS_AND_SAVINGS_ACCOUNTS",
                 "ProductName": "Everyday Savings",
-                "AccountOwnership": "MULTI_PARTY",
+                "AccountOwnership": "MANY_PARTY",
                 "Transactions": []
               },
               {

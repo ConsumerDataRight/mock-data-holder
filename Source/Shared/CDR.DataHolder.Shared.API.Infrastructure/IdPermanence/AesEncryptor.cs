@@ -29,7 +29,9 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
                             {
                                 int data;
                                 while ((data = originalByteStream.ReadByte()) != -1)
+                                {
                                     cryptoStream.WriteByte((byte)data);
+                                }
                             }
                         }
                     }
@@ -48,7 +50,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
 
             using (var encryptedStream = new MemoryStream(buffer))
             {
-                //stream where decrypted contents will be stored
+                // stream where decrypted contents will be stored
                 using (var decryptedStream = new MemoryStream())
                 {
                     using (var aes = Aes.Create())
@@ -60,18 +62,20 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
 
                         using (var decryptor = aes.CreateDecryptor())
                         {
-                            //decrypt stream and write it to parent stream
+                            // decrypt stream and write it to parent stream
                             using (var cryptoStream = new CryptoStream(encryptedStream, decryptor, CryptoStreamMode.Read))
                             {
                                 int data;
 
                                 while ((data = cryptoStream.ReadByte()) != -1)
+                                {
                                     decryptedStream.WriteByte((byte)data);
+                                }
                             }
                         }
                     }
 
-                    //reset position in prep for reading
+                    // reset position in prep for reading
                     decryptedStream.Position = 0;
                     var payloadBytes = decryptedStream.ToArray();
 

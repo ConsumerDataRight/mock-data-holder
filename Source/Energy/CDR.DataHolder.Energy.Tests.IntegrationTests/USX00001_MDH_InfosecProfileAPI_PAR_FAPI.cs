@@ -1,4 +1,4 @@
-using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation;
+﻿using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Exceptions.AuthoriseExceptions;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Exceptions.CdsExceptions;
 using ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Fixtures;
@@ -15,19 +15,18 @@ using Xunit.DependencyInjection;
 
 namespace CDR.DataHolder.Energy.Tests.IntegrationTests
 {
-    public class USX00001_MDH_InfosecProfileAPI_PAR_FAPI : BaseTest, IClassFixture<RegisterSoftwareProductFixture>
+    public class Usx00001_Mdh_InfosecProfileApi_Par_Fapi : BaseTest, IClassFixture<RegisterSoftwareProductFixture>
     {
         private readonly IDataHolderParService _dataHolderParService;
         private readonly TestAutomationOptions _options;
 
-        public USX00001_MDH_InfosecProfileAPI_PAR_FAPI(
+        public Usx00001_Mdh_InfosecProfileApi_Par_Fapi(
             IOptions<TestAutomationOptions> options,
-           IDataHolderParService dataHolderParService,
+            IDataHolderParService dataHolderParService,
             ITestOutputHelperAccessor testOutputHelperAccessor,
             Microsoft.Extensions.Configuration.IConfiguration config,
             RegisterSoftwareProductFixture registerSoftwareProductFixture)
-            : base(testOutputHelperAccessor, config
-            )
+            : base(testOutputHelperAccessor, config)
         {
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
             _dataHolderParService = dataHolderParService ?? throw new ArgumentNullException(nameof(dataHolderParService));
@@ -110,6 +109,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         {
             // Arrange
             var expectedError = new ExpiredRequestException();
+
             // Act
             var response = await _dataHolderParService.SendRequest(scope: _options.SCOPE, nbfOffsetSeconds: -3600, expOffsetSeconds: -3600);
 
@@ -124,7 +124,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         public async Task ACX06_FAPI_NbfGreaterThan60Mins_ShouldRespondWith_400BadRequest()
         {
             // Arrange
-            var expectedError = new InvalidExpClaimException(); //invalid because we moved the nbf earlier
+            var expectedError = new InvalidExpClaimException(); // invalid because we moved the nbf earlier
 
             // Act
             var response = await _dataHolderParService.SendRequest(scope: _options.SCOPE, nbfOffsetSeconds: -3600);
@@ -140,7 +140,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         public async Task ACX07_FAPI_ExpGreaterThan60Mins_ShouldRespondWith_400BadRequest()
         {
             // Arrange
-            var expectedError = new InvalidExpClaimException(); //invalid because we moved the exp later
+            var expectedError = new InvalidExpClaimException(); // invalid because we moved the exp later
 
             // Act
             var response = await _dataHolderParService.SendRequest(scope: _options.SCOPE, expOffsetSeconds: 3600);
@@ -221,7 +221,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 await Assertions.AssertErrorAsync(response, expectedError);
             }
         }
-
 
         [Fact(Skip = "https://dev.azure.com/CDR-AU/Participant%20Tooling/_workitems/edit/51303")]
         public async Task ACX12_FAPI_AuthorizeWithNoRequestOrRequestUri_ShouldRespondWith_400BadRequest()

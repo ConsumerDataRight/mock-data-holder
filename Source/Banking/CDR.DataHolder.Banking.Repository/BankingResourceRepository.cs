@@ -13,42 +13,42 @@ using System.Threading.Tasks;
 namespace CDR.DataHolder.Banking.Repository
 {
     public class BankingResourceRepository : IBankingResourceRepository
-	{
-		private readonly BankingDataHolderDatabaseContext _dataHolderDatabaseContext;
-		private readonly IMapper _mapper;
+    {
+        private readonly BankingDataHolderDatabaseContext _dataHolderDatabaseContext;
+        private readonly IMapper _mapper;
 
-		public BankingResourceRepository(BankingDataHolderDatabaseContext dataHolderDatabaseContext, IMapper mapper)
-		{
-			_dataHolderDatabaseContext = dataHolderDatabaseContext;
-			_mapper = mapper;
-		}
+        public BankingResourceRepository(BankingDataHolderDatabaseContext dataHolderDatabaseContext, IMapper mapper)
+        {
+            _dataHolderDatabaseContext = dataHolderDatabaseContext;
+            _mapper = mapper;
+        }
 
-		public async Task<Shared.Domain.Entities.Customer?> GetCustomer(Guid customerId)
-		{
-			var customer = await _dataHolderDatabaseContext.Customers.AsNoTracking()
-				.Include(p => p.Person)
-				.Include(o => o.Organisation)
-				.FirstOrDefaultAsync(customer => customer.CustomerId == customerId);
-			if (customer == null)
-			{
-				return null;
-			}
+        public async Task<Shared.Domain.Entities.Customer?> GetCustomer(Guid customerId)
+        {
+            var customer = await _dataHolderDatabaseContext.Customers.AsNoTracking()
+                .Include(p => p.Person)
+                .Include(o => o.Organisation)
+                .FirstOrDefaultAsync(customer => customer.CustomerId == customerId);
+            if (customer == null)
+            {
+                return null;
+            }
 
-			switch (customer.CustomerUType?.ToLower())
-			{
-				case "organisation":
-					return _mapper.Map<Organisation>(customer);					
-				case "person":
-					return _mapper.Map<Person>(customer);
+            switch (customer.CustomerUType?.ToLower())
+            {
+                case "organisation":
+                    return _mapper.Map<Organisation>(customer);
+                case "person":
+                    return _mapper.Map<Person>(customer);
 
-				default:
-					return null;
-			}
-		}
+                default:
+                    return null;
+            }
+        }
 
-		public async Task<Shared.Domain.Entities.Customer?> GetCustomerByLoginId(string loginId)
-		{
-			var customer = await _dataHolderDatabaseContext.Customers.AsNoTracking()
+        public async Task<Shared.Domain.Entities.Customer?> GetCustomerByLoginId(string loginId)
+        {
+            var customer = await _dataHolderDatabaseContext.Customers.AsNoTracking()
                 .Include(p => p.Person)
                 .Include(o => o.Organisation)
                 .FirstOrDefaultAsync(customer => customer.LoginId == loginId);
@@ -69,118 +69,127 @@ namespace CDR.DataHolder.Banking.Repository
                 default:
                     return null;
             }
-		}
-		
+        }
+
         public async Task<Page<Account[]>> GetAllAccounts(AccountFilter filter, int page, int pageSize)
-		{
-			var result = new Page<Account[]>()
-			{
-				Data = Array.Empty<Account>(),
-				CurrentPage = page,
-				PageSize = pageSize,
-			};
+        {
+            var result = new Page<Account[]>()
+            {
+                Data = Array.Empty<Account>(),
+                CurrentPage = page,
+                PageSize = pageSize,
+            };
 
-			// We always return accounts for the individual. We don't have a concept of joint or shared accounts at the moment
-			// So, if asked from accounts which rent owned, just return empty result.
-			if (filter.IsOwned.HasValue && !filter.IsOwned.Value)
-			{
-				return result;
-			}
+            // We always return accounts for the individual. We don't have a concept of joint or shared accounts at the moment
+            // So, if asked from accounts which rent owned, just return empty result.
+            if (filter.IsOwned.HasValue && !filter.IsOwned.Value)
+            {
+                return result;
+            }
 
-			// If none of the account ids are allowed, return empty list
-			if (filter.AllowedAccountIds == null || filter.AllowedAccountIds.Length == 0)
-			{
-				return result;
-			}
+            // If none of the account ids are allowed, return empty list
+            if (filter.AllowedAccountIds == null || filter.AllowedAccountIds.Length == 0)
+            {
+                return result;
+            }
 
-			IQueryable<Banking.Repository.Entities.Account> accountsQuery = _dataHolderDatabaseContext.Accounts.AsNoTracking()
-				.Include(account => account.Customer)
-				.Where(account =>
-					filter.AllowedAccountIds.Contains(account.AccountId));
+            IQueryable<Banking.Repository.Entities.Account> accountsQuery = _dataHolderDatabaseContext.Accounts.AsNoTracking()
+                .Include(account => account.Customer)
+                .Where(account =>
+                    filter.AllowedAccountIds.Contains(account.AccountId));
 
-			// Apply filters.
-			if (!string.IsNullOrEmpty(filter.OpenStatus))
-			{
-				accountsQuery = accountsQuery.Where(account => account.OpenStatus == filter.OpenStatus);
-			}
-			if (!string.IsNullOrEmpty(filter.ProductCategory))
-			{
-				accountsQuery = accountsQuery.Where(account => account.ProductCategory == filter.ProductCategory);
-			}
+            // Apply filters.
+            if (!string.IsNullOrEmpty(filter.OpenStatus))
+            {
+                accountsQuery = accountsQuery.Where(account => account.OpenStatus == filter.OpenStatus);
+            }
 
-			var totalRecords = await accountsQuery.CountAsync();
+            if (!string.IsNullOrEmpty(filter.ProductCategory))
+            {
+                accountsQuery = accountsQuery.Where(account => account.ProductCategory == filter.ProductCategory);
+            }
 
-			// Apply ordering and pagination
-			accountsQuery = accountsQuery
-				.OrderBy(account => account.DisplayName).ThenBy(account => account.AccountId)
-				.Skip((page - 1) * pageSize)
-				.Take(pageSize);
+            var totalRecords = await accountsQuery.CountAsync();
 
-			var accounts = await accountsQuery.ToListAsync();
-			result.Data = _mapper.Map<Account[]>(accounts);
-			result.TotalRecords = totalRecords;
+            // Apply ordering and pagination
+            accountsQuery = accountsQuery
+                .OrderBy(account => account.DisplayName).ThenBy(account => account.AccountId)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize);
 
-			return result;
-		}
+            var accounts = await accountsQuery.ToListAsync();
+            result.Data = _mapper.Map<Account[]>(accounts);
+            result.TotalRecords = totalRecords;
 
-		/// <summary>
-		/// Check that the customer can access the given accounts.
-		/// </summary>
-		/// <param name="accountId">Account ID is primary key</param>		
-		/// <returns>True if the customer can access the account, otherwise false.</returns>
-		public async Task<bool> CanAccessAccount(string accountId)
-		{
-			return await _dataHolderDatabaseContext.Accounts.AnyAsync(a => a.AccountId == accountId);
-		}
+            return result;
+        }
 
-		/// <summary>
-		/// Get a list of all transactions for a given account.
-		/// </summary>
-		/// <param name="transactionsFilter">Query filter</param>
-		/// <param name="page">Page number</param>
-		/// <param name="pageSize">Page size</param>
-		/// <returns></returns>
-		public async Task<Page<AccountTransaction[]>> GetAccountTransactions(AccountTransactionsFilter transactionsFilter, int page, int pageSize)
-		{
-			if (!transactionsFilter.NewestTime.HasValue)
-			{
-				transactionsFilter.NewestTime = DateTime.UtcNow;
-			}
+        /// <summary>
+        /// Check that the customer can access the given accounts.
+        /// </summary>
+        /// <param name="accountId">Account ID is primary key.</param>
+        /// <returns>True if the customer can access the account, otherwise false.</returns>
+        public async Task<bool> CanAccessAccount(string accountId)
+        {
+            return await _dataHolderDatabaseContext.Accounts.AnyAsync(a => a.AccountId == accountId);
+        }
 
-			if (!transactionsFilter.OldestTime.HasValue)
-			{
-				transactionsFilter.OldestTime = transactionsFilter.NewestTime.Value.AddDays(-90);
-			}
+        /// <summary>
+        /// Get a list of all transactions for a given account.
+        /// </summary>
+        /// <param name="transactionsFilter">Query filter.</param>
+        /// <param name="page">Page number.</param>
+        /// <param name="pageSize">Page size.</param>
+        /// <returns></returns>
+        public async Task<Page<AccountTransaction[]>> GetAccountTransactions(AccountTransactionsFilter transactionsFilter, int page, int pageSize)
+        {
+            if (!transactionsFilter.NewestTime.HasValue)
+            {
+                transactionsFilter.NewestTime = DateTime.UtcNow;
+            }
 
-			var result = new Page<AccountTransaction[]>()
-			{
-				Data = Array.Empty<AccountTransaction>(),
-				CurrentPage = page,
-				PageSize = pageSize,
-			};
+            if (!transactionsFilter.OldestTime.HasValue)
+            {
+                transactionsFilter.OldestTime = transactionsFilter.NewestTime.Value.AddDays(-90);
+            }
+
+            var result = new Page<AccountTransaction[]>()
+            {
+                Data = Array.Empty<AccountTransaction>(),
+                CurrentPage = page,
+                PageSize = pageSize,
+            };
 
             IQueryable<Banking.Repository.Entities.Transaction> accountTransactionsQuery = _dataHolderDatabaseContext
-                            .Transactions.Include(x => x.Account).ThenInclude(x => x.Customer).AsNoTracking()                    
+                            .Transactions.Include(x => x.Account).ThenInclude(x => x.Customer).AsNoTracking()
                     .Where(t => t.AccountId == transactionsFilter.AccountId)
+
                     // Oldest/Newest Time
-                    //Newest
-                    .WhereIf(transactionsFilter.NewestTime.HasValue,
-							 t => (t.PostingDateTime ?? t.ExecutionDateTime) <= transactionsFilter.NewestTime)
-					//Oldest
-					.WhereIf(transactionsFilter.OldestTime.HasValue,
-							 t => (t.PostingDateTime ?? t.ExecutionDateTime) >= transactionsFilter.OldestTime)
+                    // Newest
+                    .WhereIf(
+                        transactionsFilter.NewestTime.HasValue,
+                        t => (t.PostingDateTime ?? t.ExecutionDateTime) <= transactionsFilter.NewestTime)
+
+                    // Oldest
+                    .WhereIf(
+                        transactionsFilter.OldestTime.HasValue,
+                        t => (t.PostingDateTime ?? t.ExecutionDateTime) >= transactionsFilter.OldestTime)
 
                     // Min/Max Amount
-                    //Min
-                    .WhereIf(transactionsFilter.MinAmount.HasValue,
-							 t => t.Amount >= transactionsFilter.MinAmount)
-					//Max
-					.WhereIf(transactionsFilter.MaxAmount.HasValue,
-							 t => t.Amount <= transactionsFilter.MaxAmount)				
+                    // Min
+                    .WhereIf(
+                        transactionsFilter.MinAmount.HasValue,
+                        t => t.Amount >= transactionsFilter.MinAmount)
 
-					//Text
-                    .WhereIf(!string.IsNullOrEmpty(transactionsFilter.Text), 
-							 t => EF.Functions.Like(t.Description, $"%{transactionsFilter.Text}%") || EF.Functions.Like(t.Reference, $"%{transactionsFilter.Text}%"));
+                    // Max
+                    .WhereIf(
+                        transactionsFilter.MaxAmount.HasValue,
+                        t => t.Amount <= transactionsFilter.MaxAmount)
+
+                    // Text
+                    .WhereIf(
+                        !string.IsNullOrEmpty(transactionsFilter.Text),
+                        t => EF.Functions.Like(t.Description, $"%{transactionsFilter.Text}%") || EF.Functions.Like(t.Reference, $"%{transactionsFilter.Text}%"));
 
             var totalRecords = await accountTransactionsQuery.CountAsync();
 
@@ -206,6 +215,6 @@ namespace CDR.DataHolder.Banking.Repository
                 .ToListAsync();
 
             return _mapper.Map<Account[]>(allAccounts);
-        }		        
+        }
     }
 }

@@ -5,7 +5,7 @@ using CDR.DataHolder.Shared.API.Infrastructure.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace CDR.DataHolder.Shared.API.Gateway.mTLS.Certificates
+namespace CDR.DataHolder.Shared.API.Gateway.Mtls.Certificates
 {
     /// <summary>
     /// Validates that a client certificate has been issued by the Mock CDR CA.
@@ -22,9 +22,8 @@ namespace CDR.DataHolder.Shared.API.Gateway.mTLS.Certificates
         }
 
         public void ValidateClientCertificate(X509Certificate2 clientCert)
-        {            
+        {
             _logger.LogInformation("Validating certificate within the {CertificateValidator}", nameof(CertificateValidator));
-
 
             if (clientCert == null)
             {

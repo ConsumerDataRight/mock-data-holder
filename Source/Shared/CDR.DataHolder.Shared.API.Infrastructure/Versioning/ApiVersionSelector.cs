@@ -11,7 +11,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Versioning
     public class ApiVersionSelector : IApiVersionSelector
     {
         private readonly ApiVersion _defaultVersion;
-        private readonly Dictionary<string, int[]> _supportedApiVersions = new()
+        private readonly Dictionary<string, int[]> _supportedApiVersions = new Dictionary<string, int[]>()
         {
             { @"\/cds-au\/v1\/admin\/metrics", new int[] { 4, 5 } },
             { @"\/cds-au\/v1\/common\/customer", new int[] { 1 } },
@@ -21,7 +21,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Versioning
 
         public ApiVersionSelector(ApiVersioningOptions options, Dictionary<string, int[]>? overrideDefaultVersions = null)
         {
-            _defaultVersion = options.DefaultApiVersion;           
+            _defaultVersion = options.DefaultApiVersion;
 
             if (overrideDefaultVersions != null)
             {
@@ -30,23 +30,23 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Versioning
                     if (_supportedApiVersions.ContainsKey(kvp.Key))
                     {
                         // Update the value in _supportedApiVersions with the value from overrideDefaultVersions
-                        _supportedApiVersions[kvp.Key] = kvp.Value; 
+                        _supportedApiVersions[kvp.Key] = kvp.Value;
                     }
                     else
                     {
                         // If the key doesn't exist in overrideDefaultVersions, add it with the value from overrideDefaultVersions
-                        _supportedApiVersions.Add(kvp.Key, kvp.Value); 
+                        _supportedApiVersions.Add(kvp.Key, kvp.Value);
                     }
                 }
-            }           
+            }
         }
 
         public ApiVersion SelectVersion(HttpRequest request, ApiVersionModel model)
         {
-            // Try and get x-v value from request header            
+            // Try and get x-v value from request header
             if (!request.Headers.TryGetValue(CustomHeaders.ApiVersionHeaderKey, out var x_v))
             {
-                // Raise an error                
+                // Raise an error
                 throw new MissingRequiredHeaderException(CustomHeaders.ApiVersionHeaderKey);
             }
 

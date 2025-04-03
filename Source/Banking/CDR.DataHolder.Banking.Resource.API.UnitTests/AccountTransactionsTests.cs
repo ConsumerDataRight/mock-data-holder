@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -22,11 +22,12 @@ using Xunit;
 
 namespace CDR.DataHolder.Banking.Resource.API.UnitTests
 {
-    [Trait("Category", "UnitTests")] //TODO: These are not actually unit tests and should be changed in future. Kept like this for consistency of behaviour for now.
+    // Note: These are not actually unit tests and should be changed in future. Kept like this for consistency of behaviour for now.
+    [Trait("Category", "UnitTests")]
     public class AccountTransactionsTests
     {
-        readonly IServiceProvider _serviceProvider;
-        private static readonly string[] transactions = ["TRN12345"];
+        private readonly IServiceProvider _serviceProvider;
+        private static readonly string[] Transactions = ["TRN12345"];
 
         public AccountTransactionsTests()
         {
@@ -37,7 +38,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
         [Fact]
         public async Task GetTransactions_TimeFilter_Success()
         {
-            //Arrange
+            // Arrange
             var resourceRepository = _serviceProvider.GetRequiredService<IBankingResourceRepository>();
             var transactionsService = _serviceProvider.GetRequiredService<ITransactionsService>();
             var idPermanenceManager = _serviceProvider.GetRequiredService<IIdPermanenceManager>();
@@ -45,7 +46,6 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
             var config = _serviceProvider.GetRequiredService<IConfiguration>();
             var logger = loggerFactory.CreateLogger<ResourceController>();
 
-            var privateKey = Guid.NewGuid().ToString();
             string softwareProductId = "c6327f87-687a-4369-99a4-eaacd3bb8210";
             string customerId = "4ee1a8db-13af-44d7-b54b-e94dff3df548";
 
@@ -55,7 +55,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
                 CustomerId = customerId,
             };
 
-            //Generate Account Permanence Id
+            // Generate Account Permanence Id
             var accountId = "1122334455";
             var accountPermanenceId = idPermanenceManager.EncryptId(accountId, idParameters);
 
@@ -66,8 +66,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
             request.Setup(x => x.Headers).Returns(new HeaderDictionary() { { "x-v", "1" } });
 
             var httpContext = Mock.Of<HttpContext>(_ =>
-                _.Request == request.Object
-            );
+                _.Request == request.Object);
 
             var actionContext = new ActionContext(httpContext, new Microsoft.AspNetCore.Routing.RouteData(), new ControllerActionDescriptor());
             actionContext.HttpContext = httpContext;
@@ -76,13 +75,15 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
             mockUrlHelper.Setup(x => x.ActionContext).Returns(actionContext);
             mockUrlHelper.Setup(x => x.RouteUrl(It.IsAny<UrlRouteContext>())).Returns($"cds-au/v1/banking/accounts/{accountPermanenceId}/transactions?oldest-time=2021-04-01T00:00:00Z&newest-time=2021-04-30T23:59:59Z&page=1&page-size=10");
 
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, customerId),
-                new Claim("software_id", softwareProductId),
-                new Claim("client_id", Guid.NewGuid().ToString()),
-                new Claim("account_id", accountId)
-            }, "mock"));
+            var user = new ClaimsPrincipal(new ClaimsIdentity(
+                new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, customerId),
+                    new Claim("software_id", softwareProductId),
+                    new Claim("client_id", Guid.NewGuid().ToString()),
+                    new Claim("account_id", accountId)
+                },
+                "mock"));
 
             httpContext.User = user;
 
@@ -95,22 +96,22 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
             controller.ControllerContext = controllerContext;
             controller.Url = mockUrlHelper.Object;
 
-            //Act
+            // Act
             var result = await controller.GetTransactions(new RequestAccountTransactions
             {
                 AccountId = accountPermanenceId,
-                OldestTime = new DateTime(2021, 4, 01),
-                NewestTime = new DateTime(2021, 4, 30),
+                OldestTime = new DateTime(2021, 4, 01, 0, 0, 0, DateTimeKind.Utc),
+                NewestTime = new DateTime(2021, 4, 30, 0, 0, 0, DateTimeKind.Utc),
                 Page = "1",
                 PageSize = "10"
             }) as OkObjectResult;
 
             var response = result?.Value as PageModel<AccountTransactionsCollectionModel>;
 
-            //Assert
+            // Assert
             Assert.NotNull(response);
             Assert.Single(response.Data.Transactions);
-            Assert.True(IsValid(accountId, transactions, response.Data, idPermanenceManager, idParameters));
+            Assert.True(IsValid(accountId, Transactions, response.Data, idPermanenceManager, idParameters));
             Assert.Equal(1, response.Meta.TotalRecords);
             Assert.Equal(1, response.Meta.TotalPages);
         }
@@ -118,7 +119,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
         [Fact]
         public async Task GetTransactions_AmountFilter_Success()
         {
-            //Arrange
+            // Arrange
             var resourceRepository = _serviceProvider.GetRequiredService<IBankingResourceRepository>();
             var transactionsService = _serviceProvider.GetRequiredService<ITransactionsService>();
             var idPermanenceManager = _serviceProvider.GetRequiredService<IIdPermanenceManager>();
@@ -127,7 +128,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
             var logger = loggerFactory.CreateLogger<ResourceController>();
             var resourceBaseUri = config.GetValue<string>("ResourceBaseUri");
 
-            //Generate Account Permanence Id
+            // Generate Account Permanence Id
             var idParameters = new IdPermanenceParameters
             {
                 SoftwareProductId = "c6327f87-687a-4369-99a4-eaacd3bb8210",
@@ -143,8 +144,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
             request.Setup(x => x.Headers).Returns(new HeaderDictionary() { { "x-v", "1" } });
 
             var httpContext = Mock.Of<HttpContext>(_ =>
-                _.Request == request.Object
-            );
+                _.Request == request.Object);
 
             var actionContext = new ActionContext(httpContext, new Microsoft.AspNetCore.Routing.RouteData(), new ControllerActionDescriptor());
             actionContext.HttpContext = httpContext;
@@ -153,13 +153,15 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
             mockUrlHelper.Setup(x => x.ActionContext).Returns(actionContext);
             mockUrlHelper.Setup(x => x.RouteUrl(It.IsAny<UrlRouteContext>())).Returns($"cds-au/v1/banking/accounts/{accountPermanenceId}/transactions?oldest-time=2021-04-01T00:00:00Z&newest-time=2021-06-01T00:00:00Z&page=1&page-size=10");
 
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, "4EE1A8DB-13AF-44D7-B54B-E94DFF3DF548"),
-                new Claim("software_id", "c6327f87-687a-4369-99a4-eaacd3bb8210"),
-                new Claim("client_id", Guid.NewGuid().ToString()),
-                new Claim("account_id", accountId)
-            }, "mock"));
+            var user = new ClaimsPrincipal(new ClaimsIdentity(
+                new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "4EE1A8DB-13AF-44D7-B54B-E94DFF3DF548"),
+                    new Claim("software_id", "c6327f87-687a-4369-99a4-eaacd3bb8210"),
+                    new Claim("client_id", Guid.NewGuid().ToString()),
+                    new Claim("account_id", accountId)
+                },
+                "mock"));
 
             httpContext.User = user;
 
@@ -172,21 +174,21 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
             controller.ControllerContext = controllerContext;
             controller.Url = mockUrlHelper.Object;
 
-            //Act
+            // Act
             var result = await controller.GetTransactions(new RequestAccountTransactions
             {
                 AccountId = accountPermanenceId,
                 MaxAmount = 320,
                 MinAmount = 0,
-                OldestTime = new DateTime(2021, 4, 01),
-                NewestTime = new DateTime(2021, 6, 01),
+                OldestTime = new DateTime(2021, 4, 01, 0, 0, 0, DateTimeKind.Utc),
+                NewestTime = new DateTime(2021, 6, 01, 0, 0, 0, DateTimeKind.Utc),
                 Page = "1",
                 PageSize = "10"
             }) as OkObjectResult;
 
             var response = result?.Value as PageModel<AccountTransactionsCollectionModel>;
 
-            //Assert
+            // Assert
             Assert.NotNull(response);
             Assert.Equal(4, response.Data.Transactions.Length);
             string[] transactionIds = ["TRN11112", "TRN98765", "TRN11111", "TRN99999"];
@@ -199,8 +201,8 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
         private static bool IsValid(
             string validAccountId,
             string[] validTransactionIds,
-            AccountTransactionsCollectionModel data, 
-            IIdPermanenceManager idPermanenceManager, 
+            AccountTransactionsCollectionModel data,
+            IIdPermanenceManager idPermanenceManager,
             IdPermanenceParameters idParameters)
         {
             foreach (var item in data.Transactions)
@@ -220,6 +222,5 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
 
             return true;
         }
-
     }
 }

@@ -6,6 +6,5 @@
         {
             public const string GetAccounts = "/banking/accounts";
         }
-
     }
 }

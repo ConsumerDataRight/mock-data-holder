@@ -11,6 +11,9 @@ if ($host.UI.PromptForChoice("Confirm", "Copy files from ..\..\cdr-auth-server i
     exit 1
 }
 
+copy-item ..\..\cdr-auth-server\Source\Directory.Build.props cdr-auth-server\Source\Directory.Build.props
+copy-item ..\..\cdr-auth-server\Source\.editorconfig cdr-auth-server\Source\.editorconfig
+
 copy-item ..\..\cdr-auth-server\Source\CdrAuthServer\. cdr-auth-server\Source\CdrAuthServer -Recurse
 copy-item ..\..\cdr-auth-server\Source\CdrAuthServer.Domain\. cdr-auth-server\Source\CdrAuthServer.Domain -Recurse
 copy-item ..\..\cdr-auth-server\Source\CdrAuthServer.Repository\. cdr-auth-server\Source\CdrAuthServer.Repository -Recurse

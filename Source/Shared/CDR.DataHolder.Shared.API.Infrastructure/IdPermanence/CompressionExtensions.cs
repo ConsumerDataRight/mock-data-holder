@@ -8,7 +8,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
         /// <summary>
         /// Compresses a byte array and returns a deflate compressed, byte array.
         /// </summary>
-        /// <param name="uncompressedString">String to compress</param>
+        /// <param name="uncompressedString">String to compress.</param>
         public static byte[] Compress(this byte[] uncompressedString)
         {
             byte[] compressedBytes;

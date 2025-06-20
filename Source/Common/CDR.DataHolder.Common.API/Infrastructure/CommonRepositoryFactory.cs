@@ -21,7 +21,7 @@ namespace CDR.DataHolder.Common.API.Infrastructure
             {
                 Constants.Industry.Banking => _serviceProvider.GetService<BankingResourceRepository>(),
                 Constants.Industry.Energy => _serviceProvider.GetService<EnergyResourceRepository>(),
-                _ => throw new InvalidIndustryException()
+                _ => throw new InvalidIndustryException(),
             };
 
             if (repository == null)

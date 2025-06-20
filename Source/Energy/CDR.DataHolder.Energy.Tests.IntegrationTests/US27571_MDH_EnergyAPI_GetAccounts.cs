@@ -185,7 +185,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 CdsError.InvalidPageSize => new InvalidPageSizeException("page-size pagination field is greater than the maximum 1000 allowed"),
                 CdsError.InvalidPage => new InvalidPageException("Page parameter is out of range.  Maximum page is 1"),
                 CdsError.InvalidField => new InvalidFieldException("Page parameter is out of range. Minimum page is 1, maximum page is 1000"),
-                _ => throw new InvalidOperationException($"The CdsError parameter is not handled within this test case: {cdsError}").Log()
+                _ => throw new InvalidOperationException($"The CdsError parameter is not handled within this test case: {cdsError}").Log(),
             };
 
             var errorList = new ResponseErrorListV2(expectedError, string.Empty);
@@ -720,7 +720,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             return dateTime?.ToString("yyyy-MM-dd");
         }
 
-        private static (string, int) GetExpectedResponse(
+        private static (string ExpectedResponse, int TotalRecords) GetExpectedResponse(
             string? accessToken,
             string baseUrl,
             string selfUrl,
@@ -758,8 +758,8 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                         {
                             displayName = accountPlan.PlanOverview.DisplayName,
                             startDate = accountPlan.PlanOverview.StartDate.ToString("yyyy-MM-dd"),
-                            endDate = ToStringOrNull(accountPlan.PlanOverview.EndDate)
-                        }
+                            endDate = ToStringOrNull(accountPlan.PlanOverview.EndDate),
+                        },
                     }),
                 })
                 .ToList();
@@ -804,8 +804,8 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 meta = new
                 {
                     totalRecords,
-                    totalPages
-                }
+                    totalPages,
+                },
             };
 
             return (

@@ -5,14 +5,14 @@
         NotStarted,
         Succeeded,
         Failed,
-        NotConfigured
+        NotConfigured,
     }
 
     public enum AppStatus
     {
         Started,
         Shutdown,
-        NotStarted
+        NotStarted,
     }
 
     public class HealthCheckStatuses

@@ -140,7 +140,6 @@ namespace CDR.DataHolder.Banking.Repository
         /// <param name="transactionsFilter">Query filter.</param>
         /// <param name="page">Page number.</param>
         /// <param name="pageSize">Page size.</param>
-        /// <returns></returns>
         public async Task<Page<AccountTransaction[]>> GetAccountTransactions(AccountTransactionsFilter transactionsFilter, int page, int pageSize)
         {
             if (!transactionsFilter.NewestTime.HasValue)

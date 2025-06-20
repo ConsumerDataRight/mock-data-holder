@@ -14,7 +14,7 @@
                 {
                     { OpenStatus.All, "ALL" },
                     { OpenStatus.Open, "OPEN" },
-                    { OpenStatus.Closed, "CLOSED" }
+                    { OpenStatus.Closed, "CLOSED" },
                 };
             }
         }

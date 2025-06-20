@@ -4,6 +4,9 @@
 
 namespace CDR.DataHolder.Repository.Migrations
 {
+    /// <summary>
+    /// Update Account table For GetAccountV2 changes migration script.
+    /// </summary>
     public partial class GetAccountV2Changes : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

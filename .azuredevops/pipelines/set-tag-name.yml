@@ -1,0 +1,33 @@
+parameters:
+  - name: name  # Name of the variable to set
+    type: string
+  - name: input
+    type: string
+    default: ''
+  - name: context
+    type: string  # e.g., $(Build.SourceBranchName)
+
+steps:
+- powershell: |
+    $input = "${{ parameters.input }}"
+    $context = "${{ parameters.context }}"
+    $varName = "${{ parameters.name }}"
+
+    Write-Host "Setting variable: $varName"
+    Write-Host "Input provided: $input"
+    Write-Host "Context: $context"
+    
+    if (-not [string]::IsNullOrWhiteSpace($input)) {
+        Write-Host "##vso[task.setvariable variable=$varName]$input"
+        Write-Host "Used provided value for ${varName}: ${input}"
+    } else {
+        switch -Wildcard ($context) {
+            "main" { $value = "main-latest" }
+            "develop" { $value = "develop-latest" }
+            "*release*" { $value = "main-latest" }
+            default { $value = "develop-latest" }
+        }
+        Write-Host "Resolved ${varName} to: ${value}"
+        Write-Host "##vso[task.setvariable variable=$varName]$value"
+    }
+  displayName: 'Set ${{ parameters.name }} variable'

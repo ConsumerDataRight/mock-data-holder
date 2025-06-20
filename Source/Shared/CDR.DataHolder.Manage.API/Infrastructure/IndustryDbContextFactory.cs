@@ -25,7 +25,7 @@ namespace CDR.DataHolder.Manage.API.Infrastructure
             {
                 Constants.Industry.Banking => CreateBankingDbContext(connectionStringType),
                 Constants.Industry.Energy => CreateEnergyDbContext(connectionStringType),
-                _ => throw new InvalidIndustryException()
+                _ => throw new InvalidIndustryException(),
             };
         }
 

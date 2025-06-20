@@ -88,7 +88,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                             prefix = customer.Person?.Prefix,
                             suffix = customer.Person?.Suffix,
                             occupationCode = customer.Person?.OccupationCode,
-                            occupationCodeVersion = customer.Person?.OccupationCodeVersion
+                            occupationCodeVersion = customer.Person?.OccupationCodeVersion,
                         }
                         : null,
                         organisation = customer.CustomerUType?.ToLower() == "organisation" ? new
@@ -107,16 +107,16 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                             industryCodeVersion = customer.Organisation?.IndustryCodeVersion,
                             organisationType = customer.Organisation?.OrganisationType,
                             registeredCountry = customer.Organisation?.RegisteredCountry,
-                            establishmentDate = customer.Organisation?.EstablishmentDate.GetValueOrDefault().ToString("yyyy-MM-dd")
+                            establishmentDate = customer.Organisation?.EstablishmentDate.GetValueOrDefault().ToString("yyyy-MM-dd"),
                         }
                         : null,
                     })
                     .FirstOrDefault(),
                 links = new
                 {
-                    self = $"{dhMtlsGatewayUrl}/cds-au/v1/common/customer"
+                    self = $"{dhMtlsGatewayUrl}/cds-au/v1/common/customer",
                 },
-                meta = new { }
+                meta = new { },
             };
 
             return JsonConvert.SerializeObject(
@@ -124,7 +124,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
-                    Formatting = Formatting.Indented
+                    Formatting = Formatting.Indented,
                 });
         }
 

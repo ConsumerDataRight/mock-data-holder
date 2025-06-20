@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CDR.DataHolder.Repository.Migrations
 {
+    /// <summary>
+    /// Set OpenStatus length migration script.
+    /// </summary>
     public partial class SetOpenStatusLength : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

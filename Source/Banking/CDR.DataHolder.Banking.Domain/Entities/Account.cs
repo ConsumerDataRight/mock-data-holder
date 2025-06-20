@@ -1,4 +1,6 @@
-﻿namespace CDR.DataHolder.Banking.Domain.Entities
+﻿using System;
+
+namespace CDR.DataHolder.Banking.Domain.Entities
 {
     public class Account : Shared.Domain.Entities.Account
     {

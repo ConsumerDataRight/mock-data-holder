@@ -43,7 +43,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
             var param = new SubPermanenceParameters()
             {
                 SoftwareProductId = claimsPrincipal.GetClaimValue("software_id"),
-                SectorIdentifierUri = claimsPrincipal.GetClaimValue("sector_identifier_uri")
+                SectorIdentifierUri = claimsPrincipal.GetClaimValue("sector_identifier_uri"),
             };
 
             return IdPermanenceHelper.DecryptSub(sub, param, IdPermanenceHelper.GetPrivateKey(config));

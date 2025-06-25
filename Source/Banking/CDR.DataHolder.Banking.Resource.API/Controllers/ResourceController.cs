@@ -99,7 +99,7 @@ namespace CDR.DataHolder.Banking.Resource.API.Controllers
             var idParameters = new IdPermanenceParameters
             {
                 SoftwareProductId = softwareProductId ?? string.Empty,
-                CustomerId = loginId
+                CustomerId = loginId,
             };
 
             _idPermanenceManager.EncryptIds(response.Data.Accounts, idParameters, a => a.AccountId);
@@ -135,7 +135,7 @@ namespace CDR.DataHolder.Banking.Resource.API.Controllers
             var idParameters = new IdPermanenceParameters
             {
                 SoftwareProductId = softwareProductId ?? string.Empty,
-                CustomerId = loginId
+                CustomerId = loginId,
             };
 
             request.AccountId = DecryptAccountId(request.AccountId, idParameters);

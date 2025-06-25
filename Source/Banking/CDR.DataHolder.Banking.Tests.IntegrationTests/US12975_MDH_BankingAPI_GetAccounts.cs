@@ -486,7 +486,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             }
         }
 
-        private static (string, int) GetExpectedResponse(
+        private static (string ExpectedResponse, int TotalRecords) GetExpectedResponse(
             string? accessToken,
             string baseUrl,
             string selfUrl,
@@ -520,7 +520,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                     maskedNumber = account.MaskedName,
                     productCategory = account.ProductCategory,
                     productName = account.ProductName,
-                    accountOwnership = account.AccountOwnership
+                    accountOwnership = account.AccountOwnership,
                 })
                 .ToList();
 
@@ -559,15 +559,15 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 meta = new
                 {
                     totalRecords,
-                    totalPages
-                }
+                    totalPages,
+                },
             };
 
             return (
                 JsonConvert.SerializeObject(expectedResponse, new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
-                    Formatting = Formatting.Indented
+                    Formatting = Formatting.Indented,
                 }),
                 totalRecords);
         }

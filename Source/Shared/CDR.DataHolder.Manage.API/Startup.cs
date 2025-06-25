@@ -85,7 +85,7 @@ namespace CDR.DataHolder.Manage.API
 
             app.UseHealthChecks("/health", new HealthCheckOptions()
             {
-                ResponseWriter = CustomResponseWriter
+                ResponseWriter = CustomResponseWriter,
             });
 
             // Ensure the database exists and is up to the latest version.
@@ -150,8 +150,8 @@ namespace CDR.DataHolder.Manage.API
                 {
                     key = e.Key,
                     value = e.Value.Status.ToString(),
-                    description = e.Value.Description
-                })
+                    description = e.Value.Description,
+                }),
             });
             return context.Response.WriteAsync(result);
         }

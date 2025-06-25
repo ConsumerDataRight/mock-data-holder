@@ -14,7 +14,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
 
             using (var aes = Aes.Create())
             {
-                var alg = HashAlgorithm.Create("SHA512")!;
+                var alg = SHA512.Create();
                 var keyHash = alg.ComputeHash(Encoding.UTF8.GetBytes(key));
                 aes.Key = keyHash.Take(24).ToArray();
                 aes.IV = iv;
@@ -55,7 +55,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
                 {
                     using (var aes = Aes.Create())
                     {
-                        var alg = HashAlgorithm.Create("SHA512")!;
+                        var alg = SHA512.Create();
                         var keyHash = alg.ComputeHash(Encoding.UTF8.GetBytes(key));
                         aes.Key = keyHash.Take(24).ToArray();
                         aes.IV = iv;

@@ -284,12 +284,11 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         }
 
 #pragma warning disable xUnit1004
-        [Theory(Skip = "This test is accurate but is failing due to a bug. Prefer to skip it for now rather than test for incorrect behaviour")]
+        [Theory(Skip = "This test is accurate but is failing due to a bug (Bug 63702). Prefer to skip it for now rather than test for incorrect behaviour")]
         [InlineData(SoftwareProductStatus.INACTIVE)]
         [InlineData(SoftwareProductStatus.REMOVED)]
         public async Task AC21_Get_WithADRSoftwareProductNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(SoftwareProductStatus status)
         {
-            // TODO: This is failing, but the test is correct. The old test checked for a 200Ok and we may need to do that in the short term to get the test passing (or skip it). Bug 63702
             var saveStatus = _sqlQueryService.GetStatus(EntityType.SOFTWAREPRODUCT, Constants.SoftwareProducts.SoftwareProductId);
             _sqlQueryService.SetStatus(EntityType.SOFTWAREPRODUCT, Constants.SoftwareProducts.SoftwareProductId, status.ToEnumMemberAttrValue());
             try
@@ -303,7 +302,6 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         }
 #pragma warning restore xUnit1004
 
-        // TODO: AC22 is missing tests
         [Theory]
         [InlineData(LegalEntityStatus.ACTIVE)]
         public async Task AC23_Get_WithADRParticipationActive_Success(LegalEntityStatus status)
@@ -328,7 +326,6 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         [InlineData(LegalEntityStatus.REMOVED)]
         public async Task AC23_Get_WithADRParticipationNotActive_ShouldRespondWith_403Forbidden_NotActiveErrorResponse(LegalEntityStatus status)
         {
-            // TODO: This is failing, but the test is correct. Raise a bug
             var saveStatus = _sqlQueryService.GetStatus(EntityType.LEGALENTITY, Constants.LegalEntities.LegalEntityId);
             _sqlQueryService.SetStatus(EntityType.LEGALENTITY, Constants.LegalEntities.LegalEntityId, status.ToEnumMemberAttrValue());
             try
@@ -472,7 +469,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         }
 
 #pragma warning disable xUnit1004
-        [Theory(Skip = "This test case matches current requirements but has identified a bug, so we are skipping it until the bug is resolved")]
+        [Theory(Skip = "This test case matches current requirements but has identified a bug, so we are skipping it until the bug (Bug 63707) is resolved")]
         [InlineData(Constants.Users.Banking.UserIdJaneWilson, "98765988", "98765987")] // Retrieving account that has not been consented to, should fail
         public async Task ACX01_Get_WhenConsumerDidNotGrantConsentToAccount_ShouldRespondWith_404NotFound(
             string userId,
@@ -480,8 +477,6 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             string accountToRetrieve)
         {
             Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}, {P3}={V3}.", nameof(userId), userId, nameof(consentedAccounts), consentedAccounts, nameof(accountToRetrieve), accountToRetrieve);
-
-            // TODO: This is failing but the test is correct. Fails as it gets a 404 Notfound when it shold be a 422 UnprocessableEntity. Bug 63707
 
             // Arrange - Get authcode
             var authService = await new DataHolderAuthoriseService.DataHolderAuthoriseServiceBuilder(_options, _dataHolderParService, _apiServiceDirector)
@@ -536,7 +531,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             public string? Text { get; init; }
         }
 
-        private static (string, int) GetExpectedResponse(
+        private static (string ExpectedResponse, int TotalRecords) GetExpectedResponse(
            string accountId,
            string? accessToken,
            string baseUrl,
@@ -622,15 +617,15 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 meta = new
                 {
                     totalRecords,
-                    totalPages
-                }
+                    totalPages,
+                },
             };
 
             return (
                 JsonConvert.SerializeObject(expectedResponse, new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
-                    Formatting = Formatting.Indented
+                    Formatting = Formatting.Indented,
                 }),
                 totalRecords);
         }

@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CDR.DataHolder.Repository.Migrations
 {
+    /// <summary>
+    /// Update Account table to fix CreationDate migration script.
+    /// </summary>
     public partial class FixCreationDate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

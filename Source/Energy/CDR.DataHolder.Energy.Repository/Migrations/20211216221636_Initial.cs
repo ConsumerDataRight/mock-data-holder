@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CDR.DataHolder.Repository.Migrations
 {
+    /// <summary>
+    /// Initial database creation migration script.
+    /// </summary>
     public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +18,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     LegalEntityName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Industry = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Status = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
-                    LogoUri = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true)
+                    LogoUri = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                 },
                 constraints: table =>
                 {
@@ -41,7 +44,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     OrganisationType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RegisteredCountry = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: true),
                     EstablishmentDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastUpdateTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    LastUpdateTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -60,7 +63,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     Suffix = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     OccupationCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     OccupationCodeVersion = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdateTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    LastUpdateTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -82,7 +85,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     CustomerType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     EffectiveFrom = table.Column<DateTime>(type: "datetime2", nullable: true),
                     EffectiveTo = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -97,7 +100,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     BrandName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     LogoUri = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     Status = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
-                    LegalEntityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    LegalEntityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -118,7 +121,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     LoginId = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
                     CustomerUType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PersonId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OrganisationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    OrganisationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -146,7 +149,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     SoftwareProductDescription = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     LogoUri = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     Status = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
-                    BrandId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    BrandId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -167,7 +170,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     AccountNumber = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     DisplayName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -194,7 +197,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     DailyDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     MonthlyDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     YearlyDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    PercentageDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: true)
+                    PercentageDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -214,7 +217,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     AccountPlanId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     AccountId = table.Column<string>(type: "nvarchar(100)", nullable: false),
                     PlanId = table.Column<string>(type: "nvarchar(100)", nullable: false),
-                    Nickname = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true)
+                    Nickname = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                 },
                 constraints: table =>
                 {
@@ -253,7 +256,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     BillerName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Crn = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     ApcaNumber = table.Column<string>(type: "nvarchar(6)", maxLength: 6, nullable: true),
-                    AccountId = table.Column<string>(type: "nvarchar(100)", nullable: true)
+                    AccountId = table.Column<string>(type: "nvarchar(100)", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -274,7 +277,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    AccountPlanId = table.Column<string>(type: "nvarchar(100)", nullable: true)
+                    AccountPlanId = table.Column<string>(type: "nvarchar(100)", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -299,7 +302,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     JurisdictionCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     IsGenerator = table.Column<bool>(type: "bit", nullable: true),
                     ValidFromDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastUpdateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    LastUpdateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                 },
                 constraints: table =>
                 {

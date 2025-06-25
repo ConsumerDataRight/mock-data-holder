@@ -41,7 +41,7 @@ namespace CDR.DataHolder.Shared.Business
             {
                 return new Links()
                 {
-                    Self = selfLink
+                    Self = selfLink,
                 };
             }
 
@@ -50,7 +50,7 @@ namespace CDR.DataHolder.Shared.Business
             {
                 Self = selfLink,
                 First = controller.GetPageUri(selfLink, 1, pageSize),
-                Last = controller.GetPageUri(selfLink, totalPages, pageSize)
+                Last = controller.GetPageUri(selfLink, totalPages, pageSize),
             };
 
             if (currentPage <= 1)

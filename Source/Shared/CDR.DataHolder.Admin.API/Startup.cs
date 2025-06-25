@@ -37,7 +37,7 @@ namespace CDR.DataHolder.Admin.API
                         .Split(',')
                         .Select(x => Convert.ToInt32(x))
                         .ToArray()
-                }
+                },
             };
 
             services.AddApiVersioning(options =>

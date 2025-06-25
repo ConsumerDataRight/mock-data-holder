@@ -34,7 +34,7 @@ namespace CDR.DataHolder.Shared.Business.Services
             var subParam = new SubPermanenceParameters()
             {
                 SectorIdentifierUri = newIdentity.FindFirst(Infra.Constants.TokenClaimTypes.SectorIdentifier)?.Value ?? string.Empty,
-                SoftwareProductId = newIdentity.FindFirst(Infra.Constants.TokenClaimTypes.SoftwareId)?.Value ?? string.Empty
+                SoftwareProductId = newIdentity.FindFirst(Infra.Constants.TokenClaimTypes.SoftwareId)?.Value ?? string.Empty,
             };
             var decryptedSubValue = _idPermanenceManager.DecryptSub(subClaim.Value, subParam);
             newIdentity.RemoveClaim(subClaim);
@@ -48,7 +48,7 @@ namespace CDR.DataHolder.Shared.Business.Services
             var idParam = new IdPermanenceParameters()
             {
                 CustomerId = decryptedSubValue,
-                SoftwareProductId = newIdentity.FindFirst(Infra.Constants.TokenClaimTypes.SoftwareId)?.Value ?? string.Empty
+                SoftwareProductId = newIdentity.FindFirst(Infra.Constants.TokenClaimTypes.SoftwareId)?.Value ?? string.Empty,
             };
             foreach (var claim in accountClaims)
             {

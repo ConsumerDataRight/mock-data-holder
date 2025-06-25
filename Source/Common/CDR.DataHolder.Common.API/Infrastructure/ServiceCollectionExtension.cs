@@ -132,18 +132,18 @@ namespace CDR.DataHolder.Common.API.Infrastructure
                     In = ParameterLocation.Header,
                     Scheme = "Bearer",
                     Type = SecuritySchemeType.ApiKey,
-                    BearerFormat = "JWT"
+                    BearerFormat = "JWT",
                 });
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                    {
+                {
                     {
                         new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" },
                         },
                         new List<string>()
-                    }
-                    });
+                    },
+                });
             });
         }
     }

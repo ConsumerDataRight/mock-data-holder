@@ -46,6 +46,6 @@ namespace CDR.DataHolder.Banking.Domain.ValueObjects
         TermDeposits = 9,
         TradeFinance = 10,
         TransAndSavingsAccounts = 11,
-        TravelCards = 12
+        TravelCards = 12,
     }
 }

@@ -192,7 +192,7 @@ namespace CDR.DataHolder.Shared.Domain.Models
             {
                 Code = $"urn:au-cds:error:cds-all:Authorisation/Unavailable{industry}Account",
                 Title = $"Unavailable {industry} Account",
-                Detail = string.Empty
+                Detail = string.Empty,
             });
             return this;
         }
@@ -209,7 +209,7 @@ namespace CDR.DataHolder.Shared.Domain.Models
             {
                 Code = "urn:au-cds:error:cds-energy:Authorisation/InvalidEnergyAccount",
                 Title = "Invalid Energy Account",
-                Detail = $"{accountId}"
+                Detail = $"{accountId}",
             });
             return this;
         }

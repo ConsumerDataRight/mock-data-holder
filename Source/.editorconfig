@@ -202,87 +202,12 @@ dotnet_diagnostic.SA1208.severity = none
 # field should not follow class
 dotnet_diagnostic.SA1201.severity = none
 
-#Maintainability
-
-# S2325: Methods and properties that don't access instance data should be static
+######################################################
+# Any project specific rules must go in this section #
+######################################################
+[Startup.cs]
+# Make Configure and ConfigureServices static method
 dotnet_diagnostic.S2325.severity = none
-
-[*.cs]
-# Disable xUnit1013 warning
-dotnet_diagnostic.xUnit1013.severity = none
-csharp_prefer_system_threading_lock = true:suggestion
-#region should not be located within a code element
-dotnet_diagnostic.SA1123.severity = none
-dotnet_diagnostic.SA1601.severity = none
-dotnet_diagnostic.SA1616.severity = none
-dotnet_diagnostic.SA1108.severity = none
-
-# A multi-line initializer in a C# code file should use a comma on the last line.
-dotnet_diagnostic.SA1413.severity = none
-
-[Meta.cs]
-# Remove this empty class, write its code or make it an "interface".
-dotnet_diagnostic.S2094.severity = none
-
-[US15350_MDH_BankingAPI_GetTransactions.cs]
-# Complete the task associated to this 'TODO' comment. (https://rules.sonarsource.com/csharp/RSPEC-1135)
-dotnet_diagnostic.S1135.severity = none
-
-[Account.cs]
-# A closing square bracket within a C# statement is not spaced correctly.(There is an issue with identifying nullable array properties.)
-dotnet_diagnostic.SA1011.severity = none
-
-[Customer.cs]
-# A closing square bracket within a C# statement is not spaced correctly.(There is an issue with identifying nullable array properties.)
-dotnet_diagnostic.SA1011.severity = none
-
-[Person.cs]
-# A closing square bracket within a C# statement is not spaced correctly.(There is an issue with identifying nullable array properties.)
-dotnet_diagnostic.SA1011.severity = none
-
-[EnergyAccount.cs]
-# Classes should not be empty
-dotnet_diagnostic.S2094.severity = none
-# A closing square bracket within a C# statement is not spaced correctly.(There is an issue with identifying nullable array properties.)
-dotnet_diagnostic.SA1011.severity = none
-
-[EnergyConcession.cs]
-# A closing square bracket within a C# statement is not spaced correctly.(There is an issue with identifying nullable array properties.)
-dotnet_diagnostic.SA1011.severity = none
-
-[EnergyAccountConcession.cs]
-# A closing square bracket within a C# statement is not spaced correctly.(There is an issue with identifying nullable array properties.)
-dotnet_diagnostic.SA1011.severity = none
-
-[EnergyAccountPlan.cs]
-# A closing square bracket within a C# statement is not spaced correctly.(There is an issue with identifying nullable array properties.)
-dotnet_diagnostic.SA1011.severity = none
-
-[US27571_MDH_EnergyAPI_GetAccounts.cs]
-# A closing square bracket within a C# statement is not spaced correctly.(There is an issue with identifying nullable array properties.)
-dotnet_diagnostic.SA1011.severity = none
-
-[US12975_MDH_BankingAPI_GetAccounts.cs]
-# A closing square bracket within a C# statement is not spaced correctly.(There is an issue with identifying nullable array properties.)
-dotnet_diagnostic.SA1011.severity = none
-
-[CommonPerson.cs]
-# A closing square bracket within a C# statement is not spaced correctly.(There is an issue with identifying nullable array properties.)
-dotnet_diagnostic.SA1011.severity = none
-
-
-[AesEncryptor.cs]
-# A closing parenthesis within a C# statement is not spaced correctly.
-dotnet_diagnostic.SA1009.severity = none
-# Some cryptographic factory methods are obsolete
-dotnet_diagnostic.SYSLIB0045.severity = none
-
-# These are Auth Server files that needs removing once they are fixed. The issue happens when the Auth Server is copied to MDH for building.
-[ClientClaims.{cs}]
-dotnet_diagnostic.CS8618.severity = silent
-[SoftwareProductConfiguration.{cs}]
-dotnet_diagnostic.S1075.severity = silent
-[ClientRepository.{cs}]
-dotnet_diagnostic.S2139.severity = silent
-[GrantRepository.{cs}]
-dotnet_diagnostic.S2139.severity = silent
+[*Tests.cs]
+# Make Configure and ConfigureServices static method
+dotnet_diagnostic.S2325.severity = none

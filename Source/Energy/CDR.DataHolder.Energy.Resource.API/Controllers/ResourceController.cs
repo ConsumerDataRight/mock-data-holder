@@ -70,7 +70,7 @@ namespace CDR.DataHolder.Energy.Resource.API.Controllers
         }
 
         private async Task<IActionResult> GetPagedEnergyAccountsForFilter<T>(string? page, string? pageSize, AccountFilter accountFilter)
-            where T : BaseEnergyAccount
+            where T : EnergyAccount
         {
             // Each customer id is different for each ADR based on PPID.
             // Therefore we need to look up the CustomerClient table to find the actual customer id.
@@ -97,7 +97,7 @@ namespace CDR.DataHolder.Energy.Resource.API.Controllers
             var idParameters = new IdPermanenceParameters
             {
                 SoftwareProductId = softwareProductId ?? string.Empty,
-                CustomerId = loginId
+                CustomerId = loginId,
             };
 
             _idPermanenceManager.EncryptIds(response.Data.Accounts, idParameters, a => a.AccountId);
@@ -124,7 +124,7 @@ namespace CDR.DataHolder.Energy.Resource.API.Controllers
             var accountIds = User.GetAccountIds();
             var accountFilter = new AccountFilter(accountIds)
             {
-                OpenStatus = (openStatus != null && openStatus.Equals(OpenStatus.All.ToString(), StringComparison.OrdinalIgnoreCase)) ? null : openStatus
+                OpenStatus = (openStatus != null && openStatus.Equals(OpenStatus.All.ToString(), StringComparison.OrdinalIgnoreCase)) ? null : openStatus,
             };
 
             return await GetPagedEnergyAccountsForFilter<EnergyAccountV2>(page, pageSize, accountFilter);
@@ -146,7 +146,7 @@ namespace CDR.DataHolder.Energy.Resource.API.Controllers
 
             var request = new RequestAccountConcessions()
             {
-                AccountId = accountId
+                AccountId = accountId,
             };
 
             // Each customer id is different for each ADR based on PPID.
@@ -164,7 +164,7 @@ namespace CDR.DataHolder.Energy.Resource.API.Controllers
             var idParameters = new IdPermanenceParameters
             {
                 SoftwareProductId = softwareProductId ?? string.Empty,
-                CustomerId = loginId
+                CustomerId = loginId,
             };
 
             request.AccountId = DecryptAccountId(request.AccountId, idParameters);

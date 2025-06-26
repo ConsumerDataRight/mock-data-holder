@@ -64,6 +64,10 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
             }
         }
 
+        /// <summary>
+        /// This is a mock API endpoint.
+        /// This is to spin up new mock API instances during testing.
+        /// </summary>
         public partial class MockEndpoint : IAsyncDisposable
         {
             public MockEndpoint(string url, string certificatePath, string certificatePassword)

@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CDR.DataHolder.Repository.Migrations
 {
+    /// <summary>
+    /// Remove SoftwareProduct, Brand and LegalEntity tables migration script.
+    /// </summary>
     public partial class RemoveSoftProdLEntityBrand : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -28,7 +31,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     LegalEntityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LegalEntityName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     LogoUri = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false)
+                    Status = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -43,7 +46,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     LegalEntityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BrandName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     LogoUri = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false)
+                    Status = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -65,7 +68,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     LogoUri = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     SoftwareProductDescription = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     SoftwareProductName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false)
+                    Status = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                 },
                 constraints: table =>
                 {

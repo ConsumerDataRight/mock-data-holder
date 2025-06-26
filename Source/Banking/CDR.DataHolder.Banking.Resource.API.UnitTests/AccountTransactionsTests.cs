@@ -81,7 +81,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
                     new Claim(ClaimTypes.NameIdentifier, customerId),
                     new Claim("software_id", softwareProductId),
                     new Claim("client_id", Guid.NewGuid().ToString()),
-                    new Claim("account_id", accountId)
+                    new Claim("account_id", accountId),
                 },
                 "mock"));
 
@@ -89,7 +89,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
 
             var controllerContext = new ControllerContext(actionContext)
             {
-                HttpContext = httpContext
+                HttpContext = httpContext,
             };
 
             var controller = new ResourceController(resourceRepository, config, It.IsAny<IMapper>(), logger, transactionsService, idPermanenceManager);
@@ -103,7 +103,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
                 OldestTime = new DateTime(2021, 4, 01, 0, 0, 0, DateTimeKind.Utc),
                 NewestTime = new DateTime(2021, 4, 30, 0, 0, 0, DateTimeKind.Utc),
                 Page = "1",
-                PageSize = "10"
+                PageSize = "10",
             }) as OkObjectResult;
 
             var response = result?.Value as PageModel<AccountTransactionsCollectionModel>;
@@ -159,7 +159,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
                     new Claim(ClaimTypes.NameIdentifier, "4EE1A8DB-13AF-44D7-B54B-E94DFF3DF548"),
                     new Claim("software_id", "c6327f87-687a-4369-99a4-eaacd3bb8210"),
                     new Claim("client_id", Guid.NewGuid().ToString()),
-                    new Claim("account_id", accountId)
+                    new Claim("account_id", accountId),
                 },
                 "mock"));
 
@@ -167,7 +167,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
 
             var controllerContext = new ControllerContext(actionContext)
             {
-                HttpContext = httpContext
+                HttpContext = httpContext,
             };
 
             var controller = new ResourceController(resourceRepository, config, It.IsAny<IMapper>(), logger, transactionsService, idPermanenceManager);
@@ -183,7 +183,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests
                 OldestTime = new DateTime(2021, 4, 01, 0, 0, 0, DateTimeKind.Utc),
                 NewestTime = new DateTime(2021, 6, 01, 0, 0, 0, DateTimeKind.Utc),
                 Page = "1",
-                PageSize = "10"
+                PageSize = "10",
             }) as OkObjectResult;
 
             var response = result?.Value as PageModel<AccountTransactionsCollectionModel>;

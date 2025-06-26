@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CDR.DataHolder.Repository.Migrations
 {
+    /// <summary>
+    /// Remove SoftwareProduct table migration script.
+    /// </summary>
     public partial class RemoveSoftwareProduct : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -24,7 +27,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     LogoUri = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     SoftwareProductDescription = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     SoftwareProductName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false)
+                    Status = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                 },
                 constraints: table =>
                 {

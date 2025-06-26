@@ -23,7 +23,7 @@ namespace CDR.DataHolder.Admin.API.Models
             {
                 IsAuthorized = false,
                 Error = error,
-                ErrorDescription = errorDescription
+                ErrorDescription = errorDescription,
             };
         }
 
@@ -31,7 +31,7 @@ namespace CDR.DataHolder.Admin.API.Models
         {
             return new AuthorizationResult()
             {
-                IsAuthorized = true
+                IsAuthorized = true,
             };
         }
     }

@@ -26,7 +26,7 @@ public static class Helpers
             new SubPermanenceParameters
             {
                 SoftwareProductId = softwareProductId,
-                SectorIdentifierUri = Constants.SoftwareProducts.SoftwareProductSectorIdentifierUri
+                SectorIdentifierUri = Constants.SoftwareProducts.SoftwareProductSectorIdentifierUri,
             },
             Constants.IdPermanence.IdPermanencePrivateKey);
     }

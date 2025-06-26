@@ -14,7 +14,7 @@
                 {
                     { "Default", Default },
                     { "Migrations", Migrations },
-                    { "Logging", Logging }
+                    { "Logging", Logging },
                 };
 
                 public static string? GetConnectionString(string key)

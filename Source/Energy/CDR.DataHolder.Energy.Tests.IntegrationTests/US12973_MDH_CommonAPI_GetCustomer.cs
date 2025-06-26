@@ -100,16 +100,16 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                             prefix = customer.Person?.Prefix,
                             suffix = customer.Person?.Suffix,
                             occupationCode = customer.Person?.OccupationCode,
-                            occupationCodeVersion = customer.Person?.OccupationCodeVersion
+                            occupationCodeVersion = customer.Person?.OccupationCodeVersion,
                         }
                         : null,
                     })
                     .FirstOrDefault(),
                 links = new
                 {
-                    self = $"{dhMtlsGatewayUrl}/cds-au/v1/common/customer"
+                    self = $"{dhMtlsGatewayUrl}/cds-au/v1/common/customer",
                 },
-                meta = new { }
+                meta = new { },
             };
 
             return JsonConvert.SerializeObject(
@@ -117,7 +117,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
-                    Formatting = Formatting.Indented
+                    Formatting = Formatting.Indented,
                 });
         }
 

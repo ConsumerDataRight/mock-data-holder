@@ -7,6 +7,6 @@
         GetTransactionsApi,
         GetConcessionsApi,
         GetMetricsApi,
-        DynamicClientRegistration
+        DynamicClientRegistration,
     }
 }

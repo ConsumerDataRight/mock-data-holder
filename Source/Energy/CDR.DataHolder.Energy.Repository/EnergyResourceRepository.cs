@@ -119,7 +119,6 @@ namespace CDR.DataHolder.Energy.Repository
         /// Get a list of all concession for a given account.
         /// </summary>
         /// <param name="filter">Query filter.</param>
-        /// <returns></returns>
         public async Task<EnergyAccountConcession[]> GetEnergyAccountConcessions(AccountConcessionsFilter filter)
         {
             IQueryable<Entities.AccountConcession> accountTransactionsQuery = _dataHolderDatabaseContext.AccountConcessions.AsNoTracking()

@@ -25,16 +25,13 @@ namespace CDR.DataHolder.Energy.Resource.API.Business
             CreateMap<Energy.Domain.Entities.EnergyPlanOverview, Models.EnergyPlanOverview>()
                 .ReverseMap();
 
-            CreateMap<Energy.Domain.Entities.EnergyAccount, Models.BaseEnergyAccount>()
+            CreateMap<Energy.Domain.Entities.EnergyAccount, Models.EnergyAccount>()
                 .ForMember(dest => dest.CreationDate, source => source.MapFrom(source =>
                     source.CreationDate == null ? string.Empty : source.CreationDate.Value.ToString("yyyy-MM-dd")))
                 .ForMember(dest => dest.Plans, source => source.MapFrom(source => source.Plans))
                 .ReverseMap();
-            CreateMap<Energy.Domain.Entities.EnergyAccount, Models.EnergyAccount>()
-                .IncludeBase<Energy.Domain.Entities.EnergyAccount, Models.BaseEnergyAccount>()
-                .ReverseMap();
             CreateMap<Energy.Domain.Entities.EnergyAccount, Models.EnergyAccountV2>()
-                .IncludeBase<Energy.Domain.Entities.EnergyAccount, Models.BaseEnergyAccount>()
+                .IncludeBase<Energy.Domain.Entities.EnergyAccount, Models.EnergyAccount>()
                 .ForMember(dest => dest.OpenStatus, source => source.MapFrom(source => source.OpenStatus))
                 .ReverseMap();
             CreateMap<Page<Energy.Domain.Entities.EnergyAccount[]>, EnergyAccountListResponse<Models.EnergyAccount>>()

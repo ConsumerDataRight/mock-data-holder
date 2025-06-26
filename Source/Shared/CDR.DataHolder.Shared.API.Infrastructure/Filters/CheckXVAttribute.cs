@@ -37,7 +37,7 @@ namespace CDR.DataHolder.Shared.Resource.API.Infrastructure.Filters
                         // return a 406 Not Accepted as the version is not supported.
                         context.Result = new ObjectResult(new ResponseErrorList().AddInvalidXVUnsupportedVersion())
                         {
-                            StatusCode = (int)HttpStatusCode.NotAcceptable
+                            StatusCode = (int)HttpStatusCode.NotAcceptable,
                         };
                     }
                 }

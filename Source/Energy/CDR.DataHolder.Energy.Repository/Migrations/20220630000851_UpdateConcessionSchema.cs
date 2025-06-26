@@ -4,6 +4,9 @@
 
 namespace CDR.DataHolder.Repository.Migrations
 {
+    /// <summary>
+    /// Update AccountConcession table columns migration script.
+    /// </summary>
     public partial class UpdateConcessionSchema : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

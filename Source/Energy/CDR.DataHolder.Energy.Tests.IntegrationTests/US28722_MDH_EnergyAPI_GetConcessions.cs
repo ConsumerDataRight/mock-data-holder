@@ -44,7 +44,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             }
         }
 
-        private static (string, int) GetExpectedResponse(
+        private static (string ExpectedResponse, int TotalRecords) GetExpectedResponse(
             string? accessToken,
             string accountId,
             string selfUrl,
@@ -96,16 +96,14 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 {
                     self = selfUrl,
                 },
-                meta = new
-                {
-                }
+                meta = new { },
             };
 
             return (
                 JsonConvert.SerializeObject(expectedResponse, new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
-                    Formatting = Formatting.Indented
+                    Formatting = Formatting.Indented,
                 }),
                 totalRecords);
         }

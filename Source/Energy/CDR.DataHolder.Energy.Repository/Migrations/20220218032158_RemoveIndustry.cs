@@ -4,6 +4,9 @@
 
 namespace CDR.DataHolder.Repository.Migrations
 {
+    /// <summary>
+    /// Remove industry column migration script.
+    /// </summary>
     public partial class RemoveIndustry : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -26,7 +26,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 new SubPermanenceParameters
                 {
                     SoftwareProductId = softwareProductId,
-                    SectorIdentifierUri = Constants.SoftwareProducts.SoftwareProductSectorIdentifierUri
+                    SectorIdentifierUri = Constants.SoftwareProducts.SoftwareProductSectorIdentifierUri,
                 },
                 Constants.IdPermanence.IdPermanencePrivateKey);
         }

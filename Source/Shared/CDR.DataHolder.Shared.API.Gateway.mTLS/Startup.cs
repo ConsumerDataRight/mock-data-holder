@@ -57,7 +57,7 @@ namespace CDR.DataHolder.Shared.API.Gateway.Mtls
                      {
                          context.Fail("invalid client certificate");
                          throw context.Exception;
-                     }
+                     },
                  };
              })
 
@@ -119,7 +119,7 @@ namespace CDR.DataHolder.Shared.API.Gateway.Mtls
                     httpContext.Request.Headers["X-Forwarded-Host"] = httpContext.Request.Host.ToString();
 
                     await next.Invoke();
-                }
+                },
             };
             app.UseOcelot(pipelineConfiguration).Wait();
         }

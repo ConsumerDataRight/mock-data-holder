@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CDR.DataHolder.Repository.Migrations
 {
+    /// <summary>
+    /// LogEventsDrService creation migration script.
+    /// </summary>
     public partial class LogEventsDrService : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -23,7 +26,7 @@ namespace CDR.DataHolder.Repository.Migrations
                     ProcessName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     ThreadId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     MethodName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    SourceContext = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true)
+                    SourceContext = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                 },
                 constraints: table =>
                 {

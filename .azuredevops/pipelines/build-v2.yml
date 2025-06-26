@@ -22,10 +22,15 @@ resources:
         - develop
         - main
 
-
 trigger:
   - develop
   - main
+
+parameters:
+  # https://github.com/microsoft/azure-pipelines-yaml/blob/master/design/runtime-parameters.md#syntax
+  - name: MockRegisterOverrideDependentImageTag
+    type: string
+    default: ' ' # default value; if no default, then the parameter MUST be given by the user at runtime  
 
 variables:
 - group: artifacts
@@ -41,44 +46,6 @@ jobs:
     timeoutInMinutes: 120
     steps:
 
-    ###################################################################################################
-      # Set obligation date container tags
-    ###################################################################################################
-      - task: PowerShell@2
-        displayName: Update Obligation dates banking and energy
-        inputs:
-          targetType: 'inline'
-          script: |      
-            $DataHolderObligationDate = "$(ObligationDate)"
-            if (-not [string]::IsNullOrWhiteSpace( $DataHolderObligationDate )) {
-              Write-Host "##vso[task.setvariable variable=ObligationDateTag]$DataHolderObligationDate"
-            }
-            else {
-              Write-Host "##vso[task.setvariable variable=ObligationDateTag]23-3"
-            }
-            $EnergyDataHolderObligationDate = "$(EnergyObligationDate)"
-            if (-not [string]::IsNullOrWhiteSpace( $EnergyDataHolderObligationDate )) {
-              Write-Host "##vso[task.setvariable variable=EnergyObligationDateTag]$EnergyDataHolderObligationDate"
-            }
-            else {
-              Write-Host "##vso[task.setvariable variable=EnergyObligationDateTag]23-3"
-            }
-      # Set release version variables for release tags
-      - task: PowerShell@2        
-        displayName: 'Split release branch name'  
-        condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
-        inputs:
-          targetType: 'inline'
-          script: |
-            $branchParts = "$(Build.SourceBranchName)" -split '\.'
-            # Write-Host "Branch Name: $branchParts"
-            $majorVersion = $branchParts[0]
-            $minorVersion = $branchParts[1]
-            # Write-Host "Major Name: $majorVersion"
-            Write-Host "##vso[task.setvariable variable=majorVersion]$majorVersion"
-            Write-Host "##vso[task.setvariable variable=minorVersion]$minorVersion"      
-            Write-Host "##vso[task.setvariable variable=majorMinorVersion]$majorVersion.$minorVersion"
-
       ###################################################################################################
       # Checkout repositories
       ###################################################################################################
@@ -86,6 +53,15 @@ jobs:
       - checkout: self
       - checkout: git://cdr-auth-server@refs/heads/develop
         persistCredentials: true
+
+      ###################################################################################################
+      # set the register tag to use based on the logic in the template file
+      ###################################################################################################
+      - template: set-tag-name.yml
+        parameters:
+          name: RegisterTag
+          input: ${{ parameters.MockRegisterOverrideDependentImageTag }}
+          context: $[replace(variables['Build.SourceBranch'], 'refs/heads/', '')]
 
       ###################################################################################################
       # Unit tests
@@ -123,25 +99,34 @@ jobs:
         condition: always()         
 
       ################################################################################################
-        # Swith AuthServer to required branch.
+        # Switch AuthServer to required branch.
       ################################################################################################
       - powershell: |   
           cd cdr-auth-server
           $branchRef = ""      
           $authServerBranch = ""
+          $AuthServerFeatureBranch = "$(AuthServerFeatureBranch)"
           $SourcebranchName = "$(Build.SourceBranch)" -replace 'refs/heads/', ''
           
           if ($SourcebranchName -match "releases/") {
             $authServerBranch = "$(AuthServerReleaseBranchName)"
             $branchRef = "refs/heads/$authServerBranch"
+            echo "Release Branch detected. Using  $branchRef."
           }
           elseif ($SourcebranchName -eq "main" -or $branchName -eq "develop") {
             $authServerBranch = $branchName
             $branchRef = "$(Build.SourceBranch)"
+            echo "Main or Develop Branch detected. Using  $branchRef."
           }
+          elseif ($AuthServerFeatureBranch -ne "") {
+            $authServerBranch = $AuthServerFeatureBranch
+            $branchRef = "refs/heads/$authServerBranch"
+            echo "Feature Branch variable exists. Using  $branchRef."
+          }          
           else {
             $authServerBranch = "develop"
             $branchRef = "refs/heads/develop"
+            echo "Using default branch $branchRef."
           }
           echo "authServerBranch - $authServerBranch and branchRef - $branchRef"
           if ( git ls-remote origin $branchRef) 
@@ -184,14 +169,6 @@ jobs:
       ###################################################################################################
       # Login to ACR and pull mock solution containers
       ###################################################################################################
-
-      # Login to ACR
-      - task: Docker@2
-        displayName: Login to ACR
-        condition: always()
-        inputs:
-          command: login
-          containerRegistry: $(AcrBaseUrl)
       
       # Login to Shared ACR
       - task: Docker@2
@@ -206,18 +183,11 @@ jobs:
         inputs:
           targetType: inline
           script: |
-            if [[ "$(Build.SourceBranchName)" = 'main' ]]; then
-              mockRegisterContainerTag='main'
-            elif [[ "$(Build.SourceBranch)" == "refs/heads/releases/"* ]]; then
-              mockRegisterContainerTag=$(MockRegisterReleaseContainerTag)
-            else
-              mockRegisterContainerTag='develop'
-            fi
 
-            echo "SourceBranchName = $(Build.SourceBranchName) mockRegisterContainerTag=$mockRegisterContainerTag"
+            echo "SourceBranchName = $(Build.SourceBranchName) mockRegisterContainerTag=$(RegisterTag)"
 
-            docker pull $(AcrBaseUrl).azurecr.io/mock-register:$mockRegisterContainerTag
-            docker tag $(AcrBaseUrl).azurecr.io/mock-register:$mockRegisterContainerTag mock-register:latest
+            docker pull $(SharedAcrBaseUrl).azurecr.io/mock-register:$(RegisterTag)
+            docker tag $(SharedAcrBaseUrl).azurecr.io/mock-register:$(RegisterTag) mock-register:latest
 
       # List docker images
       - task: Docker@2
@@ -356,7 +326,7 @@ jobs:
           docker run \
             -v=$(baseSourceDirectory)/DockerCompose/_temp/mock-data-holder-banking-integration-tests/testresults/results.trx:/app/results.trx:ro \
             -v=$(baseSourceDirectory)/DockerCompose/_temp/mock-data-holder-banking-integration-tests/testresults/formatted/:/app/out/:rw \
-            $(AcrBaseUrl).azurecr.io/trx-formatter -i results.trx -t "MDH" --outputprefix "MDH" -o out/
+            $(SharedAcrBaseUrl).azurecr.io/trx-formatter -i results.trx -t "MDH" --outputprefix "MDH" -o out/
         displayName: "Run trx-formatter for Banking Integration Tests"
         condition: always()
 
@@ -385,7 +355,7 @@ jobs:
           docker run \
             -v=$(baseSourceDirectory)/DockerCompose/_temp/mock-data-holder-energy-integration-tests/testresults/results.trx:/app/results.trx:ro \
             -v=$(baseSourceDirectory)/DockerCompose/_temp/mock-data-holder-energy-integration-tests/testresults/formatted/:/app/out/:rw \
-            $(AcrBaseUrl).azurecr.io/trx-formatter -i results.trx -t "MDHE" --outputprefix "MDHE" -o out/
+            $(SharedAcrBaseUrl).azurecr.io/trx-formatter -i results.trx -t "MDHE" --outputprefix "MDHE" -o out/
         displayName: "Run trx-formatter for Energy Integration Tests"
         condition: always()
 
@@ -472,238 +442,62 @@ jobs:
       ###################################################################################################
       # Tag images and push to ACR
       ###################################################################################################
-
-      # mock-data-holder
-      - task: Docker@2
-        displayName: 'Re-Tag Mock Data Holder image with :branch-name'
-        inputs:
-          containerRegistry: $(AcrBaseUrl)
-          repository: 'mock-data-holder'
-          command: tag
-          arguments: 'mock-data-holder $(AcrBaseUrl).azurecr.io/mock-data-holder:$(Build.SourceBranchName)'
-                     
-      - task: Docker@2
-        displayName: 'Re-Tag Mock Data Holder image with :latest (for develop branch only)'
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
-        inputs:
-          containerRegistry: $(AcrBaseUrl)
-          repository: 'mock-data-holder'
-          command: tag
-          arguments: 'mock-data-holder $(AcrBaseUrl).azurecr.io/mock-data-holder:latest'
-
-      - task: Docker@2
-        displayName: 'Push MDH image with :branch-name tag to ACR'        
-        inputs:
-          containerRegistry: $(AcrBaseUrl)
-          repository: mock-data-holder
-          command: 'push'
-          tags: |
-           $(Build.SourceBranchName)
-
-      - task: Docker@2
-        displayName: 'Push MDH image with :latest tag to ACR (develop branch only)'
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
-        inputs:
-          containerRegistry: $(AcrBaseUrl)
-          repository: mock-data-holder
-          command: 'push'
-          tags: |
-           latest
-    
-      # mock-data-holder-energy
-      - task: Docker@2
-        displayName: 'Re-Tag Mock Data Holder Energy image with :branch-name'
-        inputs:
-          containerRegistry: $(AcrBaseUrl)
-          repository: 'mock-data-holder-energy'
-          command: tag
-          arguments: 'mock-data-holder-energy $(AcrBaseUrl).azurecr.io/mock-data-holder-energy:$(Build.SourceBranchName)'
-
-      - task: Docker@2
-        displayName: 'Re-Tag Mock Data Holder Energy image with :latest (for develop branch only)'
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
-        inputs:
-          containerRegistry: $(AcrBaseUrl)
-          repository: 'mock-data-holder-energy'
-          command: tag
-          arguments: 'mock-data-holder-energy $(AcrBaseUrl).azurecr.io/mock-data-holder-energy:latest'
-      
-      - task: Docker@2
-        displayName: 'Push MDH Energy image with :branch-name tag to ACR'        
-        inputs:
-          containerRegistry: $(AcrBaseUrl)
-          repository: mock-data-holder-energy
-          command: 'push'
-          tags: |
-           $(Build.SourceBranchName)
-
-      - task: Docker@2
-        displayName: 'Push MDH Energy image with :latest tag to ACR (develop branch only)'
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
-        inputs:
-          containerRegistry: $(AcrBaseUrl)
-          repository: mock-data-holder-energy
-          command: 'push'
-          tags: |
-           latest
-
-      ###################################################################################################
-      # Tag images and push to Shared ACR
-      ###################################################################################################
-      # Pipeline variables are required : SharedAcrBaseUrl and SpSharedAcr
-      
-      ################################# MDH Banking tags starts ##########################################      
-      # mdh develop tags: latest, latest-obligationdate, buildnumber
       - task: Bash@3
-        displayName: 'Re-Tags MDH image with develop tags for shared ACR'
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+        displayName: 'Tag and push MDH images with Source Branch Name for any successful builds.'
+        condition: succeeded()
         inputs:
           targetType: inline
           script: |
-           docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:develop-latest
-           docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:develop-latest-$(ObligationDateTag)
-           docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.BuildId)
-            
-      # mdh main tags: latest, latest-obligationdate, buildnumber
-      - task: Bash@3
-        displayName: 'Re-Tags MDH image with main tags for shared ACR'
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-        inputs:
-          targetType: inline
-          script: |
-           docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:main-latest
-           docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:main-latest-$(ObligationDateTag)
-           docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.BuildId)
-      
-      # mdh release tags
-      - task: Bash@3
-        displayName: 'Re-Tags MDH image with release in tags for shared ACR'
-        condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
-        inputs:
-          targetType: inline
-          script: |
-           docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.SourceBranchName)
-           docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.SourceBranchName)-$(ObligationDateTag)
-           docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(majorMinorVersion)
-           docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(majorVersion)
-      ################################# MDH Banking tags ends ##########################################
-      
-      ################################# MDH Energy tags starts ##########################################      
-      # mdh energy develop tags: latest, latest-obligationdate, buildnumber
-      - task: Bash@3
-        displayName: 'Re-Tags MDH energy image with develop tags for shared ACR'
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
-        inputs:
-          targetType: inline
-          script: |
-           docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:develop-latest
-           docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:develop-latest-$(EnergyObligationDateTag)
-           docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:$(Build.BuildId)
-            
-      # mdh energy main tags: latest, latest-obligationdate, buildnumber
-      - task: Bash@3
-        displayName: 'Re-Tags MDH energy image with main tags for shared ACR'
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-        inputs:
-          targetType: inline
-          script: |
-           docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:main-latest
-           docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:main-latest-$(EnergyObligationDateTag)
-           docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:$(Build.BuildId)
-      
-      # mdh energy release tags
-      - task: Bash@3
-        displayName: 'Re-Tags MDH energy image with release tags for shared ACR'
-        condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
-        inputs:
-          targetType: inline
-          script: |
-           docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:$(Build.SourceBranchName)
-           docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:$(Build.SourceBranchName)-$(EnergyObligationDateTag)
-           docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:$(majorMinorVersion)
-           docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:$(majorVersion)
-      ################################# MDH Energy tags ends ##########################################
+            echo Tagging mock-data-holder with Source Branch Name: $(Build.SourceBranchName)
+            docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.SourceBranchName)
 
-      ########################### MDH Banking tags push starts ##########################################
-      # Push banking image develop tags to Shared ACR
-      - task: Docker@2
-        displayName: 'Push banking develop tags to Shared ACR'
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
-        inputs:
-          containerRegistry: $(SpSharedAcr)
-          repository: mock-data-holder
-          command: 'push'
-          tags: |
-           develop-latest
-           develop-latest-$(ObligationDateTag)
-           $(Build.BuildId)
+            echo Tagging mock-data-holder-energy with Source Branch Name: $(Build.SourceBranchName)
+            docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:$(Build.SourceBranchName)
 
-      # Push banking image main tags to Shared ACR
-      - task: Docker@2
-        displayName: 'Push banking main tags to Shared ACR'
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-        inputs:
-          containerRegistry: $(SpSharedAcr)
-          repository: mock-data-holder
-          command: 'push'
-          tags: |
-           main-latest
-           main-latest-$(ObligationDateTag)
-           $(Build.BuildId)
-           
-      # Push banking image release tags to Shared ACR
-      - task: Docker@2
-        displayName: 'Push banking release tags to Shared ACR'
-        condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
-        inputs:
-          containerRegistry: $(SpSharedAcr)
-          repository: mock-data-holder
-          command: 'push'
-          tags: |
-           $(Build.SourceBranchName)
-           $(Build.SourceBranchName)-$(ObligationDateTag)
-           $(majorMinorVersion)
-           $(majorVersion)
-      ########################### MDH Banking tags push ends ##########################################
+            echo Pushing all mock-data-holder tags to $(SharedAcrBaseUrl).azurecr.io/mock-data-holder
+            docker image push --all-tags $(SharedAcrBaseUrl).azurecr.io/mock-data-holder
 
-      ########################### MDH Energy tags push starts ##########################################
-      # Push energy image develop tags to Shared ACR
-      - task: Docker@2
-        displayName: 'Push energy develop tags to Shared ACR'        
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
-        inputs:
-          containerRegistry: $(SpSharedAcr)
-          repository: mock-data-holder-energy
-          command: 'push'
-          tags: |
-           develop-latest
-           develop-latest-$(EnergyObligationDateTag)
-           $(Build.BuildId)
+            echo Pushing all mock-data-holder tags to $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy
+            docker image push --all-tags $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy
 
-      # Push energy image main tags to Shared ACR
-      - task: Docker@2
-        displayName: 'Push energy main tags to Shared ACR'        
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+      - task: Bash@3
+        displayName: 'Tag and Push MDH images for develop, main and release branches.'
+        condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/develop'), eq(variables['Build.SourceBranch'], 'refs/heads/main'), startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/')))
         inputs:
-          containerRegistry: $(SpSharedAcr)
-          repository: mock-data-holder-energy
-          command: 'push'
-          tags: |
-           main-latest
-           main-latest-$(EnergyObligationDateTag)
-           $(Build.BuildId)
-           
-      # Push energy image release tags to Shared ACR
-      - task: Docker@2
-        displayName: 'Push energy release tags to Shared ACR'
-        condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
-        inputs:
-          containerRegistry: $(SpSharedAcr)
-          repository: mock-data-holder-energy
-          command: 'push'
-          tags: |
-           $(Build.SourceBranchName)
-           $(Build.SourceBranchName)-$(EnergyObligationDateTag)
-           $(majorMinorVersion)
-           $(majorVersion)
-      ########################### MDH Energy tags push ends ##########################################
+          targetType: inline
+          script: |
+            echo Tagging mock-data-holder with latest tag
+            docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:latest
+
+            echo Tagging mock-data-holder-energy with latest tag
+            docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:latest
+
+            echo Tagging mock-data-holder with Source Branch Name-latest: $(Build.SourceBranchName)-latest
+            docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.SourceBranchName)-latest
+
+            echo Tagging mock-data-holder-energy with Source Branch Name-latest: $(Build.SourceBranchName)-latest
+            docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:$(Build.SourceBranchName)-latest
+
+
+            if [ -n "$(ObligationDate)" ]; then
+              echo Tagging mock-data-holder with obligation date: $(Build.SourceBranchName)-$(ObligationDate)
+              docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.SourceBranchName)-$(ObligationDate)
+            fi
+
+            if [ -n "$(EnergyObligationDate)" ]; then
+              echo Tagging mock-data-holder-energy with obligation date: $(Build.SourceBranchName)-$(EnergyObligationDate)
+              docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:$(Build.SourceBranchName)-$(EnergyObligationDate)
+            fi
+
+            echo Tagging mock-data-holder with build id: $(Build.BuildId)
+            docker tag mock-data-holder $(SharedAcrBaseUrl).azurecr.io/mock-data-holder:$(Build.BuildId)
+
+            echo Tagging mock-data-holder-energy with build id: $(Build.BuildId)
+            docker tag mock-data-holder-energy $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy:$(Build.BuildId)
+
+
+            echo Pushing all mock-data-holder tags to $(SharedAcrBaseUrl).azurecr.io/mock-data-holder
+            docker image push --all-tags $(SharedAcrBaseUrl).azurecr.io/mock-data-holder
+
+            echo Pushing all mock-data-holder tags to $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy
+            docker image push --all-tags $(SharedAcrBaseUrl).azurecr.io/mock-data-holder-energy

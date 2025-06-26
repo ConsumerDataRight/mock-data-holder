@@ -14,7 +14,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Models
             {
                 return new ObjectResult(new ResponseErrorList().AddMissingRequiredHeader("x-v")) // Note: This isn't consistent with the new PT behaviour (or RAAP)
                 {
-                    StatusCode = (int)HttpStatusCode.BadRequest
+                    StatusCode = (int)HttpStatusCode.BadRequest,
                 };
             }
 
@@ -32,7 +32,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Models
             {
                 return new ObjectResult(new ResponseErrorList().AddInvalidXVInvalidVersion())
                 {
-                    StatusCode = (int)HttpStatusCode.BadRequest
+                    StatusCode = (int)HttpStatusCode.BadRequest,
                 };
             }
 
@@ -40,7 +40,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Models
             {
                 return new ObjectResult(new ResponseErrorList().AddInvalidXVInvalidVersion())
                 {
-                    StatusCode = (int)HttpStatusCode.BadRequest
+                    StatusCode = (int)HttpStatusCode.BadRequest,
                 };
             }
 
@@ -48,7 +48,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Models
             {
                 return new ObjectResult(new ResponseErrorList().AddInvalidXVUnsupportedVersion())
                 {
-                    StatusCode = (int)HttpStatusCode.NotAcceptable
+                    StatusCode = (int)HttpStatusCode.NotAcceptable,
                 };
             }
 

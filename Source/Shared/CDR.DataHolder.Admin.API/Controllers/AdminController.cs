@@ -92,7 +92,6 @@ namespace CDR.DataHolder.Admin.API.Controllers
         /// This method supports switching between the two auth methods using
         /// configuration, for testing purposes.
         /// </summary>
-        /// <returns></returns>
         private async Task<AuthorizationResult> Authorize()
         {
             // Get the Authorization header value.

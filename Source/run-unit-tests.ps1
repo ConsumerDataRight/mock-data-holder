@@ -8,11 +8,11 @@ Write-Output "MockDataHolder unit tests"
 Write-Output "***********************************************************"
 
 # Build and run containers
- docker-compose -f docker-compose.UnitTests.yml up --build --abort-on-container-exit --exit-code-from mock-data-holder-unit-tests
+ docker compose -f docker-compose.UnitTests.yml up --build --abort-on-container-exit --exit-code-from mock-data-holder-unit-tests
 $_lastExitCode = $LASTEXITCODE
 
 # Stop containers
-docker-compose -f docker-compose.UnitTests.yml down
+docker compose -f docker-compose.UnitTests.yml down
 
 if ($_lastExitCode -eq 0) {
     Write-Output "***********************************************************"

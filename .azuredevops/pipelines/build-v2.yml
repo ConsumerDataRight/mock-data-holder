@@ -13,7 +13,7 @@ resources:
     name: cdr-auth-server
     ref: develop
     ####################################################################################
-    # For AuthServer if develop/main/release branch changes kickoff a build DataHolder
+    # For AuthServer if develop/main/release branch changes trigger a build of DataHolder
     #https://learn.microsoft.com/en-us/azure/devops/pipelines/repos/multi-repo-checkout?view=azure-devops#triggers
     ####################################################################################
     trigger:
@@ -37,7 +37,6 @@ variables:
 - name: baseSourceDirectory
   value: $(Build.SourcesDirectory)/sb-mock-data-holder/Source
 
-
 pool:
   vmImage: ubuntu-latest
 
@@ -53,7 +52,7 @@ jobs:
       - checkout: self
       - checkout: git://cdr-auth-server@refs/heads/develop
         persistCredentials: true
-
+      
       ###################################################################################################
       # set the register tag to use based on the logic in the template file
       ###################################################################################################
@@ -95,13 +94,20 @@ jobs:
       - script: |
           echo "Delete image:"
           docker image rm mock-data-holder-unit-tests -f
+          
+          echo "Clear docker build cache"
+          docker builder prune -a -f
+
+          echo "Docker images after delete:"
+          docker image ls
+          docker system df
         displayName: 'Remove mock-data-holder-unit-tests container image' 
         condition: always()         
 
       ################################################################################################
         # Switch AuthServer to required branch.
       ################################################################################################
-      - powershell: |   
+      - pwsh: |   
           cd cdr-auth-server
           $branchRef = ""      
           $authServerBranch = ""
@@ -139,7 +145,7 @@ jobs:
           cd ..
           
         displayName: 'Switch cdr-auth-server code to required branch'
-
+      
       ###################################################################################################
       # Build image
       ###################################################################################################
@@ -151,7 +157,7 @@ jobs:
           sourceFolder: $(Build.SourcesDirectory)/cdr-auth-server
           contents: '**' 
           targetFolder: $(baseSourceDirectory)/cdr-auth-server
-      
+
       ###################################################################################################
       # Build Banking and Energy images
       ###################################################################################################
@@ -165,6 +171,13 @@ jobs:
           docker build --file $(baseSourceDirectory)/Dockerfile --target Energy -t mock-data-holder-energy:latest $(baseSourceDirectory)
         displayName: Create Energy Image
         condition: always()        
+
+      - script: |
+          echo "Clear docker build cache"
+          docker builder prune -a -f
+          docker system df
+        displayName: 'Remove container images that are no longer needed' 
+        condition: always() 
 
       ###################################################################################################
       # Login to ACR and pull mock solution containers
@@ -183,11 +196,13 @@ jobs:
         inputs:
           targetType: inline
           script: |
-
             echo "SourceBranchName = $(Build.SourceBranchName) mockRegisterContainerTag=$(RegisterTag)"
 
             docker pull $(SharedAcrBaseUrl).azurecr.io/mock-register:$(RegisterTag)
             docker tag $(SharedAcrBaseUrl).azurecr.io/mock-register:$(RegisterTag) mock-register:latest
+            
+            # remove the original ACR image as we only need the re-tagged version for tests
+            docker image rm $(SharedAcrBaseUrl).azurecr.io/mock-register:$(RegisterTag) -f
 
       # List docker images
       - task: Docker@2
@@ -211,7 +226,7 @@ jobs:
       # Run Banking integration tests
       - script: |
           docker compose --file $(baseSourceDirectory)/DockerCompose/docker-compose.IntegrationTests.Banking.yml up --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
-        displayName: 'Integration Tests - Banking - Up'  
+        displayName: 'Integration Tests - Banking - Up'
         condition: always()
            
       # Output Docker Logs
@@ -225,7 +240,7 @@ jobs:
 
       # Remove integration tests
       - script: |
-          docker compose --file $(baseSourceDirectory)/DockerCompose/docker-compose.IntegrationTests.Banking.yml down 
+          docker compose --file $(baseSourceDirectory)/DockerCompose/docker-compose.IntegrationTests.Banking.yml down
         displayName: 'Integration Tests - Banking - Down' 
         condition: always()     
 
@@ -289,7 +304,7 @@ jobs:
 
           echo "Delete images:"
           docker image rm mcr.microsoft.com/mssql/server:2022-latest -f
-          docker image rm mock-register  -f
+          docker image rm mock-register -f
 
           echo "Docker images after delete:"
           docker image ls
@@ -307,14 +322,14 @@ jobs:
         inputs:
           repository: mock-data-holder
           command: save
-          arguments: --output $(build.artifactstagingdirectory)/mock-data-holder.image.tar mock-data-holder
+          arguments: --output $(Build.ArtifactStagingDirectory)/mock-data-holder.image.tar mock-data-holder
           addPipelineData: false
 
       # Publish docker image
       - task: PublishPipelineArtifact@1
         displayName: Publish container images
         inputs:
-          path: $(build.artifactstagingdirectory)
+          path: $(Build.ArtifactStagingDirectory)
           artifact: Container Images
 
       ###################################################################################################
@@ -429,14 +444,15 @@ jobs:
       # CdrAuthServer
       - script: |
           cd $(Build.SourcesDirectory)/sb-mock-data-holder/Source/cdr-auth-server/Source/CdrAuthServer.Repository
+
           dotnet ef migrations bundle --context CdrAuthServerDatabaseContext --verbose --self-contained
           ls
         displayName: 'Run EF Migrations bundle (CdrAuthServer)'
+        failOnStderr: true
         condition: always()
 
       - publish: $(Build.SourcesDirectory)/sb-mock-data-holder/Source/cdr-auth-server/Source/CdrAuthServer.Repository/efbundle
         displayName: Publish EF Migration bundle (CdrAuthServer)
-        condition: always()
         artifact: Database Migration Scripts (CdrAuthServer)    
 
       ###################################################################################################

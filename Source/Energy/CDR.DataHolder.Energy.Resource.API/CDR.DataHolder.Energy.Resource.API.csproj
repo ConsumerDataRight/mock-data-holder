@@ -1,56 +1,56 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-    <PropertyGroup>
-        <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
-        <TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
-        <Version>$(Version)</Version>
-        <FileVersion>$(Version)</FileVersion>
-        <AssemblyVersion>$(Version)</AssemblyVersion>
-        <Nullable>enable</Nullable>
-        <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    </PropertyGroup>
-    <ItemGroup>
-        <Compile Remove="Business\Validation\**" />
-        <Content Remove="Business\Validation\**" />
-        <EmbeddedResource Remove="Business\Validation\**" />
-        <None Remove="Business\Validation\**" />
-    </ItemGroup>
-    <ItemGroup>
-        <None Remove="Certificates\tls-mock-data-holder-energy.pfx" />
-    </ItemGroup>
-    <ItemGroup>
-        <Content Include="Certificates\tls-mock-data-holder-energy.pfx">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="AutoMapper" Version="13.0.1" />
-        <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
-        <PackageReference Include="Serilog.Enrichers.Process" Version="3.0.0" />
-        <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
-        <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.2" />
-        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-        <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
-        <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="7.0.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.6.2" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.14" />
-        <PackageReference Include="SonarAnalyzer.CSharp" Version="10.5.0.109200">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="StyleCop.Analyzers.Unstable" Version="1.2.0.556">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.API.Logger\CDR.DataHolder.Shared.API.Logger.csproj" />
-        <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Business\CDR.DataHolder.Shared.Business.csproj" />
-        <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Domain\CDR.DataHolder.Shared.Domain.csproj" />
-        <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Repository\CDR.DataHolder.Shared.Repository.csproj" />
-        <ProjectReference Include="..\CDR.DataHolder.Energy.Domain\CDR.DataHolder.Energy.Domain.csproj" />
-        <ProjectReference Include="..\CDR.DataHolder.Energy.Repository\CDR.DataHolder.Energy.Repository.csproj" />
-    </ItemGroup>
+  <PropertyGroup>
+    <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
+    <TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
+    <Version>$(Version)</Version>
+    <FileVersion>$(Version)</FileVersion>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Business\Validation\**" />
+    <Content Remove="Business\Validation\**" />
+    <EmbeddedResource Remove="Business\Validation\**" />
+    <None Remove="Business\Validation\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Certificates\tls-mock-data-holder-energy.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Certificates\tls-mock-data-holder-energy.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Enrichers.Process" />
+    <PackageReference Include="Serilog.Enrichers.Thread" />
+    <PackageReference Include="Serilog.Settings.Configuration" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+    <PackageReference Include="Serilog.Sinks.File" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="SonarAnalyzer.CSharp">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers.Unstable">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.API.Logger\CDR.DataHolder.Shared.API.Logger.csproj" />
+    <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Business\CDR.DataHolder.Shared.Business.csproj" />
+    <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Domain\CDR.DataHolder.Shared.Domain.csproj" />
+    <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Repository\CDR.DataHolder.Shared.Repository.csproj" />
+    <ProjectReference Include="..\CDR.DataHolder.Energy.Domain\CDR.DataHolder.Energy.Domain.csproj" />
+    <ProjectReference Include="..\CDR.DataHolder.Energy.Repository\CDR.DataHolder.Energy.Repository.csproj" />
+  </ItemGroup>
 </Project>

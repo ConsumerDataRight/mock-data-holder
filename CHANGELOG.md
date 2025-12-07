@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.3] - 2025-12-10 
+### Changed
+- Convert to Central Package management and patched vulnerabilities
+
+## [4.0.2] - 2025-10-15
+### Changed
+- Updated Authorisation Server to include vulnerability patches
+
 ## [4.0.1] - 2025-06-19
 
 ### Changed

@@ -1,6 +1,6 @@
 # Dockerfile for running unit tests
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-noble AS build
 WORKDIR /src
 EXPOSE 9999
 EXPOSE 9998
@@ -12,10 +12,7 @@ ENV ASPNETCORE_ENVIRONMENT=Release
 
 RUN curl -L https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh  | sh
 
-
 # Copy source
-COPY ./Directory.Build.props ./Directory.Build.props
-COPY ./.editorconfig ./.editorconfig
 COPY . ./
 
 # Install ca certificate

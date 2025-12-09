@@ -1,6 +1,8 @@
 # Dockerfile for running integration tests
 # playwright jammy for .Net 8
-FROM mcr.microsoft.com/playwright/dotnet:v1.43.0-jammy as build
+# the image tag version should be the same as the Playwright package 
+# which is a transitive dependency from ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation
+FROM mcr.microsoft.com/playwright/dotnet:v1.43.0-jammy as build 
 
 ARG INTEGRATION_TESTS_LOCATION
 
@@ -17,8 +19,6 @@ ENV ASPNETCORE_ENVIRONMENT=Release
 RUN curl -L https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh  | sh
 
 # Copy source
-COPY ./Directory.Build.props ./Directory.Build.props
-COPY ./.editorconfig ./.editorconfig
 COPY . ./
 
 # Install developer certificate

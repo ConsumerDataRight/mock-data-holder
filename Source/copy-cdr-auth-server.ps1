@@ -11,12 +11,7 @@ if ($host.UI.PromptForChoice("Confirm", "Copy files from ..\..\cdr-auth-server i
     exit 1
 }
 
-copy-item ..\..\cdr-auth-server\Source\CdrAuthServer\. cdr-auth-server\Source\CdrAuthServer -Recurse
-copy-item ..\..\cdr-auth-server\Source\CdrAuthServer.Domain\. cdr-auth-server\Source\CdrAuthServer.Domain -Recurse
-copy-item ..\..\cdr-auth-server\Source\CdrAuthServer.Repository\. cdr-auth-server\Source\CdrAuthServer.Repository -Recurse
-copy-item ..\..\cdr-auth-server\Source\CdrAuthServer.Infrastructure\. cdr-auth-server\Source\CdrAuthServer.Infrastructure -Recurse
-copy-item ..\..\cdr-auth-server\Source\CdrAuthServer.API.Logger\. cdr-auth-server\Source\CdrAuthServer.API.Logger -Recurse
-copy-item ..\..\cdr-auth-server\Source\CdrAuthServer.UI\. cdr-auth-server\Source\CdrAuthServer.UI -Recurse
+$source = Resolve-Path ..\..\cdr-auth-server
 
-copy-item ..\..\cdr-auth-server\Source\Directory.Build.props cdr-auth-server\Source\Directory.Build.props
-copy-item ..\..\cdr-auth-server\Source\.editorconfig cdr-auth-server\Source\.editorconfig
+# Using git clone is much faster as it respects .gitignore to not copy compiled artefacts and other irrelevant files that may exist in $source
+git clone $source

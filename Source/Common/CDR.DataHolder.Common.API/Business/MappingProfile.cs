@@ -7,57 +7,67 @@ namespace CDR.DataHolder.Common.API.Business
 {
     public class MappingProfile : Profile
     {
+        private const int AutoMapperMaxDepth = 32;
+
         public MappingProfile()
         {
             // Mappings for banking industry
-            CreateMap<Banking.Domain.Entities.Person, CommonPerson>();
+            CreateMap<Banking.Domain.Entities.Person, CommonPerson>().MaxDepth(AutoMapperMaxDepth);
 
-            CreateMap<Banking.Domain.Entities.Organisation, CommonOrganisation>();
+            CreateMap<Banking.Domain.Entities.Organisation, CommonOrganisation>().MaxDepth(AutoMapperMaxDepth);
 
             // Mapping from Person to CustomerModel
             CreateMap<Banking.Domain.Entities.Person, CustomerModel>()
                 .ForMember(dest => dest.Person, source => source.MapFrom(source => source))
-                .ForMember(dest => dest.Organisation, opt => opt.Ignore());
+                .ForMember(dest => dest.Organisation, opt => opt.Ignore())
+                .MaxDepth(AutoMapperMaxDepth);
 
             // Mapping from Organisation to CustomerModel
             CreateMap<Banking.Domain.Entities.Organisation, CustomerModel>()
                 .ForMember(dest => dest.Organisation, source => source.MapFrom(source => source))
-                .ForMember(dest => dest.Person, opt => opt.Ignore());
+                .ForMember(dest => dest.Person, opt => opt.Ignore())
+                .MaxDepth(AutoMapperMaxDepth);
 
             // Mapping from Person to ResponseCommonCustomer
             CreateMap<Banking.Domain.Entities.Person, ResponseCommonCustomer>()
                 .IgnoreAllMembers()
-                .ForMember(dest => dest.Data, source => source.MapFrom(source => source));
+                .ForMember(dest => dest.Data, source => source.MapFrom(source => source))
+                .MaxDepth(AutoMapperMaxDepth);
 
             // Mapping from Organisation to ResponseCommonCustomer
             CreateMap<Banking.Domain.Entities.Organisation, ResponseCommonCustomer>()
                 .IgnoreAllMembers()
-                .ForMember(dest => dest.Data, source => source.MapFrom(source => source));
+                .ForMember(dest => dest.Data, source => source.MapFrom(source => source))
+                .MaxDepth(AutoMapperMaxDepth);
 
             // Mappings for energy industry
-            CreateMap<Energy.Domain.Entities.Person, CommonPerson>();
+            CreateMap<Energy.Domain.Entities.Person, CommonPerson>().MaxDepth(AutoMapperMaxDepth);
 
-            CreateMap<Energy.Domain.Entities.Organisation, CommonOrganisation>();
+            CreateMap<Energy.Domain.Entities.Organisation, CommonOrganisation>().MaxDepth(AutoMapperMaxDepth);
 
             // Mapping from Person to CustomerModel
             CreateMap<Energy.Domain.Entities.Person, CustomerModel>()
                 .ForMember(dest => dest.Person, source => source.MapFrom(source => source))
-                .ForMember(dest => dest.Organisation, opt => opt.Ignore());
+                .ForMember(dest => dest.Organisation, opt => opt.Ignore())
+                .MaxDepth(AutoMapperMaxDepth);
 
             // Mapping from Organisation to CustomerModel
             CreateMap<Energy.Domain.Entities.Organisation, CustomerModel>()
                 .ForMember(dest => dest.Organisation, source => source.MapFrom(source => source))
-                .ForMember(dest => dest.Person, opt => opt.Ignore());
+                .ForMember(dest => dest.Person, opt => opt.Ignore())
+                .MaxDepth(AutoMapperMaxDepth);
 
             // Mapping from Person to ResponseCommonCustomer
             CreateMap<Energy.Domain.Entities.Person, ResponseCommonCustomer>()
                 .IgnoreAllMembers()
-                .ForMember(dest => dest.Data, source => source.MapFrom(source => source));
+                .ForMember(dest => dest.Data, source => source.MapFrom(source => source))
+                .MaxDepth(AutoMapperMaxDepth);
 
             // Mapping from Organisation to ResponseCommonCustomer
             CreateMap<Energy.Domain.Entities.Organisation, ResponseCommonCustomer>()
                 .IgnoreAllMembers()
-                .ForMember(dest => dest.Data, source => source.MapFrom(source => source));
+                .ForMember(dest => dest.Data, source => source.MapFrom(source => source))
+                .MaxDepth(AutoMapperMaxDepth);
         }
     }
 }

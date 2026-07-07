@@ -10,7 +10,7 @@ Write-Output "⚠ WARNING: Integration tests for MockDataHolder will use the exi
 Write-Output "***********************************************************"
 
 # Run integration tests
-docker compose -f docker-compose.IntegrationTests.yml up --build --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
+docker compose -f DockerCompose\docker-compose.IntegrationTests.Banking.yml up --build --abort-on-container-exit --exit-code-from mock-data-holder-integration-tests
 $_lastExitCode = $LASTEXITCODE
 
 # Stop containers

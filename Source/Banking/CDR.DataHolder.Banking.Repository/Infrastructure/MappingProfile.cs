@@ -6,13 +6,17 @@ namespace CDR.DataHolder.Banking.Repository.Infrastructure
 {
     public class MappingProfile : Profile
     {
+        private const int AutoMapperMaxDepth = 32;
+
         public MappingProfile()
         {
             CreateMap<Transaction, DomainEntities.AccountTransaction>()
-                .ReverseMap();
+                .ReverseMap()
+                 .MaxDepth(AutoMapperMaxDepth);
 
             CreateMap<Account, DomainEntities.Account>()
-                .ReverseMap();
+                .ReverseMap()
+                .MaxDepth(AutoMapperMaxDepth);
 
             CreateMap<Person, DomainEntities.Person>()
                 .ForMember(
@@ -22,7 +26,8 @@ namespace CDR.DataHolder.Banking.Repository.Infrastructure
                 .ForMember(dest => dest.CustomerId, source => source.MapFrom(s => s.Customer.CustomerId))
                 .ForMember(dest => dest.LoginId, source => source.MapFrom(s => s.Customer.LoginId))
                 .ForMember(dest => dest.CustomerUType, source => source.MapFrom(s => s.Customer.CustomerUType))
-                .ReverseMap();
+                .ReverseMap()
+                .MaxDepth(AutoMapperMaxDepth);
 
             CreateMap<Organisation, DomainEntities.Organisation>()
                 .ForMember(
@@ -32,19 +37,23 @@ namespace CDR.DataHolder.Banking.Repository.Infrastructure
                 .ForMember(dest => dest.CustomerId, source => source.MapFrom(s => s.Customer.CustomerId))
                 .ForMember(dest => dest.LoginId, source => source.MapFrom(s => s.Customer.LoginId))
                 .ForMember(dest => dest.CustomerUType, source => source.MapFrom(s => s.Customer.CustomerUType))
-                .ReverseMap();
+                .ReverseMap()
+                .MaxDepth(AutoMapperMaxDepth);
 
             CreateMap<Customer, DomainEntities.Customer>()
                 .ForMember(dest => dest.Accounts, source => source.MapFrom(source => source.Accounts))
-                .ReverseMap();
+                .ReverseMap()
+                .MaxDepth(AutoMapperMaxDepth);
 
             CreateMap<Customer, DomainEntities.Person>()
                 .IncludeMembers(source => source.Person, source => source)
-                .ReverseMap();
+                .ReverseMap()
+                .MaxDepth(AutoMapperMaxDepth);
 
             CreateMap<Customer, DomainEntities.Organisation>()
                 .IncludeMembers(source => source.Organisation)
-                .ReverseMap();
+                .ReverseMap()
+                .MaxDepth(AutoMapperMaxDepth);
         }
     }
 }

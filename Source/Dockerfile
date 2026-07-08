@@ -5,10 +5,11 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 
 # Install nodejs, npm and live-server, which are needed by the auth UI
-RUN apt-get update
-RUN apt-get install -y nodejs
-RUN apt-get install -y npm
-RUN apt-get install -y nginx
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nodejs \
+    npm \
+    nginx \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 EXPOSE 8001
@@ -19,17 +20,15 @@ ENV ASPNETCORE_ENVIRONMENT=Release
 ###############################################################################
 # Build CdrAuthServer UI layer
 ###############################################################################
-FROM node:20-alpine AS ui-build
+FROM node:24-alpine AS ui-build
 WORKDIR /app
 
 ARG target_environment=production
 ENV PATH /app/node_modules/.bin:$PATH
 
-RUN npm install react-scripts@latest -g 
 COPY ./cdr-auth-server/Source/CdrAuthServer.UI/package.json package.json
 COPY ./cdr-auth-server/Source/CdrAuthServer.UI/package-lock.json package-lock.json
-COPY ./cdr-auth-server/Source/CdrAuthServer.UI/craco.config.js craco.config.js
-COPY ./cdr-auth-server/Source/CdrAuthServer.UI/.env.${target_environment} .env.local
+COPY ./cdr-auth-server/Source/CdrAuthServer.UI/.env.${target_environment} .env.${target_environment}
 RUN npm ci
 
 COPY ./cdr-auth-server/Source/CdrAuthServer.UI/. .
@@ -117,7 +116,7 @@ FROM base AS final
 WORKDIR /app
 
 # Auth UI #####################################################################
-COPY --from=ui-build /app/build ./cdrauthserver-ui
+COPY --from=ui-build /app/build /usr/share/nginx/html/ui
 
 # Copy build files to nginx output folder.
 COPY --from=ui-build /app/build /usr/share/nginx/html/ui

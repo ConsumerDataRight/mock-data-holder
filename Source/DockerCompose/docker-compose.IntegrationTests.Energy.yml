@@ -30,7 +30,7 @@ services:
     extra_hosts:
       - "mock-data-holder-energy-integration-tests:host-gateway"
     healthcheck:
-      test: ((wget --no-check-certificate --no-verbose --spider https://localhost:8105/health) && (wget --no-check-certificate --no-verbose --spider https://localhost:8101/health) && (wget --no-check-certificate --no-verbose --spider https://localhost:3100)) || exit 1
+      test: ((wget --no-check-certificate --no-verbose --spider https://localhost:8105/health) && (wget --no-check-certificate --no-verbose --spider https://localhost:8101/health) && (wget --no-check-certificate --no-verbose --spider https://localhost:3100/ui)) || exit 1
       timeout: 5s
       interval: 5s
       retries: 50 

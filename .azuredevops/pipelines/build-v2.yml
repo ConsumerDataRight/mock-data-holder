@@ -21,6 +21,12 @@ resources:
         include:
         - develop
         - main
+  
+  - repository: shared-code-scanning
+    type: git
+    name: Common/shared-code-scanning
+    ref: refs/heads/main
+    trigger: none
 
 trigger:
   - develop
@@ -34,16 +40,26 @@ parameters:
 
 variables:
 - group: artifacts
+- group: PT-Pipeline-Common
 - name: baseSourceDirectory
   value: $(Build.SourcesDirectory)/sb-mock-data-holder/Source
 
 pool:
-  vmImage: ubuntu-latest
+ name: mdp-mgmt-shared
+ demands:
+   - ImageOverride -equals $(PipelineHostLinuxImage)
 
 jobs:
   - job: Build
     timeoutInMinutes: 120
     steps:
+      
+      - script: | 
+            echo "Cleaning auth-server folder in temp"
+            ls $(Agent.BuildDirectory)/s/sb-mock-data-holder/Source/DockerCompose/_temp/mock-data-holder-* 2>/dev/null || "No matching folders found"
+            sudo rm -rf $(Agent.BuildDirectory)/s/sb-mock-data-holder/Source/DockerCompose/_temp/mock-data-holder-* 2> /dev/null  
+        displayName: Clean temp auth-server folders
+        condition: always()
 
       ###################################################################################################
       # Checkout repositories
@@ -113,16 +129,24 @@ jobs:
           $authServerBranch = ""
           $AuthServerFeatureBranch = "$(AuthServerFeatureBranch)"
           $SourcebranchName = "$(Build.SourceBranch)" -replace 'refs/heads/', ''
-          
+
           if ($SourcebranchName -match "releases/") {
             $authServerBranch = "$(AuthServerReleaseBranchName)"
             $branchRef = "refs/heads/$authServerBranch"
             echo "Release Branch detected. Using  $branchRef."
           }
           elseif ($SourcebranchName -eq "main" -or $branchName -eq "develop") {
-            $authServerBranch = $branchName
-            $branchRef = "$(Build.SourceBranch)"
-            echo "Main or Develop Branch detected. Using  $branchRef."
+            if ($AuthServerFeatureBranch -ne "") {
+            $authServerBranch = $AuthServerFeatureBranch
+            $branchRef = "refs/heads/$authServerBranch"
+            echo "Feature Branch variable exists. Using  $branchRef."
+            }
+            else
+            {
+              $authServerBranch = $branchName
+              $branchRef = "$(Build.SourceBranch)"
+              echo "Main or Develop Branch detected. Using  $branchRef."
+            }            
           }
           elseif ($AuthServerFeatureBranch -ne "") {
             $authServerBranch = $AuthServerFeatureBranch
@@ -166,6 +190,11 @@ jobs:
           docker build --file $(baseSourceDirectory)/Dockerfile --target Banking -t mock-data-holder:latest $(baseSourceDirectory)
         displayName: Create Banking Image
         condition: always()
+      
+      - template: templates/scan-image.yml@shared-code-scanning
+        parameters:
+          Repository: mock-data-holder
+          Tag: latest
 
       - script: |
           docker build --file $(baseSourceDirectory)/Dockerfile --target Energy -t mock-data-holder-energy:latest $(baseSourceDirectory)
@@ -329,7 +358,7 @@ jobs:
       - task: PublishPipelineArtifact@1
         displayName: Publish container images
         inputs:
-          path: $(Build.ArtifactStagingDirectory)
+          path: $(Build.ArtifactStagingDirectory)/mock-data-holder.image.tar
           artifact: Container Images
 
       ###################################################################################################

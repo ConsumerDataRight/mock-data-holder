@@ -70,4 +70,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <!-- Whitelist Package Advisories where we cannot upgrade to the latest package due to licensing terms (tech debt) but have implemented a workaround or analyzed the impact and accepted the risk -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" />
+</ItemGroup>
 </Project>

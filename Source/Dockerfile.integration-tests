@@ -37,7 +37,7 @@ ARG FEED_URI
 ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"${FEED_URI}\", \"username\":\"docker\", \"password\":\"${FEED_ACCESSTOKEN}\"}]}"
 RUN echo $VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
 
-RUN dotnet restore
-RUN dotnet build --configuration Release
+RUN dotnet restore -p:NuGetAudit=false
+RUN dotnet build --configuration Release --no-restore
 
 ENTRYPOINT dotnet test --configuration Release --no-build --logger "trx;verbosity=detailed;LogFileName=results.trx;" --results-directory /testresults

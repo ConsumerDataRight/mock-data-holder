@@ -26,6 +26,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+<ItemGroup>
+    <!-- Whitelist Package Advisories where we cannot upgrade to the latest package due to licensing terms (tech debt) but have implemented a workaround or analyzed the impact and accepted the risk -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" />
+</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\CDR.DataHolder.Shared.Repository\CDR.DataHolder.Shared.Repository.csproj" />
     <ProjectReference Include="..\CDR.DataHolder.Banking.Domain\CDR.DataHolder.Banking.Domain.csproj" />

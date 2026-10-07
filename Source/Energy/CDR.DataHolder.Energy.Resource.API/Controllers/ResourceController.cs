@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Asp.Versioning;
+using AutoMapper;
 using CDR.DataHolder.Energy.Domain.Repositories;
 using CDR.DataHolder.Energy.Domain.ValueObjects;
 using CDR.DataHolder.Energy.Resource.API.Business.Models;
@@ -12,7 +13,6 @@ using CDR.DataHolder.Shared.Business;
 using CDR.DataHolder.Shared.Domain.Models;
 using CDR.DataHolder.Shared.Domain.ValueObjects;
 using CDR.DataHolder.Shared.Resource.API.Business.Filters;
-using CDR.DataHolder.Shared.Resource.API.Infrastructure.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -49,24 +49,6 @@ namespace CDR.DataHolder.Energy.Resource.API.Controllers
             _mapper = mapper;
             _logger = logger;
             _idPermanenceManager = idPermanenceManager;
-        }
-
-        [PolicyAuthorize(AuthorisationPolicy.GetAccountsApi)]
-        [HttpGet("v1/energy/accounts", Name = nameof(GetEnergyAccountsXV1))]
-        [CheckScope(CDR.DataHolder.Shared.API.Infrastructure.Constants.ApiScopes.Energy.AccountsBasicRead)]
-        [CheckXV(1, 1)]
-        [CheckAuthDate]
-        [ApiVersion("1")]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetEnergyAccountsXV1(
-            [FromQuery(Name = "page"), CheckPage] string? page,
-            [FromQuery(Name = "page-size"), CheckPageSize] string? pageSize)
-        {
-            // Create the filter
-            var accountIds = User.GetAccountIds();
-            var accountFilter = new AccountFilter(accountIds);
-
-            return await GetPagedEnergyAccountsForFilter<EnergyAccount>(page, pageSize, accountFilter);
         }
 
         private async Task<IActionResult> GetPagedEnergyAccountsForFilter<T>(string? page, string? pageSize, AccountFilter accountFilter)
@@ -109,13 +91,13 @@ namespace CDR.DataHolder.Energy.Resource.API.Controllers
         }
 
         [PolicyAuthorize(AuthorisationPolicy.GetAccountsApi)]
-        [HttpGet("v1/energy/accounts", Name = nameof(GetEnergyAccountsXV2))]
+        [HttpGet("v1/energy/accounts", Name = nameof(GetEnergyAccounts))]
         [CheckScope(Shared.API.Infrastructure.Constants.ApiScopes.Energy.AccountsBasicRead)]
-        [CheckXV(2, 2)]
         [CheckAuthDate]
+        [SetVersionResponse(2)]
         [ApiVersion("2")]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetEnergyAccountsXV2(
+        public async Task<IActionResult> GetEnergyAccounts(
             [FromQuery(Name = "open-status"), CheckOpenStatus] string? openStatus,
             [FromQuery(Name = "page"), CheckPage] string? page,
             [FromQuery(Name = "page-size"), CheckPageSize] string? pageSize)
@@ -127,14 +109,14 @@ namespace CDR.DataHolder.Energy.Resource.API.Controllers
                 OpenStatus = (openStatus != null && openStatus.Equals(OpenStatus.All.ToString(), StringComparison.OrdinalIgnoreCase)) ? null : openStatus,
             };
 
-            return await GetPagedEnergyAccountsForFilter<EnergyAccountV2>(page, pageSize, accountFilter);
+            return await GetPagedEnergyAccountsForFilter<EnergyAccount>(page, pageSize, accountFilter);
         }
 
         [PolicyAuthorize(AuthorisationPolicy.GetConcessionsApi)]
         [HttpGet("v1/energy/accounts/{accountId}/concessions", Name = nameof(GetConcessions))]
         [CheckScope(Shared.API.Infrastructure.Constants.ApiScopes.Energy.ConcessionsRead)]
-        [CheckXV(1, 1)]
         [CheckAuthDate]
+        [SetVersionResponse(1)]
         [ApiVersion("1")]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetConcessions([FromRoute] string accountId)

@@ -1,4 +1,5 @@
-﻿using CDR.DataHolder.Admin.API.Models;
+﻿using Asp.Versioning;
+using CDR.DataHolder.Admin.API.Models;
 using CDR.DataHolder.Shared.API.Infrastructure;
 using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 using CDR.DataHolder.Shared.API.Infrastructure.Filters;
@@ -32,28 +33,10 @@ namespace CDR.DataHolder.Admin.API.Controllers
         }
 
         [HttpGet("v1/admin/metrics")]
-        [ApiVersion("4")]
-        [HttpGet]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetMetricsV4()
-        {
-            var authorizationResult = await Authorize();
-            if (!authorizationResult.IsAuthorized)
-            {
-                return authorizationResult.SendError(Response);
-            }
-
-            // Read in the v4 data from the json file.
-            var jsonFileContents = await GetFileContents(_configuration.GetValue<string>("Data:MetricsV4FileLocation") ?? string.Empty);
-            Response.Headers[Constants.CustomHeaders.ApiVersionHeaderKey] = "4";
-            return Content(ReplacePlaceholders(jsonFileContents), "application/json");
-        }
-
-        [HttpGet("v1/admin/metrics")]
         [ApiVersion("5")]
         [HttpGet]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetMetricsV5()
+        public async Task<IActionResult> GetMetrics()
         {
             var authorizationResult = await Authorize();
             if (!authorizationResult.IsAuthorized)

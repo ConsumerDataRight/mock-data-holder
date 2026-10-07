@@ -59,15 +59,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             energy_Get_Accounts_Base_Url = $"{_options.DH_MTLS_GATEWAY_URL}/cds-au/v1/energy/accounts";
         }
 
-        [Theory]
-        [InlineData(TokenType.MaryMoss, "1")]
-        public async Task AC01_GetAccounts_ShouldRespondWith_200OK_Accounts(TokenType tokenType, string apiVersion)
-        {
-            Log.Information("Running test with Params: {P1}={V1}, {P2}={V2}.", nameof(tokenType), tokenType, nameof(apiVersion), apiVersion);
-
-            await Test_ValidGetAccountsScenario(tokenType, apiVersion: apiVersion);
-        }
-
         // Note: Covers US45029-AC01a, US45029-AC01b, US45029-AC01c and US45029-AC01d
         [Theory]
         [InlineData(TokenType.MaryMoss, "ALL", "2")]
@@ -82,7 +73,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData("DateTime.Now.RFC1123", "1")]
         [InlineData("DateTime.Now.RFC1123", "2")]
         public async Task AC02_AC09_Get_WithValidXFAPIAuthDate_Success(
           string xFapiAuthDate,
@@ -109,11 +99,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData("000", "1", CdsError.InvalidHeader)]
-        [InlineData("foo", "1", CdsError.InvalidHeader)]
-        [InlineData("", "1", CdsError.InvalidHeader)]
-        [InlineData(null, "1", CdsError.MissingRequiredHeader)]
-        [InlineData("DateTime.UtcNow", "1", CdsError.InvalidHeader)]
         [InlineData("000", "2", CdsError.InvalidHeader)]
         [InlineData("foo", "2", CdsError.InvalidHeader)]
         [InlineData("", "2", CdsError.InvalidHeader)]
@@ -164,9 +149,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData(null, 1001, CdsError.InvalidPageSize, "1")]
-        [InlineData(100, null, CdsError.InvalidPage, "1")]
-        [InlineData(0, null, CdsError.InvalidField, "1")]
         [InlineData(null, 1001, CdsError.InvalidPageSize, "2")]
         [InlineData(100, null, CdsError.InvalidPage, "2")]
         [InlineData(0, null, CdsError.InvalidField, "2")]
@@ -210,8 +192,9 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         [Theory]
         [InlineData("foo", CdsError.InvalidVersion)]
         [InlineData("-1", CdsError.InvalidVersion)]
+        [InlineData("1", CdsError.UnsupportedVersion)]
         [InlineData("3", CdsError.UnsupportedVersion)]
-        [InlineData("", CdsError.InvalidVersion)]
+        [InlineData("", CdsError.MissingRequiredHeader)]
         [InlineData(null, CdsError.MissingRequiredHeader)]
         public async Task AC04_AC05_AC08_Get_WithInvalidXV_Failure(
             string apiVersion,
@@ -278,7 +261,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData(SCOPE_ACCOUNTS_BASIC_READ, "1")]
         [InlineData(SCOPE_ACCOUNTS_BASIC_READ, "2")]
         public async Task ACX04_Get_Success(string scope, string apiVersion)
         {
@@ -299,7 +281,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData(SCOPE_WITHOUT_ACCOUNTS_BASIC_READ, "1")]
         [InlineData(SCOPE_WITHOUT_ACCOUNTS_BASIC_READ, "2")]
         public async Task ACX04_Get_WithoutEnergyAccountsReadScope_ShouldRespondWith_403Forbidden(string scope, string apiVersion)
         {
@@ -328,8 +309,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData(TokenType.MaryMoss, HttpStatusCode.OK, "1")]
-        [InlineData(TokenType.InvalidFoo, HttpStatusCode.Unauthorized, "1")]
         [InlineData(TokenType.MaryMoss, HttpStatusCode.OK, "2")]
         [InlineData(TokenType.InvalidFoo, HttpStatusCode.Unauthorized, "2")]
         public async Task ACX05_Get_WithInvalidAccessToken_ShouldRespondWith_401Unauthorized(TokenType tokenType, HttpStatusCode expectedStatusCode, string apiVersion)
@@ -411,7 +390,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData("123", HttpStatusCode.OK, "1")]
         [InlineData("123", HttpStatusCode.OK, "2")]
         public async Task ACX10_Get_WithXFAPIInteractionId123_ShouldRespondWith_200OK_Accounts_AndXFapiInteractionIDis123(string xFapiInteractionId, HttpStatusCode expectedStatusCode, string apiVersion)
         {
@@ -445,7 +423,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.MaryMoss);
 
             // Act
-            var api = _apiServiceDirector.BuildDataHolderEnergyGetAccountsAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"), certFileName: certificateFilename, certPassword: certificatePassword);
+            var api = _apiServiceDirector.BuildDataHolderEnergyGetAccountsAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"), xv: "2", certFileName: certificateFilename, certPassword: certificatePassword);
             var response = await api.SendAsync();
 
             // Assert
@@ -469,7 +447,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act
-            var api = _apiServiceDirector.BuildDataHolderEnergyGetAccountsAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"), certFileName: certificateFilename, certPassword: certificatePassword);
+            var api = _apiServiceDirector.BuildDataHolderEnergyGetAccountsAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"), xv: "2", certFileName: certificateFilename, certPassword: certificatePassword);
             var response = await api.SendAsync();
 
             // Assert
@@ -539,7 +517,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             {
                 async Task<ResponseEnergyAccountListV2?> GetAccounts(string? accessToken)
                 {
-                    var api = _apiServiceDirector.BuildDataHolderEnergyGetAccountsAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"));
+                    var api = _apiServiceDirector.BuildDataHolderEnergyGetAccountsAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"), xv: "2");
                     var response = await api.SendAsync();
 
                     if (response.StatusCode != HttpStatusCode.OK)
@@ -592,8 +570,6 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData("1", "1", "1")] // Valid. Should return v1
-        [InlineData("1", "2", "1")] // Valid. Should return v1 - x-min-v is ignored when > x-v
         [InlineData("2", "1", "2")] // Valid. Should return v2 - x-v is supported and higher than x-min-v
         [InlineData("2", "2", "2")] // Valid. Should return v2 - x-v is supported equal to x-min-v
         [InlineData("3", "2", "2")] // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported
@@ -653,7 +629,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             }
         }
 
-        private async Task<HttpResponseMessage> GetAccounts(string? accessToken, string url, string? apiVersion = "1")
+        private async Task<HttpResponseMessage> GetAccounts(string? accessToken, string url, string? apiVersion = "2")
         {
             var api = _apiServiceDirector.BuildDataHolderEnergyGetAccountsAPI(accessToken, DateTime.Now.ToUniversalTime().ToString("r"), xv: apiVersion, url: url);
             return await api.SendAsync();
@@ -667,7 +643,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
            int? queryPage = null,
            int? queryPageSize = null,
            int? expectedRecordCount = null,
-           string apiVersion = "1")
+           string apiVersion = "2")
         {
             // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(tokenType, scope: SCOPE_ACCOUNTS_BASIC_READ);

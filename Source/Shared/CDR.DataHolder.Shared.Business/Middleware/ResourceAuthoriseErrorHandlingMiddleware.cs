@@ -62,10 +62,10 @@ namespace CDR.DataHolder.Shared.Business.Middleware
             var memoryStreamModified = new MemoryStream();
             var sw = new StreamWriter(memoryStreamModified);
             await sw.WriteAsync(responseBody);
-            await sw.FlushAsync();
+            await sw.FlushAsync(httpContext.RequestAborted);
             memoryStreamModified.Position = 0;
 
-            await memoryStreamModified.CopyToAsync(originBody).ConfigureAwait(false);
+            await memoryStreamModified.CopyToAsync(originBody, httpContext.RequestAborted).ConfigureAwait(false);
         }
     }
 }

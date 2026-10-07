@@ -1,0 +1,101 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <BuildType Name="Shared" />
+  </Configurations>
+  <Folder Name="/Banking/">
+    <Project Path="Banking/CDR.DataHolder.Banking.Domain/CDR.DataHolder.Banking.Domain.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+    <Project Path="Banking/CDR.DataHolder.Banking.Repository/CDR.DataHolder.Banking.Repository.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/Banking/API/">
+    <Project Path="Banking/CDR.DataHolder.Banking.Resource.API/CDR.DataHolder.Banking.Resource.API.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/Banking/Tests/">
+    <Project Path="Banking/CDR.DataHolder.Banking.Resource.API.UnitTests/CDR.DataHolder.Banking.Resource.API.UnitTests.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+    <Project Path="Banking/CDR.DataHolder.Banking.Tests.IntegrationTests/CDR.DataHolder.Banking.Tests.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/Common/">
+    <Project Path="Common/CDR.DataHolder.Common.API/CDR.DataHolder.Common.API.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/Energy/">
+    <Project Path="Energy/CDR.DataHolder.Energy.Domain/CDR.DataHolder.Energy.Domain.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+    <Project Path="Energy/CDR.DataHolder.Energy.Repository/CDR.DataHolder.Energy.Repository.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/Energy/API/">
+    <Project Path="Energy/CDR.DataHolder.Energy.Resource.API/CDR.DataHolder.Energy.Resource.API.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/Energy/Tests/">
+    <Project Path="Energy/CDR.DataHolder.Energy.Resource.API.UnitTests/CDR.DataHolder.Energy.Resource.API.UnitTests.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+    <Project Path="Energy/CDR.DataHolder.Energy.Tests.IntegrationTests/CDR.DataHolder.Energy.Tests.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/Shared/">
+    <File Path="docker-compose.E2ETests.yml" />
+    <File Path="docker-compose.IntegrationTests.CdrAuthServer.yml" />
+    <File Path="docker-compose.IntegrationTests.yml" />
+    <File Path="docker-compose.UnitTests.yml" />
+    <File Path="Dockerfile" />
+    <File Path="Dockerfile.integration-tests" />
+    <File Path="Dockerfile.unit-tests" />
+    <File Path="integration.runsettings" />
+    <File Path="run-integration-tests.ps1" />
+    <File Path="run-unit-tests.ps1" />
+    <File Path="supervisord.conf" />
+    <File Path="wait-until-manage-healthy-then-start.sh" />
+    <Project Path="Shared/CDR.DataHolder.Shared.Business/CDR.DataHolder.Shared.Business.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+    <Project Path="Shared/CDR.DataHolder.Shared.Domain/CDR.DataHolder.Shared.Domain.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+    <Project Path="Shared/CDR.DataHolder.Shared.Repository/CDR.DataHolder.Shared.Repository.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/Shared/API Infrastructure/">
+    <Project Path="Shared/CDR.DataHolder.Shared.API.Gateway.mTLS/CDR.DataHolder.Shared.API.Gateway.mTLS.csproj">
+      <BuildType Solution="Shared|*" Project="Debug" />
+    </Project>
+    <Project Path="Shared/CDR.DataHolder.Shared.API.Infrastructure.UnitTests/CDR.DataHolder.Shared.API.Infrastructure.UnitTests.csproj">
+      <BuildType Solution="Shared|*" Project="Debug" />
+    </Project>
+    <Project Path="Shared/CDR.DataHolder.Shared.API.Infrastructure/CDR.DataHolder.Shared.API.Infrastructure.csproj">
+      <BuildType Solution="Shared|*" Project="Debug" />
+    </Project>
+    <Project Path="Shared/CDR.DataHolder.Shared.API.Logger/CDR.DataHolder.Shared.API.Logger.csproj">
+      <BuildType Solution="Shared|*" Project="Debug" />
+    </Project>
+  </Folder>
+  <Folder Name="/Shared/API/">
+    <Project Path="Shared/CDR.DataHolder.Admin.API/CDR.DataHolder.Admin.API.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+    <Project Path="Shared/CDR.DataHolder.Manage.API/CDR.DataHolder.Manage.API.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+    <Project Path="Shared/CDR.DataHolder.Public.API/CDR.DataHolder.Public.API.csproj">
+      <BuildType Solution="Shared|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/Shared/TestAutomation/">
+    <Project Path="../../sb-mock-solution-test-automation/Source/ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation/ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.csproj" />
+  </Folder>
+</Solution>

@@ -424,18 +424,18 @@ jobs:
       ###################################################################################################
 
       - task: UseDotNet@2
-        displayName: 'Use .NET 8 sdk'
+        displayName: 'Use .NET 10 sdk'
         condition: always()
         inputs:
           packageType: sdk
-          version: '8.0.x'
+          version: '10.0.x'
           performMultiLevelLookup: true
 
       - task: CmdLine@2
         displayName: 'Install dotnet-ef'
         condition: always()
         inputs:
-          script: 'dotnet tool install --version 8.0.4 --global dotnet-ef'
+          script: 'dotnet tool install --version 10.0.11 --global dotnet-ef'
 
       - task: CmdLine@2
         displayName: 'Check dotnet-ef version'
@@ -447,6 +447,7 @@ jobs:
       # MDH Banking
       - script: |
           cd $(baseSourceDirectory)/Banking/CDR.DataHolder.Banking.Repository
+          dotnet restore
           dotnet ef migrations bundle --context BankingDataHolderDatabaseContext --verbose --self-contained
           ls
         displayName: 'Run EF Migrations bundle (Banking)'
@@ -460,6 +461,7 @@ jobs:
       # MDH Energy
       - script: |
           cd $(baseSourceDirectory)/Energy/CDR.DataHolder.Energy.Repository
+          dotnet restore
           dotnet ef migrations bundle --context EnergyDataHolderDatabaseContext --verbose --self-contained
           ls
         displayName: 'Run EF Migrations bundle (Energy)'
@@ -473,7 +475,7 @@ jobs:
       # CdrAuthServer
       - script: |
           cd $(Build.SourcesDirectory)/sb-mock-data-holder/Source/cdr-auth-server/Source/CdrAuthServer.Repository
-
+          dotnet restore
           dotnet ef migrations bundle --context CdrAuthServerDatabaseContext --verbose --self-contained
           ls
         displayName: 'Run EF Migrations bundle (CdrAuthServer)'

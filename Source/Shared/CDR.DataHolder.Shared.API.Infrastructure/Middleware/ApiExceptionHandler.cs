@@ -43,7 +43,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Middleware
                 {
                     context.Response.StatusCode = statusCode;
                     context.Response.ContentType = "application/json";
-                    await context.Response.WriteAsync(handledError).ConfigureAwait(false);
+                    await context.Response.WriteAsync(handledError, context.RequestAborted).ConfigureAwait(false);
                 }
             }
         }

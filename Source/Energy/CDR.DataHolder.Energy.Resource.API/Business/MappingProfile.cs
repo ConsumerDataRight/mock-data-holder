@@ -34,19 +34,10 @@ namespace CDR.DataHolder.Energy.Resource.API.Business
                 .ForMember(dest => dest.CreationDate, source => source.MapFrom(source =>
                     source.CreationDate == null ? string.Empty : source.CreationDate.Value.ToString("yyyy-MM-dd")))
                 .ForMember(dest => dest.Plans, source => source.MapFrom(source => source.Plans))
-                .ReverseMap()
-                .MaxDepth(AutoMapperMaxDepth);
-            CreateMap<Energy.Domain.Entities.EnergyAccount, Models.EnergyAccountV2>()
-                .IncludeBase<Energy.Domain.Entities.EnergyAccount, Models.EnergyAccount>()
                 .ForMember(dest => dest.OpenStatus, source => source.MapFrom(source => source.OpenStatus))
                 .ReverseMap()
                 .MaxDepth(AutoMapperMaxDepth);
             CreateMap<Page<Energy.Domain.Entities.EnergyAccount[]>, EnergyAccountListResponse<Models.EnergyAccount>>()
-                .ForPath(dest => dest.Data.Accounts, source => source.MapFrom(source => source.Data))
-                .ForMember(dest => dest.Meta, source => source.MapFrom(source => source))
-                .ReverseMap()
-                .MaxDepth(AutoMapperMaxDepth);
-            CreateMap<Page<Energy.Domain.Entities.EnergyAccount[]>, EnergyAccountListResponse<Models.EnergyAccountV2>>()
                 .ForPath(dest => dest.Data.Accounts, source => source.MapFrom(source => source.Data))
                 .ForMember(dest => dest.Meta, source => source.MapFrom(source => source))
                 .ReverseMap()

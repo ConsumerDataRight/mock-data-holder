@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
-        <TargetFrameworkVersion>net8.0</TargetFrameworkVersion>
-        <Version>4.0.5</Version>
+        <TargetFrameworkVersion>net10.0</TargetFrameworkVersion>
+        <Version>5.0.0</Version>
         <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <TreatWarningsAsErrors Condition="'$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>

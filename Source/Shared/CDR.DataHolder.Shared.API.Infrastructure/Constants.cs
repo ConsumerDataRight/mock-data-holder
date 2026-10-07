@@ -97,5 +97,10 @@
         {
             public const string IsServerCertificateValidationEnabled = "EnableServerCertificateValidation";
         }
+
+        public static class Versioning
+        {
+            public const string GroupNameFormat = "'v'VVV";
+        }
     }
 }

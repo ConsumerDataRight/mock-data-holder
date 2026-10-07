@@ -1,5 +1,5 @@
-﻿using CDR.DataHolder.Shared.API.Infrastructure.Filters;
-using CDR.DataHolder.Shared.Resource.API.Infrastructure.Filters;
+﻿using Asp.Versioning;
+using CDR.DataHolder.Shared.API.Infrastructure.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
@@ -19,7 +19,7 @@ namespace CDR.DataHolder.Public.API.Controllers
         }
 
         [HttpGet("v1/discovery/status")]
-        [CheckXV(1, 1)]
+        [SetVersionResponse(1)]
         [ApiVersion("1")]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetStatus()
@@ -29,7 +29,7 @@ namespace CDR.DataHolder.Public.API.Controllers
         }
 
         [HttpGet("v1/discovery/outages")]
-        [CheckXV(1, 1)]
+        [SetVersionResponse(1)]
         [ApiVersion("1")]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetOutages()

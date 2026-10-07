@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using static CDR.DataHolder.Shared.API.Infrastructure.Constants;
 using static CDR.DataHolder.Shared.Domain.Constants;
 
@@ -38,14 +38,14 @@ namespace CDR.DataHolder.Common.API.Infrastructure
                 services.AddScoped<IBankingResourceRepository, BankingResourceRepository>();
                 services.AddScoped<IIndustryDbContext, BankingDataHolderDatabaseContext>();
                 services.AddDbContext<BankingDataHolderDatabaseContext>(options => options.UseSqlServer(defaultConnectionString));
-                services.AddAutoMapper(typeof(Program), typeof(BankingDataHolderDatabaseContext));
+                services.AddAutoMapper(cfg => { }, typeof(Program).Assembly, typeof(BankingDataHolderDatabaseContext).Assembly);
             }
             else if (industry.IsEnergy())
             {
                 services.AddScoped<IEnergyResourceRepository, EnergyResourceRepository>();
                 services.AddDbContext<EnergyDataHolderDatabaseContext>(options => options.UseSqlServer(defaultConnectionString));
                 services.AddScoped<IIndustryDbContext, EnergyDataHolderDatabaseContext>();
-                services.AddAutoMapper(typeof(Program), typeof(EnergyDataHolderDatabaseContext));
+                services.AddAutoMapper(cfg => { }, typeof(Program).Assembly, typeof(EnergyDataHolderDatabaseContext).Assembly);
             }
         }
 
@@ -134,15 +134,9 @@ namespace CDR.DataHolder.Common.API.Infrastructure
                     Type = SecuritySchemeType.ApiKey,
                     BearerFormat = "JWT",
                 });
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
                 {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" },
-                        },
-                        new List<string>()
-                    },
+                    [new OpenApiSecuritySchemeReference("Bearer", document)] = [],
                 });
             });
         }

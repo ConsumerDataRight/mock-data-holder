@@ -45,7 +45,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Authorization
                     return;
                 }
 
-                if (authorizationResult.Failure!.FailedRequirements.Any(r => r.GetType() == typeof(MtlsRequirement)))
+                if (authorizationResult.Failure.FailedRequirements.Any(r => r.GetType() == typeof(MtlsRequirement)))
                 {
                     context.Result = new DataHolderUnauthorizedResult(new ResponseErrorList(StatusCodes.Status401Unauthorized.ToString(), HttpStatusCode.Unauthorized.ToString(), "invalid_token"));
                     return;

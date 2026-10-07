@@ -17,10 +17,10 @@ namespace CDR.DataHolder.Shared.Resource.API.Business.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            string interactionId = Guid.NewGuid().ToString();
+            string? interactionId = Guid.NewGuid().ToString();
             if (context.Request.Headers.TryGetValue(HEADER_NAME, out StringValues existingInteractionId))
             {
-                interactionId = existingInteractionId!;
+                interactionId = existingInteractionId;
             }
 
             // Apply the interaction ID to the response header for client side tracking

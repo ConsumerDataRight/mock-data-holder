@@ -1,13 +1,12 @@
-﻿using AutoMapper;
+﻿using System.Text.Json.Serialization;
+using AutoMapper;
 using CDR.DataHolder.Common.API.Infrastructure;
 using CDR.DataHolder.Shared.API.Infrastructure.Extensions;
 using CDR.DataHolder.Shared.API.Infrastructure.Filters;
-using CDR.DataHolder.Shared.API.Infrastructure.Models;
+using CDR.DataHolder.Shared.API.Infrastructure.Middleware;
+using CDR.DataHolder.Shared.API.Infrastructure.Versioning;
 using CDR.DataHolder.Shared.Business;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Serilog;
-using System.Text.Json.Serialization;
 using static CDR.DataHolder.Shared.Domain.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,26 +55,21 @@ builder.Services
     .AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
 
-builder.Services.AddApiVersioning(options =>
-{
-    options.DefaultApiVersion = new ApiVersion(1, 0);
-    options.AssumeDefaultVersionWhenUnspecified = false;
-    options.ApiVersionReader = new HeaderApiVersionReader("x-v");
-    options.ErrorResponses = new ErrorResponseVersion();
-});
+builder.Services.AddCdrApiVersioning();
 
 builder.Services.AddAuthenticationAuthorization(builder.Configuration);
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseExceptionHandler(exceptionHandlerApp =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));
+});
 
 app.UseHttpsRedirection();
+
+app.UseRouting();
 
 app.UseAuthentication();
 
@@ -85,6 +79,11 @@ app.UseInteractionId();
 
 // assert Automapper configuration is valid.
 app.Services.GetService<IMapper>()?.ConfigurationProvider.AssertConfigurationIsValid();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseCdrSwagger();
+}
 
 app.MapControllers();
 

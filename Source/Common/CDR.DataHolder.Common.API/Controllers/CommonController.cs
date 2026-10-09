@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Asp.Versioning;
+using AutoMapper;
 using CDR.DataHolder.Common.API.Infrastructure;
 using CDR.DataHolder.Common.Resource.API.Business.Responses;
 using CDR.DataHolder.Shared.API.Infrastructure.Authorization;
@@ -7,7 +8,6 @@ using CDR.DataHolder.Shared.API.Infrastructure.Filters;
 using CDR.DataHolder.Shared.API.Infrastructure.Models;
 using CDR.DataHolder.Shared.Business;
 using CDR.DataHolder.Shared.Resource.API.Business.Filters;
-using CDR.DataHolder.Shared.Resource.API.Infrastructure.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static CDR.DataHolder.Shared.Domain.Constants;
@@ -38,8 +38,8 @@ namespace CDR.DataHolder.Common.API.Controllers
         [PolicyAuthorize(AuthorisationPolicy.GetCustomersApi)]
         [HttpGet("v1/common/customer", Name = "GetCustomer")]
         [CheckScope(CDR.DataHolder.Shared.API.Infrastructure.Constants.ApiScopes.Common.CustomerBasicRead)]
-        [CheckXV(1, 1)]
         [CheckAuthDate]
+        [SetVersionResponse(1)]
         [ApiVersion("1")]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetCustomer()

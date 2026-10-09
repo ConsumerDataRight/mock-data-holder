@@ -31,7 +31,7 @@ namespace CDR.DataHolder.Shared.API.Gateway.Mtls.Certificates
             }
 
             // Validate that the certificate has been issued by the Mock CDR CA.
-            var rootCACertificate = new X509Certificate2(_config.GetValue<string>("RootCACertificate:Path") ?? string.Empty);
+            var rootCACertificate = X509CertificateLoader.LoadCertificateFromFile(_config.GetValue<string>("RootCACertificate:Path") ?? string.Empty);
             var ch = new X509Chain();
             ch.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
             ch.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;

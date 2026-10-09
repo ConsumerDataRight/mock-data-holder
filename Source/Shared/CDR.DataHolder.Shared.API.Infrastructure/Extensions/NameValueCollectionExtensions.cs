@@ -9,7 +9,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
 {
     public static class NameValueCollectionExtensions
     {
-        public static string ToQueryString(this NameValueCollection collection)
+        public static string ToQueryString(this NameValueCollection collection, bool urlEncode)
         {
             if (collection.Count == 0)
             {
@@ -23,13 +23,13 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
                 var values = collection.GetValues(name);
                 if (values == null || values.Length == 0)
                 {
-                    first = AppendNameValuePair(builder, first, true, name, string.Empty);
+                    first = AppendNameValuePair(builder, first, urlEncode, name, string.Empty);
                 }
                 else
                 {
                     foreach (var value in values)
                     {
-                        first = AppendNameValuePair(builder, first, true, name, value);
+                        first = AppendNameValuePair(builder, first, urlEncode, name, value);
                     }
                 }
             }

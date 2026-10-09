@@ -73,7 +73,7 @@ jobs:
 
     - name: Build solution
       run: |
-        dotnet build ./Source/DataHolder.sln --configuration 'Release'
+        dotnet build ./Source/DataHolder.slnx --configuration 'Release'
     
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3

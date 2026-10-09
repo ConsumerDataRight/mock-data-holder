@@ -153,7 +153,7 @@ Tests can now be run using Microsoft Visual Studio.
 
 The following steps detail the process of running tests using Microsoft Visual Studio's Test Explorer:
 
-1. Open the [DataHolder.sln](../../Source/DataHolder.sln) solution file in Microsoft Visual Studio.
+1. Open the [DataHolder.slnx](../../Source/DataHolder.slnx) solution file in Microsoft Visual Studio.
 2. Build the solution.
 3. Open the Test Explorer. If Test Explorer is not visible, choose 'Test' on the Visual Studio menu and then choose 'Test Explorer'.
    
@@ -175,7 +175,7 @@ This repository can be cloned using following command:
 git clone https://github.com/ConsumerDataRight/mock-solution-test-automation.git
 ```
 
-The [DataHolder_Shared.sln](../../Source/DataHolder_Shared.sln) solution has been created to allow for debugging and stepping through the source code used in Mock Solution Test Automation project. 
+The [DataHolder_Shared.slnx](../../Source/DataHolder_Shared.slnx) solution has been created to allow for debugging and stepping through the source code used in Mock Solution Test Automation project. 
 
    [<img src="./images/MS-Visual-Studio-View-Data-Holder-Shared-Solution.png" width='400' alt="Data Holder Shared Solution in Microsoft Visual Studio"/>](./images/MS-Visual-Studio-View-Data-Holder-Shared-Solution.png)
 

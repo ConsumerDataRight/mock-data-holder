@@ -41,7 +41,7 @@ namespace CDR.DataHolder.Banking.Resource.API.UnitTests.Fixtures
 
             services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
 
-            services.AddAutoMapper(typeof(Startup), typeof(BankingDataHolderDatabaseContext));
+            services.AddAutoMapper(cfg => { }, typeof(Startup).Assembly, typeof(BankingDataHolderDatabaseContext).Assembly);
 
             services.AddScoped<IConfiguration>(c => configuration);
             services.AddScoped<IBankingResourceRepository, BankingResourceRepository>();

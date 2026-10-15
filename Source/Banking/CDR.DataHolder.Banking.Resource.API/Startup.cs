@@ -1,4 +1,7 @@
-﻿using CDR.DataHolder.Banking.Domain.Repositories;
+﻿using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using CDR.DataHolder.Banking.Domain.Repositories;
 using CDR.DataHolder.Banking.Repository;
 using CDR.DataHolder.Banking.Repository.Infrastructure;
 using CDR.DataHolder.Banking.Resource.API.Business.Services;
@@ -9,6 +12,7 @@ using CDR.DataHolder.Shared.API.Infrastructure.Filters;
 using CDR.DataHolder.Shared.API.Infrastructure.IdPermanence;
 using CDR.DataHolder.Shared.API.Infrastructure.Middleware;
 using CDR.DataHolder.Shared.API.Infrastructure.Models;
+using CDR.DataHolder.Shared.API.Infrastructure.Versioning;
 using CDR.DataHolder.Shared.API.Logger;
 using CDR.DataHolder.Shared.Business;
 using CDR.DataHolder.Shared.Business.Middleware;
@@ -20,20 +24,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Newtonsoft.Json.Converters;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
 using static CDR.DataHolder.Shared.API.Infrastructure.Constants;
 
 namespace CDR.DataHolder.Banking.Resource.API
@@ -59,6 +58,7 @@ namespace CDR.DataHolder.Banking.Resource.API
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mock Data Holder Discovery API", Version = "v1" });
+                c.SwaggerDoc("v2", new OpenApiInfo { Title = "Mock Data Holder Discovery API", Version = "v2" });
             });
 
             services.AddSwaggerGenNewtonsoftSupport();
@@ -74,13 +74,7 @@ namespace CDR.DataHolder.Banking.Resource.API
                     options.InvalidModelStateResponseFactory = ModelStateErrorMiddleware.ExecuteResult;
                 });
 
-            services.AddApiVersioning(options =>
-            {
-                options.DefaultApiVersion = new ApiVersion(1, 0);
-                options.AssumeDefaultVersionWhenUnspecified = false;
-                options.ApiVersionReader = new HeaderApiVersionReader("x-v");
-                options.ErrorResponses = new ErrorResponseVersion();
-            });
+            services.AddCdrApiVersioning();
 
             // This is to manage the EF database context through the web API DI.
             // If this is to be done inside the repository project itself, we need to manage the context life-cycle explicitly.
@@ -89,7 +83,7 @@ namespace CDR.DataHolder.Banking.Resource.API
             // Enable authentication and authorisation
             AddAuthenticationAuthorization(services, Configuration);
 
-            services.AddAutoMapper(typeof(Startup), typeof(BankingDataHolderDatabaseContext));
+            services.AddAutoMapper(cfg => { }, typeof(Startup).Assembly, typeof(BankingDataHolderDatabaseContext).Assembly);
 
             services.AddScoped<LogActionEntryAttribute>();
 
@@ -172,15 +166,9 @@ namespace CDR.DataHolder.Banking.Resource.API
                     Type = SecuritySchemeType.ApiKey,
                     BearerFormat = "JWT",
                 });
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
                 {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" },
-                        },
-                        new List<string>()
-                    },
+                    [new OpenApiSecuritySchemeReference("Bearer", document)] = [],
                 });
             });
         }
@@ -200,8 +188,10 @@ namespace CDR.DataHolder.Banking.Resource.API
             // ExceptionHandlingMiddleware must be first in the line, so it will catch all unhandled exceptions.
             app.UseMiddleware<ResourceAuthoriseErrorHandlingMiddleware>();
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mock Data Holder Discovery API v1"));
+            app.UseExceptionHandler(exceptionHandlerApp =>
+            {
+                exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));
+            });
 
             app.UseHttpsRedirection();
 
@@ -212,6 +202,8 @@ namespace CDR.DataHolder.Banking.Resource.API
 
             // Add custom middleware
             app.UseInteractionId();
+
+            app.UseCdrSwagger();
 
             app.UseEndpoints(endpoints =>
             {

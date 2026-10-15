@@ -19,13 +19,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Newtonsoft.Json.Converters;
 using Serilog;
 using System;
@@ -56,6 +55,7 @@ namespace CDR.DataHolder.Energy.Resource.API
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mock Data Holder Discovery API", Version = "v1" });
+                c.SwaggerDoc("v2", new OpenApiInfo { Title = "Mock Data Holder Discovery API", Version = "v2" });
             });
 
             services.AddSwaggerGenNewtonsoftSupport();
@@ -71,13 +71,7 @@ namespace CDR.DataHolder.Energy.Resource.API
                     options.InvalidModelStateResponseFactory = ModelStateErrorMiddleware.ExecuteResult;
                 });
 
-            services.AddApiVersioning(options =>
-            {
-                options.DefaultApiVersion = new ApiVersion(1, 0);
-                options.AssumeDefaultVersionWhenUnspecified = true;
-                options.ApiVersionSelector = new ApiVersionSelector(options);
-                options.ErrorResponses = new ErrorResponseVersion();
-            });
+            services.AddCdrApiVersioning();
 
             // This is to manage the EF database context through the web API DI.
             // If this is to be done inside the repository project itself, we need to manage the context life-cycle explicitly.
@@ -86,7 +80,7 @@ namespace CDR.DataHolder.Energy.Resource.API
             // Enable authentication and authorisation
             AddAuthenticationAuthorization(services, Configuration);
 
-            services.AddAutoMapper(typeof(Startup), typeof(EnergyDataHolderDatabaseContext));
+            services.AddAutoMapper(cfg => { }, typeof(Startup).Assembly, typeof(EnergyDataHolderDatabaseContext).Assembly);
             services.AddScoped<LogActionEntryAttribute>();
 
             if (Configuration.GetSection("SerilogRequestResponseLogger") != null)
@@ -168,15 +162,9 @@ namespace CDR.DataHolder.Energy.Resource.API
                     Type = SecuritySchemeType.ApiKey,
                     BearerFormat = "JWT",
                 });
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
                 {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" },
-                        },
-                        new List<string>()
-                    },
+                    [new OpenApiSecuritySchemeReference("Bearer", document)] = [],
                 });
             });
         }
@@ -200,9 +188,6 @@ namespace CDR.DataHolder.Energy.Resource.API
                 exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));
             });
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mock Data Holder Discovery API v1"));
-
             app.UseHttpsRedirection();
 
             app.UseRouting();
@@ -212,6 +197,8 @@ namespace CDR.DataHolder.Energy.Resource.API
 
             // Add custom middleware
             app.UseInteractionId();
+
+            app.UseCdrSwagger();
 
             app.UseEndpoints(endpoints =>
             {

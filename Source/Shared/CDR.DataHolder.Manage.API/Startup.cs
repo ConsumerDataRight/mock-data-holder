@@ -89,7 +89,7 @@ namespace CDR.DataHolder.Manage.API
             });
 
             // Ensure the database exists and is up to the latest version.
-            EnsureDatabase(app, logger, healthStatuses, webHostEnvironment).Wait();
+            EnsureDatabase(app, logger, healthStatuses, webHostEnvironment).Wait(applicationLifetime.ApplicationStopping);
         }
 
         private async Task EnsureDatabase(IApplicationBuilder app, ILogger<Startup> logger, HealthCheckStatuses healthCheckStatuses, IWebHostEnvironment webHostEnvironment)
@@ -104,7 +104,14 @@ namespace CDR.DataHolder.Manage.API
                     IIndustryDbContext industryMigrationDbContext = dbContextFactory.Create(_industry, DbConstants.ConnectionStringType.Migrations);
                     logger.LogInformation("Running migrations");
                     var dbContext = industryMigrationDbContext as DbContext;
-                    await dbContext!.Database.MigrateAsync().ConfigureAwait(false);
+                    if (dbContext != null)
+                    {
+                        await dbContext.Database.MigrateAsync().ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        logger.LogError("dbContext is null. Database connectivity could not be established");
+                    }
                 }
 
                 // Configure logger with the DB
@@ -153,7 +160,7 @@ namespace CDR.DataHolder.Manage.API
                     description = e.Value.Description,
                 }),
             });
-            return context.Response.WriteAsync(result);
+            return context.Response.WriteAsync(result, context.RequestAborted);
         }
     }
 }

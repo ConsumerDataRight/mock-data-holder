@@ -93,7 +93,7 @@ namespace CDR.DataHolder.Shared.Business
                 query.AddOrUpdate("page-size", pageSize.Value.ToString());
             }
 
-            return new Uri(string.Format("{0}?{1}", selfLink.ToString().Split('?')[0], query.ToQueryString()));
+            return new Uri(string.Format("{0}?{1}", selfLink.ToString().Split('?')[0], query.ToQueryString(false)));
         }
 
         private static Uri ReplaceUriHost(string url, string? newHost = null)

@@ -32,7 +32,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
                 return null;
             }
 
-            var cert = new X509Certificate2(DownloadData(certUrl), certPassword, X509KeyStorageFlags.Exportable);
+            var cert = X509CertificateLoader.LoadPkcs12(DownloadData(certUrl), certPassword, X509KeyStorageFlags.Exportable);
             logger.Information("Downloaded certificate: {Thumbprint}", cert.Thumbprint);
             return cert;
         }

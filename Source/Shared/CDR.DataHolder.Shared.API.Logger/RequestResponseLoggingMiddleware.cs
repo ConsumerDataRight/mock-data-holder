@@ -101,7 +101,7 @@ namespace CDR.DataHolder.Shared.API.Logger
             {
                 context.Request.EnableBuffering();
                 await using var requestStream = _recyclableMemoryStreamManager.GetStream();
-                await context.Request.Body.CopyToAsync(requestStream);
+                await context.Request.Body.CopyToAsync(requestStream, context.RequestAborted);
 
                 _requestBody = ReadStreamInChunks(requestStream);
                 context.Request.Body.Position = 0;
@@ -292,7 +292,7 @@ namespace CDR.DataHolder.Shared.API.Logger
                 _elapsedTime = sw.ElapsedMilliseconds.ToString();
 
                 responseBody.Seek(0, SeekOrigin.Begin);
-                _responseBody = await new StreamReader(responseBody).ReadToEndAsync();
+                _responseBody = await new StreamReader(responseBody).ReadToEndAsync(httpContext.RequestAborted);
                 responseBody.Seek(0, SeekOrigin.Begin);
 
                 IEnumerable<string> keyValues = httpContext.Response.Headers.Keys.Select(key => key + ": " + string.Join(",", httpContext.Response.Headers[key].ToArray()));
@@ -304,7 +304,7 @@ namespace CDR.DataHolder.Shared.API.Logger
 
                 // This is for middleware hooked before us to see our changes.
                 // Otherwise the original stream would be seen which cannot be read again.
-                await responseBody.CopyToAsync(originalBodyStream);
+                await responseBody.CopyToAsync(originalBodyStream, httpContext.RequestAborted);
             }
         }
 

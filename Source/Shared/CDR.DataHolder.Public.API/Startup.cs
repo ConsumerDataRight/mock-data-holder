@@ -1,10 +1,8 @@
-﻿using System;
-using CDR.DataHolder.Shared.API.Infrastructure.Filters;
-using CDR.DataHolder.Shared.API.Infrastructure.Models;
+﻿using CDR.DataHolder.Shared.API.Infrastructure.Filters;
+using CDR.DataHolder.Shared.API.Infrastructure.Middleware;
+using CDR.DataHolder.Shared.API.Infrastructure.Versioning;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,13 +24,7 @@ namespace CDR.DataHolder.Public.API
         {
             services.AddControllers();
 
-            services.AddApiVersioning(options =>
-            {
-                options.DefaultApiVersion = new ApiVersion(1, 0);
-                options.AssumeDefaultVersionWhenUnspecified = false;
-                options.ApiVersionReader = new HeaderApiVersionReader("x-v");
-                options.ErrorResponses = new ErrorResponseVersion();
-            });
+            services.AddCdrApiVersioning();
 
             services.AddScoped<LogActionEntryAttribute>();
         }
@@ -46,6 +38,11 @@ namespace CDR.DataHolder.Public.API
             }
 
             app.UseSerilogRequestLogging();
+
+            app.UseExceptionHandler(exceptionHandlerApp =>
+            {
+                exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));
+            });
 
             app.UseHttpsRedirection();
 

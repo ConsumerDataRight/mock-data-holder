@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using Xunit;
 
@@ -52,12 +53,12 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
                 var client = new HttpClient(_handler);
                 if (expected)
                 {
-                    var result = await client.GetAsync("https://localhost:9990");
+                    var result = await client.GetAsync("https://localhost:9990", TestContext.Current.CancellationToken);
                     Assert.NotNull(result);
                 }
                 else
                 {
-                    await Assert.ThrowsAsync<HttpRequestException>(async () => await client.GetAsync("https://localhost:9990"));
+                    await Assert.ThrowsAsync<HttpRequestException>(async () => await client.GetAsync("https://localhost:9990", TestContext.Current.CancellationToken));
                 }
 
                 await mockEndpoint.Stop();
@@ -85,22 +86,26 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
 
             public string CertificatePassword { get; init; }
 
-            private IWebHost? _host;
+            private IHost? _host;
 
             public void Start()
             {
                 Log.Information("Calling {FUNCTION} in {ClassName}.", nameof(Start), nameof(MockEndpoint));
 
-                _host = new WebHostBuilder()
-                    .UseKestrel(opts =>
+                var builder = Host.CreateDefaultBuilder()
+                    .ConfigureWebHostDefaults(webBuilder =>
                     {
-                        opts.ListenAnyIP(
-                            UrlPort,
-                            opts => opts.UseHttps(new X509Certificate2(CertificatePath, CertificatePassword, X509KeyStorageFlags.Exportable)));
-                    })
-                   .UseStartup(_ => new MockEndpointStartup())
-                   .Build();
+                        webBuilder.UseKestrel(opts =>
+                        {
+                            opts.ListenAnyIP(
+                                UrlPort,
+                                opts => opts.UseHttps(X509CertificateLoader.LoadPkcs12FromFile(CertificatePath, CertificatePassword, X509KeyStorageFlags.Exportable)));
+                        })
+                   .ConfigureServices(services => MockEndpointStartup.ConfigureServices(services))
+                           .Configure(app => MockEndpointStartup.Configure(app));
+                    });
 
+                _host = builder.Build();
                 _host.RunAsync();
             }
 
@@ -129,9 +134,9 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.UnitTests.Extensions
                 GC.SuppressFinalize(this);
             }
 
-            private class MockEndpointStartup
+            private static class MockEndpointStartup
             {
-                public void Configure(IApplicationBuilder app)
+                public static void Configure(IApplicationBuilder app)
                 {
                     app.UseHttpsRedirection();
                     app.UseRouting();

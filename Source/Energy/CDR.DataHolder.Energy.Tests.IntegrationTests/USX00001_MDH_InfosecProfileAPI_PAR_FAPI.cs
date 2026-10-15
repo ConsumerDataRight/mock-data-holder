@@ -230,7 +230,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
             using var client = ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation.Helpers.Web.CreateHttpClient();
 
             // Act
-            var response = await client.GetAsync(url);
+            var response = await client.GetAsync(url, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope(BaseTestAssertionStrategy))
@@ -242,7 +242,7 @@ namespace CDR.DataHolder.Energy.Tests.IntegrationTests
                 response?.RequestMessage?.RequestUri?.PathAndQuery.Should().StartWith("/connect/authorize");
 
                 var expectedErrorResponse = "ERR-AUTH-008: request_uri is missing";
-                var actualResponseContent = response?.Content != null ? await response.Content.ReadAsStringAsync() : null;
+                var actualResponseContent = response?.Content != null ? await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken) : null;
                 actualResponseContent.Should().Contain(expectedErrorResponse);
             }
         }

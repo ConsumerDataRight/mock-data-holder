@@ -9,7 +9,7 @@ namespace CDR.DataHolder.Shared.Repository.Infrastructure
 {
     public static class Extensions
     {
-        private static readonly Regex DatetimeMatchRegex = new Regex("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z", RegexOptions.Compiled);
+        private static readonly Regex DatetimeMatchRegex = new Regex("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z", RegexOptions.Compiled, TimeSpan.FromSeconds(10));
 
         /// <summary>
         /// This is the initial database seed. If there are records in the database, this will not re-seed the database.

@@ -14,6 +14,9 @@ namespace CDR.DataHolder.Energy.Resource.API.Business.Models
         [JsonProperty(Order = 3)]
         public string? DisplayName { get; set; }
 
+        [JsonProperty(Order = 4)]
+        public string OpenStatus { get; set; } = string.Empty;
+
         [JsonProperty(Order = 5)]
         public string CreationDate { get; set; } = string.Empty;
 

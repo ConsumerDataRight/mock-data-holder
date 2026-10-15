@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Asp.Versioning;
+using AutoMapper;
 using CDR.DataHolder.Banking.Domain.Repositories;
 using CDR.DataHolder.Banking.Resource.API.Business.Filters;
 using CDR.DataHolder.Banking.Resource.API.Business.Models;
@@ -13,7 +14,6 @@ using CDR.DataHolder.Shared.Business;
 using CDR.DataHolder.Shared.Domain.Models;
 using CDR.DataHolder.Shared.Domain.ValueObjects;
 using CDR.DataHolder.Shared.Resource.API.Business.Filters;
-using CDR.DataHolder.Shared.Resource.API.Infrastructure.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -57,8 +57,8 @@ namespace CDR.DataHolder.Banking.Resource.API.Controllers
         [PolicyAuthorize(AuthorisationPolicy.GetAccountsApi)]
         [HttpGet("v1/banking/accounts", Name = nameof(GetAccountsV2))]
         [CheckScope(ApiScopes.Banking.AccountsBasicRead)]
-        [CheckXV(2, 2)]
         [CheckAuthDate]
+        [SetVersionResponse(2)]
         [ApiVersion("2")]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetAccountsV2(
@@ -113,8 +113,8 @@ namespace CDR.DataHolder.Banking.Resource.API.Controllers
         [PolicyAuthorize(AuthorisationPolicy.GetTransactionsApi)]
         [HttpGet("v1/banking/accounts/{accountId}/transactions", Name = nameof(GetTransactions))]
         [CheckScope(ApiScopes.Banking.TransactionsRead)]
-        [CheckXV(1, 1)]
         [CheckAuthDate]
+        [SetVersionResponse(1)]
         [ApiVersion("1")]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetTransactions([FromQuery] RequestAccountTransactions request)

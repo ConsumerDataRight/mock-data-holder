@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using CDR.DataHolder.Banking.Repository.Infrastructure;
+﻿using CDR.DataHolder.Banking.Repository.Infrastructure;
 using CDR.DataHolder.Energy.Repository.Infrastructure;
 using CDR.DataHolder.Shared.Domain.Extensions;
 using CDR.DataHolder.Shared.Repository;
@@ -20,14 +19,14 @@ namespace CDR.DataHolder.Manage.API.Infrastructure
             {
                 services.AddScoped<IIndustryDbContext, BankingDataHolderDatabaseContext>();
                 services.AddDbContext<BankingDataHolderDatabaseContext>(options => options.UseSqlServer(configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Default)));
-                services.AddAutoMapper(typeof(Startup), typeof(BankingDataHolderDatabaseContext));
+                services.AddAutoMapper(cfg => { }, typeof(Startup).Assembly, typeof(BankingDataHolderDatabaseContext).Assembly);
             }
 
             if (industry.IsEnergy())
             {
                 services.AddDbContext<EnergyDataHolderDatabaseContext>(options => options.UseSqlServer(configuration.GetConnectionString(DbConstants.ConnectionStringNames.Resource.Default)));
                 services.AddScoped<IIndustryDbContext, EnergyDataHolderDatabaseContext>();
-                services.AddAutoMapper(typeof(Startup), typeof(EnergyDataHolderDatabaseContext));
+                services.AddAutoMapper(cfg => { }, typeof(Startup).Assembly, typeof(EnergyDataHolderDatabaseContext).Assembly);
             }
         }
     }

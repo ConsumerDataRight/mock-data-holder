@@ -40,7 +40,7 @@ namespace CDR.DataHolder.Energy.Resource.API.UnitTests.Fixtures
 
             services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
 
-            services.AddAutoMapper(typeof(Startup), typeof(EnergyDataHolderDatabaseContext));
+            services.AddAutoMapper(cfg => { }, typeof(Startup).Assembly, typeof(EnergyDataHolderDatabaseContext).Assembly);
 
             services.AddScoped<IEnergyResourceRepository, EnergyResourceRepository>();
             services.AddScoped<IStatusRepository, StatusRepository>();

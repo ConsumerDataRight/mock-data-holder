@@ -1,8 +1,9 @@
 # Dockerfile for running integration tests
-# playwright jammy for .Net 8
+# playwright noble for .Net 10
 # the image tag version should be the same as the Playwright package 
 # which is a transitive dependency from ConsumerDataRight.ParticipantTooling.MockSolution.TestAutomation
-FROM mcr.microsoft.com/playwright/dotnet:v1.43.0-jammy as build 
+
+FROM mcr.microsoft.com/playwright/dotnet:v1.62.0-noble as build
 
 ARG INTEGRATION_TESTS_LOCATION
 

@@ -2,7 +2,7 @@
 ###############################################################################
 # Build base layer
 ###############################################################################
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 
 # Install nodejs, npm and live-server, which are needed by the auth UI
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     npm \
     nginx \
     && rm -rf /var/lib/apt/lists/*
+
+# install now so it will be immediately available for supervisord
+RUN npm install -g react-inject-env
 
 WORKDIR /app
 EXPOSE 8001
@@ -45,7 +48,7 @@ COPY ./cdr-auth-server/Source/CdrAuthServer.UI/nginx/ssl/authserver-ui.key /etc/
 ###############################################################################
 # Build CdrAuthServer API layer
 ###############################################################################
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY . ./
@@ -150,21 +153,20 @@ RUN sudo cp ./gateway-mtls/Certificates/ca.crt /usr/local/share/ca-certificates/
 USER 0
 RUN setcap cap_net_bind_service=+ep /usr/sbin/nginx
 
-RUN addgroup --group appgroup --gid 2000 \
-    && adduser --uid 1000 --gid 2000 "appuser" \
-    && chown -R appuser:appgroup /app \
-    && chown -R appuser:appgroup /usr/bin \
-    && chown -R appuser:appgroup /usr/local \
-    && chown -R appuser:appgroup /tmp \
-	&& chown -R appuser:appgroup /var/log/nginx \
-	&& chown -R appuser:appgroup /var/lib/nginx
+RUN chown -R app:app /app \
+    && chown -R app:app /app \
+    && chown -R app:app /usr/bin \
+    && chown -R app:app /usr/local \
+    && chown -R app:app /tmp \
+	&& chown -R app:app /var/log/nginx \
+	&& chown -R app:app /var/lib/nginx
 
 RUN touch /run/nginx.pid \
- && chown -R appuser:appgroup /run/nginx.pid
+ && chown -R app:app /run/nginx.pid
 RUN touch /usr/share/nginx/html/ui/env.js \
- && chown -R appuser:appgroup /usr/share/nginx/html/ui/env.js
+ && chown -R app:app /usr/share/nginx/html/ui/env.js
 
-USER appuser:appgroup 
+USER $APP_UID
 
 ENV ASPNETCORE_URLS=https://+:8001;https://+:8002
 
@@ -220,7 +222,7 @@ ENV ResourceBaseUri=https://mock-data-holder-energy:8102
 
 
 # Entry point #################################################################
-ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf", "-u", "1000"]
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf"]
 
 FROM final AS Banking
 
@@ -271,9 +273,9 @@ ENV IdentityServerUrl=https://mock-data-holder:8001
 ENV ResourceBaseUri=https://mock-data-holder:8002
 
 # Entry point #################################################################
-ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf", "-u", "1000"]
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf"]
 
 FROM final AS NoIndustry
 
 # Entry point #################################################################
-ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf", "-u", "1000"]
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf"]

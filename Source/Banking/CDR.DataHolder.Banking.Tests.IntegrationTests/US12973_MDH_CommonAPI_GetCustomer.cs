@@ -305,7 +305,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             // Arrange
             var accessToken = await _dataHolderAccessTokenCache.GetAccessToken(TokenType.JaneWilson);
 
-            CdrException expectedError = new MissingRequiredHeaderException("x-v");
+            CdrException expectedError = new MissingRequiredHeaderException("An API version x-v header is required, but was not specified.");
             var expectedContent = JsonConvert.SerializeObject(new ResponseErrorListV2(expectedError, string.Empty));
 
             // Act

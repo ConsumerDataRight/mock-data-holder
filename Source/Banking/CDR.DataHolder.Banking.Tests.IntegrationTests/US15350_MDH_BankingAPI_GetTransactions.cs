@@ -362,7 +362,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         {
             Log.Information("Running test with Params: {P1}={V1}.", nameof(xv), xv);
 
-            await TestForError(TokenType.JaneWilson, Constants.Accounts.Banking.AccountIdJaneWilson, new MissingRequiredHeaderException("x-v"), new TransactionFilterParameters(), xv: xv);
+            await TestForError(TokenType.JaneWilson, Constants.Accounts.Banking.AccountIdJaneWilson, new MissingRequiredHeaderException("An API version x-v header is required, but was not specified."), new TransactionFilterParameters(), xv: xv);
         }
 
         [Fact]
@@ -717,7 +717,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
             var xFapiAuthDate = DateTime.Now.ToUniversalTime().ToString("r");
 
             var baseUrl = $"{_options.DH_MTLS_GATEWAY_URL}/cds-au/v1/banking/accounts/{encryptedAccountId}/transactions";
-            var url = GetUrl(baseUrl, filterParams);
+            var url = GetUrl(baseUrl, filterParams, true);
 
             // Act
             var api = _apiServiceDirector.BuildDataHolderBankingGetTransactionsAPI(accessToken, xFapiAuthDate: xFapiAuthDate, xv: "1", xFapiInteractionId: xFapiInteractionId, url: url);
@@ -819,9 +819,14 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
                 // Assert - Check ContentType (if response has content)
                 if (!string.IsNullOrEmpty(await response.Content.ReadAsStringAsync()))
                 {
+                    response.Content.Should().NotBeNull();
                     response.Content?.Headers.Should().NotBeNull();
                     response.Content?.Headers?.ContentType.Should().NotBeNull();
-                    response.Content?.Headers?.ContentType?.ToString().Should().Be("application/json; charset=utf-8");
+
+                    // Assert - Check content type
+#pragma warning disable CS8604 // Possible null reference argument.
+                    Assertions.AssertHasContentTypeApplicationJson(response.Content);
+#pragma warning restore CS8604 // Possible null reference argument.
                 }
 
                 // Assert - Check WWWAutheticate header

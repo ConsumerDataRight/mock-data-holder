@@ -279,7 +279,7 @@ namespace CDR.DataHolder.Banking.Tests.IntegrationTests
         {
             Log.Information("Running test with Params: {P1}={V1}.", nameof(xv), xv);
 
-            await Test_AC15_AC16_AC17(xv, new MissingRequiredHeaderException("x-v"));
+            await Test_AC15_AC16_AC17(xv, new MissingRequiredHeaderException("An API version x-v header is required, but was not specified."));
         }
 
         // [InlineData("DateTime.Now.RFC1123", HttpStatusCode.OK)]

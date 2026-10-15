@@ -210,7 +210,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.IdPermanence
                 throw new ConfigurationErrorsException($"The private key was not found in configuration.  Either set the \"IdPermanence:PrivateKey\" configuration item or the \"IdPermanence:Certificate:Path\" and \"IdPermanence:Certificate:Password\" configuration items to load the private key.");
             }
 
-            var cert = new X509Certificate2(path, pwd, X509KeyStorageFlags.Exportable);
+            var cert = X509CertificateLoader.LoadPkcs12FromFile(path, pwd, X509KeyStorageFlags.Exportable);
             return new string(cert.GetRSAPrivateKey()?.ExportPkcs8PrivateKey().Select(b => Convert.ToChar(b)).ToArray());
         }
     }

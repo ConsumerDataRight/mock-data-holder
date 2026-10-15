@@ -30,7 +30,7 @@ namespace CDR.DataHolder.Shared.API.Infrastructure.Extensions
                 return string.Empty;
             }
 
-            var pathValues = httpContext.Request.Path!.Value.Split('/');
+            var pathValues = httpContext.Request.Path.Value.Split('/');
             return pathValues[pathValues.Length - 1];
         }
 

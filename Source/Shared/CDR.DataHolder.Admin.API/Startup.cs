@@ -3,14 +3,10 @@ using CDR.DataHolder.Shared.API.Infrastructure.Middleware;
 using CDR.DataHolder.Shared.API.Infrastructure.Versioning;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace CDR.DataHolder.Admin.API
 {
@@ -28,24 +24,7 @@ namespace CDR.DataHolder.Admin.API
         {
             services.AddControllers();
 
-            var getMetricsSupportVersion = Configuration.GetValue<string>("GetMetricsSupportedVersions", "4,5") ?? string.Empty;
-            var overrideMetricsVersions = new Dictionary<string, int[]>
-            {
-                {
-                    @"\/cds-au\/v1\/admin\/metrics",
-                    getMetricsSupportVersion
-                        .Split(',')
-                        .Select(x => Convert.ToInt32(x))
-                        .ToArray()
-                },
-            };
-
-            services.AddApiVersioning(options =>
-            {
-                options.DefaultApiVersion = new ApiVersion(4, 0);
-                options.AssumeDefaultVersionWhenUnspecified = true;
-                options.ApiVersionSelector = new ApiVersionSelector(options, overrideMetricsVersions);
-            });
+            services.AddCdrApiVersioning();
 
             services.AddScoped<LogActionEntryAttribute>();
         }
